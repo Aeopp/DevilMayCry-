@@ -1,17 +1,10 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 #include "Resource.h"
+#include "Subset.h"
+#include "EngineTypedef.h"
 BEGIN(ENGINE)
-class SubMesh;
 class Texture;
-
-typedef struct tagMaterial
-{
-	D3DMATERIAL9					tMaterial;
-	std::shared_ptr<Texture>	pDiffuse;
-	std::shared_ptr<Texture>	pSpecular;
-	std::shared_ptr<Texture>	pNormal;
-}MATERIAL, * LPMATERIAL;
 
 class ENGINE_DLL Mesh abstract : public Resource
 {
@@ -24,6 +17,10 @@ protected:
 public:
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone()	PURE;
+	auto GetLocalVertexLocations() const& { return LocalVertexLocations; };
+protected:
+	std::shared_ptr<std::vector<Vector3>> LocalVertexLocations{};
+	std::shared_ptr<std::vector<Subset>>  SubSets{};
 };
 END
 #endif // !__MESH_H__

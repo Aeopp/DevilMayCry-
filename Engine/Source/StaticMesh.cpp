@@ -38,7 +38,4 @@ Resource* StaticMesh::Clone()
 	return pClone;
 }
 
-HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _sPath)
-{
-	return S_OK;
-}
+

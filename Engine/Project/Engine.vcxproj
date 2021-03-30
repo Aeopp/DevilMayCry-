@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -161,7 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Header\AssimpHelper.h" />
+    <ClInclude Include="..\Header\AssimpHelper.hpp" />
     <ClInclude Include="..\Header\Component.h" />
     <ClInclude Include="..\Header\EngineDefine.h" />
     <ClInclude Include="..\Header\EngineEnum.h" />
@@ -170,8 +170,11 @@
     <ClInclude Include="..\Header\EngineStdafx.h" />
     <ClInclude Include="..\Header\EngineStruct.h" />
     <ClInclude Include="..\Header\EngineTypedef.h" />
+    <ClInclude Include="..\Header\FMath.hpp" />
     <ClInclude Include="..\Header\GameObject.h" />
     <ClInclude Include="..\Header\GameObject.hpp" />
+    <ClInclude Include="..\Header\Material.h" />
+    <ClInclude Include="..\Header\MathStruct.hpp" />
     <ClInclude Include="..\Header\Mesh.h" />
     <ClInclude Include="..\Header\Object.h" />
     <ClInclude Include="..\Header\Resource.h" />
@@ -181,11 +184,15 @@
     <ClInclude Include="..\Header\ResourceSystem.hpp" />
     <ClInclude Include="..\Header\Shader.h" />
     <ClInclude Include="..\Header\StaticMesh.h" />
+    <ClInclude Include="..\Header\StringHelper.hpp" />
+    <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
     <ClInclude Include="..\Header\Transform.h" />
+    <ClInclude Include="..\Header\Vertexs.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Component.cpp" />
+    <ClCompile Include="..\Source\Material.cpp" />
     <ClCompile Include="..\Source\GameObject.cpp" />
     <ClCompile Include="..\Source\Mesh.cpp" />
     <ClCompile Include="..\Source\Object.cpp" />
@@ -194,6 +201,7 @@
     <ClCompile Include="..\Source\ResourceSystem.cpp" />
     <ClCompile Include="..\Source\Shader.cpp" />
     <ClCompile Include="..\Source\StaticMesh.cpp" />
+    <ClCompile Include="..\Source\Subset.cpp" />
     <ClCompile Include="..\Source\Texture.cpp" />
     <ClCompile Include="..\Source\Transform.cpp" />
   </ItemGroup>

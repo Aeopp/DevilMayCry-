@@ -1,6 +1,7 @@
 #ifndef __ENGINE_FUNCTION_H__
 #define __ENGINE_FUNCTION_H__
 #pragma region DELETE_DYNAMIC_MEMORY
+
 template <typename T>
 void SafeDelete(T& ptr)
 {
