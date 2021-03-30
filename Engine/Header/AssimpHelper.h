@@ -3,6 +3,4 @@
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
-
 #endif // !__ASSIMP_HELPER_H__
-

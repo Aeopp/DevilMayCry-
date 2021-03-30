@@ -28,9 +28,6 @@
     <Filter Include="03.Resource\03.Shader">
       <UniqueIdentifier>{053ba3d4-aff3-4c4d-b362-b99f00d7e3ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="03.Resource\02.Mesh\00.Base">
-      <UniqueIdentifier>{65744c9e-8467-49ff-9b67-4d27c7705d65}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.System\00.Core">
       <UniqueIdentifier>{aca8a2c5-618b-4e81-bdbe-89214a045a8c}</UniqueIdentifier>
     </Filter>
@@ -73,20 +70,11 @@
     <Filter Include="02.Utility\00.Component\01.Transform">
       <UniqueIdentifier>{aef9ac7d-996c-40f4-8112-7236c1f4e7ae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="03.Resource\02.Mesh\00.Base\00.Mesh">
+    <Filter Include="03.Resource\02.Mesh\00.Mesh">
       <UniqueIdentifier>{7fe84c67-1c96-4dc3-8134-0abaf6cc5080}</UniqueIdentifier>
     </Filter>
-    <Filter Include="03.Resource\02.Mesh\00.Base\01.Subset">
-      <UniqueIdentifier>{212b5489-923f-45c2-9768-0b0a526d1bff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03.Resource\02.Mesh\00.Base\02.Material">
-      <UniqueIdentifier>{5c4f17d3-0462-4e47-82f1-6aba10267236}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03.Resource\02.Mesh\01.StaticMesh">
+    <Filter Include="03.Resource\02.Mesh\02.StaticMesh">
       <UniqueIdentifier>{e93d5944-1595-4412-a863-e503dc1cc7ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03.Resource\02.Mesh\02.DynamicMesh">
-      <UniqueIdentifier>{1e924d0f-7335-42dd-af44-c3f5064db534}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -145,10 +133,7 @@
       <Filter>02.Utility\00.Component\01.Transform</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\StaticMesh.h">
-      <Filter>03.Resource\02.Mesh\01.StaticMesh</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\DynamicMesh.h">
-      <Filter>03.Resource\02.Mesh\02.DynamicMesh</Filter>
+      <Filter>03.Resource\02.Mesh\02.StaticMesh</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\GameObject.hpp">
       <Filter>02.Utility\01.GameObject\00.Base</Filter>
@@ -157,10 +142,7 @@
       <Filter>99.Default</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\Mesh.h">
-      <Filter>03.Resource\02.Mesh\00.Base\00.Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Subset.h">
-      <Filter>03.Resource\02.Mesh\00.Base\01.Subset</Filter>
+      <Filter>03.Resource\02.Mesh\00.Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -192,16 +174,10 @@
       <Filter>02.Utility\00.Component\01.Transform</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\StaticMesh.cpp">
-      <Filter>03.Resource\02.Mesh\01.StaticMesh</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\DynamicMesh.cpp">
-      <Filter>03.Resource\02.Mesh\02.DynamicMesh</Filter>
+      <Filter>03.Resource\02.Mesh\02.StaticMesh</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Mesh.cpp">
-      <Filter>03.Resource\02.Mesh\00.Base\00.Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Subset.cpp">
-      <Filter>03.Resource\02.Mesh\00.Base\01.Subset</Filter>
+      <Filter>03.Resource\02.Mesh\00.Mesh</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
