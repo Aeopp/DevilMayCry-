@@ -248,8 +248,13 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 			const std::string
 				MatName = (AiScene->mMaterials[_AiMesh->mMaterialIndex]->GetName().C_Str());
 		}
-
-		_CurrentSubset->Initialize(_VertexBuffer, _IndexBuffer, VertexDeclaration, VertexSize, NumFaces, NumVerticies);
+		Material _CurLoadMaterial{};
+		// TODO :: ÆÄ½ÌÇØ¶ó !  
+		_CurLoadMaterial.Textures
+		// 
+			
+		_CurrentSubset->Initialize(_VertexBuffer, _IndexBuffer, VertexDeclaration, VertexSize, NumFaces, NumVerticies,
+			VtxBufSize, _CurLoadMaterial );
 	};
 }
 END
