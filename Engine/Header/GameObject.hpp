@@ -15,7 +15,7 @@ inline std::weak_ptr<TYPE> GameObject::AddComponent()
 		return std::weak_ptr<TYPE>();
 	}
 
-	Component* pComponent = TYPE::Create(this);
+	Component* pComponent = TYPE::Create(m_pGameObject);
 
 	iterFind = (m_Components.emplace(nTypeID, std::shared_ptr<Component>(pComponent, Deleter<Object>()))).first;
 	
@@ -34,6 +34,7 @@ inline std::weak_ptr<TYPE> GameObject::GetComponent()
 
 	return std::static_pointer_cast<TYPE>(iterFind->second);
 }
+
 template<typename TYPE>
 inline std::weak_ptr<TYPE> GameObject::AddGameObject()
 {

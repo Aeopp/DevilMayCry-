@@ -3,8 +3,9 @@
 
 USING(ENGINE)
 
-Component::Component(GameObject* const _pGameObject)
+Component::Component(std::weak_ptr<GameObject> const _pGameObject)
 	: m_bActive(true)
+	, m_pGameObject(_pGameObject)
 {
 }
 

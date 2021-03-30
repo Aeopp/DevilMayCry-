@@ -6,9 +6,10 @@ class GameObject;
 class Component abstract : public Object
 {
 protected:
-	bool	m_bActive;
+	std::weak_ptr<GameObject>	m_pGameObject;
+	bool						m_bActive;
 protected:
-	explicit Component(GameObject* const _pGameObject);
+	explicit Component(std::weak_ptr<GameObject> const _pGameObject);
 	virtual ~Component() = default;
 	// Object을(를) 통해 상속됨
 	virtual void Free() PURE;

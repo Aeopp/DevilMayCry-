@@ -5,12 +5,12 @@ BEGIN(ENGINE)
 class Transform final : public Component
 {
 private:
-	explicit Transform(GameObject* const _pGameObject);
+	explicit Transform(std::weak_ptr<GameObject> const _pGameObject);
 	virtual ~Transform() = default;
 	// Component을(를) 통해 상속됨
 	virtual void Free() override;
 public:
-	static Transform* Create(GameObject* const _pGameObject);
+	static Transform* Create(std::weak_ptr<GameObject> const _pGameObject);
 };
 END
 #endif // !__TRANSFORM_H__
