@@ -4,6 +4,15 @@
 BEGIN(ENGINE)
 class Texture;
 class Subset;
+
+typedef struct tagMaterial
+{
+	D3DMATERIAL9					tMaterial;
+	std::shared_ptr<Texture>	pDiffuse;
+	std::shared_ptr<Texture>	pSpecular;
+	std::shared_ptr<Texture>	pNormal;
+}MATERIAL, * LPMATERIAL;
+
 class ENGINE_DLL Mesh abstract : public Resource
 {
 protected:
