@@ -1,4 +1,4 @@
-#include "GameObject.h"
+#include "Scene.h"
 #ifndef __GAMEOBJECT_HPP__
 #define __GAMEOBJECT_HPP__
 BEGIN(ENGINE)
@@ -33,6 +33,11 @@ inline std::weak_ptr<TYPE> GameObject::GetComponent()
 		return std::weak_ptr<TYPE>();
 
 	return std::static_pointer_cast<TYPE>(iterFind->second);
+}
+template<typename TYPE>
+inline std::weak_ptr<TYPE> GameObject::AddGameObject()
+{
+	return m_pScene->AddGameObject<TYPE>();
 }
 END
 #endif // !__GAMEOBJECT_HPP__

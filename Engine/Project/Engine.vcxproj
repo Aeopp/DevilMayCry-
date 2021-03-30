@@ -139,6 +139,10 @@
       <AdditionalDependencies>d3d9.lib;d3dx9.lib;dxguid.lib;dinput8.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../Reference/Lib/Debug/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>cd /d $(SolutionDir)
+call Engine.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -159,10 +163,17 @@
       <AdditionalDependencies>d3d9.lib;d3dx9.lib;dxguid.lib;dinput8.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../Reference/Lib/Release/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>cd /d $(SolutionDir)
+call Engine.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\AssimpHelper.h" />
     <ClInclude Include="..\Header\Component.h" />
+    <ClInclude Include="..\Header\Core.h" />
+    <ClInclude Include="..\Header\CoreSystem.h" />
+    <ClInclude Include="..\Header\Engine.h" />
     <ClInclude Include="..\Header\EngineDefine.h" />
     <ClInclude Include="..\Header\EngineEnum.h" />
     <ClInclude Include="..\Header\EngineExtern.h" />
@@ -172,6 +183,10 @@
     <ClInclude Include="..\Header\EngineTypedef.h" />
     <ClInclude Include="..\Header\GameObject.h" />
     <ClInclude Include="..\Header\GameObject.hpp" />
+    <ClInclude Include="..\Header\Graphic.h" />
+    <ClInclude Include="..\Header\GraphicSystem.h" />
+    <ClInclude Include="..\Header\Input.h" />
+    <ClInclude Include="..\Header\InputSystem.h" />
     <ClInclude Include="..\Header\Mesh.h" />
     <ClInclude Include="..\Header\Object.h" />
     <ClInclude Include="..\Header\Resource.h" />
@@ -179,22 +194,39 @@
     <ClInclude Include="..\Header\Resources.hpp" />
     <ClInclude Include="..\Header\ResourceSystem.h" />
     <ClInclude Include="..\Header\ResourceSystem.hpp" />
+    <ClInclude Include="..\Header\Scene.h" />
+    <ClInclude Include="..\Header\Scene.hpp" />
+    <ClInclude Include="..\Header\SceneManager.h" />
+    <ClInclude Include="..\Header\SceneSystem.h" />
     <ClInclude Include="..\Header\Shader.h" />
     <ClInclude Include="..\Header\StaticMesh.h" />
     <ClInclude Include="..\Header\Texture.h" />
+    <ClInclude Include="..\Header\Timer.h" />
+    <ClInclude Include="..\Header\TimeSystem.h" />
     <ClInclude Include="..\Header\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Component.cpp" />
+    <ClCompile Include="..\Source\Core.cpp" />
+    <ClCompile Include="..\Source\CoreSystem.cpp" />
     <ClCompile Include="..\Source\GameObject.cpp" />
+    <ClCompile Include="..\Source\Graphic.cpp" />
+    <ClCompile Include="..\Source\GraphicSystem.cpp" />
+    <ClCompile Include="..\Source\Input.cpp" />
+    <ClCompile Include="..\Source\InputSystem.cpp" />
     <ClCompile Include="..\Source\Mesh.cpp" />
     <ClCompile Include="..\Source\Object.cpp" />
     <ClCompile Include="..\Source\Resource.cpp" />
     <ClCompile Include="..\Source\Resources.cpp" />
     <ClCompile Include="..\Source\ResourceSystem.cpp" />
+    <ClCompile Include="..\Source\Scene.cpp" />
+    <ClCompile Include="..\Source\SceneManager.cpp" />
+    <ClCompile Include="..\Source\SceneSystem.cpp" />
     <ClCompile Include="..\Source\Shader.cpp" />
     <ClCompile Include="..\Source\StaticMesh.cpp" />
     <ClCompile Include="..\Source\Texture.cpp" />
+    <ClCompile Include="..\Source\Timer.cpp" />
+    <ClCompile Include="..\Source\TimeSystem.cpp" />
     <ClCompile Include="..\Source\Transform.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

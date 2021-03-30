@@ -76,6 +76,36 @@
     <Filter Include="03.Resource\02.Mesh\02.StaticMesh">
       <UniqueIdentifier>{e93d5944-1595-4412-a863-e503dc1cc7ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.System\01.Graphic\00.System">
+      <UniqueIdentifier>{e7750808-af5e-4202-b69e-139912b140c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\01.Graphic\01.Interface">
+      <UniqueIdentifier>{db537ad9-2427-4abf-a59a-b15bad368612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\02.Input\00.System">
+      <UniqueIdentifier>{a88dd757-bfb2-48ac-87d0-0291cbabdcc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\02.Input\01.Interface">
+      <UniqueIdentifier>{09a3f67d-c12e-4508-9a0a-9e8df15c4a54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\03.Time\00.System">
+      <UniqueIdentifier>{df93e160-da26-46aa-9ec7-53527d3dbcb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\03.Time\01.Interface">
+      <UniqueIdentifier>{83f21a87-c483-4184-80d0-f4f79d2e49a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\04.Scene\00.System">
+      <UniqueIdentifier>{2bb0b8f8-0bdf-4237-bc35-052b74d7480f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\04.Scene\01.Interface">
+      <UniqueIdentifier>{557fcef7-0879-4ede-8dd2-9725c705055f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\00.Core\00.System">
+      <UniqueIdentifier>{50d0e206-000c-4df9-817a-af648a648426}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\00.Core\01.Interface">
+      <UniqueIdentifier>{6d75e91e-2d9d-4d78-842b-f6f233b6b312}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Object.h">
@@ -144,6 +174,45 @@
     <ClInclude Include="..\Header\Mesh.h">
       <Filter>03.Resource\02.Mesh\00.Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\GraphicSystem.h">
+      <Filter>01.System\01.Graphic\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Graphic.h">
+      <Filter>01.System\01.Graphic\01.Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\InputSystem.h">
+      <Filter>01.System\02.Input\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Input.h">
+      <Filter>01.System\02.Input\01.Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\TimeSystem.h">
+      <Filter>01.System\03.Time\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Timer.h">
+      <Filter>01.System\03.Time\01.Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Scene.h">
+      <Filter>02.Utility\02.Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Scene.hpp">
+      <Filter>02.Utility\02.Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\SceneSystem.h">
+      <Filter>01.System\04.Scene\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\SceneManager.h">
+      <Filter>01.System\04.Scene\01.Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\CoreSystem.h">
+      <Filter>01.System\00.Core\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Core.h">
+      <Filter>01.System\00.Core\01.Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Engine.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -178,6 +247,39 @@
     </ClCompile>
     <ClCompile Include="..\Source\Mesh.cpp">
       <Filter>03.Resource\02.Mesh\00.Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\GraphicSystem.cpp">
+      <Filter>01.System\01.Graphic\00.System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphic.cpp">
+      <Filter>01.System\01.Graphic\01.Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\InputSystem.cpp">
+      <Filter>01.System\02.Input\00.System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Input.cpp">
+      <Filter>01.System\02.Input\01.Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\TimeSystem.cpp">
+      <Filter>01.System\03.Time\00.System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Timer.cpp">
+      <Filter>01.System\03.Time\01.Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Scene.cpp">
+      <Filter>02.Utility\02.Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\SceneSystem.cpp">
+      <Filter>01.System\04.Scene\00.System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\SceneManager.cpp">
+      <Filter>01.System\04.Scene\01.Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\CoreSystem.cpp">
+      <Filter>01.System\00.Core\00.System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Core.cpp">
+      <Filter>01.System\00.Core\01.Interface</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
