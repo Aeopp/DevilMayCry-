@@ -239,16 +239,17 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 			_IndexBuffer->Lock(0, 0, reinterpret_cast<void**>(&IndexBufferPtr), NULL);
 			std::memcpy(IndexBufferPtr, Indicies.data(), IdxBufSize);
 			_IndexBuffer->Unlock();
-
-			aiMaterial* AiMaterial = AiScene->mMaterials[_AiMesh->mMaterialIndex];
 		};
+
+		aiMaterial* AiMaterial = AiScene->mMaterials[_AiMesh->mMaterialIndex];
+		Material _CurLoadMaterial{};
 
 		if (AiScene->HasMaterials())
 		{
 			const std::string
 				MatName = (AiScene->mMaterials[_AiMesh->mMaterialIndex]->GetName().C_Str());
 		}
-		Material _CurLoadMaterial{};
+		
 		// TODO :: ÆÄ½ÌÇØ¶ó !  
 		_CurLoadMaterial.Textures
 		// 
