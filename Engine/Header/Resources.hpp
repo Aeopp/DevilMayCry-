@@ -4,9 +4,9 @@ BEGIN(ENGINE)
 template<typename TYPE>
 inline std::shared_ptr<TYPE> Resources::Load(const std::filesystem::path _Path)
 {
-	if (nullptr == m_pResourceSystem.get())
+	if (true == m_pResourceSystem.expired())
 		return std::shared_ptr<TYPE>();
-	return m_pResourceSystem.lock()->Load<TYPE>(_sPath);
+	return m_pResourceSystem.lock()->Load<TYPE>(_Path);
 }
 END
 #endif // !__RESOURCES_HPP__

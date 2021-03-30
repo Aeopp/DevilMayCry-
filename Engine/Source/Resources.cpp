@@ -1,5 +1,4 @@
 #include "Resources.h"
-#include "ResourceSystem.h"
 
 USING(ENGINE)
 

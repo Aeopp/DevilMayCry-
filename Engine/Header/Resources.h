@@ -1,8 +1,8 @@
 #ifndef __RESOURCES_H__
 #define __RESOURCES_H__
 #include "EngineStdafx.h"
+#include "ResourceSystem.h"
 BEGIN(ENGINE)
-class ResourceSystem;
 class ENGINE_DLL Resources abstract
 {
 private:

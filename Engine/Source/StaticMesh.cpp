@@ -91,7 +91,7 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _sPath)
 		
 		//정점 버퍼 생성
 		LPDIRECT3DVERTEXBUFFER9 pVB = nullptr;		
-		m_pDevice->CreateVertexBuffer(sizeof(STATICVERTEX) * vecVertices.size(), D3DUSAGE_WRITEONLY, NULL, D3DPOOL_MANAGED, &pVB, nullptr);
+		m_pDevice->CreateVertexBuffer(UINT(sizeof(STATICVERTEX) * vecVertices.size()), D3DUSAGE_WRITEONLY, NULL, D3DPOOL_MANAGED, &pVB, nullptr);
 		//정점 버퍼 데이터 설정.
 		LPSTATICVERTEX pVertices = nullptr;
 		pVB->Lock(0, 0, (void**)pVertices, NULL);
@@ -108,7 +108,7 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _sPath)
 		}
 		//인덱스 버퍼 생성
 		LPDIRECT3DINDEXBUFFER9 pIB = nullptr;
-		m_pDevice->CreateIndexBuffer(sizeof(UINT) * vecIndex.size(), D3DUSAGE_WRITEONLY, D3DFMT_INDEX32, D3DPOOL_MANAGED, &pIB, nullptr);
+		m_pDevice->CreateIndexBuffer(UINT(sizeof(STATICVERTEX) * vecVertices.size()), D3DUSAGE_WRITEONLY, D3DFMT_INDEX32, D3DPOOL_MANAGED, &pIB, nullptr);
 		//인덱스 버퍼 데이터 설정
 		UINT* pIndices = nullptr;
 		pIB->Lock(0, 0, (void**)&pIndices, NULL);
