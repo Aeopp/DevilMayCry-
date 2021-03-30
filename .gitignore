@@ -51,11 +51,7 @@
 mono_crash.*
 
 # Build results
-[Dd]ebugPublic/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
 bld/
-[Bb]in/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
@@ -78,8 +74,6 @@ TestResult.xml
 nunit-*.xml
 
 # Build Results of an ATL Project
-[Dd]ebugPS/
-[Rr]eleasePS/
 dlldata.c
 
 # Benchmark Results
@@ -122,8 +116,6 @@ StyleCopReport.xml
 _Chutzpah*
 
 # Visual C++ cache files
-x64/
-x86/
 ipch/
 *.aps
 *.ncb
