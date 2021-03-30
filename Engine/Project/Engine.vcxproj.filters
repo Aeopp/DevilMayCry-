@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="00.Object">
+      <UniqueIdentifier>{0f47d642-9274-4d44-9f52-095280b20299}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="99.Default">
+      <UniqueIdentifier>{d1cebc0a-81e5-47bb-9502-9140f451727a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System">
+      <UniqueIdentifier>{205fbecb-dfa2-4337-b783-68604b2de685}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Utility">
+      <UniqueIdentifier>{bba14ba1-5a44-4eab-ae26-5cb2dfdced4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource">
+      <UniqueIdentifier>{a5a45266-2a1b-4574-bfba-e6b53d885828}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\00.Base">
+      <UniqueIdentifier>{eb142668-8871-45f7-8687-c5c2afe7c90d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\01.Texture">
+      <UniqueIdentifier>{8bae8bc2-ace4-4109-bd16-5cd1dca9c3c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\02.Mesh">
+      <UniqueIdentifier>{07211860-6edb-407b-bc91-abbe953de9eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\03.Shader">
+      <UniqueIdentifier>{053ba3d4-aff3-4c4d-b362-b99f00d7e3ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\02.Mesh\00.Base">
+      <UniqueIdentifier>{65744c9e-8467-49ff-9b67-4d27c7705d65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\00.Core">
+      <UniqueIdentifier>{aca8a2c5-618b-4e81-bdbe-89214a045a8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\01.Graphic">
+      <UniqueIdentifier>{03406ea2-5fd5-436d-9ed7-b76350a5f1cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\02.Input">
+      <UniqueIdentifier>{6655fab8-c98f-4c75-95c0-0abe47fb3724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\03.Time">
+      <UniqueIdentifier>{6dcc4e03-aa9a-458d-96b6-76a00a9c0331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\04.Scene">
+      <UniqueIdentifier>{e080dfa7-d44a-441f-9546-9f8ebb7a0f75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\05.Resource">
+      <UniqueIdentifier>{45c38b29-c8e6-4c0c-9cd6-06f85765db55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\05.Resource\00.System">
+      <UniqueIdentifier>{aec36531-c868-46fb-9aa1-9c57cd08bdf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\05.Resource\01.Interface">
+      <UniqueIdentifier>{159c5c07-9f96-4038-bd54-28b2785c3f40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Utility\00.Component">
+      <UniqueIdentifier>{80ec46c2-80fa-4a13-a6f0-8c71202092d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Utility\01.GameObject">
+      <UniqueIdentifier>{bed33c1b-a8bf-4367-b6c7-31cd9709f855}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Utility\02.Scene">
+      <UniqueIdentifier>{de004c1a-3516-4afc-aae0-591e84021c4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Utility\00.Component\00.Base">
+      <UniqueIdentifier>{f143a137-968f-48bd-a50a-9294ae1401e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Utility\01.GameObject\00.Base">
+      <UniqueIdentifier>{edc4e837-a6bf-430a-887e-90b023b0f1c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Utility\00.Component\01.Transform">
+      <UniqueIdentifier>{aef9ac7d-996c-40f4-8112-7236c1f4e7ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\02.Mesh\00.Base\00.Mesh">
+      <UniqueIdentifier>{7fe84c67-1c96-4dc3-8134-0abaf6cc5080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\02.Mesh\00.Base\01.Subset">
+      <UniqueIdentifier>{212b5489-923f-45c2-9768-0b0a526d1bff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\02.Mesh\00.Base\02.Material">
+      <UniqueIdentifier>{5c4f17d3-0462-4e47-82f1-6aba10267236}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\02.Mesh\01.StaticMesh">
+      <UniqueIdentifier>{e93d5944-1595-4412-a863-e503dc1cc7ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Resource\02.Mesh\02.DynamicMesh">
+      <UniqueIdentifier>{1e924d0f-7335-42dd-af44-c3f5064db534}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Header\Object.h">
+      <Filter>00.Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\EngineFunction.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\EngineStdafx.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\EngineStruct.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\EngineTypedef.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\EngineDefine.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\EngineEnum.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\EngineExtern.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Resource.h">
+      <Filter>03.Resource\00.Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Texture.h">
+      <Filter>03.Resource\01.Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Shader.h">
+      <Filter>03.Resource\03.Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\ResourceSystem.h">
+      <Filter>01.System\05.Resource\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\ResourceSystem.hpp">
+      <Filter>01.System\05.Resource\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Resources.h">
+      <Filter>01.System\05.Resource\01.Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Resources.hpp">
+      <Filter>01.System\05.Resource\01.Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Component.h">
+      <Filter>02.Utility\00.Component\00.Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\GameObject.h">
+      <Filter>02.Utility\01.GameObject\00.Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Transform.h">
+      <Filter>02.Utility\00.Component\01.Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\StaticMesh.h">
+      <Filter>03.Resource\02.Mesh\01.StaticMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\DynamicMesh.h">
+      <Filter>03.Resource\02.Mesh\02.DynamicMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\GameObject.hpp">
+      <Filter>02.Utility\01.GameObject\00.Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\AssimpHelper.h">
+      <Filter>99.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Mesh.h">
+      <Filter>03.Resource\02.Mesh\00.Base\00.Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Subset.h">
+      <Filter>03.Resource\02.Mesh\00.Base\01.Subset</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Source\Object.cpp">
+      <Filter>00.Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Resource.cpp">
+      <Filter>03.Resource\00.Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Texture.cpp">
+      <Filter>03.Resource\01.Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Shader.cpp">
+      <Filter>03.Resource\03.Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ResourceSystem.cpp">
+      <Filter>01.System\05.Resource\00.System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Resources.cpp">
+      <Filter>01.System\05.Resource\01.Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Component.cpp">
+      <Filter>02.Utility\00.Component\00.Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\GameObject.cpp">
+      <Filter>02.Utility\01.GameObject\00.Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Transform.cpp">
+      <Filter>02.Utility\00.Component\01.Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\StaticMesh.cpp">
+      <Filter>03.Resource\02.Mesh\01.StaticMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\DynamicMesh.cpp">
+      <Filter>03.Resource\02.Mesh\02.DynamicMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Mesh.cpp">
+      <Filter>03.Resource\02.Mesh\00.Base\00.Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Subset.cpp">
+      <Filter>03.Resource\02.Mesh\00.Base\01.Subset</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
