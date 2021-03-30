@@ -93,6 +93,7 @@ StyleCopReport.xml
 *_h.h
 *.meta
 *.iobj
+*.obj
 *.ipdb
 *.pgc
 *.pgd
