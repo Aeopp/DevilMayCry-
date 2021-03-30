@@ -10,20 +10,17 @@ Mesh::Mesh(LPDIRECT3DDEVICE9 const _pDevice)
 
 Mesh::Mesh(const Mesh& _rOther)
 	: Resource(_rOther.m_pDevice)
+	, m_vecSubMesh(_rOther.m_vecSubMesh)
 	, m_pVtxDecl(_rOther.m_pVtxDecl)
-	, m_vecSubset(_rOther.m_vecSubset)
-	, m_vecMaterial(_rOther.m_vecMaterial)
 {
 	SafeAddRef(m_pVtxDecl);
 }
 
 void Mesh::Free()
 {
+	m_vecSubMesh.clear();
+	m_vecSubMesh.shrink_to_fit();
+	
 	SafeRelease(m_pVtxDecl);
 	Resource::Free();
-}
-
-Resource* Mesh::Clone()
-{
-	return nullptr;
 }

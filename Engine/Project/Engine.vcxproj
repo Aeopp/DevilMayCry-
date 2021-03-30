@@ -163,7 +163,6 @@
   <ItemGroup>
     <ClInclude Include="..\Header\AssimpHelper.h" />
     <ClInclude Include="..\Header\Component.h" />
-    <ClInclude Include="..\Header\DynamicMesh.h" />
     <ClInclude Include="..\Header\EngineDefine.h" />
     <ClInclude Include="..\Header\EngineEnum.h" />
     <ClInclude Include="..\Header\EngineExtern.h" />
@@ -182,13 +181,11 @@
     <ClInclude Include="..\Header\ResourceSystem.hpp" />
     <ClInclude Include="..\Header\Shader.h" />
     <ClInclude Include="..\Header\StaticMesh.h" />
-    <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
     <ClInclude Include="..\Header\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Component.cpp" />
-    <ClCompile Include="..\Source\DynamicMesh.cpp" />
     <ClCompile Include="..\Source\GameObject.cpp" />
     <ClCompile Include="..\Source\Mesh.cpp" />
     <ClCompile Include="..\Source\Object.cpp" />
@@ -197,7 +194,6 @@
     <ClCompile Include="..\Source\ResourceSystem.cpp" />
     <ClCompile Include="..\Source\Shader.cpp" />
     <ClCompile Include="..\Source\StaticMesh.cpp" />
-    <ClCompile Include="..\Source\Subset.cpp" />
     <ClCompile Include="..\Source\Texture.cpp" />
     <ClCompile Include="..\Source\Transform.cpp" />
   </ItemGroup>
