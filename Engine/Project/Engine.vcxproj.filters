@@ -138,12 +138,17 @@
     <ClInclude Include="..\Header\GameObject.hpp">
       <Filter>02.Utility\01.GameObject\00.Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\AssimpHelper.h">
-      <Filter>99.Default</Filter>
-    </ClInclude>
     <ClInclude Include="..\Header\Mesh.h">
       <Filter>03.Resource\02.Mesh\00.Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\FMath.hpp" />
+    <ClInclude Include="..\Header\Material.h" />
+    <ClInclude Include="..\Header\MathStruct.hpp" />
+    <ClInclude Include="..\Header\StringHelper.hpp" />
+    <ClInclude Include="..\Header\Subset.h" />
+    <ClInclude Include="..\Header\VertexInformation.hpp" />
+    <ClInclude Include="..\Header\TextureInformation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -179,5 +184,7 @@
     <ClCompile Include="..\Source\Mesh.cpp">
       <Filter>03.Resource\02.Mesh\00.Mesh</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Material.cpp" />
+    <ClCompile Include="..\Source\Subset.cpp" />
   </ItemGroup>
 </Project>

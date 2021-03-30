@@ -1,8 +1,12 @@
 #ifndef __STRINGHELPER_H__
 #define __STRINGHELPER_H__
 
+#include "EngineDefine.h"
 #include "EngineTypedef.h"
 #include <string>
+
+
+BEGIN(ENGINE ) 
 static inline std::wstring ToW(const std::string& StrA)
 {
 	std::wstring Convert;
@@ -15,4 +19,6 @@ static inline std::string ToA(const std::wstring& StrW)
 	Convert.assign(std::begin(StrW), std::end(StrW));
 	return Convert;
 }
+END
+
 #endif // !__STRINGHELPER_H__

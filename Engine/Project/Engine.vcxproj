@@ -132,6 +132,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../Reference/Header/;./;../Source/;../Header/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +151,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../Reference/Header/;./;../Source/;../Header/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -187,8 +189,9 @@
     <ClInclude Include="..\Header\StringHelper.hpp" />
     <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
+    <ClInclude Include="..\Header\TextureInformation.hpp" />
     <ClInclude Include="..\Header\Transform.h" />
-    <ClInclude Include="..\Header\Vertexs.hpp" />
+    <ClInclude Include="..\Header\VertexInformation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Component.cpp" />

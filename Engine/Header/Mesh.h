@@ -3,8 +3,10 @@
 #include "Resource.h"
 #include "Subset.h"
 #include "EngineTypedef.h"
+#include <memory>
+#include <vector>
+
 BEGIN(ENGINE)
-class Texture;
 
 class ENGINE_DLL Mesh abstract : public Resource
 {
@@ -22,5 +24,6 @@ protected:
 	std::shared_ptr<std::vector<Vector3>> LocalVertexLocations{};
 	std::shared_ptr<std::vector<Subset>>  SubSets{};
 };
+
 END
 #endif // !__MESH_H__
