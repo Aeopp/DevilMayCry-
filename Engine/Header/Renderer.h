@@ -15,13 +15,15 @@ private :
 	explicit Renderer();
 	virtual ~Renderer() = default;
 	virtual void Free()	override ;
-public:
+public :
+	HRESULT ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice);
 private : 
-	std::map<RenderProperty::Order, std::vector<std::weak_ptr<GameObject>>> RenderEntitys;
+	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
+	std::map<RenderProperty::Order, std::vector<std::weak_ptr<GameObject>>> RenderEntitys{};
 public :
 	void Push(const std::shared_ptr<GameObject>& _RenderEntity)&;
 public : 
-	void Render()&;
+	HRESULT Render()&;
 public:
 
 };

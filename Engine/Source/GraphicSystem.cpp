@@ -73,6 +73,14 @@ HRESULT GraphicSystem::ReadyGraphicSystem()
 	return S_OK;
 }
 
+void GraphicSystem::Begin()&
+{
+}
+
+void GraphicSystem::End()&
+{
+}
+
 LPDIRECT3DDEVICE9 GraphicSystem::GetDevice()
 {
 	return m_pDevice;

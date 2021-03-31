@@ -1,6 +1,7 @@
 ﻿// Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
+
 #include "stdafx.h"
 #include "Client.h"
 #include "Application.h"
@@ -142,13 +143,10 @@ HRESULT InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return S_OK;
 }
 
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT nMessage, WPARAM wParam, LPARAM lParam)
 {
-	/*if (ImGui_ImplWin32_WndProcHandler(hWnd, nMessage, wParam, lParam))
-	{
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, nMessage, wParam, lParam))
 		return true;
-	}*/
 
 	switch (nMessage)
 	{

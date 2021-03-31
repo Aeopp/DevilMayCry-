@@ -1,23 +1,22 @@
+#include "imgui.h"
+#include "imgui_impl_dx9.h"
+#include "imgui_impl_win32.h"
+
 #include "CoreSystem.h"
 #include "GraphicSystem.h"
 #include "InputSystem.h"
 #include "TimeSystem.h"
 #include "SceneSystem.h"
 #include "ResourceSystem.h"
+#include "Renderer.h"
+
 
 USING(ENGINE)
 IMPLEMENT_SINGLETON(CoreSystem)
 
-static void ImGuiFrameStart()
-{
-	/*ImGui_ImplDX9_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();*/
-}
-
 static void SetupImGuiStyle()
 {
-	/*ImGuiStyle* style = &ImGui::GetStyle();
+	ImGuiStyle* style = &ImGui::GetStyle();
 
 	style->WindowPadding = ImVec2(15, 15);
 	style->WindowRounding = 5.0f;
@@ -66,29 +65,15 @@ static void SetupImGuiStyle()
 	style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
 	style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
-	style->Colors[ImGuiCol_::ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);*/
+	style->Colors[ImGuiCol_::ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 };
 
-
-
-
-void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device)
-{
-	/*IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& ImGuiIoRef = ImGui::GetIO();
-	ImGuiIoRef.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-	ImGuiIoRef.Fonts->AddFontFromFileTTF("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf", 12);
+	/*ImGuiIoRef.Fonts->AddFontFromFileTTF("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf", 12);
 	ImGuiIoRef.Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 10);
 	ImGuiIoRef.Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 14);
 	ImGuiIoRef.Fonts->AddFontFromFileTTF(("..\\..\\..\\Resource\\Font\\Ruda\\static\\Ruda-Bold.ttf"), 18);
+	*/
 
-	ImGui::StyleColorsDark();
-	SetupImGuiStyle();
-	ImGui_ImplWin32_Init(Hwnd);
-	ImGui_ImplDX9_Init(Device);*/
-}
 
 CoreSystem::CoreSystem()
 {
@@ -112,9 +97,11 @@ void CoreSystem::Free()
 	m_pTimeSystem.reset();
 	TimeSystem::DeleteInstance();
 
-	//ImGui_ImplDX9_Shutdown();
-	//ImGui_ImplWin32_Shutdown();
-	//ImGui::DestroyContext();
+
+	ImGui_ImplDX9_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 }
 
 HRESULT CoreSystem::ReadyEngine()
@@ -154,19 +141,36 @@ HRESULT CoreSystem::ReadyEngine()
 		return E_FAIL;
 	}
 
+	m_pRenderer = Renderer::GetInstance();
+	if (nullptr == m_pRenderer.lock() || FAILED(m_pRenderer.lock()->ReadyRenderSystem(m_pGraphicSystem.lock()->GetDevice())))
+	{
+		PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
+		return E_FAIL;
+	}
+
 	bDebugMode = false;
 	bEditMode  = false;
 	bDebugCollision = false;
 	bDebugRenderTargetRender = false;
 
-	//ImGuiInitialize(g_hWnd, m_pGraphicSystem.lock()->GetDevice());
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	ImGui::StyleColorsDark();
+	SetupImGuiStyle();
+	ImGui_ImplWin32_Init(g_hWnd);
+	ImGui_ImplDX9_Init(m_pGraphicSystem.lock()->GetDevice());
 
 	return S_OK;
 }
 
 HRESULT CoreSystem::UpdateEngine()
 {
-	/*ImGuiFrameStart();*/
+	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
 
 	if (FAILED(m_pInputSystem.lock()->UpdateInputSystem()))
 	{
@@ -185,9 +189,15 @@ HRESULT CoreSystem::UpdateEngine()
 	}
 	if (FAILED(m_pSceneSystem.lock()->LateUpdateSceneSystem(m_pTimeSystem.lock()->DeltaTime())))
 	{
-		PRINT_LOG(TEXT("Error"), TEXT("Failed to LateUpdateSceneSystem."));
+		PRINT_LOG(TEXT("Error"),TEXT("Failed to LateUpdateSceneSystem."));
+		return E_FAIL;
+	}
+	if (FAILED(m_pRenderer.lock()->Render()))
+	{
+		PRINT_LOG(TEXT("Error"),TEXT("Failed to Renderer Render."));
 		return E_FAIL;
 	}
 
 	return S_OK;
 }
+

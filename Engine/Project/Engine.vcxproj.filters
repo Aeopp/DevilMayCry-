@@ -109,6 +109,9 @@
     <Filter Include="03.Resource\02.Mesh\01.SubSet">
       <UniqueIdentifier>{e225c68a-30ee-4c29-b69b-47efac71a8bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="77.ImGui">
+      <UniqueIdentifier>{7389c998-29a6-4888-8618-2ab363f9e8eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Object.h">
@@ -221,6 +224,30 @@
     <ClInclude Include="..\Header\Subset.h">
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imconfig.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui_impl_dx9.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui_impl_win32.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui_internal.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imstb_rectpack.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imstb_textedit.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imstb_truetype.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -293,6 +320,27 @@
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Renderer.cpp" />
+    <ClCompile Include="..\Source\imgui\imgui.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_demo.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_draw.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_impl_dx9.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_impl_win32.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_tables.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_widgets.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\Resource\Shader\Default.hlsl" />

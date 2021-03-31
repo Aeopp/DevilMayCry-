@@ -15,6 +15,8 @@ private:
 	virtual void Free() override;
 public:
 	HRESULT ReadyGraphicSystem();
+	void Begin()&;
+	void End()&;
 public:
 	LPDIRECT3DDEVICE9	GetDevice();
 };
