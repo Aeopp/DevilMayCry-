@@ -17,8 +17,6 @@
 BEGIN(ENGINE)
 namespace AssimpHelper
 {
-
-
 	static inline void DebugPrint(const aiMatrix4x4& AiMatrix)
 	{
 		for (uint32 Row = 0u; Row < 4u; ++Row)
@@ -60,9 +58,6 @@ namespace AssimpHelper
 		_Quat.w = AiQuaternion.w;
 		return _Quat;
 	};
-
-
-
 
 	static inline VertexInformation
 		LoadVertexInformation

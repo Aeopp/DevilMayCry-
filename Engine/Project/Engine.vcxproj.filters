@@ -210,6 +210,15 @@
     <ClInclude Include="..\Header\Engine.h">
       <Filter>99.Default</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\FMath.hpp" />
+    <ClInclude Include="..\Header\Material.h" />
+    <ClInclude Include="..\Header\MathStruct.hpp" />
+    <ClInclude Include="..\Header\StringHelper.hpp" />
+    <ClInclude Include="..\Header\Subset.h" />
+    <ClInclude Include="..\Header\TextureInformation.hpp" />
+    <ClInclude Include="..\Header\VertexInformation.hpp" />
+    <ClInclude Include="..\Header\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -278,5 +287,8 @@
     <ClCompile Include="..\Source\Core.cpp">
       <Filter>01.System\00.Core\01.Interface</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Material.cpp" />
+    <ClCompile Include="..\Source\Subset.cpp" />
+    <ClCompile Include="..\Source\Renderer.cpp" />
   </ItemGroup>
 </Project>

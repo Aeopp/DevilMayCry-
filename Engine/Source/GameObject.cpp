@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "Scene.h"
+#include "Renderer.h"
 
 USING(ENGINE)
 
@@ -72,6 +73,14 @@ UINT GameObject::GetLoopIdx()
 void GameObject::SetLoopIdx(const UINT _nLoopIdx)
 {
 	m_nLoopIdx = _nLoopIdx;
+}
+
+HRESULT GameObject::Render(Renderer* const _Renderer)
+{
+	
+
+
+	return S_OK;
 }
 
 void GameObject::OnEnable()
