@@ -1,6 +1,9 @@
 #ifndef __ENGINE_DEFINE_H__
 #define __ENGINE_DEFINE_H__
 
+namespace ENGINE
+{
+
 #pragma region EXPORT_DLL
 #ifdef ENGINE_EXPORT
 #define ENGINE_DLL _declspec(dllexport)
@@ -52,5 +55,5 @@ void						ClassName::DeleteInstance()														\
 #pragma endregion
 
 
-
+}
 #endif // !__ENGINE_DEFINE_H__

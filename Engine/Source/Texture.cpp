@@ -6,6 +6,7 @@ Texture::Texture(LPDIRECT3DDEVICE9 const _pDevice)
 	: Resource(_pDevice)
 	, m_pTexture(nullptr)
 {
+	ZeroMemory(&m_tInfo, sizeof(D3DXIMAGE_INFO));
 	ZeroMemory(&m_tDesc, sizeof(D3DXIMAGE_INFO));
 }
 
@@ -14,7 +15,9 @@ Texture::Texture(const Texture& _rOther)
 	, m_pTexture(_rOther.m_pTexture)
 {
 	SafeAddRef(m_pTexture);
-	memcpy_s(&m_tDesc, sizeof(D3DXIMAGE_INFO), &_rOther.m_tDesc, sizeof(D3DXIMAGE_INFO));
+	memcpy_s(&m_tInfo, sizeof(D3DXIMAGE_INFO), &_rOther.m_tInfo, sizeof(D3DXIMAGE_INFO));
+	memcpy_s(&m_tDesc, sizeof(TEXTUREDESC), &_rOther.m_tDesc, sizeof(TEXTUREDESC));
+
 }
 
 void Texture::Free()
@@ -23,12 +26,10 @@ void Texture::Free()
 	Resource::Free();
 }
 
-Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFilePath ,
-						const TextureInformation& InitTextureInfo)
+Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem::path _Path)
 {
 	Texture* pInstance = new Texture(_pDevice);
-	pInstance->_TextureInfo = InitTextureInfo;
-	if (FAILED(pInstance->LoadTextureFromFile(_sFilePath)))
+	if (FAILED(pInstance->LoadTextureFromFile(_Path)))
 	{
 		pInstance->Free();
 		delete pInstance;
@@ -43,21 +44,27 @@ Resource* Texture::Clone()
 	return pClone;
 }
 
-HRESULT Texture::LoadTextureFromFile(const TSTRING& _sFilePath)
+HRESULT Texture::LoadTextureFromFile(const std::filesystem::path _Path)
 {
-	if (FAILED(D3DXGetImageInfoFromFile(_sFilePath.c_str(), &m_tDesc)))
+#ifdef UNICODE
+	std::wstring sFilePath = _Path.wstring();
+#else
+	std::string sFilePath = _Path.string();
+#endif // UNICODE
+
+	if (FAILED(D3DXGetImageInfoFromFile(sFilePath.c_str(), &m_tInfo)))
 	{
 		PRINT_LOG(TEXT("Warning"), TEXT("Failed to D3DXGetImageInfoFromFile"));
 		return E_FAIL;
 	}
 
 	if (FAILED(D3DXCreateTextureFromFileEx(m_pDevice
-		, _sFilePath.c_str()
-		, m_tDesc.Width
-		, m_tDesc.Height
-		, m_tDesc.MipLevels
+		, sFilePath.c_str()
+		, m_tInfo.Width
+		, m_tInfo.Height
+		, m_tInfo.MipLevels
 		, 0
-		, m_tDesc.Format
+		, m_tInfo.Format
 		, D3DPOOL_MANAGED
 		, D3DX_DEFAULT
 		, D3DX_DEFAULT
@@ -77,7 +84,17 @@ LPDIRECT3DTEXTURE9 Texture::GetTexture()
 	return m_pTexture;
 }
 
-D3DXIMAGE_INFO Texture::GetDesc()
+D3DXIMAGE_INFO Texture::GetInfo()
+{
+	return m_tInfo;
+}
+
+TEXTUREDESC Texture::GetDesc()
 {
 	return m_tDesc;
+}
+
+void Texture::SetDesc(const TEXTUREDESC& _tDesc)
+{
+	m_tDesc = _tDesc;
 }

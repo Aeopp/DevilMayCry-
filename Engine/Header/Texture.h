@@ -2,14 +2,13 @@
 #define __TEXTURE_H__
 #include "TextureInformation.hpp"
 #include "Resource.h"
-#include "EngineTypedef.h"
-
 BEGIN(ENGINE)
 class ENGINE_DLL Texture final : public Resource
 {
 private:
 	LPDIRECT3DTEXTURE9	m_pTexture;
-	D3DXIMAGE_INFO		m_tDesc;
+	D3DXIMAGE_INFO		m_tInfo;
+	TEXTUREDESC			m_tDesc;
 private:
 	explicit Texture(LPDIRECT3DDEVICE9 const _pDevice);
 	explicit Texture(const Texture& _rOther);
@@ -19,16 +18,17 @@ private:
 public:
 	virtual	~Texture() = default;
 public:
-	static Texture*   Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFilePath ,
-							const TextureInformation & InitTextureInfo = TextureInformation{});
+	static Texture*   Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem::path _Path);
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone() override;
 private:
-	HRESULT LoadTextureFromFile(const TSTRING& _sFilePath);
+	HRESULT LoadTextureFromFile(const std::filesystem::path _Path);
 public:
-	TextureInformation _TextureInfo{};
 	LPDIRECT3DTEXTURE9	GetTexture();
-	D3DXIMAGE_INFO		GetDesc();
+	D3DXIMAGE_INFO		GetInfo();
+
+	TEXTUREDESC			GetDesc();
+	void				SetDesc(const TEXTUREDESC & _tDesc);
 };
 END
 #endif // !__TEXTURE_H__

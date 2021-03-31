@@ -8,11 +8,14 @@
 #include <list>
 #include <vector>
 #include <unordered_map>
+#include <array>
+#include <set>
 
 #include <algorithm>
 #include <functional>
 
 #include <tchar.h>
+#include <string>
 
 #include <memory>
 #include <mutex>
@@ -35,8 +38,8 @@
 #include "EngineEnum.h"
 #include "EngineExtern.h"
 #include "EngineFunction.h"
-#include "EngineStruct.h"
 #include "EngineTypedef.h"
+#include "EngineStruct.h"
 #pragma endregion
 
 #pragma region DETECT_MEMORY_LEAK

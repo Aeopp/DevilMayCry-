@@ -1,5 +1,6 @@
 #ifndef __ENGINE_ENUM_H__
 #define __ENGINE_ENUM_H__
+BEGIN(ENGINE)
 enum WNDMODE
 {
 	WND_FULL,
@@ -29,4 +30,5 @@ enum RENDERID
 	RENDER_END,
 	RENDER_NONE
 };
+END
 #endif // !__ENGINE_ENUM_H__

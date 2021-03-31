@@ -2,29 +2,32 @@
 
 USING(ENGINE)
 Subset::Subset(LPDIRECT3DDEVICE9 const _pDevice)
-	: _Device(_pDevice)
+	: m_pDevice(_pDevice)
+	, m_pVertexBuffer(nullptr)
+	, m_pIndexBuffer(nullptr)
 {
 	SafeAddRef(_pDevice);
 }
 
 void Subset::Free()
 {
-	_VertexInformation.Release();
-	SafeRelease(_Device);
-	
+	SafeRelease(m_pVertexBuffer);
+	SafeRelease(m_pIndexBuffer);
+	SafeRelease(m_pDevice);
 	Object::Free();
 }
 
 Subset* Subset::Create(LPDIRECT3DDEVICE9 const _pDevice)
 {
-	Subset* _Ptr = new Subset(_pDevice);
-	return _Ptr;
+	Subset* pInstance = new Subset(_pDevice);
+	return pInstance;
 }
 
-void Subset::Initialize(
-	const VertexInformation& InitVertexInformation, 
-	const Material&          InitMaterial)
+void Subset::Initialize(LPDIRECT3DVERTEXBUFFER9 const _pVB, LPDIRECT3DINDEXBUFFER9 const _pIB, const VERTEXBUFFERDESC& _tVBDesc, const MATERIAL& _tMaterial)
 {
-	_VertexInformation = InitVertexInformation;
-	_Material          = InitMaterial; 
+	m_pVertexBuffer		= _pVB;
+	m_pIndexBuffer		= _pIB;
+	m_tVertexBufferDesc = _tVBDesc;
+	m_tMaterial			= _tMaterial;
 }
+

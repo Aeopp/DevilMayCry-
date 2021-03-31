@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Subset.h"
 
 USING(ENGINE)
 
@@ -9,18 +10,14 @@ Mesh::Mesh(LPDIRECT3DDEVICE9 const _pDevice)
 
 Mesh::Mesh(const Mesh& _rOther)
 	: Resource(_rOther.m_pDevice)
-	, SubSets(_rOther.SubSets)
-	, LocalVertexLocations(_rOther.LocalVertexLocations)
+	, m_vecSubset(_rOther.m_vecSubset)
 {
 }
 
 void Mesh::Free()
 {
-	SubSets.clear();
-	SubSets.shrink_to_fit();
-
-	LocalVertexLocations->clear();
-	LocalVertexLocations->shrink_to_fit();
-
+	//Mesh SubSet «ÿ¡¶
+	m_vecSubset.clear();
+	m_vecSubset.shrink_to_fit();
 	Resource::Free();
 }

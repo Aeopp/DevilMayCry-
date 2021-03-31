@@ -1,7 +1,9 @@
 #ifndef __ENGINE_FUNCTION_H__
 #define __ENGINE_FUNCTION_H__
-#pragma region DELETE_DYNAMIC_MEMORY
 
+BEGIN(ENGINE)
+
+#pragma region DELETE_DYNAMIC_MEMORY
 template <typename T>
 void SafeDelete(T& ptr)
 {
@@ -63,4 +65,20 @@ public:
 };
 #pragma endregion
 
+#pragma region CONVERT STRING
+static inline std::wstring ToW(const std::string& StrA)
+{
+	std::wstring Convert;
+	Convert.assign(std::begin(StrA), std::end(StrA));
+	return Convert;
+}
+static inline std::string ToA(const std::wstring& StrW)
+{
+	std::string Convert;
+	Convert.assign(std::begin(StrW), std::end(StrW));
+	return Convert;
+}
+#pragma endregion
+
+END
 #endif // !__ENGINE_FUNCTION_H__

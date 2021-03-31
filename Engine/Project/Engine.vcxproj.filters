@@ -106,6 +106,9 @@
     <Filter Include="01.System\00.Core\01.Interface">
       <UniqueIdentifier>{6d75e91e-2d9d-4d78-842b-f6f233b6b312}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.Resource\02.Mesh\01.SubSet">
+      <UniqueIdentifier>{e225c68a-30ee-4c29-b69b-47efac71a8bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Object.h">
@@ -210,6 +213,12 @@
     <ClInclude Include="..\Header\Engine.h">
       <Filter>99.Default</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\FMath.hpp" />
+    <ClInclude Include="..\Header\MathStruct.hpp" />
+    <ClInclude Include="..\Header\Subset.h">
+      <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -277,6 +286,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\Core.cpp">
       <Filter>01.System\00.Core\01.Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Subset.cpp">
+      <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

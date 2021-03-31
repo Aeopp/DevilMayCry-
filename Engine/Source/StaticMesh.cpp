@@ -1,7 +1,6 @@
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
+#include "AssimpHelper.hpp"
 #include "StaticMesh.h"
+#include "Subset.h"
 
 USING(ENGINE)
 
@@ -41,9 +40,9 @@ Resource* StaticMesh::Clone()
 
 HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {
-	// 컴파일 에러  .
-
+	//Assimp Importer 생성.
 	Assimp::Importer AiImporter;
+	//FBX파일을 읽어서 Scene 생성.
 	const aiScene* const AiScene = AiImporter.ReadFile(
 		_Path.string(),
 		aiProcess_MakeLeftHanded |
@@ -63,52 +62,60 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		aiProcess_SplitLargeMeshes
 	);
 
-	LocalVertexLocations = std::make_shared<std::vector<Vector3>>();
-	//SubSets = std::make_shared<std::vector<Subset>>();
-	//SubSets->resize(AiScene->mNumMeshes);
-	SubSets.resize(AiScene->mNumMeshes);
+	//Subset을 보관하는 vector 메모리 공간 확보.
+	m_vecSubset.resize(AiScene->mNumMeshes);
 
+	//FBX의 Scene을 구성하는 Mesh(Subset)로 부터 데이터 구성.
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
+		//
 		const auto *const AiMesh = AiScene->mMeshes[MeshIdx];
-
-		//???
-		std::shared_ptr<Subset> _CurrentSubset /*=
-			std::make_shared<Subset>(Subset::Create(m_pDevice), Deleter<Object>())*/;
+		//
+		std::shared_ptr<Subset> _CurrentSubset;
 		_CurrentSubset.reset(Subset::Create(m_pDevice), Deleter<Object>());
 
-		const VertexInformation _VertexInformation = AssimpHelper::LoadVertexInformation(AiMesh, m_pDevice);
+		VERTEXBUFFERDESC tVBDesc;
+		LPDIRECT3DVERTEXBUFFER9 pVB = nullptr;
+		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
-		const Material CurLoadMaterial =
-			AssimpHelper::LoadMaterialFromMesh(
-				AiScene,
-				AiMesh,
-				{
-					aiTextureType::aiTextureType_AMBIENT,
-					aiTextureType::aiTextureType_AMBIENT_OCCLUSION,
-					aiTextureType::aiTextureType_BASE_COLOR,
-					aiTextureType::aiTextureType_DIFFUSE,
-					aiTextureType::aiTextureType_DIFFUSE_ROUGHNESS,
-					aiTextureType::aiTextureType_DISPLACEMENT,
-					aiTextureType::aiTextureType_EMISSION_COLOR,
-					aiTextureType::aiTextureType_EMISSIVE,
-					aiTextureType::aiTextureType_HEIGHT,
-					aiTextureType::aiTextureType_LIGHTMAP,
-					aiTextureType::aiTextureType_METALNESS,
-					aiTextureType::aiTextureType_NORMALS,
-					aiTextureType::aiTextureType_NORMAL_CAMERA,
-					aiTextureType::aiTextureType_OPACITY,
-					aiTextureType::aiTextureType_REFLECTION,
-					aiTextureType::aiTextureType_SHININESS,
-					aiTextureType::aiTextureType_SPECULAR,
-					aiTextureType::aiTextureType_UNKNOWN
-				},
+		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice, &tVBDesc, &pVB, &pIB)))
+			return E_FAIL;
 
-				_Path.parent_path(), m_pDevice);
+		MATERIAL tMaterial;
 
-		_CurrentSubset->Initialize(
-			_VertexInformation ,
-			CurLoadMaterial);
+		if (FAILED(AssimpHelper::LoadMaterial(
+			AiScene,
+			AiMesh,
+			{
+				aiTextureType::aiTextureType_AMBIENT,
+				aiTextureType::aiTextureType_AMBIENT_OCCLUSION,
+				aiTextureType::aiTextureType_BASE_COLOR,
+				aiTextureType::aiTextureType_DIFFUSE,
+				aiTextureType::aiTextureType_DIFFUSE_ROUGHNESS,
+				aiTextureType::aiTextureType_DISPLACEMENT,
+				aiTextureType::aiTextureType_EMISSION_COLOR,
+				aiTextureType::aiTextureType_EMISSIVE,
+				aiTextureType::aiTextureType_HEIGHT,
+				aiTextureType::aiTextureType_LIGHTMAP,
+				aiTextureType::aiTextureType_METALNESS,
+				aiTextureType::aiTextureType_NORMALS,
+				aiTextureType::aiTextureType_NORMAL_CAMERA,
+				aiTextureType::aiTextureType_OPACITY,
+				aiTextureType::aiTextureType_REFLECTION,
+				aiTextureType::aiTextureType_SHININESS,
+				aiTextureType::aiTextureType_SPECULAR,
+				aiTextureType::aiTextureType_UNKNOWN
+			},
+			_Path.parent_path(),
+			m_pDevice,
+			&tMaterial
+		)))
+		{
+			SafeRelease(pVB);
+			SafeRelease(pIB);
+			return E_FAIL;
+		}
+		m_vecSubset.push_back(_CurrentSubset);
 	};
 
 	return S_OK;

@@ -38,7 +38,7 @@ inline std::shared_ptr<TYPE> ResourceSystem::Load(const std::filesystem::path _P
 	auto iterCloneVector = iterCloneType->second.find(_Path.wstring());
 	//TypeID에 해당하는 컨테이너에 _Path를 키값으로 갖는 pair가 없는 경우 pair 추가
 	if (iterCloneType->second.end() == iterCloneVector)
-		iterCloneVector = iterCloneType->second.emplace(_Path.wstring(), std::vector<std::shared_ptr<Resource>>());
+		iterCloneVector = iterCloneType->second.emplace(_Path.wstring(), std::vector<std::shared_ptr<Resource>>()).first;
 	//pair에 복사본 저장
 	std::shared_ptr<Resource> pReturn;
 	pReturn.reset(pClone, Deleter<Object>());
