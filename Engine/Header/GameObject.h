@@ -1,9 +1,12 @@
 #ifndef __GAMEOBJECT_H__
 #define __GAMEOBJECT_H__
 #include "Object.h"
+#include "RenderProperty.h"
+
 BEGIN(ENGINE)
 class Scene;
 class Component;
+class Renderer;
 class ENGINE_DLL GameObject abstract : public Object
 {
 	friend Scene;
@@ -19,6 +22,7 @@ private:
 	UINT		m_nLoopIdx;
 protected:
 	std::weak_ptr<GameObject>	m_pGameObject;
+	RenderProperty _RenderProp;
 protected:
 	explicit GameObject();
 	virtual ~GameObject() = default;
@@ -30,7 +34,7 @@ public:
 	virtual HRESULT Start()								PURE;
 	virtual UINT	Update(const float _fDeltaTime)		PURE;
 	virtual	UINT	LateUpdate(const float _fDeltaTime)	PURE;
-	virtual HRESULT	Render()							PURE;
+	virtual HRESULT	Render(Renderer*const _Renderer)	PURE;
 
 	virtual void	OnEnable()							PURE;
 	virtual void	OnDisable()							PURE;
@@ -48,7 +52,7 @@ public:
 	void	SetActive(const bool _bActive);
 	bool	IsStatic();
 	void	SetStatic(const bool _bStatic);
-	
+	auto	GetRenderProperty() const& { return _RenderProp; };
 private:
 	void	SetScene(Scene* const _pScene);
 	void	SetGameObject(std::weak_ptr<GameObject> _pGameObject);
