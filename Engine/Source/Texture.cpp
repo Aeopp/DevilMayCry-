@@ -23,10 +23,11 @@ void Texture::Free()
 	Resource::Free();
 }
 
-Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFilePath)
+Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFilePath ,
+						const TextureInformation& InitTextureInfo)
 {
 	Texture* pInstance = new Texture(_pDevice);
-
+	pInstance->_TextureInfo = InitTextureInfo;
 	if (FAILED(pInstance->LoadTextureFromFile(_sFilePath)))
 	{
 		pInstance->Free();
@@ -38,7 +39,7 @@ Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFile
 
 Resource* Texture::Clone()
 {
-	Texture* pClone = new Texture(*this);
+	Texture* pClone = new Texture(m_pDevice);
 	return pClone;
 }
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -132,6 +132,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../Reference/Header/;./;../Source/;../Header/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,6 +155,7 @@ call Engine.bat</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../Reference/Header/;./;../Source/;../Header/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -169,7 +171,7 @@ call Engine.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Header\AssimpHelper.h" />
+    <ClInclude Include="..\Header\AssimpHelper.hpp" />
     <ClInclude Include="..\Header\Component.h" />
     <ClInclude Include="..\Header\Core.h" />
     <ClInclude Include="..\Header\CoreSystem.h" />
@@ -181,12 +183,18 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\EngineStdafx.h" />
     <ClInclude Include="..\Header\EngineStruct.h" />
     <ClInclude Include="..\Header\EngineTypedef.h" />
+    <ClInclude Include="..\Header\FMath.hpp" />
     <ClInclude Include="..\Header\GameObject.h" />
     <ClInclude Include="..\Header\GameObject.hpp" />
+<<<<<<< HEAD
     <ClInclude Include="..\Header\Graphic.h" />
     <ClInclude Include="..\Header\GraphicSystem.h" />
     <ClInclude Include="..\Header\Input.h" />
     <ClInclude Include="..\Header\InputSystem.h" />
+=======
+    <ClInclude Include="..\Header\Material.h" />
+    <ClInclude Include="..\Header\MathStruct.hpp" />
+>>>>>>> 00ae5e524aa64c4216e61ab5f75e320caa4e0c6d
     <ClInclude Include="..\Header\Mesh.h" />
     <ClInclude Include="..\Header\Object.h" />
     <ClInclude Include="..\Header\Resource.h" />
@@ -200,15 +208,26 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\SceneSystem.h" />
     <ClInclude Include="..\Header\Shader.h" />
     <ClInclude Include="..\Header\StaticMesh.h" />
+    <ClInclude Include="..\Header\StringHelper.hpp" />
+    <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
+<<<<<<< HEAD
     <ClInclude Include="..\Header\Timer.h" />
     <ClInclude Include="..\Header\TimeSystem.h" />
+=======
+    <ClInclude Include="..\Header\TextureInformation.hpp" />
+>>>>>>> 00ae5e524aa64c4216e61ab5f75e320caa4e0c6d
     <ClInclude Include="..\Header\Transform.h" />
+    <ClInclude Include="..\Header\VertexInformation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Component.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="..\Source\Core.cpp" />
     <ClCompile Include="..\Source\CoreSystem.cpp" />
+=======
+    <ClCompile Include="..\Source\Material.cpp" />
+>>>>>>> 00ae5e524aa64c4216e61ab5f75e320caa4e0c6d
     <ClCompile Include="..\Source\GameObject.cpp" />
     <ClCompile Include="..\Source\Graphic.cpp" />
     <ClCompile Include="..\Source\GraphicSystem.cpp" />
@@ -224,6 +243,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\SceneSystem.cpp" />
     <ClCompile Include="..\Source\Shader.cpp" />
     <ClCompile Include="..\Source\StaticMesh.cpp" />
+    <ClCompile Include="..\Source\Subset.cpp" />
     <ClCompile Include="..\Source\Texture.cpp" />
     <ClCompile Include="..\Source\Timer.cpp" />
     <ClCompile Include="..\Source\TimeSystem.cpp" />

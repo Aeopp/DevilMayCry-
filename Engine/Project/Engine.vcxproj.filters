@@ -168,9 +168,6 @@
     <ClInclude Include="..\Header\GameObject.hpp">
       <Filter>02.Utility\01.GameObject\00.Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\AssimpHelper.h">
-      <Filter>99.Default</Filter>
-    </ClInclude>
     <ClInclude Include="..\Header\Mesh.h">
       <Filter>03.Resource\02.Mesh\00.Mesh</Filter>
     </ClInclude>
