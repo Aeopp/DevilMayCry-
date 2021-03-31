@@ -186,15 +186,12 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\FMath.hpp" />
     <ClInclude Include="..\Header\GameObject.h" />
     <ClInclude Include="..\Header\GameObject.hpp" />
-<<<<<<< HEAD
     <ClInclude Include="..\Header\Graphic.h" />
     <ClInclude Include="..\Header\GraphicSystem.h" />
     <ClInclude Include="..\Header\Input.h" />
     <ClInclude Include="..\Header\InputSystem.h" />
-=======
     <ClInclude Include="..\Header\Material.h" />
     <ClInclude Include="..\Header\MathStruct.hpp" />
->>>>>>> 00ae5e524aa64c4216e61ab5f75e320caa4e0c6d
     <ClInclude Include="..\Header\Mesh.h" />
     <ClInclude Include="..\Header\Object.h" />
     <ClInclude Include="..\Header\Resource.h" />
@@ -211,23 +208,17 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\StringHelper.hpp" />
     <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
-<<<<<<< HEAD
     <ClInclude Include="..\Header\Timer.h" />
     <ClInclude Include="..\Header\TimeSystem.h" />
-=======
     <ClInclude Include="..\Header\TextureInformation.hpp" />
->>>>>>> 00ae5e524aa64c4216e61ab5f75e320caa4e0c6d
     <ClInclude Include="..\Header\Transform.h" />
     <ClInclude Include="..\Header\VertexInformation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Component.cpp" />
-<<<<<<< HEAD
     <ClCompile Include="..\Source\Core.cpp" />
     <ClCompile Include="..\Source\CoreSystem.cpp" />
-=======
     <ClCompile Include="..\Source\Material.cpp" />
->>>>>>> 00ae5e524aa64c4216e61ab5f75e320caa4e0c6d
     <ClCompile Include="..\Source\GameObject.cpp" />
     <ClCompile Include="..\Source\Graphic.cpp" />
     <ClCompile Include="..\Source\GraphicSystem.cpp" />
