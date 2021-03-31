@@ -64,15 +64,18 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 	);
 
 	LocalVertexLocations = std::make_shared<std::vector<Vector3>>();
-	SubSets = std::make_shared<std::vector<Subset>>();
-	SubSets->resize(AiScene->mNumMeshes);
+	//SubSets = std::make_shared<std::vector<Subset>>();
+	//SubSets->resize(AiScene->mNumMeshes);
+	SubSets.resize(AiScene->mNumMeshes);
 
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
 		const auto *const AiMesh = AiScene->mMeshes[MeshIdx];
 
-		std::shared_ptr<Subset> _CurrentSubset =
-			std::make_shared<Subset>(Subset::Create(m_pDevice), Deleter<Subset>());
+		//???
+		std::shared_ptr<Subset> _CurrentSubset /*=
+			std::make_shared<Subset>(Subset::Create(m_pDevice), Deleter<Object>())*/;
+		_CurrentSubset.reset(Subset::Create(m_pDevice), Deleter<Object>());
 
 		const VertexInformation _VertexInformation = AssimpHelper::LoadVertexInformation(AiMesh, m_pDevice);
 
@@ -107,6 +110,8 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 			_VertexInformation ,
 			CurLoadMaterial);
 	};
+
+	return S_OK;
 }
 
 

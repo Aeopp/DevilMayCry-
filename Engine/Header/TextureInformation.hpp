@@ -1,8 +1,8 @@
 #ifndef __TEXTUREINFORMATION_H__
 #define __TEXTUREINFORMATION_H__
+#include "assimp/material.h"
 #include "Resource.h"
 #include "EngineTypedef.h"
-#include "assimp/material.h"
 
 BEGIN(ENGINE)
 class ENGINE_DLL TextureInformation 

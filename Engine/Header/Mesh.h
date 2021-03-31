@@ -1,7 +1,7 @@
 #ifndef __MESH_H__
 #define __MESH_H__
-#include "Resource.h"
 #include "Subset.h"
+#include "Resource.h"
 #include "EngineTypedef.h"
 #include <memory>
 #include <vector>
@@ -22,7 +22,8 @@ public:
 	auto GetLocalVertexLocations() const& { return LocalVertexLocations; };
 protected:
 	std::shared_ptr<std::vector<Vector3>> LocalVertexLocations{};
-	std::shared_ptr<std::vector<Subset>>  SubSets{};
+	std::vector<std::shared_ptr<Subset>>  SubSets;
+	//std::shared_ptr<std::vector<Subset>>  SubSets{};
 };
 
 END

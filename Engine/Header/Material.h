@@ -1,8 +1,8 @@
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
+#include "assimp/material.h"
 #include "EngineDefine.h"
 #include "Texture.h"
-#include "assimp/material.h"
 #include "EngineTypedef.h"
 #include <string>
 #include <unordered_map>

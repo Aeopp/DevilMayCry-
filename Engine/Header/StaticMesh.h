@@ -1,9 +1,9 @@
 #ifndef __STATIC_MESH_H__
 #define __STATIC_MESH_H__
-#include "Mesh.h"
-#include "StringHelper.hpp"
 #include "AssimpHelper.hpp"
+#include "StringHelper.hpp"
 #include "Subset.h"
+#include "Mesh.h"
 #include <memory>
 #include <vector>
 #include "EngineDefine.h"

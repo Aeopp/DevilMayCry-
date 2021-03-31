@@ -39,7 +39,7 @@ Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFile
 
 Resource* Texture::Clone()
 {
-	Texture* pClone = new Texture(m_pDevice);
+	Texture* pClone = new Texture(*this);
 	return pClone;
 }
 

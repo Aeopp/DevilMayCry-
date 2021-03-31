@@ -5,6 +5,13 @@ BEGIN(ENGINE)
 class Transform final : public Component
 {
 private:
+	D3DXVECTOR3	m_vLocalScale;
+	D3DXVECTOR3	m_vWorldScale;
+	D3DXVECTOR3	m_vLocalRotation;
+	D3DXVECTOR3 m_vWorldRotation;
+	D3DXVECTOR3	m_vLocalPosition;
+	D3DXVECTOR3	m_vWorldPosition;
+private:
 	explicit Transform(std::weak_ptr<GameObject> const _pGameObject);
 	virtual ~Transform() = default;
 	// Component을(를) 통해 상속됨

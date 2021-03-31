@@ -1,8 +1,8 @@
 #ifndef __TEXTURE_H__
 #define __TEXTURE_H__
+#include "TextureInformation.hpp"
 #include "Resource.h"
 #include "EngineTypedef.h"
-#include "TextureInformation.hpp"
 
 BEGIN(ENGINE)
 class ENGINE_DLL Texture final : public Resource

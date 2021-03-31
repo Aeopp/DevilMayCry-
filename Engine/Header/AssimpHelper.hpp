@@ -1,10 +1,10 @@
 #ifndef __ASSIMP_HELPER_H__
 #define __ASSIMP_HELPER_H__
-#include "EngineDefine.h"
-#include "EngineTypedef.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
+#include "EngineDefine.h"
+#include "EngineTypedef.h"
 #include "Material.h"
 #include "VertexInformation.hpp"
 #include <filesystem>
@@ -299,7 +299,8 @@ namespace AssimpHelper
 
 							if (TexPtr)
 							{
-								_CurTexTypeMap[TexIdx] = std::make_shared<Texture>(TexPtr);
+								//_CurTexTypeMap[TexIdx] = std::make_shared<Texture>(TexPtr);
+								_CurTexTypeMap[TexIdx].reset(TexPtr, Deleter<Object>());
 							};
 						}
 					};

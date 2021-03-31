@@ -1,8 +1,8 @@
 #ifndef __SUBSET_H__
 #define __SUBSET_H__
 
-#include "Object.h"
 #include "Material.h"
+#include "Object.h"
 #include "VertexInformation.hpp"
 
 BEGIN(ENGINE)
