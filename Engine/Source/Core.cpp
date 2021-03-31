@@ -8,6 +8,11 @@ ENGINE_DLL HWND					g_hWnd;
 ENGINE_DLL int					g_nWndCX;
 ENGINE_DLL int					g_nWndCY;
 ENGINE_DLL WNDMODE				g_eWndMode;
+ENGINE_DLL bool					bDebugMode;
+ENGINE_DLL bool                 bEditMode;
+ENGINE_DLL bool                 bDebugCollision;
+ENGINE_DLL bool					bDebugRenderTargetRender;
+
 
 std::weak_ptr<CoreSystem> Engine::m_pCoreSystem = CoreSystem::GetInstance();
 

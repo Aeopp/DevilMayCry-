@@ -194,6 +194,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Mesh.h" />
     <ClInclude Include="..\Header\Object.h" />
     <ClInclude Include="..\Header\Renderer.h" />
+    <ClInclude Include="..\Header\RenderProperty.h" />
     <ClInclude Include="..\Header\Resource.h" />
     <ClInclude Include="..\Header\Resources.h" />
     <ClInclude Include="..\Header\Resources.hpp" />
@@ -236,6 +237,9 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Timer.cpp" />
     <ClCompile Include="..\Source\TimeSystem.cpp" />
     <ClCompile Include="..\Source\Transform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Resource\Shader\Default.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

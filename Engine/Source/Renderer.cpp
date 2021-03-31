@@ -19,6 +19,8 @@ void Renderer::Push(const std::shared_ptr<GameObject>& _RenderEntity)&
 
 void Renderer::Render()&
 {
+	// 그래픽 디바이스 시작
+
 	for (auto& [_CurRenderGroup, _GroupEntitys  ]: RenderEntitys)
 	{
 		for (auto& CurEntity : _GroupEntitys)
@@ -26,4 +28,15 @@ void Renderer::Render()&
 			CurEntity->Render(this);
 		}
 	}
+
+
+	ImGui::EndFrame();
+	ImGui::Render();
+	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
+
+	// 그래픽 디바이스 End
+
+
+
 }

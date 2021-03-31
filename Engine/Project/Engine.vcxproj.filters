@@ -216,9 +216,12 @@
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
     <ClInclude Include="..\Header\FMath.hpp" />
     <ClInclude Include="..\Header\MathStruct.hpp" />
-    <ClInclude Include="..\Header\Subset.h">
-      <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
-    </ClInclude>
+    <ClInclude Include="..\Header\StringHelper.hpp" />
+    <ClInclude Include="..\Header\Subset.h" />
+    <ClInclude Include="..\Header\TextureInformation.hpp" />
+    <ClInclude Include="..\Header\VertexInformation.hpp" />
+    <ClInclude Include="..\Header\Renderer.h" />
+    <ClInclude Include="..\Header\RenderProperty.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -290,5 +293,8 @@
     <ClCompile Include="..\Source\Subset.cpp">
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Resource\Shader\Default.hlsl" />
   </ItemGroup>
 </Project>

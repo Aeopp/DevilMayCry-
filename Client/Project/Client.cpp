@@ -142,8 +142,14 @@ HRESULT InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return S_OK;
 }
 
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT nMessage, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, nMessage, wParam, lParam))
+	{
+		return true;
+	}
+
 	switch (nMessage)
 	{
 	case WM_DESTROY:
