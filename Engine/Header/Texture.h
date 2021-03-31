@@ -1,6 +1,5 @@
 #ifndef __TEXTURE_H__
 #define __TEXTURE_H__
-#include "TextureInformation.hpp"
 #include "Resource.h"
 BEGIN(ENGINE)
 class ENGINE_DLL Texture final : public Resource

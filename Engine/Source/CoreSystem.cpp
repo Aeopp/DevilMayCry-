@@ -10,14 +10,14 @@ IMPLEMENT_SINGLETON(CoreSystem)
 
 static void ImGuiFrameStart()
 {
-	ImGui_ImplDX9_NewFrame();
+	/*ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	ImGui::NewFrame();*/
 }
 
 static void SetupImGuiStyle()
 {
-	ImGuiStyle* style = &ImGui::GetStyle();
+	/*ImGuiStyle* style = &ImGui::GetStyle();
 
 	style->WindowPadding = ImVec2(15, 15);
 	style->WindowRounding = 5.0f;
@@ -66,7 +66,7 @@ static void SetupImGuiStyle()
 	style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
 	style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
-	style->Colors[ImGuiCol_::ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
+	style->Colors[ImGuiCol_::ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);*/
 };
 
 
@@ -74,7 +74,7 @@ static void SetupImGuiStyle()
 
 void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device)
 {
-	IMGUI_CHECKVERSION();
+	/*IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& ImGuiIoRef = ImGui::GetIO();
 	ImGuiIoRef.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -87,7 +87,7 @@ void ImGuiInitialize(const HWND Hwnd, IDirect3DDevice9* const Device)
 	ImGui::StyleColorsDark();
 	SetupImGuiStyle();
 	ImGui_ImplWin32_Init(Hwnd);
-	ImGui_ImplDX9_Init(Device);
+	ImGui_ImplDX9_Init(Device);*/
 }
 
 CoreSystem::CoreSystem()
@@ -112,9 +112,9 @@ void CoreSystem::Free()
 	m_pTimeSystem.reset();
 	TimeSystem::DeleteInstance();
 
-	ImGui_ImplDX9_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplDX9_Shutdown();
+	//ImGui_ImplWin32_Shutdown();
+	//ImGui::DestroyContext();
 }
 
 HRESULT CoreSystem::ReadyEngine()
@@ -159,14 +159,14 @@ HRESULT CoreSystem::ReadyEngine()
 	bDebugCollision = false;
 	bDebugRenderTargetRender = false;
 
-	ImGuiInitialize(g_hWnd, m_pGraphicSystem.lock()->GetDevice());
+	//ImGuiInitialize(g_hWnd, m_pGraphicSystem.lock()->GetDevice());
 
 	return S_OK;
 }
 
 HRESULT CoreSystem::UpdateEngine()
 {
-	ImGuiFrameStart();
+	/*ImGuiFrameStart();*/
 
 	if (FAILED(m_pInputSystem.lock()->UpdateInputSystem()))
 	{

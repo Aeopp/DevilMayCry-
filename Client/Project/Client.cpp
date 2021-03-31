@@ -145,10 +145,10 @@ HRESULT InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT nMessage, WPARAM wParam, LPARAM lParam)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, nMessage, wParam, lParam))
+	/*if (ImGui_ImplWin32_WndProcHandler(hWnd, nMessage, wParam, lParam))
 	{
 		return true;
-	}
+	}*/
 
 	switch (nMessage)
 	{

@@ -8,7 +8,7 @@
 #include "RenderProperty.h"
 
 BEGIN(ENGINE)
-class Renderer final : public Object
+class ENGINE_DLL Renderer final : public Object
 {
 	DECLARE_SINGLETON(Renderer) 
 private : 

@@ -3,6 +3,11 @@
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
 
+Renderer::Renderer()
+{
+
+}
+
 void Renderer::Free()
 {
 
@@ -23,16 +28,20 @@ void Renderer::Render()&
 
 	for (auto& [_CurRenderGroup, _GroupEntitys  ]: RenderEntitys)
 	{
-		for (auto& CurEntity : _GroupEntitys)
+		for (auto& WeakCurEntity : _GroupEntitys)
 		{
-			CurEntity->Render(this);
+			if (auto CurEntity = WeakCurEntity.lock();
+				CurEntity)
+			{
+				CurEntity->Render(this);
+			}
 		}
 	}
 
 
-	ImGui::EndFrame();
-	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+	//ImGui::EndFrame();
+	//ImGui::Render();
+	//ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
 
 	// 그래픽 디바이스 End
