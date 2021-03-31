@@ -1,13 +1,10 @@
 #ifndef _RENDERER_H_
 #define _RENDERER_H_
 #include "Object.h"
-#include "GameObject.h"
-#include <map>
-#include <memory>
-#include <vector>
 #include "RenderProperty.h"
 
 BEGIN(ENGINE)
+class GameObject;
 class Renderer final : public Object
 {
 	DECLARE_SINGLETON(Renderer) 

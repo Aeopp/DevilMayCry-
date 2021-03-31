@@ -24,6 +24,9 @@ TestScene* TestScene::Create()
 HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
+	//Resources::Load<Texture>(TEXT("../../Resource/TestMesh/Test.png"));
+
+	Resources::Load<StaticMesh>(TEXT("../../Resource/TestMesh/Move.fbx"));
 	return S_OK;
 }
 

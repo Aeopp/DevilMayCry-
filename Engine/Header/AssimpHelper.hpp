@@ -243,7 +243,7 @@ static inline HRESULT LoadMesh(
 	}
 	//정점 버퍼 데이터 설정.
 	void* pVertices = nullptr;
-	(*_ppVB)->Lock(0, 0, (void**)pVertices, 0);
+	(*_ppVB)->Lock(0, 0, &pVertices, 0);
 	memcpy(pVertices, vecVertices.data(), (size_t)_pVBDesc->nBufferSize);
 	(*_ppVB)->Unlock();
 
@@ -271,7 +271,7 @@ static inline HRESULT LoadMesh(
 	}
 	//인덱스 버퍼 데이터 설정
 	uint32* pIndices = nullptr;
-	(*_ppIB)->Lock(0, 0, (void**)pIndices, 0);
+	(*_ppIB)->Lock(0, 0, (void**)&pIndices, 0);
 	memcpy(pIndices, vecIndices.data(), IdxBufSize);
 	(*_ppIB)->Unlock();
 #pragma endregion
@@ -292,13 +292,13 @@ static inline HRESULT LoadMaterial(
 	//
 	aiMaterial* pAiMaterial = _pAiScene->mMaterials[_pAiMesh->mMaterialIndex];
 	//재질 이름 설정.
-	std::filesystem::path sBuf = pAiMaterial->GetName().C_Str();
-#ifdef UNICODE
-	std::wstring sName = sBuf.wstring();
-#else
-	std::string sName = sBuf.string();
-#endif
-	_pMaterial->sName = sName;
+//	std::filesystem::path sBuf = pAiMaterial->GetName().C_Str();
+//#ifdef UNICODE
+//	std::wstring sName = sBuf.wstring();
+//#else
+//	std::string sName = sBuf.string();
+//#endif
+//	_pMaterial->sName = sName;
 
 	//재질 정보 설정
 	aiColor4D color;
@@ -359,7 +359,7 @@ static inline HRESULT LoadMaterial(
 				pTexture->SetDesc(tTextureDesc);
 
 				if (nullptr != pTexture)
-					_pMaterial->Textures[nTexIdx].push_back(pTexture);
+					_pMaterial->Textures[aiTexType][nTexIdx] = pTexture;
 			}
 		}
 	}

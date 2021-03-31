@@ -6,8 +6,9 @@ Texture::Texture(LPDIRECT3DDEVICE9 const _pDevice)
 	: Resource(_pDevice)
 	, m_pTexture(nullptr)
 {
-	ZeroMemory(&m_tInfo, sizeof(D3DXIMAGE_INFO));
-	ZeroMemory(&m_tDesc, sizeof(D3DXIMAGE_INFO));
+	
+	ZeroMemory(&m_tInfo, sizeof(decltype(m_tInfo)));
+	ZeroMemory(&m_tDesc, sizeof(decltype(m_tDesc)));
 }
 
 Texture::Texture(const Texture& _rOther)

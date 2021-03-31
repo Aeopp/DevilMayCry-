@@ -1,6 +1,5 @@
 #ifndef __TEXTURE_H__
 #define __TEXTURE_H__
-#include "TextureInformation.hpp"
 #include "Resource.h"
 BEGIN(ENGINE)
 class ENGINE_DLL Texture final : public Resource
@@ -11,12 +10,11 @@ private:
 	TEXTUREDESC			m_tDesc;
 private:
 	explicit Texture(LPDIRECT3DDEVICE9 const _pDevice);
-	explicit Texture(const Texture& _rOther);
-	
+	explicit Texture(const Texture& _rOther);	
+	virtual	~Texture() = default;
 	// Resource을(를) 통해 상속됨
 	virtual void Free() override;
-public:
-	virtual	~Texture() = default;
+
 public:
 	static Texture*   Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem::path _Path);
 	// Resource을(를) 통해 상속됨

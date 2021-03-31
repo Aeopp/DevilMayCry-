@@ -115,7 +115,11 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 			SafeRelease(pIB);
 			return E_FAIL;
 		}
-		m_vecSubset.push_back(_CurrentSubset);
+
+		SafeAddRef(tVBDesc.pVertexDecl);
+
+		_CurrentSubset->Initialize(pVB, pIB, tVBDesc, tMaterial);
+		m_vecSubset[MeshIdx] = _CurrentSubset;
 	};
 
 	return S_OK;

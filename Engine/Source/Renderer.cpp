@@ -1,7 +1,13 @@
 #include "Renderer.h"
+#include "GameObject.h"
 
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
+
+Renderer::Renderer()
+{
+
+};
 
 void Renderer::Free()
 {
@@ -23,7 +29,7 @@ void Renderer::Render()&
 	{
 		for (auto& CurEntity : _GroupEntitys)
 		{
-			CurEntity->Render(this);
+			CurEntity.lock()->Render(this);
 		}
 	}
 }

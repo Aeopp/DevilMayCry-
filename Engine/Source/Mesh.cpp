@@ -16,7 +16,6 @@ Mesh::Mesh(const Mesh& _rOther)
 
 void Mesh::Free()
 {
-	//Mesh SubSet «ÿ¡¶
 	m_vecSubset.clear();
 	m_vecSubset.shrink_to_fit();
 	Resource::Free();
