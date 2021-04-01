@@ -29,7 +29,8 @@ struct Segment2D
 		_Segment._Ray.Start = Begin;
 		Vector2 ToEnd = End - Begin;
 		_Segment.t = D3DXVec2Length(&ToEnd);
-		_Segment._Ray.Direction = *D3DXVec2Normalize(nullptr, &ToEnd);
+		Vector2 OutNormal{};
+		_Segment._Ray.Direction = *D3DXVec2Normalize(&OutNormal, &ToEnd);
 		return _Segment;
 	};
 

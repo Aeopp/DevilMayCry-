@@ -17,7 +17,8 @@ void GraphicSystem::Free()
 
 HRESULT GraphicSystem::ReadyGraphicSystem(const bool bWindowed)
 {
-	m_pSDK = Direct3DCreate9(D3D_SDK_VERSION);
+	g_pSDK =m_pSDK = Direct3DCreate9(D3D_SDK_VERSION);
+
 	g_bWindowed = bWindowed;
 
 	if (nullptr == m_pSDK)
@@ -83,6 +84,28 @@ HRESULT GraphicSystem::ReadyGraphicSystem(const bool bWindowed)
 		SafeRelease(m_pSDK);
 		return E_FAIL;
 	}
+
+	g_pDevice = m_pDevice;
+
+	// HDR 렌더링이 가능한 상태인지 체크.
+	D3DDISPLAYMODE Mode;
+
+	if (FAILED(g_pSDK->GetAdapterDisplayMode(0, &Mode))) {
+		PRINT_LOG(L"Could not get adapter mode", L"Could not get adapter mode");
+		return E_FAIL;
+	}
+
+	if (FAILED(g_pSDK->CheckDeviceFormat(0, D3DDEVTYPE_HAL, Mode.Format, D3DUSAGE_RENDERTARGET, D3DRTYPE_TEXTURE, D3DFMT_A16B16G16R16F))) {
+		PRINT_LOG(L"No floating point rendertarget support", L"No floating point rendertarget support");
+		return E_FAIL;
+	}
+
+	if (FAILED(g_pSDK->CheckDepthStencilMatch(0, D3DDEVTYPE_HAL, Mode.Format, D3DFMT_A16B16G16R16F, D3DFMT_D24S8))) {
+		PRINT_LOG(L"D3DFMT_A16B16G16R16F does not support D3DFMT_D24S8", L"D3DFMT_A16B16G16R16F does not support D3DFMT_D24S8");
+		return E_FAIL;
+	}
+
+
 	return S_OK;
 }
 

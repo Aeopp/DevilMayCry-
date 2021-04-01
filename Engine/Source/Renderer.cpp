@@ -2,6 +2,10 @@
 #include "imgui_impl_dx9.h"
 #include "Renderer.h"
 #include "GraphicSystem.h"
+#include "FMath.hpp"
+#include <d3d9.h>
+#include <d3dx9.h>
+
 
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
@@ -13,7 +17,7 @@ Renderer::Renderer()
 
 void Renderer::Free()
 {
-	// CameraFrustum.Release();
+	CameraFrustum.Release();
 };
 
 
@@ -21,7 +25,8 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 {
 	m_pDevice = _pDevice;
 	SafeAddRef(m_pDevice);
-	// CameraFrustum.Initialize(m_pDevice);
+	CameraFrustum.Initialize(m_pDevice);
+
 
 	return S_OK;
 }

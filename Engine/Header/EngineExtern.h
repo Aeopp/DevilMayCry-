@@ -10,5 +10,6 @@ extern ENGINE_DLL bool                  bDebugMode;
 extern ENGINE_DLL bool                  bEditMode;
 extern ENGINE_DLL bool                  bDebugCollision;
 extern ENGINE_DLL bool                  bDebugRenderTargetRender;
-
+extern ENGINE_DLL LPDIRECT3D9			g_pSDK;
+extern ENGINE_DLL LPDIRECT3DDEVICE9		g_pDevice;
 #endif // !__ENGINE_EXTERN_H__

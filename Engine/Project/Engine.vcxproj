@@ -205,6 +205,8 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Object.h" />
     <ClInclude Include="..\Header\Renderer.h" />
     <ClInclude Include="..\Header\RenderProperty.h" />
+    <ClInclude Include="..\Header\RenderTarget.h" />
+    <ClInclude Include="..\Header\RenderTargetSystem.h" />
     <ClInclude Include="..\Header\Resource.h" />
     <ClInclude Include="..\Header\Resources.h" />
     <ClInclude Include="..\Header\Resources.hpp" />
@@ -243,6 +245,8 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\MeshRenderer.cpp" />
     <ClCompile Include="..\Source\Object.cpp" />
     <ClCompile Include="..\Source\Renderer.cpp" />
+    <ClCompile Include="..\Source\RenderTarget.cpp" />
+    <ClCompile Include="..\Source\RenderTargetSystem.cpp" />
     <ClCompile Include="..\Source\Resource.cpp" />
     <ClCompile Include="..\Source\Resources.cpp" />
     <ClCompile Include="..\Source\ResourceSystem.cpp" />
@@ -258,7 +262,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Resource\Shader\Default.hlsl">
+    <ClInclude Include="..\..\Resource\Shader\HDR.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

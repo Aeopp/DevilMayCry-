@@ -1,7 +1,7 @@
 #ifndef __ENGINE_TYPEDEF_H__
 #define __ENGINE_TYPEDEF_H__
 #include <d3dx9math.h>
-BEGIN(ENGINE)
+#include <string>
 #pragma region TSTRING
 
 #ifdef UNICODE
@@ -35,5 +35,4 @@ using int8 = char;
 using uint8 = unsigned char;
 #pragma endregion
 
-END
 #endif // !__ENGINE_TYPEDEF_H__

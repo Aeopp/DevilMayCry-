@@ -8,6 +8,8 @@ ENGINE_DLL HWND					g_hWnd;
 ENGINE_DLL int					g_nWndCX;
 ENGINE_DLL int					g_nWndCY;
 ENGINE_DLL bool 				g_bWindowed;
+ENGINE_DLL LPDIRECT3D9			g_pSDK;
+ENGINE_DLL LPDIRECT3DDEVICE9	g_pDevice;
 ENGINE_DLL bool					bDebugMode;
 ENGINE_DLL bool                 bEditMode;
 ENGINE_DLL bool                 bDebugCollision;
