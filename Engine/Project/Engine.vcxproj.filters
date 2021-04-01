@@ -109,6 +109,9 @@
     <Filter Include="03.Resource\02.Mesh\01.SubSet">
       <UniqueIdentifier>{e225c68a-30ee-4c29-b69b-47efac71a8bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.Utility\00.Component\02.MeshRenderer">
+      <UniqueIdentifier>{4f089a79-9de3-4a66-82cc-299ab3d45d60}</UniqueIdentifier>
+    </Filter>    
     <Filter Include="77.ImGui">
       <UniqueIdentifier>{7389c998-29a6-4888-8618-2ab363f9e8eb}</UniqueIdentifier>
     </Filter>
@@ -224,6 +227,10 @@
     <ClInclude Include="..\Header\Subset.h">
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\Renderer.h" />
+    <ClInclude Include="..\Header\MeshRenderer.h">
+    </ClInclude>
+      <Filter>02.Utility\00.Component\02.MeshRenderer</Filter>
     <ClInclude Include="..\..\Reference\Header\imgui\imconfig.h">
       <Filter>77.ImGui</Filter>
     </ClInclude>
@@ -322,6 +329,9 @@
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Renderer.cpp" />
+    <ClCompile Include="..\Source\MeshRenderer.cpp">
+      <Filter>02.Utility\00.Component\02.MeshRenderer</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\imgui\imgui.cpp">
       <Filter>77.ImGui</Filter>
     </ClCompile>

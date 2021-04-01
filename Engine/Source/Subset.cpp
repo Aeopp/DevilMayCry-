@@ -23,6 +23,30 @@ Subset* Subset::Create(LPDIRECT3DDEVICE9 const _pDevice)
 	return pInstance;
 }
 
+void Subset::Render()
+{
+	if (nullptr == m_pVertexBuffer || nullptr == m_pIndexBuffer)
+		return;
+
+	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, m_tVertexBufferDesc.nStride);
+	m_pDevice->SetVertexDeclaration(m_tVertexBufferDesc.pVertexDecl);
+	m_pDevice->SetIndices(m_pIndexBuffer);
+	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_tVertexBufferDesc.nNumVertices, 0, m_tVertexBufferDesc.nNumFaces);
+
+}
+
+const VERTEXBUFFERDESC& Subset::GetVertexBufferDesc()
+{
+	// TODO: 여기에 return 문을 삽입합니다.
+	return m_tVertexBufferDesc;
+}
+
+const MATERIAL& Subset::GetMaterial()
+{
+	// TODO: 여기에 return 문을 삽입합니다.
+	return m_tMaterial;
+}
+
 void Subset::Initialize(LPDIRECT3DVERTEXBUFFER9 const _pVB, LPDIRECT3DINDEXBUFFER9 const _pIB, const VERTEXBUFFERDESC& _tVBDesc, const MATERIAL& _tMaterial)
 {
 	m_pVertexBuffer		= _pVB;

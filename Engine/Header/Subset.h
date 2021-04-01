@@ -22,6 +22,10 @@ public:
 	static Subset* Create(LPDIRECT3DDEVICE9 const _pDevice);
 public:
 	void Initialize(LPDIRECT3DVERTEXBUFFER9 const _pVB, LPDIRECT3DINDEXBUFFER9 const _pIB, const VERTEXBUFFERDESC & _tVBDesc, const MATERIAL & _tMaterial);
+	void Render();
+public:
+	const VERTEXBUFFERDESC& GetVertexBufferDesc();
+	const MATERIAL&			GetMaterial();
 };
 END
 #endif // !__SUBSET_H__

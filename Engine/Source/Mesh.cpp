@@ -19,3 +19,39 @@ void Mesh::Free()
 	m_vecSubset.shrink_to_fit();
 	Resource::Free();
 }
+
+HRESULT Mesh::Render()
+{
+	for (auto& pSubset : m_vecSubset)
+	{
+		if (nullptr == pSubset)
+			continue;
+		pSubset->Render();
+	}
+}
+
+std::weak_ptr<Subset> Mesh::GetSubset(const UINT _nIndex)
+{
+	if (_nIndex >= m_vecSubset.size())
+		return std::weak_ptr<Subset>();
+
+	return m_vecSubset[_nIndex];
+}
+
+const VERTEXBUFFERDESC& Mesh::GetVertexBufferDesc(const UINT _nSubsetIdx)
+{
+	// TODO: 여기에 return 문을 삽입합니다.
+	if (_nSubsetIdx >= m_vecSubset.size())
+		return VERTEXBUFFERDESC();
+
+	return m_vecSubset[_nSubsetIdx]->GetVertexBufferDesc();
+}
+
+const MATERIAL& Mesh::GetMaterial(const UINT _nSubsetIdx)
+{
+	// TODO: 여기에 return 문을 삽입합니다.
+	if (_nSubsetIdx >= m_vecSubset.size())
+		return MATERIAL();
+
+	return m_vecSubset[_nSubsetIdx]->GetMaterial();
+}
