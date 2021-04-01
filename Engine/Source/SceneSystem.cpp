@@ -27,6 +27,7 @@ void SceneSystem::Free()
 
 HRESULT SceneSystem::ReadySceneSystem()
 {
+
 	return S_OK;
 }
 

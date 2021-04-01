@@ -9,6 +9,7 @@ private:
 	virtual ~TestObject() = default;
 	// GameObject을(를) 통해 상속됨
 	virtual void Free() override;
+
 public:
 	static TestObject* Create();
 public:

@@ -28,15 +28,15 @@
     <Filter Include="99.Default\02.Header">
       <UniqueIdentifier>{c0f00759-e8c5-4e2a-86ff-caad12de51fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.Scene\98.MapTool">
+      <UniqueIdentifier>{d1c60020-f1c0-411d-b01b-5cac13afe3bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
       <Filter>99.Default\02.Header</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>99.Default\02.Header</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
       <Filter>99.Default\02.Header</Filter>
     </ClInclude>
     <ClInclude Include="Client.h">
@@ -53,6 +53,12 @@
     </ClInclude>
     <ClInclude Include="..\Header\TestObject.h">
       <Filter>02.GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MapTool.h">
+      <Filter>03.Scene\98.MapTool</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>99.Default\02.Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\TestObject.cpp">
       <Filter>02.GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapTool.cpp">
+      <Filter>03.Scene\98.MapTool</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

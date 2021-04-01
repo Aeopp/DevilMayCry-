@@ -112,7 +112,7 @@ HRESULT GraphicSystem::ReadyGraphicSystem(const bool bWindowed)
 void GraphicSystem::Begin()&
 {
 	m_pDevice->Clear(0, nullptr, D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		0xff00ff00, 1.f, 0);
+		0xffb5d692, 1.f, 0);
 	m_pDevice->BeginScene();
 }
 
