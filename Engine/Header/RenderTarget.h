@@ -20,7 +20,7 @@ public:
 	void Release()&;
 
 	IDirect3DTexture9* GetTexture()const& { return TargetTexture;  };
-	IDirect3DSurface9* GetSurface(const size_t Index)const&;
+	IDirect3DSurface9* GetSurface(const uint64 Index)const&;
 	void InsertSurface(const UINT Level)&;
 	Info GetInfo()& { return _RenderTargetInfo;  };
 private:

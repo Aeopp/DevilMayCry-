@@ -1,11 +1,43 @@
 #include "stdafx.h"
 #include "..\Header\TestObject.h"
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <d3dx9mesh.h>
 #include <fstream>
 #include <ostream>
 #include "RenderTarget.h"
 #include "Shader.h"
 #include <array>
 #include "FMath.hpp"
+#include "GraphicSystem.h"
+
+
+D3DVIEWPORT9			oldviewport;
+D3DVIEWPORT9			viewport;
+D3DXVECTOR4				pixelsize(0, 0, 0, 1);
+D3DXVECTOR4				texelsize(0, 0, 0, 1);
+float					averageluminance = 0.1f;	// don't set this to zero!!!
+float					adaptedluminance = 0.1f;	// don't set this to zero!!!
+float					exposure = 0;
+uint8_t					mousebuttons = 0;
+int						currentafterimage = 0;
+bool					drawafterimage = false;
+
+
+LPD3DXMESH teapot = nullptr;
+LPD3DXMESH skull = nullptr;
+LPD3DXMESH knot = nullptr;
+LPD3DXMESH skymesh = nullptr;
+LPD3DXMESH mesh = nullptr;
+
+
+LPDIRECT3DCUBETEXTURE9	environment = nullptr;		
+// HDR environment
+LPDIRECT3DCUBETEXTURE9	irradiance1 = nullptr;		
+// preintegrated diffuse irradiance
+LPDIRECT3DCUBETEXTURE9	irradiance2 = nullptr;		// preintegrated specular irradiance
+IDirect3DTexture9* brdfLUT = nullptr;
+// preintegrated BRDF lookup texture
 
 std::shared_ptr<ENGINE::Shader> sky{};
 std::shared_ptr<ENGINE::Shader> metaleffect{};
@@ -40,20 +72,12 @@ HRESULT TestObject::Render()
 	Vector4	eye;
 	Vector3	orient;
 
-	// 어지럽다
-	D3DXMatrixIdentity(&identity);
+	D3DXMatrixIdentity(&Identity);
 
-	objectrotator.Animate(alpha);
-	objectrotator.GetOrientation(orient);
-
-	// NOTE: camera is right-handed
-	camera.Animate(alpha);
-	camera.GetViewMatrix(view);
-	camera.GetProjectionMatrix(proj);
-	camera.GetEyePosition((Math::Vector3&)eye);
-
-	device->SetRenderTarget(0, scenesurface);
-	device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+	IDirect3DDevice9* device = GraphicSystem::GetInstance()->GetDevice();
+	device->SetRenderTarget(0, scenetarget.GetSurface(0u ));
+	// 감마보정을 비활성화 한다 . (기본값도 false 이긴 함)
+	device->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
 	device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xff000000, 1.0f, 0);
 	{
 		// render sky
@@ -184,6 +208,19 @@ void TestObject::Free()
 		DeleteTarget.Release();
 	}
 
+
+	if (teapot)
+		teapot->Release();
+
+	teapot = nullptr;
+	skull = nullptr;
+	knot = nullptr;
+	skymesh = nullptr;
+	mesh = nullptr;
+	environment = nullptr;
+	irradiance1 = nullptr;
+	irradiance2 = nullptr;
+	brdfLUT = nullptr;
 };
 
 TestObject* TestObject::Create()

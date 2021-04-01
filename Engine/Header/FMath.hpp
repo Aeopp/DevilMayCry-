@@ -154,6 +154,10 @@ private:
 	public:
 		static inline Vector4 
 			sRGBToLinear(const uint8 Red, const uint8 Green, const uint8 Blue);
+		static inline Vector4
+			sRGBToLinear(const float Red, 
+				const float Green, const float Blue,
+				const float alpha);
 	};
 #pragma endregion 
 };
@@ -178,6 +182,29 @@ FMath::Color::sRGBToLinear(const uint8 Red, const uint8 Green, const uint8 Blue)
 
 	return ret;
 };
+
+ Vector4
+	 FMath::Color::sRGBToLinear(const float Red,
+		 const float Green, const float Blue ,
+		 const float alpha)
+ {
+	 Vector4 ret;
+
+	 float lo_r = (float)Red / 12.92f;
+	 float lo_g = (float)Green / 12.92f;
+	 float lo_b = (float)Blue / 12.92f;
+
+	 float hi_r = powf((Red + 0.055f) / 1.055f, 2.4f);
+	 float hi_g = powf((Green + 0.055f) / 1.055f, 2.4f);
+	 float hi_b = powf((Blue + 0.055f) / 1.055f, 2.4f);
+
+	 ret.x = (Red < 0.04f ? lo_r : hi_r);
+	 ret.y = (Green < 0.04f ? lo_g : hi_g);
+	 ret.z = (Blue < 0.04f ? lo_b : hi_b);
+	 ret.w = alpha;
+
+	 return ret;
+ }
 
 
 inline float FMath::MaxScala(const Vector3& Lhs)
