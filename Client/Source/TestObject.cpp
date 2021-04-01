@@ -9,15 +9,137 @@
 #include "Shader.h"
 #include <array>
 #include "FMath.hpp"
-#include "GraphicSystem.h"
 
+class Float16
+{
+private:
+	uint16_t bits;
+
+public:
+	Float16();
+	explicit Float16(float f);
+	explicit Float16(uint16_t s);
+
+	Float16& operator =(const Float16& other);
+	Float16& operator =(float f);
+	Float16& operator =(uint16_t s);
+	operator float() const;
+
+	inline operator uint16_t() const { return bits; }
+};
+float DXScreenQuadVertices[24] = {
+	-1, -1, 0, 1,	0, 1,
+	-1, 1, 0, 1,	0, 0,
+	1, -1, 0, 1,	1, 1,
+	1, 1, 0, 1,		1, 0
+};
+
+// --- Float16 impl -----------------------------------------------------------
+
+Float16::Float16()
+{
+	bits = 0;
+}
+
+Float16::Float16(float f)
+{
+	operator =(f);
+}
+
+Float16::Float16(uint16_t s)
+{
+	bits = s;
+}
+
+Float16& Float16::operator =(float f)
+{
+	uint32_t fp32 = *((uint32_t*)&f);
+	uint32_t signbit = (fp32 & 0x80000000) >> 16;
+	uint32_t mant = (fp32 & 0x007fffff);
+	int exp = ((fp32 & 0x7f800000) >> 23) - 112;
+
+	if (exp <= 0)
+		bits = 0;
+	else if (exp > 30)
+		bits = (uint16_t)(signbit | 0x7bff);
+	else
+		bits = (uint16_t)(signbit | (exp << 10) | (mant >> 13));
+
+	return *this;
+}
+
+Float16& Float16::operator =(uint16_t s)
+{
+	bits = s;
+	return *this;
+}
+
+Float16& Float16::operator =(const Float16& other)
+{
+	bits = other.bits;
+	return *this;
+}
+
+Float16::operator float() const
+{
+	uint32_t magic = 126 << 23;
+	uint32_t fp32 = (bits & 0x8000) << 16;
+	uint32_t mant = (bits & 0x000003ff);
+	int exp = (bits >> 10) & 0x0000001f;
+
+	if (exp == 0) {
+		fp32 = magic + mant;
+		(*(float*)&fp32) -= (*(float*)&magic);
+	}
+	else {
+		mant <<= 13;
+
+		if (exp == 31)
+			exp = 255;
+		else
+			exp += 127 - 15;
+
+		fp32 |= (exp << 23);
+		fp32 |= mant;
+	}
+
+	return *((float*)&fp32);
+}
+
+float DXScreenQuadVerticesFFP[24] = {
+	// NOTE: viewport must be added
+	-0.5f, -0.5f, 0, 1,		0, 1,
+	-0.5f, -0.5f, 0, 1,		0, 0,
+	-0.5f, -0.5f, 0, 1,		1, 1
+	- 0.5f, -0.5f, 0, 1,		1, 0,
+};
+
+D3DXVECTOR3 DXCubeForward[6] = {
+	D3DXVECTOR3(1, 0, 0),	// +X
+	D3DXVECTOR3(-1, 0, 0),	// -X
+	D3DXVECTOR3(0, 1, 0),	// +Y
+	D3DXVECTOR3(0, -1, 0),	// -Y
+	D3DXVECTOR3(0, 0, 1),	// +Z
+	D3DXVECTOR3(0, 0, -1),	// -Z
+};
+
+D3DXVECTOR3 DXCubeUp[6] = {
+	D3DXVECTOR3(0, 1, 0),
+	D3DXVECTOR3(0, 1, 0),
+	D3DXVECTOR3(0, 0, -1),
+	D3DXVECTOR3(0, 0, 1),
+	D3DXVECTOR3(0, 1, 0),
+	D3DXVECTOR3(0, 1, 0),
+};
 
 D3DVIEWPORT9			oldviewport;
 D3DVIEWPORT9			viewport;
 D3DXVECTOR4				pixelsize(0, 0, 0, 1);
 D3DXVECTOR4				texelsize(0, 0, 0, 1);
-float					averageluminance = 0.1f;	// don't set this to zero!!!
-float					adaptedluminance = 0.1f;	// don't set this to zero!!!
+float					averageluminance = 0.1f;	
+// don't set this to zero!!!
+float					adaptedluminance = 0.1f;	
+// don't set this to zero!!!
 float					exposure = 0;
 uint8_t					mousebuttons = 0;
 int						currentafterimage = 0;
@@ -39,13 +161,14 @@ LPDIRECT3DCUBETEXTURE9	irradiance2 = nullptr;		// preintegrated specular irradia
 IDirect3DTexture9* brdfLUT = nullptr;
 // preintegrated BRDF lookup texture
 
-std::shared_ptr<ENGINE::Shader> sky{};
+std::shared_ptr<ENGINE::Shader> skyeffect{};
 std::shared_ptr<ENGINE::Shader> metaleffect{};
 std::shared_ptr<ENGINE::Shader> insulatoreffect{};
 std::shared_ptr<ENGINE::Shader>  effect{};
 std::shared_ptr<ENGINE::Shader> measureeffect{};
 std::shared_ptr<ENGINE::Shader> hdreffects{};
 std::shared_ptr<ENGINE::Shader> screenquad{};
+
 RenderTarget scenetarget{  };
 RenderTarget avgluminance{  };
 RenderTarget avglumsystemmem{  };
@@ -58,24 +181,33 @@ std::array<std::array<RenderTarget, 2u>, 4u> startargets;
 std::array<RenderTarget, 2u>		lensflaretargets; 
 std::array<RenderTarget, 2u>		afterimagetargets;
 
-HRESULT TestObject::Render()
+static void RenderScene()
 {
 	Matrix Identity{};
 	Matrix world, worldinv;
 	Matrix rotation;
-	Vector4 silver = {0.972f,0.96f,0.915f, 1.0f};
+	Vector4 silver = { 0.972f,0.96f,0.915f, 1.0f };
 
 	Vector4 insulator = FMath::Color::sRGBToLinear(255, 255, 255);
 
 	Matrix	view, proj;
+	Vector4	eye = { -3,0.5,-4,1 };
+	Vector3 eyeVec3 = Vector3{ eye.x , eye.y ,eye.z };
+	Vector3 At{ 0,0,-10.f };
+	Vector3 Up{ 0,1,0 };
+
+	D3DXMatrixLookAtRH(&view, &eyeVec3, &At, &Up);
+	D3DXMatrixPerspectiveFovRH(&proj,
+		FMath::ToRadian(45.f),
+		(float)g_nWndCX / (float)g_nWndCY, 0.1f, 50.f);
 	Matrix	skyview, viewproj;
-	Vector4	eye;
+
 	Vector3	orient;
 
 	D3DXMatrixIdentity(&Identity);
 
-	IDirect3DDevice9* device = GraphicSystem::GetInstance()->GetDevice();
-	device->SetRenderTarget(0, scenetarget.GetSurface(0u ));
+	IDirect3DDevice9* device = g_pDevice;
+	device->SetRenderTarget(0, scenetarget.GetSurface(0u));
 	// 감마보정을 비활성화 한다 . (기본값도 false 이긴 함)
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
 	device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xff000000, 1.0f, 0);
@@ -84,7 +216,7 @@ HRESULT TestObject::Render()
 		skyview = view;
 		skyview._41 = skyview._42 = skyview._43 = 0;
 
-		Math::MatrixMultiply(viewproj, skyview, proj);
+		viewproj = proj * view;
 
 		device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 		device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
@@ -95,19 +227,33 @@ HRESULT TestObject::Render()
 		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 		device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
-		skyeffect->SetMatrix("matViewProj", (D3DXMATRIX*)&viewproj);
-		skyeffect->SetMatrix("matSkyRotation", &identity);
+		skyeffect->GetEffect()->
+			SetMatrix("matViewProj", (D3DXMATRIX*)&viewproj);
+		skyeffect->GetEffect()->SetMatrix("matSkyRotation", &Identity);
 
-		skyeffect->Begin(NULL, 0);
-		skyeffect->BeginPass(0);
+		skyeffect->GetEffect()->Begin(NULL, 0);
+		skyeffect->GetEffect()->BeginPass(0);
 		{
 			device->SetTexture(0, environment);
 			skymesh->DrawSubset(0);
 		}
-		skyeffect->EndPass();
-		skyeffect->End();
+		skyeffect->GetEffect()->EndPass();
+		skyeffect->GetEffect()->End();
 
 		device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+		// render object
+		if (mesh == teapot) {
+			D3DXMatrixScaling(&world, 1.5f, 1.5f, 1.5f);
+		}
+		else if (mesh == knot) {
+			D3DXMatrixScaling(&world, 0.8f, 0.8f, 0.8f);
+		}
+		else if (mesh == skull) {
+			D3DXMatrixScaling(&world, 0.4f, 0.4f, 0.4f);
+			world._42 = -1.5f;
+		}
+
 
 		// render object
 		if (mesh == teapot) {
@@ -124,8 +270,7 @@ HRESULT TestObject::Render()
 		D3DXMatrixRotationYawPitchRoll(&rotation, orient.x, orient.y, 0);
 		D3DXMatrixMultiply(&world, &world, &rotation);
 		D3DXMatrixInverse(&worldinv, NULL, &world);
-
-		Math::MatrixMultiply(viewproj, view, proj);
+		viewproj = proj * view;
 
 		device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
 
@@ -141,39 +286,185 @@ HRESULT TestObject::Render()
 		device->SetSamplerState(2, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 		device->SetSamplerState(2, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
-		effect->SetMatrix("matWorld", &world);
-		effect->SetMatrix("matWorldInv", &worldinv);
-		effect->SetMatrix("matViewProj", (D3DXMATRIX*)&viewproj);
-		effect->SetVector("eyePos", (D3DXVECTOR4*)&eye);
+		effect->GetEffect()->SetMatrix("matWorld", &world);
+		effect->GetEffect()->SetMatrix("matWorldInv", &worldinv);
+		effect->GetEffect()->SetMatrix("matViewProj", (D3DXMATRIX*)&viewproj);
+		effect->GetEffect()->SetVector("eyePos", (D3DXVECTOR4*)&eye);
 
 		if (effect == metaleffect) {
-			effect->SetVector("baseColor", &silver);
-			effect->SetFloat("roughness", 0.0f);
+			effect->GetEffect()->SetVector("baseColor", &silver);
+			effect->GetEffect()->SetFloat("roughness", 0.0f);
 
 			device->SetTexture(0, irradiance2);
 			device->SetTexture(1, brdfLUT);
 		}
 		else {
-			effect->SetVector("baseColor", (D3DXVECTOR4*)&insulator);
-			effect->SetFloat("roughness", 0.2f);
+			effect->GetEffect()->SetVector("baseColor", (D3DXVECTOR4*)&insulator);
+			effect->GetEffect()->SetFloat("roughness", 0.2f);
 
 			device->SetTexture(0, irradiance1);
 			device->SetTexture(1, irradiance2);
 			device->SetTexture(2, brdfLUT);
 		}
 
-		effect->Begin(NULL, 0);
-		effect->BeginPass(0);
+		effect->GetEffect()->Begin(NULL, 0);
+		effect->GetEffect()->BeginPass(0);
 		{
 			mesh->DrawSubset(0);
 		}
-		effect->EndPass();
-		effect->End();
+		effect->GetEffect()->EndPass();
+		effect->GetEffect()->End();
 
 		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	}
+}
+static void MeasureLuminance()
+{
+	auto* device = g_pDevice;
 
-	return S_OK;
+	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+
+	for (int i = 0; i < 4; ++i) {
+		viewport.Width = 64 >> (i * 2);
+		viewport.Height = 64 >> (i * 2);
+
+		pixelsize.x = 1.0f / (float)viewport.Width;
+		pixelsize.y = -1.0f / (float)viewport.Height;
+
+		if (i == 0) {
+			texelsize.x = 1.0f / (float)oldviewport.Width;
+			texelsize.y = 1.0f / (float)oldviewport.Height;
+
+			measureeffect->GetEffect()->SetTechnique("avgluminital");
+			device->SetTexture(0, scenetarget.GetTexture());
+		}
+		else if (i == 3) {
+			texelsize.x = 1.0f / (float)(64 >> (2 * (i - 1)));
+			texelsize.y = 1.0f / (float)(64 >> (2 * (i - 1)));
+
+			measureeffect->GetEffect()->SetTechnique("avglumfinal");
+			device->SetTexture(0, avgluminance.GetTexture());
+		}
+		else {
+			texelsize.x = 1.0f / (float)(64 >> (2 * (i - 1)));
+			texelsize.y = 1.0f / (float)(64 >> (2 * (i - 1)));
+
+			measureeffect->GetEffect()->SetTechnique("avglumiterative");
+			device->SetTexture(0, avgluminance.GetTexture());
+		}
+
+		measureeffect->GetEffect()->SetInt("prevLevel", (i - 1) * 2);
+		measureeffect->GetEffect()->SetVector("pixelSize", &pixelsize);
+		measureeffect->GetEffect()->SetVector("texelSize", &texelsize);
+		device->SetRenderTarget(0, avgluminance.GetSurface(i));
+		device->SetViewport(&viewport);
+
+		measureeffect->GetEffect()->Begin(NULL, 0);
+		measureeffect->GetEffect()->BeginPass(0);
+		{
+			device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+		}
+		measureeffect->GetEffect()->EndPass();
+		measureeffect->GetEffect()->End();
+	}
+
+	D3DLOCKED_RECT rect;
+	
+	device->GetRenderTargetData(avgluminance.GetSurface(3), avglumsystemmem.GetSurface(0));
+	avglumsystemmem.GetTexture()->LockRect(0, &rect, NULL, D3DLOCK_READONLY);
+	{
+		averageluminance = ((Float16*)rect.pBits)->operator float();
+	}
+	avglumsystemmem.GetTexture()->UnlockRect(0);
+}
+
+void AdaptLuminance(float dt)
+{
+	adaptedluminance = adaptedluminance + (averageluminance - adaptedluminance) * (1.0f - powf(0.98f, 50.0f * dt));
+
+	// DICE's suggestion
+	float two_ad_EV = adaptedluminance * (100.0f / 12.5f);
+	exposure = 1.0f / (1.2f * two_ad_EV);
+}
+
+HRESULT TestObject::Render()
+{
+	static float time = 0;
+	auto* device = g_pDevice;
+
+	LPDIRECT3DSURFACE9 backbuffer = nullptr;
+
+	device->GetRenderTarget(0, &backbuffer);
+	device->GetViewport(&oldviewport);
+
+	viewport = oldviewport;
+
+		// STEP 1: render scene
+		RenderScene();
+
+	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+	device->SetRenderState(D3DRS_ZENABLE, FALSE);
+
+		// STEP 2:  평균 휘도 구하기
+		MeasureLuminance();
+		// 델타타임 구하기 HERE !! 
+		AdaptLuminance(1.f/300.f);
+		// STEP 3: extract high-luminance regions
+		BrightPass();
+
+		// STEP 4: downsample before blur
+		DownSample();
+
+		// STEP 5: render stars
+		Stars();
+
+		// STEP 6: render bloom
+		Bloom();
+
+		// STEP 7: lens flare
+		LensFlare();
+
+		// STEP 9: tonemap & final combine
+		device->SetRenderTarget(0, backbuffer);
+		backbuffer->Release();
+
+		ToneMap();
+
+		// render text
+		viewport.Width = 512;
+		viewport.Height = 512;
+		viewport.X = viewport.Y = 10;
+
+		if (drawtext) {
+			device->SetViewport(&viewport);
+			device->SetTexture(0, helptext);
+
+			device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+			device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+			device->SetRenderState(D3DRS_ZENABLE, FALSE);
+			device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+			device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+			screenquad->Begin(NULL, 0);
+			screenquad->BeginPass(0);
+			{
+				device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+			}
+			screenquad->EndPass();
+			screenquad->End();
+		}
+
+		// reset states
+		device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		device->SetViewport(&oldviewport);
+
+	time += elapsedtime;
 }
 
 void TestObject::Free()
@@ -211,16 +502,20 @@ void TestObject::Free()
 
 	if (teapot)
 		teapot->Release();
-
-	teapot = nullptr;
-	skull = nullptr;
-	knot = nullptr;
-	skymesh = nullptr;
-	mesh = nullptr;
-	environment = nullptr;
-	irradiance1 = nullptr;
-	irradiance2 = nullptr;
-	brdfLUT = nullptr;
+	if (skull)
+		skull->Release();
+	if (knot)
+		knot->Release();
+	if (skymesh)
+		skymesh->Release();
+	if (environment)
+		environment->Release();
+	if (irradiance1)
+		irradiance1->Release();
+	if (irradiance2)
+		irradiance2->Release();
+	if (brdfLUT)
+		brdfLUT->Release();
 };
 
 TestObject* TestObject::Create()
@@ -267,10 +562,56 @@ HRESULT TestObject::Ready()
 	};
 
 
+	auto* device = g_pDevice;
+
+
+
+	// load resources
+	if (FAILED(D3DXCreateCubeTextureFromFile(device, L"../../Media/Textures/grace.dds", &environment)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	}
+
+	if (FAILED(D3DXCreateCubeTextureFromFile(device, L"../../Media/Textures/grace_diff_irrad.dds", &irradiance1)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	};
+
+	if (FAILED(D3DXCreateCubeTextureFromFile(device, L"../../Media/Textures/grace_spec_irrad.dds", &irradiance2)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	}
+
+	if (FAILED(D3DXCreateTextureFromFile(device, L"../../Media/Textures/brdf.dds", &brdfLUT)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	};
+
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/knot.x", D3DXMESH_MANAGED, device, NULL, NULL, NULL, NULL, &knot)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	}
+
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/skullocc3.x", D3DXMESH_MANAGED, device, NULL, NULL, NULL, NULL, &skull)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	}
+
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/teapot.x", D3DXMESH_MANAGED, device, NULL, NULL, NULL, NULL, &teapot)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	}
+
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/sky.x", D3DXMESH_MANAGED, device, NULL, NULL, NULL, NULL, &skymesh)))
+	{
+		PRINT_LOG(L"Load Fail!", L"Fail!");
+	}
+
+
 
 
 	;
-	sky = Resources::Load<Shader>(TEXT("../../Resource/TestDummy/ShadersDX/sky.fx"));
+	skyeffect = Resources::Load<Shader>(TEXT("../../Resource/TestDummy/ShadersDX/sky.fx"));
 	metaleffect = Resources::Load<Shader>(TEXT("../../Resource/TestDummy/ShadersDX/metal.fx"));
 	// insulator
 	effect = insulatoreffect = Resources::Load<Shader>(TEXT("../../Resource/TestDummy/ShadersDX/insulator.fx"));
@@ -278,6 +619,7 @@ HRESULT TestObject::Ready()
 	measureeffect = Resources::Load<Shader>(TEXT("../../Resource/TestDummy/ShadersDX/measureluminance.fx"));
 	hdreffects = Resources::Load<Shader>(TEXT("../../Resource/TestDummy/ShadersDX/hdreffects.fx"));
 	screenquad = Resources::Load<Shader>(TEXT("../../Resource/TestDummy/ShadersDX/screenquad.fx"));
+	
 
 	{
 		ENGINE::RenderTarget::Info InitInfo{};
@@ -432,7 +774,7 @@ HRESULT TestObject::Ready()
 
 
 	effect = insulatoreffect;
-
+	mesh = skull;
 	return S_OK;
 };
 
