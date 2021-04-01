@@ -20,7 +20,3 @@ void Resource::Free()
 	Object::Free();
 }
 
-Resource* Resource::Clone()
-{
-	return nullptr;
-}

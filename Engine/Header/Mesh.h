@@ -16,6 +16,8 @@ protected:
 public:
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone()	PURE;
+private:
+
 };
 
 END

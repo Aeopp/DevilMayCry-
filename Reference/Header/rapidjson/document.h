@@ -2531,7 +2531,7 @@ public:
             new (stack_.template Push<ValueType>()) ValueType(str, length);
         return true;
     }
-
+    
     bool String(const Ch* str, SizeType length, bool copy) { 
         if (copy) 
             new (stack_.template Push<ValueType>()) ValueType(str, length, GetAllocator());

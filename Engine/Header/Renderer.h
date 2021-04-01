@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include "RenderProperty.h"
+#include "Frustum.h"
 
 BEGIN(ENGINE)
 class ENGINE_DLL Renderer final : public Object
@@ -18,6 +19,7 @@ private :
 public :
 	HRESULT ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice);
 private : 
+	// Frustum CameraFrustum{};
 	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
 	std::map<RenderProperty::Order, std::vector<std::shared_ptr<GameObject>>> RenderEntitys{};
 public :

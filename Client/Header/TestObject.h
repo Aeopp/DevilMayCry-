@@ -5,10 +5,12 @@
 class TestObject : public ENGINE::GameObject
 {
 private:
-	explicit TestObject() = default
+	explicit TestObject() = default;
 	virtual ~TestObject() = default;
 	// GameObject을(를) 통해 상속됨
 	virtual void Free() override;
+public:
+	static TestObject* Create();
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

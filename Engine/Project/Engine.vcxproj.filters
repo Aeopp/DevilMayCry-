@@ -248,6 +248,8 @@
     <ClInclude Include="..\..\Reference\Header\imgui\imstb_truetype.h">
       <Filter>77.ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\Default.hlsl" />
+    <ClInclude Include="..\Header\Frustum.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -341,8 +343,6 @@
     <ClCompile Include="..\Source\imgui\imgui_widgets.cpp">
       <Filter>77.ImGui</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\..\Resource\Shader\Default.hlsl" />
+    <ClCompile Include="..\Source\Frustum.cpp" />
   </ItemGroup>
 </Project>

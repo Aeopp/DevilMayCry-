@@ -13,7 +13,7 @@ Renderer::Renderer()
 
 void Renderer::Free()
 {
-
+	// CameraFrustum.Release();
 };
 
 
@@ -21,6 +21,8 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 {
 	m_pDevice = _pDevice;
 	SafeAddRef(m_pDevice);
+	// CameraFrustum.Initialize(m_pDevice);
+
 	return S_OK;
 }
 
@@ -37,6 +39,8 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 	}
 };
 
+// 렌더 레디에서 절두체 준비 ..
+
 HRESULT Renderer::Render()&
 {
 	GraphicSystem::GetInstance()->Begin();
@@ -45,7 +49,7 @@ HRESULT Renderer::Render()&
 	{
 		for (auto& _Entity: _GroupEntitys)
 		{
-			_Entity->Render(this);
+			_Entity->Render();
 		}
 	}
 

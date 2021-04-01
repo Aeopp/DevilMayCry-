@@ -2,6 +2,7 @@
 
 #include "..\Header\TestScene.h"
 #include "Scene.h"
+#include "TestObject.h"
 
 #include <iostream>
 using namespace std;
@@ -24,6 +25,10 @@ TestScene* TestScene::Create()
 HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
+
+	AddGameObject<TestObject>();
+	
+
 	return S_OK;
 }
 
@@ -42,6 +47,8 @@ HRESULT TestScene::Start()
 HRESULT TestScene::Update(const float _fDeltaTime)
 {
 	Scene::Update(_fDeltaTime);
+	
+
 	cout << "SceneUpdate" << endl;
 	return S_OK;
 }

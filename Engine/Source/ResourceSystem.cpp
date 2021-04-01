@@ -12,7 +12,13 @@ void ResourceSystem::Free()
 {
 	//리소스 원본 컨테이너
 	for (auto& rTypeContainer : m_Origin)
+	{
+		for (auto& pResource : rTypeContainer.second)
+		{
+			pResource.second.reset();
+		}
 		rTypeContainer.second.clear();
+	}
 	m_Origin.clear();
 	//리소스 복사본 컨테이너
 	for (auto& rTypeContainer : m_Clone)

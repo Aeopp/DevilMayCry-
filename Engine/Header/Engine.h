@@ -20,6 +20,7 @@
 
 #pragma region RESOURCE
 #include "Texture.h"
+#include "StaticMesh.h"
 #pragma endregion
 
 #include "EngineStdafx.h"

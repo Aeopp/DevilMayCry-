@@ -1,6 +1,16 @@
 #ifndef __ENGINE_STDAFX_H__
 #define __ENGINE_STDAFX_H__
 
+#pragma region RapidJson
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/reader.h> 
+#include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/istreamwrapper.h>
+#pragma endregion
+
 #pragma region IMGUI 
 #include "imgui_impl_dx9.h"
 #include "imgui_impl_win32.h"

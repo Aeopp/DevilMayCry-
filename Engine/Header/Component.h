@@ -5,8 +5,10 @@ BEGIN(ENGINE)
 class GameObject;
 class Component abstract : public Object
 {
+	friend GameObject;
 protected:
 	std::weak_ptr<GameObject>	m_pGameObject;
+	std::weak_ptr<Component>	m_pThis;
 	bool						m_bActive;
 protected:
 	explicit Component(std::weak_ptr<GameObject> const _pGameObject);
@@ -14,8 +16,11 @@ protected:
 	// Object을(를) 통해 상속됨
 	virtual void Free() PURE;
 public:
-	bool		IsActive();
-	void		SetActive(const bool _bActive);
+	std::weak_ptr<GameObject>	GetGameObject();
+	bool						IsActive();
+	void						SetActive(const bool _bActive);
+private:
+	void	SetWeakPtr(std::weak_ptr<Component> _pThis);
 };
 END
 #endif // !__COMPONENT_H__

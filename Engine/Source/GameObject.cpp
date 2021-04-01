@@ -75,7 +75,7 @@ void GameObject::SetLoopIdx(const UINT _nLoopIdx)
 	m_nLoopIdx = _nLoopIdx;
 }
 
-HRESULT GameObject::Render(Renderer* const _Renderer)
+HRESULT GameObject::Render()
 {
 	
 
