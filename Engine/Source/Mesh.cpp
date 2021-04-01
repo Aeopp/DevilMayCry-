@@ -28,6 +28,8 @@ HRESULT Mesh::Render()
 			continue;
 		pSubset->Render();
 	}
+
+	return S_OK;
 }
 
 std::weak_ptr<Subset> Mesh::GetSubset(const UINT _nIndex)
