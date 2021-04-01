@@ -18,6 +18,13 @@
 #include "GameObject.h"
 #pragma endregion
 
+#pragma region MyRegion
+#include "Component.h"
+#include "Transform.h"
+#include "MeshRenderer.h"
+#pragma endregion
+
+
 #pragma region RESOURCE
 #include "Texture.h"
 #include "StaticMesh.h"

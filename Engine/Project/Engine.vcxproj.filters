@@ -109,6 +109,9 @@
     <Filter Include="03.Resource\02.Mesh\01.SubSet">
       <UniqueIdentifier>{e225c68a-30ee-4c29-b69b-47efac71a8bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.Utility\00.Component\02.MeshRenderer">
+      <UniqueIdentifier>{4f089a79-9de3-4a66-82cc-299ab3d45d60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Object.h">
@@ -219,6 +222,10 @@
     <ClInclude Include="..\Header\Subset.h">
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\Renderer.h" />
+    <ClInclude Include="..\Header\MeshRenderer.h">
+      <Filter>02.Utility\00.Component\02.MeshRenderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Object.cpp">
@@ -289,6 +296,10 @@
     </ClCompile>
     <ClCompile Include="..\Source\Subset.cpp">
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Renderer.cpp" />
+    <ClCompile Include="..\Source\MeshRenderer.cpp">
+      <Filter>02.Utility\00.Component\02.MeshRenderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

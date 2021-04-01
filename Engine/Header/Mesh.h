@@ -16,6 +16,14 @@ protected:
 public:
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone()	PURE;
+public:
+	HRESULT Render();
+
+public:
+	std::weak_ptr<Subset>	GetSubset(const UINT _nIndex);
+
+	const VERTEXBUFFERDESC& GetVertexBufferDesc(const UINT _nSubsetIdx);
+	const MATERIAL&			GetMaterial(const UINT _nSubsetIdx);
 };
 
 END
