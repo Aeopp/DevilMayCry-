@@ -19,9 +19,9 @@ public :
 	HRESULT ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice);
 private : 
 	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
-	std::map<RenderProperty::Order, std::vector<std::weak_ptr<GameObject>>> RenderEntitys{};
+	std::map<RenderProperty::Order, std::vector<std::shared_ptr<GameObject>>> RenderEntitys{};
 public :
-	void Push(const std::shared_ptr<GameObject>& _RenderEntity)&;
+	void Push(const std::weak_ptr<GameObject>& _RenderEntity)&;
 public : 
 	HRESULT Render()&;
 public:

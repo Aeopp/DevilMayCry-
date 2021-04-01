@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "GameObject.h"
+#include "Renderer.h"
 
 USING(ENGINE)
 
@@ -104,6 +105,14 @@ HRESULT Scene::LateUpdate(const float _fDeltaTime)
 		++m_LoopIter;
 	}
 	return S_OK;
+}
+
+void Scene::PushToRenderSystem()
+{
+	for (auto& pGameObject : m_Loop[ACTIVE][LOOP_UPDATE])
+	{
+		Renderer::GetInstance()->Push(pGameObject);
+	}
 }
 
 void Scene::Destroy()

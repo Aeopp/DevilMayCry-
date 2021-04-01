@@ -13,7 +13,7 @@ public :
 		AlphaBlendEffect,
 		UI,
 	};
-
+	bool bRender = true;
 	Order _Order{ Order::NoAlphaBlend };
 };
 

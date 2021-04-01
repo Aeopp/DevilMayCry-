@@ -24,12 +24,16 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	return S_OK;
 }
 
-void Renderer::Push(const std::shared_ptr<GameObject>& _RenderEntity)&
+void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 {
-	if (_RenderEntity)
+	if (auto _SharedRenderEntity = _RenderEntity.lock();
+		_SharedRenderEntity)
 	{
-		const auto PushOrder = _RenderEntity->GetRenderProperty()._Order;
-		RenderEntitys[PushOrder].push_back(_RenderEntity);
+		if (_SharedRenderEntity->GetRenderProperty().bRender)
+		{
+			const auto PushOrder = _SharedRenderEntity->GetRenderProperty()._Order;
+			RenderEntitys[PushOrder].push_back(_SharedRenderEntity);
+		}
 	}
 };
 
@@ -39,13 +43,9 @@ HRESULT Renderer::Render()&
 
 	for (auto& [_CurRenderGroup, _GroupEntitys  ]: RenderEntitys)
 	{
-		for (auto& WeakCurEntity : _GroupEntitys)
+		for (auto& _Entity: _GroupEntitys)
 		{
-			if (auto CurEntity = WeakCurEntity.lock();
-				CurEntity)
-			{
-				CurEntity->Render(this);
-			}
+			_Entity->Render(this);
 		}
 	}
 
@@ -58,6 +58,8 @@ HRESULT Renderer::Render()&
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
 	GraphicSystem::GetInstance()->End();
+
+	RenderEntitys.clear();
 
 	return S_OK;
 }
