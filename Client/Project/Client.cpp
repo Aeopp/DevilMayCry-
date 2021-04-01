@@ -1,6 +1,7 @@
 ﻿// Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
+
 #include "stdafx.h"
 #include "Client.h"
 #include "Application.h"
@@ -26,7 +27,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 
 	g_nWndCX = 1280;
 	g_nWndCY = 720;
-	g_eWndMode = WNDMODE::WND_WINDOW;
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -52,7 +52,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 
 	Application* pApplication = new Application;
 
-	pApplication->ReadyApplication();
+	pApplication->ReadyApplication(true);
 
 	while (WM_QUIT != tMessage.message)
 	{
@@ -144,6 +144,9 @@ HRESULT InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT nMessage, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, nMessage, wParam, lParam))
+		return true;
+
 	switch (nMessage)
 	{
 	case WM_DESTROY:

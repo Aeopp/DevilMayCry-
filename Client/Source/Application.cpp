@@ -7,10 +7,9 @@ Application::Application()
 {
 }
 
-HRESULT Application::ReadyApplication()
+HRESULT Application::ReadyApplication(const bool bWindowed)
 {
-	g_eWndMode = WNDMODE::WND_WINDOW;
-	if (FAILED(Engine::ReadyEngine()))
+	if (FAILED(Engine::ReadyEngine(bWindowed)))
 		return E_FAIL;
 
 	SceneManager::LoadScene(TestScene::Create());

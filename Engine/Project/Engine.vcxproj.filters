@@ -111,6 +111,9 @@
     </Filter>
     <Filter Include="02.Utility\00.Component\02.MeshRenderer">
       <UniqueIdentifier>{4f089a79-9de3-4a66-82cc-299ab3d45d60}</UniqueIdentifier>
+    </Filter>    
+    <Filter Include="77.ImGui">
+      <UniqueIdentifier>{7389c998-29a6-4888-8618-2ab363f9e8eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -219,12 +222,38 @@
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
     <ClInclude Include="..\Header\FMath.hpp" />
     <ClInclude Include="..\Header\MathStruct.hpp" />
+    <ClInclude Include="..\Header\Renderer.h" />
+    <ClInclude Include="..\Header\RenderProperty.h" />
     <ClInclude Include="..\Header\Subset.h">
       <Filter>03.Resource\02.Mesh\01.SubSet</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\Renderer.h" />
     <ClInclude Include="..\Header\MeshRenderer.h">
+    </ClInclude>
       <Filter>02.Utility\00.Component\02.MeshRenderer</Filter>
+    <ClInclude Include="..\..\Reference\Header\imgui\imconfig.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui_impl_dx9.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui_impl_win32.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imgui_internal.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imstb_rectpack.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imstb_textedit.h">
+      <Filter>77.ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference\Header\imgui\imstb_truetype.h">
+      <Filter>77.ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -301,5 +330,29 @@
     <ClCompile Include="..\Source\MeshRenderer.cpp">
       <Filter>02.Utility\00.Component\02.MeshRenderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_demo.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_draw.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_impl_dx9.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_impl_win32.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_tables.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui\imgui_widgets.cpp">
+      <Filter>77.ImGui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Resource\Shader\Default.hlsl" />
   </ItemGroup>
 </Project>

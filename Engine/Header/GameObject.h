@@ -34,7 +34,7 @@ public:
 	virtual HRESULT Start()								PURE;
 	virtual UINT	Update(const float _fDeltaTime)		PURE;
 	virtual	UINT	LateUpdate(const float _fDeltaTime)	PURE;
-	virtual HRESULT	Render(Renderer*const _Renderer)	PURE;
+	virtual HRESULT	Render()	                        PURE;
 
 	virtual void	OnEnable()							PURE;
 	virtual void	OnDisable()							PURE;

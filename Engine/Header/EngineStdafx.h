@@ -1,6 +1,12 @@
 #ifndef __ENGINE_STDAFX_H__
 #define __ENGINE_STDAFX_H__
 
+#pragma region IMGUI 
+#include "imgui_impl_dx9.h"
+#include "imgui_impl_win32.h"
+#include "imgui.h"
+#pragma endregion
+
 #pragma warning(disable : 4251)
 
 #pragma region STANDARD
@@ -41,6 +47,7 @@
 #include "EngineTypedef.h"
 #include "EngineStruct.h"
 #pragma endregion
+
 
 #pragma region DETECT_MEMORY_LEAK
 
