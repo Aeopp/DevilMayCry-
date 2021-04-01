@@ -14,6 +14,11 @@ void Component::Free()
 	Object::Free();
 }
 
+std::weak_ptr<GameObject> Component::GetGameObject()
+{
+	return m_pGameObject;
+}
+
 bool Component::IsActive()
 {
 	return m_bActive;
@@ -22,4 +27,9 @@ bool Component::IsActive()
 void Component::SetActive(const bool _bActive)
 {
 	m_bActive = _bActive;
+}
+
+void Component::SetWeakPtr(std::weak_ptr<Component> _pThis)
+{
+	m_pThis = _pThis;
 }
