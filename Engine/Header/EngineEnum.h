@@ -1,12 +1,7 @@
 #ifndef __ENGINE_ENUM_H__
 #define __ENGINE_ENUM_H__
 BEGIN(ENGINE)
-enum WNDMODE
-{
-	WND_FULL,
-	WND_WINDOW,
-	WND_END
-};
+
 enum MOUSEAXIS
 {
 	DIM_X,

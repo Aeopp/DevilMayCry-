@@ -6,7 +6,7 @@ public:
 	Application();
 	~Application() = default;
 public:
-	HRESULT ReadyApplication();
+	HRESULT ReadyApplication(const bool bWindowed);
 	HRESULT UpdateApplication();
 	HRESULT ReleaseApplication();
 };

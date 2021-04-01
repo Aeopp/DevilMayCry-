@@ -1,6 +1,8 @@
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "Renderer.h"
+#include "GraphicSystem.h"
+
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
 
@@ -33,21 +35,7 @@ void Renderer::Push(const std::shared_ptr<GameObject>& _RenderEntity)&
 
 HRESULT Renderer::Render()&
 {
-	// 그래픽 디바이스 시작
-	// Clear 하고 BeginScene gkrl
-
-	m_pDevice->Clear(0, nullptr, D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		0xff000000, 1.f, 0);
-	m_pDevice->BeginScene();
-
-	for (uint8 i = 0; i < 8u; ++i)
-	{
-		m_pDevice->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC);
-		m_pDevice->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
-		m_pDevice->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MIPFILTER, D3DTEXF_ANISOTROPIC);
-		// m_pDevice->SetSamplerState(i, D3DSAMPLERSTATETYPE::D3DSAMP_MAXANISOTROPY, GetCaps().MaxAnisotropy);
-	}
-
+	GraphicSystem::GetInstance()->Begin();
 
 	for (auto& [_CurRenderGroup, _GroupEntitys  ]: RenderEntitys)
 	{
@@ -69,11 +57,7 @@ HRESULT Renderer::Render()&
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
-
-	m_pDevice->EndScene();
-	m_pDevice->Present(nullptr, nullptr, NULL, nullptr);
-
-	// End Scene 하고 Present 하기
+	GraphicSystem::GetInstance()->End();
 
 	return S_OK;
 }
