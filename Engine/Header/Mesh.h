@@ -18,10 +18,9 @@ public:
 	virtual Resource* Clone()	PURE;
 public:
 	HRESULT Render();
-
 public:
+	const uint64			GetNumSubset() const; 
 	std::weak_ptr<Subset>	GetSubset(const UINT _nIndex);
-
 	const VERTEXBUFFERDESC& GetVertexBufferDesc(const UINT _nSubsetIdx);
 	const MATERIAL&			GetMaterial(const UINT _nSubsetIdx);
 };

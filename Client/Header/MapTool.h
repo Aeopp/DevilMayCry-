@@ -1,24 +1,44 @@
 #ifndef __MAPTOOL_SCENE_H__
 #define __MAPTOOL_SCENE_H__
 #include "Scene.h"
-
 typedef D3DXVECTOR3 vec3;
 
 #define MIN(A, B)            (((A) < (B)) ? (A) : (B))
 #define MAX(A, B)            (((A) >= (B)) ? (A) : (B))
 #define CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
 #define vZero vec3(0,0,0)
+
 namespace ePropsOption
 {
 	enum e { Decoration, Floating, Fixed,End};
 };
 
+namespace eWorkOption
+{
+	enum e { Create, Delete, Modify, End };
+};
 class MapTool final :  public ENGINE::Scene
 {
+	typedef struct PropsPathInfo
+	{
+		PropsPathInfo()
+			:sFileName(L"")
+			, sFileLocation(L"")
+		{
+		}
+		std::wstring GetFilePath()
+		{
+			return sFileLocation + L"/"+sFileName;
+		}
+		std::wstring sFileName; // 
+		std::wstring sFileLocation;//파일 위치 
+
+	}PATHINFO;
 	enum  class ePeekingType
 	{
 		Single,Multi,End
 	};
+
 
 
 private:
@@ -27,17 +47,34 @@ private:
 	virtual void Free() override;
 
 private:
-	float			m_fPivotMoveSpeed; //P
-	int				m_iPeekType;
-	int				m_iPeekCnt;
-	bool			m_bPropsOptino[ePropsOption::End];
-private:
-	void	ShowMapTool();
-	void	ShowPivotControl();
-	void	PivotControl();
-	void	MouseInPut();
+	float					m_fPivotMoveSpeed; //P
+	int						m_iPeekType;
+	int						m_iPeekCnt;
+	bool					m_bPropsOption[ePropsOption::End];
+	std::string				m_strSaveFileName;
+	eWorkOption::e			m_eWorkType;
+	bool					m_bReadyNameTable;				// 테이블 데이터 준비 
+	std::unordered_map<size_t, PATHINFO> m_mapFBXNameTable; // 벨류값은 fbx파일 공통경로를 제외한 /StageN/Test.fbx이런식으로 
+	
+	size_t												   m_iTableID = 0;
+	std::unordered_map<size_t, std::list<std::weak_ptr<GameObject>>> m_mapObjDatas;
 
-	void    HelpMarker(const char* desc);
+
+private:
+	void			ShowMapTool();
+	void			ShowPivotControl();
+	void			PivotControl();
+	void			MouseInPut();
+
+	void			CreateMeshNameTable(std::wstring strStartPath);
+	void			HelpMarker(const char*	esc);
+	bool			CheckWindow(const char* Text);
+	void			HotKey();//단축키 모음 
+
+	void			NewFBXNameTable(const _TCHAR* pPath);
+
+	void			SaveLoadingInfo();//이게 스테이지에 로딩할거 목록 
+	void			SaveLoadData();//행렬정보등 저장 
 public:
 	static MapTool* Create();
 public:

@@ -157,6 +157,8 @@
   <ItemGroup>
     <ClInclude Include="..\Header\Application.h" />
     <ClInclude Include="..\Header\MapTool.h" />
+    <ClInclude Include="..\Header\MapToolObj.h" />
+    <ClInclude Include="..\Header\ShaderTester.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
     <ClInclude Include="Client.h" />
@@ -168,6 +170,8 @@
   <ItemGroup>
     <ClCompile Include="..\Source\Application.cpp" />
     <ClCompile Include="..\Source\MapTool.cpp" />
+    <ClCompile Include="..\Source\MapToolObj.cpp" />
+    <ClCompile Include="..\Source\ShaderTester.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
     <ClCompile Include="Client.cpp" />

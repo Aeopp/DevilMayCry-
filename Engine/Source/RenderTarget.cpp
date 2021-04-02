@@ -40,7 +40,7 @@ void RenderTarget::Initialize(const Info& InitInfo)&
 		}
 	}
 }
-IDirect3DSurface9* RenderTarget::GetSurface(const size_t Index)const&
+IDirect3DSurface9* RenderTarget::GetSurface(const uint64 Index)const&
 {
 	return Surfaces[Index];
 }

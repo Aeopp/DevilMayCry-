@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0aa7cdaa-bd86-4de3-9ee1-70a56bb972a0}</UniqueIdentifier>
+      <Extensions>cpp;cxx;c</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{60341f32-b215-481c-930b-9366d0625cdc}</UniqueIdentifier>
+      <Extensions>h;hpp</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{4c5d5305-901f-4e8e-be49-03229ae03b83}</UniqueIdentifier>
+      <Extensions>rc;ico</Extensions>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{aa651f59-dbbf-466b-9aa4-51b4e4427ea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{2842ac8c-83b7-4cac-921a-4d0323559955}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{e309cce0-a9af-4576-bb05-c7f8b368b129}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="HDR_FP16x2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HDREngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HDRTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rgbe.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="HDR_FP16x2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HDREngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HDRTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nvafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rgbe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="nvidia.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Media\textures\Ui\dxutcontrols.tga">
+      <Filter>textures</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\..\Media\programs\HLSL_HDR_FP16x2\HDR.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\..\Media\programs\HLSL_HDR_FP16x2\Model3D.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\..\Media\programs\HLSL_HDR_FP16x2\Skybox.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Media\models\HLSL_HDR_FP16x2\bunny.x">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\models\HLSL_HDR_FP16x2\happy.x">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\models\HLSL_HDR_FP16x2\teapot.x">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\models\HLSL_HDR_FP16x2\venus.x">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\textures\hdr\grace_cross.hdr">
+      <Filter>textures</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\textures\hdr\grace_cross_diffuse.hdr">
+      <Filter>textures</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\textures\hdr\rnl_cross.hdr">
+      <Filter>textures</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\textures\hdr\rnl_cross_diffuse.hdr">
+      <Filter>textures</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\textures\hdr\stpeters_cross.hdr">
+      <Filter>textures</Filter>
+    </None>
+    <None Include="..\..\..\..\Media\textures\hdr\stpeters_cross_diffuse.hdr">
+      <Filter>textures</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -201,9 +201,10 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\InputSystem.h" />
     <ClInclude Include="..\Header\MathStruct.hpp" />
     <ClInclude Include="..\Header\Mesh.h" />
-    <ClInclude Include="..\Header\MeshRenderer.h" />
     <ClInclude Include="..\Header\Object.h" />
     <ClInclude Include="..\Header\Renderer.h" />
+    <ClInclude Include="..\Header\RenderInformation.h" />
+    <ClInclude Include="..\Header\RenderInterface.h" />
     <ClInclude Include="..\Header\RenderProperty.h" />
     <ClInclude Include="..\Header\RenderTarget.h" />
     <ClInclude Include="..\Header\RenderTargetSystem.h" />
@@ -220,6 +221,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\StaticMesh.h" />
     <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
+    <ClInclude Include="..\Header\TextureType.h" />
     <ClInclude Include="..\Header\Timer.h" />
     <ClInclude Include="..\Header\TimeSystem.h" />
     <ClInclude Include="..\Header\Transform.h" />
@@ -242,9 +244,10 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Input.cpp" />
     <ClCompile Include="..\Source\InputSystem.cpp" />
     <ClCompile Include="..\Source\Mesh.cpp" />
-    <ClCompile Include="..\Source\MeshRenderer.cpp" />
     <ClCompile Include="..\Source\Object.cpp" />
     <ClCompile Include="..\Source\Renderer.cpp" />
+    <ClCompile Include="..\Source\RenderInformation.cpp" />
+    <ClCompile Include="..\Source\RenderInterface.cpp" />
     <ClCompile Include="..\Source\RenderTarget.cpp" />
     <ClCompile Include="..\Source\RenderTargetSystem.cpp" />
     <ClCompile Include="..\Source\Resource.cpp" />
@@ -262,7 +265,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Resource\Shader\HDR.hlsl">
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

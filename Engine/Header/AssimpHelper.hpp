@@ -351,15 +351,32 @@ static inline HRESULT LoadMaterial(
 				tTextureDesc.fBlendFactor		= fBlendFactor;
 				tTextureDesc.nUVIdx				= nUVIdx;
 
-				const std::filesystem::path FileNamePath = sAiPath.C_Str();
-				const std::filesystem::path	CurTexFilePath = _Path / FileNamePath.filename();
+				const std::filesystem::path FileNamePath   = sAiPath.C_Str();
+				 std::filesystem::path	CurTexFilePath = _Path / FileNamePath.filename();
 
-				std::shared_ptr<Texture> pTexture = Resources::Load<Texture>(CurTexFilePath.wstring());
+				 const bool IsExistFile = std::filesystem::exists(CurTexFilePath)
+					 && std::filesystem::is_regular_file(CurTexFilePath);
 
-				pTexture->SetDesc(tTextureDesc);
+				 if (IsExistFile)
+				 {
 
-				if (nullptr != pTexture)
-					_pMaterial->Textures[aiTexType][nTexIdx] = pTexture;
+					 std::shared_ptr<Texture> pTexture = Resources::Load<Texture>(CurTexFilePath.wstring());
+
+					 if (!pTexture)
+					 {
+						 CurTexFilePath.replace_extension("tga");
+						 pTexture = Resources::Load<Texture>(CurTexFilePath.wstring());
+					 }
+
+
+					 if (pTexture)
+					 {
+						 pTexture->SetDesc(tTextureDesc);
+
+						 if (nullptr != pTexture)
+							 _pMaterial->Textures[aiTexType][nTexIdx] = pTexture;
+					 }
+				 }
 			}
 		}
 	}
@@ -368,6 +385,5 @@ static inline HRESULT LoadMaterial(
 
 END
 END
-
 
 #endif // !__ASSIMP_HELPER_H__

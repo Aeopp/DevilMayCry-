@@ -45,6 +45,28 @@ public:
 		sName = TEXT("");
 		ZeroMemory(&tMaterial, sizeof(D3DMATERIAL9));
 	}
+	const TSTRING& GetMaterialName() const
+	{
+		return sName;
+	}
+	std::shared_ptr<Texture> GetTexture(const UINT TextureType, const uint64 TextureIndex)const
+	{
+		if (auto TexTypeIter = Textures.find(TextureType);
+			TexTypeIter!= std::end  ( Textures ))
+		{
+			auto& TexArray = TexTypeIter->second;
+			if (TextureIndex < TexArray.size())
+			{
+				auto SpTexture= TexArray[TextureIndex];   
+				if (SpTexture)
+				{
+					return SpTexture;
+				}
+			}
+			
+			return nullptr;
+		}
+	}
 }MATERIAL, *LPMATERIAL;
 
 typedef struct tagTextureDesc

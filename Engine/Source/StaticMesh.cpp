@@ -10,7 +10,7 @@ StaticMesh::StaticMesh(LPDIRECT3DDEVICE9 const _pDevice)
 }
 
 StaticMesh::StaticMesh(const StaticMesh& _rOther)
-	: Mesh(_rOther.m_pDevice)
+	: Mesh(_rOther)
 {
 }
 
@@ -35,8 +35,7 @@ Resource* StaticMesh::Clone()
 {
 	StaticMesh* pClone = new StaticMesh(*this);
 	return pClone;
-}
-
+};
 
 HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {
@@ -78,7 +77,8 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		LPDIRECT3DVERTEXBUFFER9 pVB = nullptr;
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
-		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice, &tVBDesc, &pVB, &pIB)))
+		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
+			&tVBDesc, &pVB, &pIB)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;

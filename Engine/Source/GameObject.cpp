@@ -10,7 +10,9 @@ GameObject::GameObject()
 	, m_nLoopIdx(0)
 	, m_bStatic(false)
 	, m_bDestroy(false)
+	, m_bRenderRegist(false)
 {
+
 }
 
 void GameObject::Free()
@@ -23,9 +25,19 @@ void GameObject::Destroy(std::weak_ptr<GameObject> const _pGameObject)
 	m_pScene->Destroy(_pGameObject);
 }
 
+bool GameObject::IsRenderEnable()
+{
+	return m_bRenderRegist; 
+}
+
 bool GameObject::IsActive()
 {
 	return m_bActive;
+}
+
+void GameObject::SetRenderEnable(const bool bActiveRender)&
+{
+	m_bRenderRegist = bActiveRender;
 }
 
 void GameObject::SetActive(const bool _bActive)
@@ -73,14 +85,6 @@ UINT GameObject::GetLoopIdx()
 void GameObject::SetLoopIdx(const UINT _nLoopIdx)
 {
 	m_nLoopIdx = _nLoopIdx;
-}
-
-HRESULT GameObject::Render()
-{
-	
-
-
-	return S_OK;
 }
 
 void GameObject::OnEnable()

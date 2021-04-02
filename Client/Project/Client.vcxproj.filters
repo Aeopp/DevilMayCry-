@@ -29,7 +29,10 @@
       <UniqueIdentifier>{c0f00759-e8c5-4e2a-86ff-caad12de51fa}</UniqueIdentifier>
     </Filter>
     <Filter Include="03.Scene\98.MapTool">
-      <UniqueIdentifier>{d1c60020-f1c0-411d-b01b-5cac13afe3bc}</UniqueIdentifier>
+      <UniqueIdentifier>{93ae43a6-a7c6-4d25-a70c-e57db158d392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\99.MapToolObj">
+      <UniqueIdentifier>{a8a6d637-26d9-41f3-a8b7-5564bc404c83}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -37,6 +40,9 @@
       <Filter>99.Default\02.Header</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
+      <Filter>99.Default\02.Header</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
       <Filter>99.Default\02.Header</Filter>
     </ClInclude>
     <ClInclude Include="Client.h">
@@ -54,11 +60,12 @@
     <ClInclude Include="..\Header\TestObject.h">
       <Filter>02.GameObject</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\ShaderTester.h" />
     <ClInclude Include="..\Header\MapTool.h">
       <Filter>03.Scene\98.MapTool</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>99.Default\02.Header</Filter>
+    <ClInclude Include="..\Header\MapToolObj.h">
+      <Filter>02.GameObject\99.MapToolObj</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -84,14 +91,18 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>99.Default\01.Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\TestScene.cpp">
-      <Filter>03.Scene\99.TestScene</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\TestObject.cpp">
       <Filter>02.GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ShaderTester.cpp" />
     <ClCompile Include="..\Source\MapTool.cpp">
       <Filter>03.Scene\98.MapTool</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\TestScene.cpp">
+      <Filter>03.Scene\99.TestScene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapToolObj.cpp">
+      <Filter>02.GameObject\99.MapToolObj</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
