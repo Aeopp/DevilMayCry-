@@ -3,7 +3,7 @@
 #include "Object.h"
 BEGIN(ENGINE)
 class GameObject;
-class Component abstract : public Object
+class ENGINE_DLL Component abstract : public Object
 {
 	friend GameObject;
 protected:

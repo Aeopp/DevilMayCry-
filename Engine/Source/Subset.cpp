@@ -35,6 +35,16 @@ void Subset::Render()
 
 }
 
+const LPDIRECT3DVERTEXBUFFER9 Subset::GetVertexBuffer()
+{
+	return m_pVertexBuffer;
+}
+
+const LPDIRECT3DINDEXBUFFER9 Subset::GetIndexBuffer()
+{
+	return m_pIndexBuffer;
+}
+
 const VERTEXBUFFERDESC& Subset::GetVertexBufferDesc()
 {
 	// TODO: 여기에 return 문을 삽입합니다.

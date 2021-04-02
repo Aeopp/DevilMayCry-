@@ -9,7 +9,7 @@ Mesh::Mesh(LPDIRECT3DDEVICE9 const _pDevice)
 }
 
 Mesh::Mesh(const Mesh& _rOther)
-	: Resource(_rOther.m_pDevice)
+	: Resource(_rOther)
 	, m_vecSubset(_rOther.m_vecSubset)
 {
 }
@@ -30,6 +30,11 @@ HRESULT Mesh::Render()
 	}
 
 	return S_OK;
+}
+
+const uint64 Mesh::GetNumSubset() const
+{
+	return m_vecSubset.size();
 }
 
 std::weak_ptr<Subset> Mesh::GetSubset(const UINT _nIndex)

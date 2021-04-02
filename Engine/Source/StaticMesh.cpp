@@ -10,7 +10,7 @@ StaticMesh::StaticMesh(LPDIRECT3DDEVICE9 const _pDevice)
 }
 
 StaticMesh::StaticMesh(const StaticMesh& _rOther)
-	: Mesh(_rOther.m_pDevice)
+	: Mesh(_rOther)
 {
 }
 
@@ -35,8 +35,7 @@ Resource* StaticMesh::Clone()
 {
 	StaticMesh* pClone = new StaticMesh(*this);
 	return pClone;
-}
-
+};
 
 HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {

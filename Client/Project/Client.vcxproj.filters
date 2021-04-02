@@ -54,6 +54,7 @@
     <ClInclude Include="..\Header\TestObject.h">
       <Filter>02.GameObject</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\ShaderTester.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -84,5 +85,6 @@
     <ClCompile Include="..\Source\TestObject.cpp">
       <Filter>02.GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ShaderTester.cpp" />
   </ItemGroup>
 </Project>

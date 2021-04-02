@@ -351,7 +351,7 @@ static inline HRESULT LoadMaterial(
 				tTextureDesc.fBlendFactor		= fBlendFactor;
 				tTextureDesc.nUVIdx				= nUVIdx;
 
-				const std::filesystem::path FileNamePath = sAiPath.C_Str();
+				const std::filesystem::path FileNamePath   = sAiPath.C_Str();
 				const std::filesystem::path	CurTexFilePath = _Path / FileNamePath.filename();
 
 				std::shared_ptr<Texture> pTexture = Resources::Load<Texture>(CurTexFilePath.wstring());

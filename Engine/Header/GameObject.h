@@ -7,6 +7,7 @@ BEGIN(ENGINE)
 class Scene;
 class Component;
 class Renderer;
+
 class ENGINE_DLL GameObject abstract : public Object
 {
 	friend Scene;
@@ -20,9 +21,9 @@ private:
 	bool		m_bDestroy;
 	//GameObject가 속한 Scene의 LoopPool의 어느 단계에 있는지 보관하는 변수.
 	UINT		m_nLoopIdx;
+	bool		m_bRenderRegist;
 protected:
 	std::weak_ptr<GameObject>	m_pGameObject;
-	RenderProperty _RenderProp;
 protected:
 	explicit GameObject();
 	virtual ~GameObject() = default;
@@ -34,8 +35,6 @@ public:
 	virtual HRESULT Start()								PURE;
 	virtual UINT	Update(const float _fDeltaTime)		PURE;
 	virtual	UINT	LateUpdate(const float _fDeltaTime)	PURE;
-	virtual HRESULT	Render()	                        PURE;
-
 	virtual void	OnEnable()							PURE;
 	virtual void	OnDisable()							PURE;
 public:
@@ -47,12 +46,12 @@ public:
 	std::weak_ptr<TYPE> AddGameObject();
 public:
 	void	Destroy(std::weak_ptr<GameObject> const _pGameObject);
-
+	bool    IsRenderEnable();
 	bool	IsActive();
+	void    SetRenderEnable(const bool _bActiveRender)&;
 	void	SetActive(const bool _bActive);
 	bool	IsStatic();
 	void	SetStatic(const bool _bStatic);
-	auto	GetRenderProperty() const& { return _RenderProp; };
 private:
 	void	SetScene(Scene* const _pScene);
 	void	SetGameObject(std::weak_ptr<GameObject> _pGameObject);

@@ -1,4 +1,5 @@
 #include "Transform.h"
+#include "FMath.hpp"
 
 USING(ENGINE)
 
@@ -163,7 +164,7 @@ D3DXVECTOR3 Transform::GetLook()
 
 D3DXMATRIX Transform::GetWorldMatrix()
 {
-	return m_matWorld;
+	return FMath::WorldMatrix(m_vLocalScale, m_vLocalRotation, m_vLocalPosition);
 }
 
 void Transform::SetWorldMatirx(const D3DXMATRIX& _matWorld)
