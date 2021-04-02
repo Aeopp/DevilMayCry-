@@ -77,7 +77,8 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		LPDIRECT3DVERTEXBUFFER9 pVB = nullptr;
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
-		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice, &tVBDesc, &pVB, &pIB)))
+		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
+			&tVBDesc, &pVB, &pIB)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
