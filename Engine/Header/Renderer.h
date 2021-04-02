@@ -28,6 +28,7 @@ public :
 	// 오브젝트의 렌더 세팅이 켜져있다면 RenderInterface 인터페이스를 검사하고 엔티티에 추가 .
 	void Push(const std::weak_ptr<GameObject>& _RenderEntity)&;
 public : 
+	Vector3 TestDirectionLight{ 0,-1,0 };
 	HRESULT Render()&;
 	RenderInformation CurrentRenderInfo{};
 	RenderInformation PrevRenderInfo{};

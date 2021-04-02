@@ -4,6 +4,7 @@
 #include "EngineDefine.h"
 #include "RenderProperty.h"
 #include "FMath.hpp"
+
 BEGIN(ENGINE)
 class ENGINE_DLL RenderInformation
 {

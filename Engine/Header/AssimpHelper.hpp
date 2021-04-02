@@ -55,10 +55,10 @@ static inline Quaternion ConvertQuat(const aiQuaternion& AiQuaternion)
 	return _Quat;
 };
 
-
 static inline HRESULT LoadMesh(
 	IN	const aiMesh* const				_pAiMesh,
 	IN	LPDIRECT3DDEVICE9 const			_pDevice,
+	IN  const bool                      _bAnimation,
 	OUT LPVERTEXBUFFERDESC const		_pVBDesc,
 	OUT	LPDIRECT3DVERTEXBUFFER9* const	_ppVB,
 	OUT LPDIRECT3DINDEXBUFFER9*	const	_ppIB)
@@ -277,6 +277,7 @@ static inline HRESULT LoadMesh(
 #pragma endregion
 	return S_OK;
 }
+
 
 static inline HRESULT LoadMaterial(
 	IN const aiScene* const				_pAiScene,

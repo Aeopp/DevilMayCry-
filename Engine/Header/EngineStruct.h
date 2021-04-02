@@ -1,5 +1,6 @@
 #ifndef __ENGINE_STRUCT_H__
 #define __ENGINE_STRUCT_H__
+
 BEGIN(ENGINE)
 typedef struct tagVertexBufferDesc
 {
@@ -16,8 +17,7 @@ typedef struct tagVertexBufferDesc
 	bool							bHasTangentBiNormal;
 
 	std::shared_ptr<std::vector<D3DXVECTOR3>> LocalVertexLocation;
-
-	LPDIRECT3DVERTEXDECLARATION9	pVertexDecl;
+	LPDIRECT3DVERTEXDECLARATION9	          pVertexDecl;
 public:
 	tagVertexBufferDesc()
 	{

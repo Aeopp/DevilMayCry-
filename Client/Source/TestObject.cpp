@@ -3,6 +3,8 @@
 #include "Transform.h"
 #include "Subset.h"
 #include "TextureType.h"
+#include "Renderer.h"
+
 
 void TestObject::Free()
 {
@@ -15,16 +17,23 @@ TestObject* TestObject::Create()
 
 void TestObject::RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)
 {
-	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
-		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 			auto Diffuse0 = SharedSubset->GetMaterial().
 				GetTexture(TextureType::DIFFUSE, 0u);
+
+
+			// TEST 
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight,
+				3u);
+			// 
+
 
 			if (Diffuse0)
 			{
@@ -75,8 +84,8 @@ HRESULT TestObject::Ready()
 		L"..\\..\\Resource\\Mesh\\Static\\Tester.fbx"
 	};
 
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(FbxPath);
-	if (!_StaticMesh)
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(FbxPath);
+	if (!_SkeletonMesh)
 	{
 		PRINT_LOG(L"Failed!", __FUNCTIONW__);
 	}
@@ -111,8 +120,10 @@ UINT TestObject::Update(const float _fDeltaTime)
 			ImGui::SliderFloat("All Scale", &AllScale, 0.001f, 100.f);
 			Sptransform->SetScale({AllScale,AllScale,AllScale });
 		}
-		
 
+		ImGui::DragFloat3("LightDirection", Renderer::GetInstance()->TestDirectionLight);
+		Renderer::GetInstance()->TestDirectionLight =
+			FMath::Normalize(Renderer::GetInstance()->TestDirectionLight);
 	}
 	
 	return 0;

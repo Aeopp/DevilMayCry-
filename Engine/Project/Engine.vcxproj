@@ -179,7 +179,11 @@ call Engine.bat</Command>
     <ClInclude Include="..\..\Reference\Header\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\..\Reference\Header\imgui\imstb_textedit.h" />
     <ClInclude Include="..\..\Reference\Header\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\Header\AnimationBlendInfo.h" />
+    <ClInclude Include="..\Header\AnimationInformation.h" />
+    <ClInclude Include="..\Header\AnimationTrack.h" />
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\Bone.h" />
     <ClInclude Include="..\Header\Component.h" />
     <ClInclude Include="..\Header\Core.h" />
     <ClInclude Include="..\Header\CoreSystem.h" />
@@ -218,6 +222,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\SceneManager.h" />
     <ClInclude Include="..\Header\SceneSystem.h" />
     <ClInclude Include="..\Header\Shader.h" />
+    <ClInclude Include="..\Header\SkeletonMesh.h" />
     <ClInclude Include="..\Header\StaticMesh.h" />
     <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
@@ -227,6 +232,10 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\AnimationBlendInfo.cpp" />
+    <ClCompile Include="..\Source\AnimationInformation.cpp" />
+    <ClCompile Include="..\Source\AnimationTrack.cpp" />
+    <ClCompile Include="..\Source\Bone.cpp" />
     <ClCompile Include="..\Source\Component.cpp" />
     <ClCompile Include="..\Source\Core.cpp" />
     <ClCompile Include="..\Source\CoreSystem.cpp" />
@@ -257,6 +266,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\SceneManager.cpp" />
     <ClCompile Include="..\Source\SceneSystem.cpp" />
     <ClCompile Include="..\Source\Shader.cpp" />
+    <ClCompile Include="..\Source\SkeletonMesh.cpp" />
     <ClCompile Include="..\Source\StaticMesh.cpp" />
     <ClCompile Include="..\Source\Subset.cpp" />
     <ClCompile Include="..\Source\Texture.cpp" />

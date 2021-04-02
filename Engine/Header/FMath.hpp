@@ -562,8 +562,7 @@ inline T FMath::Clamp(const T& Target, const T& Min, const T& Max)
 	}
 
 	return Target;
-}
-
+};
 
 inline Matrix FMath::RotationAxisMatrix(const Vector3 Axis, const float Radian)
 {

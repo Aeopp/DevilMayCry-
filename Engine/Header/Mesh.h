@@ -7,6 +7,10 @@ class ENGINE_DLL Mesh abstract : public Resource
 {
 protected:
 	std::vector<std::shared_ptr<Subset>>  m_vecSubset;
+	std::shared_ptr<std::vector<Vector3>> m_spVertexLocations;
+protected:
+	// 로딩이 끝난 이후 호출해주세요 . 서브셋 정점 정보들로부터 전체 메쉬의 정점 위치를 구합니다.
+	void MakeVertexLcationsFromSubset()&;
 protected:
 	explicit Mesh(LPDIRECT3DDEVICE9 const _pDevice);
 	explicit Mesh(const Mesh& _rOther);
@@ -19,6 +23,7 @@ public:
 public:
 	HRESULT Render();
 public:
+	auto GetVertexLocations() {return m_spVertexLocations;};
 	const uint64			GetNumSubset() const; 
 	std::weak_ptr<Subset>	GetSubset(const UINT _nIndex);
 	const VERTEXBUFFERDESC& GetVertexBufferDesc(const UINT _nSubsetIdx);

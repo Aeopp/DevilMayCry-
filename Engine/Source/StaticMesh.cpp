@@ -40,7 +40,7 @@ Resource* StaticMesh::Clone()
 HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {
 	//Assimp Importer 생성.
-	Assimp::Importer AiImporter;
+	auto AiImporter = Assimp::Importer{};
 	//FBX파일을 읽어서 Scene 생성.
 	const aiScene* const AiScene = AiImporter.ReadFile(
 		_Path.string(),
@@ -61,6 +61,11 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		aiProcess_SplitLargeMeshes
 	);
 
+	return LoadStaticMeshImplementation(AiScene,  _Path);
+}
+HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
+										const std::filesystem::path _Path)
+{
 	//Subset을 보관하는 vector 메모리 공간 확보.
 	m_vecSubset.resize(AiScene->mNumMeshes);
 
@@ -68,7 +73,7 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
 		//
-		const auto *const AiMesh = AiScene->mMeshes[MeshIdx];
+		const auto* const AiMesh = AiScene->mMeshes[MeshIdx];
 		//
 		std::shared_ptr<Subset> _CurrentSubset;
 		_CurrentSubset.reset(Subset::Create(m_pDevice), Deleter<Object>());
@@ -122,7 +127,10 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		m_vecSubset[MeshIdx] = _CurrentSubset;
 	};
 
+	MakeVertexLcationsFromSubset();
+
 	return S_OK;
+
 }
 
 

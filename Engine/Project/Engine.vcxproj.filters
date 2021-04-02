@@ -37,6 +37,11 @@
     <ClCompile Include="..\Source\RenderTarget.cpp" />
     <ClCompile Include="..\Source\RenderInterface.cpp" />
     <ClCompile Include="..\Source\RenderInformation.cpp" />
+    <ClCompile Include="..\Source\SkeletonMesh.cpp" />
+    <ClCompile Include="..\Source\Bone.cpp" />
+    <ClCompile Include="..\Source\AnimationTrack.cpp" />
+    <ClCompile Include="..\Source\AnimationBlendInfo.cpp" />
+    <ClCompile Include="..\Source\AnimationInformation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Reference\Header\imgui\imconfig.h" />
@@ -94,5 +99,10 @@
     <ClInclude Include="..\Header\RenderInformation.h" />
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl" />
     <ClInclude Include="..\Header\TextureType.h" />
+    <ClInclude Include="..\Header\SkeletonMesh.h" />
+    <ClInclude Include="..\Header\Bone.h" />
+    <ClInclude Include="..\Header\AnimationTrack.h" />
+    <ClInclude Include="..\Header\AnimationBlendInfo.h" />
+    <ClInclude Include="..\Header\AnimationInformation.h" />
   </ItemGroup>
 </Project>
