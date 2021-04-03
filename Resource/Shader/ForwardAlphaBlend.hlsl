@@ -3,9 +3,7 @@ matrix View;
 matrix Projection;
 float3 LightDirection = float3(0, -1, 0);
 static const float3 Fdielectric = 0.04;
-
-
-
+int nMaxBonesRefPerVtx = 4;
 
 int VTFPitch;
 texture VTF;
@@ -48,8 +46,10 @@ struct VsIn
     float3 Tangent : TANGENT;
     float3 BiNormal : BINORMAL;
     float2 UV : TEXCOORD0;
-    float4 BoneIds : BLENDINDICES;
-    float4 Weights : BLENDWEIGHT;
+    half4 BoneIds0 : BLENDINDICES0;
+    half4 BoneIds1 : BLENDINDICES1;
+    half4 Weights0 : BLENDWEIGHT0;
+    half4 Weights1 : BLENDWEIGHT1;
 };
 
 struct VsOut
@@ -82,7 +82,7 @@ VsOut VsMain(VsIn In)
     
     for (int i = 0; i < 4; ++i)
     {
-        int Idx = In.BoneIds[i] * 4;
+        int Idx = In.BoneIds0[i] * 4;
         
         float2 VTFUVRow0 = float2((float(Idx % IVTFPitch) + UVCorrection) / FVTFPitch,
                                   (float(Idx / IVTFPitch) + UVCorrection) / FVTFPitch);
@@ -104,11 +104,48 @@ VsOut VsMain(VsIn In)
             tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
         };
         
-        AnimTanget += (mul(float4(In.Tangent, 0.f), AnimMatrix) * In.Weights[i]);
-        AnimNormal += (mul(float4(In.Normal, 0.f), AnimMatrix) * In.Weights[i]);
-        AnimBiNormal += (mul(float4(In.BiNormal, 0.f), AnimMatrix) * In.Weights[i]);
-        AnimPos += (mul(In.Position, AnimMatrix) * In.Weights[i]);
+        AnimTanget += (mul(float4(In.Tangent, 0.f), AnimMatrix) * In.Weights0[i]);
+        AnimNormal += (mul(float4(In.Normal, 0.f), AnimMatrix) * In.Weights0[i]);
+        AnimBiNormal += (mul(float4(In.BiNormal, 0.f), AnimMatrix) * In.Weights0[i]);
+        AnimPos += (mul(In.Position, AnimMatrix) * In.Weights0[i]);
     }
+    
+    if (nMaxBonesRefPerVtx > 4)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            int Idx = In.BoneIds1[i] * 4;
+        
+            float2 VTFUVRow0 = float2((float(Idx % IVTFPitch) + UVCorrection) / FVTFPitch,
+                                  (float(Idx / IVTFPitch) + UVCorrection) / FVTFPitch);
+        
+            float2 VTFUVRow1 = float2((float((Idx + 1) % IVTFPitch) + UVCorrection) / FVTFPitch,
+                                  (float((Idx + 1) / IVTFPitch) + UVCorrection) / FVTFPitch);
+        
+            float2 VTFUVRow2 = float2((float((Idx + 2) % IVTFPitch) + UVCorrection) / FVTFPitch,
+                                  (float((Idx + 2) / IVTFPitch) + UVCorrection) / FVTFPitch);
+        
+            float2 VTFUVRow3 = float2((float((Idx + 3) % IVTFPitch) + UVCorrection) / FVTFPitch,
+                                  (float((Idx + 3) / IVTFPitch) + UVCorrection) / FVTFPitch);
+        
+            float4x4 AnimMatrix =
+            {
+                tex2Dlod(VTFSampler, float4(VTFUVRow0, 0.f, 0.f)),
+             tex2Dlod(VTFSampler, float4(VTFUVRow1, 0.f, 0.f)),
+             tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
+                tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
+            };
+        
+            AnimTanget += (mul(float4(In.Tangent, 0.f), AnimMatrix) * In.Weights1[i]);
+            AnimNormal += (mul(float4(In.Normal, 0.f), AnimMatrix) * In.Weights1[i]);
+            AnimBiNormal += (mul(float4(In.BiNormal, 0.f), AnimMatrix) * In.Weights1[i]);
+            AnimPos += (mul(In.Position, AnimMatrix) * In.Weights1[i]);
+        }
+    }
+        
+    
+    
+    
     
     Out.UV = In.UV;
     Out.Position = mul(float4(AnimPos.xyz, 1.f), WVP);

@@ -106,5 +106,6 @@
     <ClInclude Include="..\Header\AnimationBlendInfo.h" />
     <ClInclude Include="..\Header\AnimationInformation.h" />
     <ClInclude Include="..\Header\AnimNotify.h" />
+    <ClInclude Include="..\Header\IconsFontAwesome5.h" />
   </ItemGroup>
 </Project>

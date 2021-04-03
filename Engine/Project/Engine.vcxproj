@@ -184,6 +184,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\AnimationTrack.h" />
     <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\IconsFontAwesome5.h" />
     <ClInclude Include="..\Header\Node.h" />
     <ClInclude Include="..\Header\Component.h" />
     <ClInclude Include="..\Header\Core.h" />

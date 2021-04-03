@@ -96,7 +96,7 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB,nullptr,false)))
+			&tVBDesc, &pVB, &pIB,nullptr)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;

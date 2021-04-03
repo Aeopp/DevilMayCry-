@@ -63,10 +63,9 @@ static inline HRESULT LoadMesh(
 	OUT LPDIRECT3DINDEXBUFFER9*	 const	_ppIB,
 	// 본 이름과 본 (인덱스,오프셋) 매핑 정보 ... 
 	IN  OUT std::unordered_map<std::string, 
-						std::pair<uint32,Matrix>>* _rBoneTableParsingInfoFromName,
-	const bool bBoneMaxRefNum8)
+						std::pair<uint32,Matrix>>* _rBoneTableParsingInfoFromName)
 {
-	static const  uint32 SupportMaxBoneNum = bBoneMaxRefNum8 ? 8u:4u;
+	static const  uint32 SupportMaxBoneNum = 8u;
 #pragma region SET VERTEX BUFFER DESCRIPTION
 	_pVBDesc->nNumFaces				= _pAiMesh->mNumFaces;
 	_pVBDesc->nNumVertices			= _pAiMesh->mNumVertices;
@@ -109,17 +108,27 @@ static inline HRESULT LoadMesh(
 			for (uint32 j = 0u; j < CurBone->mNumWeights; ++j)
 			{
 				const auto WeightInfo = CurBone->mWeights[j];
-
-				BoneIdxAndWeights[WeightInfo.mVertexId].push_back
+				auto& CurVtxIdBoneIdxAndWeights = BoneIdxAndWeights[WeightInfo.mVertexId];
+				CurVtxIdBoneIdxAndWeights.push_back
 				(
 					{ CurBoneIdx ,WeightInfo.mWeight }
 				);
+				if (CurVtxIdBoneIdxAndWeights.size() > _pVBDesc->nMaxBonesRefPerVtx)
+				{
+					_pVBDesc->nMaxBonesRefPerVtx = CurVtxIdBoneIdxAndWeights.size();
+				}
 			}
 		}
 	}
 #pragma region SET VERTEXELEMENT & CREATE VERTEXDECLARATION
 	std::vector<D3DVERTEXELEMENT9> vecElements;
-
+	const bool MaxBonesRefPerVtx4Over = _pVBDesc->nMaxBonesRefPerVtx > 4u;
+	if (_pVBDesc->nMaxBonesRefPerVtx > 8u)
+	{
+		PRINT_LOG(L"Warning!!",
+			L"When the number of bones referenced per vertex exceeds 8, there is a chance that skinning will behave unexpectedly.");
+	}
+	
 	if (_pVBDesc->bHasPosition)
 	{
 		vecElements.push_back
@@ -241,7 +250,7 @@ static inline HRESULT LoadMesh(
 
 		_pVBDesc->nStride += (sizeof(float) * 4u);
 
-		if (bBoneMaxRefNum8 == true)
+		if (MaxBonesRefPerVtx4Over)
 		{
 			vecElements.push_back
 			(
@@ -257,6 +266,7 @@ static inline HRESULT LoadMesh(
 			);
 			_pVBDesc->nStride += (sizeof(float) * 4u);
 		}
+		
 
 		vecElements.push_back
 		(
@@ -272,7 +282,7 @@ static inline HRESULT LoadMesh(
 		);
 		_pVBDesc->nStride += (sizeof(float) * 4u);
 
-		if (bBoneMaxRefNum8 == true)
+		if (MaxBonesRefPerVtx4Over)
 		{
 			vecElements.push_back
 			(
@@ -288,8 +298,6 @@ static inline HRESULT LoadMesh(
 			);
 			_pVBDesc->nStride += (sizeof(float) * 4u);
 		}
-
-
 	}
 
 	vecElements.push_back(D3DDECL_END());
@@ -305,6 +313,7 @@ static inline HRESULT LoadMesh(
 
 	//_pAiMesh로 부터 메쉬를 이루는 정점 정보 로드
 	std::vector<float>	vecVertices;
+	const uint32 RefBoneMaxIdx = MaxBonesRefPerVtx4Over ? 8u : 4u;
 
 	for (UINT nVertexIdx = 0; nVertexIdx < _pVBDesc->nNumVertices; ++nVertexIdx)
 	{
@@ -347,33 +356,19 @@ static inline HRESULT LoadMesh(
 		{
 			auto iter = BoneIdxAndWeights.find(nVertexIdx);
 			const auto& RefBoneInfos =iter->second;
-			if (RefBoneInfos.size() > _pVBDesc->nMaxBonesRefPerVtx)
-			{
-				_pVBDesc->nMaxBonesRefPerVtx = RefBoneInfos.size();
-			}
-
-			if (RefBoneInfos.size() > SupportMaxBoneNum)
-			{
-				PRINT_LOG(L"Warning!!",
-					L"When the number of bones referenced per vertex exceeds 4, there is a chance that skinning will behave unexpectedly.");
-			}
-
 			for (const auto& RefBoneInfo : RefBoneInfos)
 			{
 				vecVertices.push_back(RefBoneInfo.first);
 			}
-
-			for (uint32 i = RefBoneInfos.size(); i < SupportMaxBoneNum; ++i)
+			for (uint32 i = RefBoneInfos.size(); i < RefBoneMaxIdx; ++i)
 			{
-				vecVertices.push_back(0u);
+				vecVertices.push_back(0.0f);
 			}
-
 			for (const auto& RefBoneInfo : RefBoneInfos)
 			{
 				vecVertices.push_back(RefBoneInfo.second);
 			}
-
-			for (uint32 i = RefBoneInfos.size(); i < SupportMaxBoneNum; ++i)
+			for (uint32 i = RefBoneInfos.size(); i < RefBoneMaxIdx; ++i)
 			{
 				vecVertices.push_back(0.0f);
 			}

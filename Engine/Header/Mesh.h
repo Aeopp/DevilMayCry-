@@ -22,7 +22,7 @@ public:
 	virtual Resource* Clone()	PURE;
 	virtual void Editor()override;
 public:
-	HRESULT Render();
+	HRESULT Render(ID3DXEffect* const Fx);
 public:
 	auto GetVertexLocations() {return m_spVertexLocations;};
 	const uint64			GetNumSubset() const; 

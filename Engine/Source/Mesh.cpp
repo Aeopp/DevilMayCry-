@@ -42,13 +42,13 @@ void Mesh::Free()
 	Resource::Free();
 }
 
-HRESULT Mesh::Render()
+HRESULT Mesh::Render(ID3DXEffect* const Fx)
 {
 	for (auto& pSubset : m_vecSubset)
 	{
 		if (nullptr == pSubset)
 			continue;
-		pSubset->Render();
+		pSubset->Render(Fx);
 	}
 
 	return S_OK;
@@ -72,7 +72,10 @@ void Mesh::Editor()
 	Resource::Editor();
 	if (bEdit)
 	{
-
+		for (auto& _Subset:m_vecSubset)
+		{
+			_Subset->Editor();
+		}
 	}
 }
 

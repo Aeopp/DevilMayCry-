@@ -32,8 +32,7 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight,
-				3u);
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight,3u);
 
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 
@@ -53,10 +52,7 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 				_ImplInfo.Fx->SetTexture("NRMRMap",
 					NRMR0Map->GetTexture());
 			}
-
-			_ImplInfo.Fx->CommitChanges();
-			SharedSubset->Render();
-			ImGui::Text("MaxBonesRefPerVtx : %d ", VtxBufDesc.nMaxBonesRefPerVtx);
+			SharedSubset->Render(_ImplInfo.Fx);
 
 			//g_pDevice->SetVertexDeclaration(VtxBufDesc.pVertexDecl);
 			//g_pDevice->SetStreamSource(0u, SharedSubset->GetVertexBuffer(),

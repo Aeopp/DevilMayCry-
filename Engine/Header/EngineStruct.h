@@ -14,10 +14,10 @@ typedef struct tagVertexBufferDesc
 
 	std::vector<uint32>				vecNumUVComponents;
 
-	bool							bHasPosition;
-	bool							bHasNormal;
-	bool							bHasTangentBiNormal;
-	bool                            bHasBone;
+	bool									  bHasPosition;
+	bool									  bHasNormal;
+	bool									  bHasTangentBiNormal;
+	bool									  bHasBone;
 	std::shared_ptr<std::vector<D3DXVECTOR3>> LocalVertexLocation;
 	LPDIRECT3DVERTEXDECLARATION9	          pVertexDecl;
 public:

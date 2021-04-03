@@ -17,17 +17,44 @@ void Subset::Free()
 	Object::Free();
 }
 
+void Subset::Editor()
+{
+	Object::Editor();
+	if (bEdit)
+	{
+		ImGui::Text("nNumUVChannel %d", m_tVertexBufferDesc.nNumUVChannel);
+		ImGui::Text("nMaxBonesRefPerVtx %d", m_tVertexBufferDesc.nMaxBonesRefPerVtx);
+		for (uint32 i = 0; i < m_tVertexBufferDesc.nNumUVChannel; ++i)
+		{
+			ImGui::Text("Channel %d NumComponents %d", i,  m_tVertexBufferDesc.vecNumUVComponents[i]);
+		};
+		ImGui::Text("bHasPosition %d", m_tVertexBufferDesc.bHasPosition);
+		ImGui::Text("bHasNormal %d", m_tVertexBufferDesc.bHasNormal);
+		ImGui::Text("bHasTangentBiNormal %d", m_tVertexBufferDesc.bHasTangentBiNormal);
+		ImGui::Text("bHasBone %d", m_tVertexBufferDesc.bHasBone);
+	}
+}
+
+std::string Subset::GetName()
+{
+	return "Subset";
+}
+
 Subset* Subset::Create(LPDIRECT3DDEVICE9 const _pDevice)
 {
 	Subset* pInstance = new Subset(_pDevice);
 	return pInstance;
 }
 
-void Subset::Render()
+void Subset::Render(ID3DXEffect*const Fx)
 {
 	if (nullptr == m_pVertexBuffer || nullptr == m_pIndexBuffer)
 		return;
-
+	if (Fx)
+	{
+		Fx->SetInt("nMaxBonesRefPerVtx", m_tVertexBufferDesc.nMaxBonesRefPerVtx);
+	}
+	Fx->CommitChanges();
 	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, m_tVertexBufferDesc.nStride);
 	m_pDevice->SetVertexDeclaration(m_tVertexBufferDesc.pVertexDecl);
 	m_pDevice->SetIndices(m_pIndexBuffer);

@@ -172,12 +172,12 @@ Resource* SkeletonMesh::Clone()
 
 void SkeletonMesh::Editor()
 {
-	Mesh::Editor();
 	if (bEdit)
 	{
 		AnimationEditor();
 		NodeEditor();
 	}
+	Mesh::Editor();
 }
 
 std::string SkeletonMesh::GetName()
@@ -432,7 +432,7 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB , &BoneTableParserInfo,false)))
+			&tVBDesc, &pVB, &pIB , &BoneTableParserInfo)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
@@ -623,12 +623,13 @@ static bool IsBone(
 
  void SkeletonMesh::InitTextureForVertexTextureFetch()&
  {
-	 const float TexPitchPrecision =
-		 std::sqrtf(BoneSkinningMatries.size() * sizeof(Matrix) / 4u);
-
+	 // 텍셀하나당 flaot4 개씩 저장하므로 매트릭스 하나에는 텍셀 4개가 필요하다.
+	 const float TexPitchPrecision = std::sqrtf(BoneSkinningMatries.size() * 4u);
 	 const uint8 PowerOfMax = 9u;
 	 // 2^9 * 2^9 / 4 = 4096개의 행렬을 저장 가능하며 4096개의 본을 가진 캐릭터가 존재하는 게임을 나는 아직 못만듬.
-	 for (uint8 PowerOf2 = 1u; PowerOf2 < PowerOfMax; ++PowerOf2)
+	 
+	 // 가장가까운 2의 승수를 찾는다.
+	 for (uint8 PowerOf2 = 0u; PowerOf2 < PowerOfMax; ++PowerOf2)
 	 {
 		 VTFPitch = std::powl(2, PowerOf2);
 		 if (VTFPitch >= TexPitchPrecision)
