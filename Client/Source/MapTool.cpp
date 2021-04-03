@@ -10,53 +10,37 @@ MapTool::MapTool()
 	:m_iPeekCnt(0)
 	, m_iPeekType(0)
 	, m_fPivotMoveSpeed(0.1f)
-	, m_eWorkType(eWorkOption::e::End)
 	, m_bReadyNameTable(false)
 {
-	ZeroMemory(m_bPropsOption, sizeof(bool) * ePropsOption::End);
+	ZeroMemory(m_bPropsOption, sizeof(bool) * (int)ePropsOption::End);
 }
 
 void MapTool::Free()
 {
 	Scene::Free();
 }
-void  NewFBXNameTable(const _TCHAR* pPath)
+
+void MapTool::ApplyPropsOption()
 {
-	//OBJDATA tTemp;
-	//FILE* pFile = nullptr;
-	//TCHAR szWord[MAX_PATH + 1] = TEXT("");
-	//if (0 != _tfopen_s(&pFile, pFilePath, TEXT("r,ccs=UTF-8")))
-	//{
-	//	MSG_BOX(L"failed Load");
-	//	return E_FAIL;
-	//}
-	//_int iDeco, iFloat, iStat;
-	//eItemCategory::eItemCategory eTag;
-	//int i = 0;
-	//_fgetts(szWord, MAX_PATH, pFile);
-	//while (EOF != _ftscanf_s(pFile, TEXT("%s"), szWord, MAX_PATH))
-	//{
-	//	if (isdigit(szWord[0]))
-	//	{
-	//		tTemp.iItemID = _ttoi(szWord);
-	//		_ftscanf_s(pFile, TEXT("%s"), szWord, MAX_PATH);
-	//		tTemp.wstrTag = wstring(szWord);
-	//		_ftscanf_s(pFile, TEXT("%f %f %f %d %d %d %d %f")
-	//			, &tTemp.fSacle, &tTemp.fSize, &tTemp.fWeight
-	//			, &iDeco, &iFloat, &iStat, &eTag, &tTemp.fInfoScale);
-	//		tTemp.bDecoration = (i != iDeco);
-	//		tTemp.bFloating = (i != iFloat);
-	//		tTemp.bStationary = (i != iStat);
-	//		tTemp.eCategory = eTag;
-	//		_ftscanf_s(pFile, TEXT("%s\n"), szWord, MAX_PATH);
-	//		tTemp.wstrName = wstring(szWord);
-	//		m_vecDataTble.emplace_back(tTemp);
-	//	}
-	//}
-	//fclose(pFile);
-
-
+	if (m_iPeekType == (int)ePeekingType::Single)
+	{
+		for (int i = 0; i < (int)ePropsOption::End; ++i)
+		{
+			//m_pSelectObj->SetOptino(i , m_bPropsOption[i]);
+		}
+	}
+	else
+	{
+		//for (auto& pObj : m_pListMultiSelectObj)
+		//{
+		//	for (int i = 0; i << ePropsOption::End; ++i)
+		//	{
+		//		//pObj->SetOptino(i , m_bPropsOption[i]);
+		//	}
+		//}
+	}
 }
+
 MapTool* MapTool::Create()
 {
 	MapTool* pInstance = new MapTool();
@@ -159,40 +143,18 @@ bool MapTool::CheckWindow(const char* Text)
 
 void MapTool::ShowMapTool()
 {
-
-
+	//Window Setting
 	ImGui::Begin("Hellow MapTool");
 	ImGui::SetWindowPos(ImVec2(0, 10));
 	ImGui::SetWindowSize(ImVec2(400, 600));
 
+	//NameTable
+	NameTableGroup();
+	//balse
+	BaseMapCreateGroup();
+	
 
 
-	ImGui::Text("NameTable"); ImGui::SameLine();
-	HelpMarker("Must be Ready Name Table");ImGui::SameLine();
-	ImGui::Text("NameTable Ready :"); ImGui::SameLine();
-	ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), m_bReadyNameTable ? "TRUE " : "FALSE");
-	ImGui::Text("BaseMap"); ImGui::SameLine();
-	HelpMarker("Write FBX Path");
-	static char szBaseMapPath[MAX_PATH] = "";
-	ImGui::InputText("", szBaseMapPath,MAX_PATH); ImGui::SameLine();
-	//ImGui::PushID(0);
-	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0 / 7.0f, 0.7f, 0.7f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
-	if (ImGui::Button("Ins"))
-	{
-		//체크전에 로드 된거 있으면 릴리즈 
-	}
-	ImGui::PopStyleColor(3);
-	ImGui::SameLine();
-	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
-	if (ImGui::Button("Del"))
-	{
-
-	}
-	ImGui::PopStyleColor(3);
 	if(ImGui::CollapsingHeader("Props Tree"))
 	{
 		ImGui::Text("Test");
@@ -211,121 +173,10 @@ void MapTool::ShowMapTool()
 		ImGui::Text("Test");
 	}
 
-	ImGui::Text("WorkType");
-	ImGui::RadioButton("Create", (int*)&m_eWorkType, 0); ImGui::SameLine();
-	ImGui::RadioButton("Delete", (int*)&m_eWorkType, 1); ImGui::SameLine();
-	ImGui::RadioButton("Modyfy", (int*)&m_eWorkType, 2);
-
-
-
-	ImGui::Text("PeekingType");
-	ImGui::RadioButton("Single", &m_iPeekType, 0); 
-	if (m_eWorkType == eWorkOption::Modify)
-	{
-		ImGui::SameLine();
-		ImGui::RadioButton("Multi", &m_iPeekType, 1);
-	}
-	else
-	{
-		m_iPeekType = (int)ePeekingType::Single;
-	}
-
-	static char szObjName[64] = "TestName";
-
-	if (m_iPeekType == (int)ePeekingType::Single)
-	{
-		ImGui::Text("Peeking Object Name : %s", szObjName);
-	}
-	else
-	{
-		ImGui::Text("Peeking Object Cnt: %d", m_iPeekCnt);
-	}
-
-
-
-	ImGui::Text("---------Transform---------\n\n");
-	ImGui::Text("Drag Sensitivity"); ImGui::SameLine();
-	HelpMarker("Edit value Drag Power"); ImGui::SameLine();
-	HelpMarker(
-		"Drag to edit value.\n"
-		"Hold SHIFT/ALT for faster/slower edit.\n"
-		"Double-click or CTRL+click to input value.");
-	static float fSensitivety = 0.1f;
-	static vec3 TestScale = vZero;  // obj pos Get 
-	static vec3 TestRot = vZero;  // obj pos Get 
-	static vec3 TestPos = vZero;  // obj pos Get 
-
-	ImGui::InputFloat("", &fSensitivety, 0.1f);
-	fSensitivety = CLAMP(fSensitivety, 0, 100);
-	ImGui::Text("Sacle");
-	ImGui::SameLine();
-	ImGui::DragFloat3(".", (float*)&TestScale.x, fSensitivety);
-	ImGui::Text("Rotate");
-	ImGui::SameLine();
-	ImGui::DragFloat3(" ", (float*)&TestRot.x, fSensitivety);
-	ImGui::Text("Positon"); ImGui::SameLine(); 
-	ImGui::DragFloat3("   ", (float*)&TestPos.x, fSensitivety);
-
-	if (m_iPeekType != (int)ePeekingType::Multi)
-	{
-		ImGui::Text("Option");
-		ImGui::Checkbox("Decoration", &m_bPropsOption[ePropsOption::Decoration]); ImGui::SameLine();
-		ImGui::Checkbox("Floating", &m_bPropsOption[ePropsOption::Floating]); ImGui::SameLine();
-		ImGui::Checkbox("Fixed", &m_bPropsOption[ePropsOption::Fixed]); ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4 / 7.0f, 0.7f, 0.7f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(4 / 7.0f, 0.8f, 0.8f));
-
-		if (ImGui::Button("Apply"))
-		{
-			if (m_iPeekType == (int)ePeekingType::Single)
-			{
-				for (int i = 0; i << ePropsOption::End; ++i)
-				{
-					//m_pSelectObj->SetOptino(i , m_bPropsOption[i]);
-				}
-			}
-			else
-			{
-				//for (auto& pObj : m_pListMultiSelectObj)
-				//{
-				//	for (int i = 0; i << ePropsOption::End; ++i)
-				//	{
-				//		//pObj->SetOptino(i , m_bPropsOption[i]);
-				//	}
-				//}
-			}
-
-		}
-	}
-
-	ImGui::Text("---------Save---------");
-	static char  szSaveFileName[64];
-	ImGui::InputText("_", szSaveFileName, 64);
-
-	if (ImGui::Button("Save"))
-		ImGui::OpenPopup("Check");
-
-	if (ImGui::BeginPopup("Check"))
-	{
-
-		ImGui::SetWindowPos(ImVec2(g_nWndCX / 2.f - (200 / 2.f), g_nWndCY / 2.f - (100 / 2)));
-		ImGui::SetWindowSize(ImVec2(200, 100));
-		ImGui::Text("you want to save the current data?");
-
-		if (ImGui::Button("Yes"))
-		{
-			//save Call
-		}
-		ImGui::SameLine(50);
-		if (ImGui::Button("No"))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-	ImGui::PopStyleColor(3);
+	//PeekingOption
+	PeekingOptionGroup();
+	TransFormCtrlGroup();
+	PropsOptionGroup();
 
 
 	
@@ -399,6 +250,244 @@ void MapTool::HotKey()
 		m_eWorkType = eWorkOption::Delete;
 	if (Input::GetKey(DIK_Y))
 		m_eWorkType = eWorkOption::Modify;
+	if (Input::GetKey(DIK_SPACE))
+		ApplyPropsOption();
+}
+
+void MapTool::NameTableGroup()
+{
+	ImGui::Text("NameTable"); ImGui::SameLine();
+	HelpMarker("Must be Ready Name Table"); ImGui::SameLine();
+	ImGui::Text("NameTable Ready :"); ImGui::SameLine();
+
+	ImVec4 fTextColor = m_bReadyNameTable ? ImVec4(0.0f, 0.0f, 1.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+	ImGui::TextColored(fTextColor, m_bReadyNameTable ? "TRUE " : "FALSE");
+	ImGui::SameLine();
+
+	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(6 / 7.0f, 0.6f, 0.6f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(6 / 7.0f, 0.7f, 0.7f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(6 / 7.0f, 0.8f, 0.8f));
+
+	if (ImGui::Button("NewTable"))
+		ImGui::OpenPopup("New Table?");
+	ImGui::PopStyleColor(3);
+
+	if (ImGui::BeginPopupModal("New Table?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Do you want to overwrite the data?\n");
+		ImGui::PushStyleColor(ImGuiCol_Button,		   ImVec4(33/255.f, 33 / 255.f, 33 / 255.f,255));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered,  ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f,255));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,   ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f,255));
+		
+		if (ImGui::Button("OK", ImVec2(100, 0)))
+		{ 
+			m_bReadyNameTable = NewFBXNameTable(L"../../Resource/SaveData/PropsNameTable.tsv");
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::PopStyleColor(3);
+
+
+		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 255));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 255));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 255));
+		if (ImGui::Button("Cancel", ImVec2(100, 0)))
+			ImGui::CloseCurrentPopup();
+		ImGui::PopStyleColor(3);
+
+		ImGui::EndPopup();
+	}
+	ImGui::SameLine();
+
+	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7 / 7.0f, 0.6f, 0.6f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(7 / 7.0f, 0.7f, 0.7f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(7 / 7.0f, 0.8f, 0.8f));
+	if (ImGui::Button("LoadTable"))
+	{
+		LoadFBXnametable(L"../../Resource/SaveData/PropsNameTable.tsv");
+	}
+
+	ImGui::PopStyleColor(3);
+}
+
+void MapTool::BaseMapCreateGroup()
+{
+	if(ImGui::CollapsingHeader("==============BaseMapCreate=============", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("BaseMap"); ImGui::SameLine();
+		HelpMarker("Write FBX Path but Only one file can be loaded");
+		static char szBaseMapPath[MAX_PATH] = "";
+		ImGui::InputText("    ", szBaseMapPath, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); ImGui::SameLine();
+		//ImGui::PushID(0);
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0 / 7.0f, 0.7f, 0.7f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
+		if (ImGui::Button("Ins"))
+		{
+			//체크전에 로드 된거 있으면 릴리즈 
+		}
+		ImGui::PopStyleColor(3);
+		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+		if (ImGui::Button("Del"))
+		{
+
+		}
+		ImGui::PopStyleColor(3);
+	}
+}
+
+void MapTool::PeekingOptionGroup()
+{
+	if(ImGui::CollapsingHeader("==============PeekingOption=============",ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("WorkType");
+		ImGui::RadioButton("Create", (int*)&m_eWorkType, (int)eWorkOption::Create); ImGui::SameLine();
+		ImGui::RadioButton("Delete", (int*)&m_eWorkType, (int)eWorkOption::Delete); ImGui::SameLine();
+		ImGui::RadioButton("Modyfy", (int*)&m_eWorkType, (int)eWorkOption::Modify); ImGui::SameLine();
+		HelpMarker("Hot Key [R] [T] [Y] \n If you want to modify it, in the hotkey function");
+
+
+		if (m_eWorkType == eWorkOption::Create)
+		{
+			ImGui::Text("Create location");
+			ImGui::RadioButton("PeekingPos", (int*)&m_eCreateOption, (int)eCreatePosition::PeekingPos);
+			ImGui::SameLine();
+			ImGui::RadioButton("PivotPos", (int*)&m_eCreateOption, (int)eCreatePosition::PivotPos);
+		}
+
+		ImGui::Text("PeekingType");
+		ImGui::RadioButton("Single", &m_iPeekType, (int)ePeekingType::Single);
+		ImGui::SameLine();
+		ImGui::RadioButton("Multi", &m_iPeekType, (int)ePeekingType::Multi);
+
+		if (m_eWorkType != eWorkOption::Modify)
+			m_iPeekType = (int)ePeekingType::Single;
+	
+
+		static char szObjName[64] = "Peeking obj Fbx Name";
+
+		if (m_iPeekType == (int)ePeekingType::Single)
+		{
+			ImGui::Text("Peeking Object Name : "); ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", szObjName);
+		}
+		else
+		{
+			ImGui::Text("Peeking Object Cnt: %d", m_iPeekCnt);
+		}
+	}
+}
+
+void MapTool::TransFormCtrlGroup()
+{
+	if(ImGui::CollapsingHeader("==============TransForm=============", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("Drag Sensitivity"); ImGui::SameLine();
+		HelpMarker("Edit value Drag Power"); ImGui::SameLine();
+		HelpMarker("Drag to edit value.\n"
+			"Hold SHIFT/ALT for faster/slower edit.\n"
+			"Double-click or CTRL+click to input value.");
+		static float fSensitivety = 0.1f;
+		static vec3 TestScale = vZero;  // obj pos Get 
+		static vec3 TestRot = vZero;  // obj pos Get 
+		static vec3 TestPos = vZero;  // obj pos Get 
+
+		ImGui::InputFloat("", &fSensitivety, 0.1f);
+		fSensitivety = CLAMP(fSensitivety, 0, 100);
+		ImGui::Text("Sacle");
+		ImGui::SameLine();
+		ImGui::DragFloat3(".", (float*)&TestScale.x, fSensitivety);
+		ImGui::Text("Rotate");
+		ImGui::SameLine();
+		ImGui::DragFloat3(" ", (float*)&TestRot.x, fSensitivety);
+		ImGui::Text("Positon"); ImGui::SameLine();
+		ImGui::DragFloat3("   ", (float*)&TestPos.x, fSensitivety);
+	}
+}
+
+void MapTool::PropsOptionGroup()
+{
+	if (m_iPeekType != (int)ePeekingType::Multi)
+	{
+		static bool bOpen = true;
+		if(ImGui::CollapsingHeader("==============PropsOption=============",ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::Text("Option");
+			ImGui::Checkbox("Decoration", &m_bPropsOption[(int)ePropsOption::Decoration]); ImGui::SameLine();
+			ImGui::Checkbox("Floating", &m_bPropsOption[(int)ePropsOption::Floating]); ImGui::SameLine();
+			ImGui::Checkbox("Fixed", &m_bPropsOption[(int)ePropsOption::Fixed]); ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4 / 7.0f, 0.7f, 0.7f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(4 / 7.0f, 0.8f, 0.8f));
+
+			if (ImGui::Button("Apply"))
+			{
+				ApplyPropsOption();
+			}
+			ImGui::PopStyleColor(3); ImGui::SameLine();
+			HelpMarker("Hotkey Space");
+		}
+	}
+}
+
+bool MapTool::NewFBXNameTable(const _TCHAR* pPath)
+{
+	/// <summary>
+	/// 식별번호 \t 파일경로 \t 파일명
+	/// </summary>
+	FILE* pFile = nullptr;
+	errno_t err;
+
+	TCHAR szWord[MAX_PATH + 1] = TEXT("");
+	err = _tfopen_s(&pFile, pPath, TEXT("w,ccs=UTF-8")); // 한글도 가능 
+	if (pFile == nullptr)
+	{
+		pFile = nullptr;
+		PRINT_LOG(TEXT("Faild"), __FUNCTIONW__);
+		return false;
+	}
+	CreateMeshNameTable(pPath);
+
+	for (size_t i = 0; i < m_mapFBXNameTable.size(); ++i)
+	{
+
+		_ftprintf(pFile, L"%d\t", (int)i);
+		lstrcpy(szWord, m_mapFBXNameTable[i].sFileLocation.c_str());
+		_ftprintf(pFile, L"%s\t", szWord);
+		lstrcpy(szWord, m_mapFBXNameTable[i].sFileName.c_str());
+		_ftprintf(pFile, L"%s\n", szWord);
+	}
+	if (!err && pFile != NULL)
+		fclose(pFile);
+	return true;
+}
+
+bool MapTool::LoadFBXnametable(const _TCHAR* pPath)
+{
+
+	FILE* pFile = nullptr;
+	errno_t err;
+	PATHINFO tTemp;
+	TCHAR szWord[MAX_PATH + 1] = TEXT("");
+	err = _tfopen_s(&pFile, pPath, TEXT("r,ccs=UTF-8")); // 한글도 가능 
+	if (pFile == nullptr)
+	{
+		pFile = nullptr;
+		PRINT_LOG(TEXT("Faild"), __FUNCTIONW__);
+		return false;
+	}
+	while (EOF != _ftscanf_s(pFile, TEXT("%s"), szWord, MAX_PATH))
+	{
+		int  i = _ttoi(szWord);
+		_ftscanf_s(pFile, TEXT("%s"), szWord, MAX_PATH);
+		m_mapFBXNameTable.emplace(szWord);
+	}
+
+	return false;
 }
 
 HRESULT MapTool::Update(const float _fDeltaTime)

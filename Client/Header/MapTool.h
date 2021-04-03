@@ -8,17 +8,14 @@ typedef D3DXVECTOR3 vec3;
 #define CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
 #define vZero vec3(0,0,0)
 
-namespace ePropsOption
-{
-	enum e { Decoration, Floating, Fixed,End};
-};
 
-namespace eWorkOption
-{
-	enum e { Create, Delete, Modify, End };
-};
+
 class MapTool final :  public ENGINE::Scene
 {
+	enum class ePropsOption { Decoration, Floating, Fixed, End };
+	enum class eWorkOption { Create, Delete, Modify, End };
+	enum class eCreatePosition {PeekingPos,PivotPos,End};
+
 	typedef struct PropsPathInfo
 	{
 		PropsPathInfo()
@@ -50,13 +47,14 @@ private:
 	float					m_fPivotMoveSpeed; //P
 	int						m_iPeekType;
 	int						m_iPeekCnt;
-	bool					m_bPropsOption[ePropsOption::End];
+	bool					m_bPropsOption[(int)ePropsOption::End];
 	std::string				m_strSaveFileName;
-	eWorkOption::e			m_eWorkType;
+	eWorkOption				m_eWorkType;
+	eCreatePosition			m_eCreateOption;
 	bool					m_bReadyNameTable;				// 테이블 데이터 준비 
 	std::unordered_map<size_t, PATHINFO> m_mapFBXNameTable; // 벨류값은 fbx파일 공통경로를 제외한 /StageN/Test.fbx이런식으로 
 	
-	size_t												   m_iTableID = 0;
+	size_t															 m_iTableID = 0;
 	std::unordered_map<size_t, std::list<std::weak_ptr<GameObject>>> m_mapObjDatas;
 
 
@@ -71,10 +69,19 @@ private:
 	bool			CheckWindow(const char* Text);
 	void			HotKey();//단축키 모음 
 
-	void			NewFBXNameTable(const _TCHAR* pPath);
+
+	void			NameTableGroup();
+	void			BaseMapCreateGroup();
+	void			PeekingOptionGroup();
+	void			TransFormCtrlGroup();
+	void			PropsOptionGroup();
+	bool			NewFBXNameTable(const _TCHAR* pPath);//파일 읽어서 새로운 파일 테이블 생성 
+	bool			LoadFBXnametable(const _TCHAR* pPath);//파일 읽어서 
 
 	void			SaveLoadingInfo();//이게 스테이지에 로딩할거 목록 
 	void			SaveLoadData();//행렬정보등 저장 
+
+	void			ApplyPropsOption();
 public:
 	static MapTool* Create();
 public:
