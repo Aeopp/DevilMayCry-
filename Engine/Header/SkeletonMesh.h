@@ -61,6 +61,8 @@ private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
 	void    AnimationUpdateImplementation()&;
+	void    Save()&;
+	void    Load()&;
 private:
 	HRESULT LoadSkeletonMeshImplementation(const aiScene * AiScene,
 								const std::filesystem::path _Path);

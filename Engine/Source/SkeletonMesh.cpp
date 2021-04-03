@@ -120,6 +120,16 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 	VTFUpdate();
 }
 
+void SkeletonMesh::Save()&
+{
+
+}
+
+void SkeletonMesh::Load()&
+{
+
+}
+
 void SkeletonMesh::Free()
 {
 	StaticMesh::Free();

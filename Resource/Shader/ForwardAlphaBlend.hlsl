@@ -190,7 +190,7 @@ technique Default
         zwriteenable = true;
         sRGBWRITEENABLE = true;
         cullmode = ccw;
-        fillmode = wireframe;
+        fillmode = solid;
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain();
     }
