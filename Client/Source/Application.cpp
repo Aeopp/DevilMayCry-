@@ -12,7 +12,9 @@ HRESULT Application::ReadyApplication(const bool bWindowed)
 	if (FAILED(Engine::ReadyEngine(bWindowed)))
 		return E_FAIL;
 
-	SceneManager::LoadScene(MapTool::Create());
+	//SceneManager::LoadScene(MapTool::Create());
+	SceneManager::LoadScene(TestScene::Create());
+
 	return S_OK;
 }
 

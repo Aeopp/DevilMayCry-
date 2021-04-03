@@ -61,11 +61,11 @@
       <Filter>02.GameObject</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\ShaderTester.h" />
-    <ClInclude Include="..\Header\MapTool.h">
-      <Filter>03.Scene\98.MapTool</Filter>
-    </ClInclude>
     <ClInclude Include="..\Header\MapToolObj.h">
       <Filter>02.GameObject\99.MapToolObj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MapTool.h">
+      <Filter>03.Scene\98.MapTool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,7 +95,7 @@
       <Filter>02.GameObject</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\ShaderTester.cpp" />
-    <ClCompile Include="..\Source\MapTool.cpp">
+    <ClCompile Include="..\Source\MapTool_ImGui.cpp">
       <Filter>03.Scene\98.MapTool</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\TestScene.cpp">
@@ -103,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\MapToolObj.cpp">
       <Filter>02.GameObject\99.MapToolObj</Filter>
+    </ClCompile>
+    <ClCompile Include="MapTool_System.cpp">
+      <Filter>03.Scene\98.MapTool</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

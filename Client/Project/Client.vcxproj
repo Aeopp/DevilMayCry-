@@ -169,12 +169,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Application.cpp" />
-    <ClCompile Include="..\Source\MapTool.cpp" />
+    <ClCompile Include="..\Source\MapTool_ImGui.cpp" />
     <ClCompile Include="..\Source\MapToolObj.cpp" />
     <ClCompile Include="..\Source\ShaderTester.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="MapTool_System.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

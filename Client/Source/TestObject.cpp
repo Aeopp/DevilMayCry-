@@ -74,7 +74,7 @@ HRESULT TestObject::Ready()
 
 	const std::filesystem::path FbxPath
 	{
-		L"..\\..\\Resource\\Mesh\\Static\\Bench_dxt1\\Bench_dxt1.fbx"
+		L"../../Resource/Mesh/Static/BenchOri/BenchOri.fbx"
 	};
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(FbxPath);
 	if (!_StaticMesh)
