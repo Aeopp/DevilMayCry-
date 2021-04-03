@@ -125,6 +125,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\Header\;$(SolutionDir)Reference\Header\;../Bin/;../Header/;../Source/;./;$(SolutionDir)Reference\Header\imgui\;$(SolutionDir)Reference\Header\rapidjson\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,6 +145,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\Header\;$(SolutionDir)Reference\Header\;../Bin/;../Header/;../Source/;./;$(SolutionDir)Reference\Header\imgui\;$(SolutionDir)Reference\Header\rapidjson\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

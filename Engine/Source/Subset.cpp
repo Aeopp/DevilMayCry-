@@ -32,7 +32,6 @@ void Subset::Render()
 	m_pDevice->SetVertexDeclaration(m_tVertexBufferDesc.pVertexDecl);
 	m_pDevice->SetIndices(m_pIndexBuffer);
 	m_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_tVertexBufferDesc.nNumVertices, 0, m_tVertexBufferDesc.nNumFaces);
-
 }
 
 const LPDIRECT3DVERTEXBUFFER9 Subset::GetVertexBuffer()

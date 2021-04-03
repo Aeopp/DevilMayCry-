@@ -20,6 +20,7 @@ protected:
 public:
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone()	PURE;
+	virtual void Editor()override;
 public:
 	HRESULT Render();
 public:

@@ -182,8 +182,9 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\AnimationBlendInfo.h" />
     <ClInclude Include="..\Header\AnimationInformation.h" />
     <ClInclude Include="..\Header\AnimationTrack.h" />
+    <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
-    <ClInclude Include="..\Header\Bone.h" />
+    <ClInclude Include="..\Header\Node.h" />
     <ClInclude Include="..\Header\Component.h" />
     <ClInclude Include="..\Header\Core.h" />
     <ClInclude Include="..\Header\CoreSystem.h" />
@@ -235,7 +236,8 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\AnimationBlendInfo.cpp" />
     <ClCompile Include="..\Source\AnimationInformation.cpp" />
     <ClCompile Include="..\Source\AnimationTrack.cpp" />
-    <ClCompile Include="..\Source\Bone.cpp" />
+    <ClCompile Include="..\Source\AnimNotify.cpp" />
+    <ClCompile Include="..\Source\Node.cpp" />
     <ClCompile Include="..\Source\Component.cpp" />
     <ClCompile Include="..\Source\Core.cpp" />
     <ClCompile Include="..\Source\CoreSystem.cpp" />

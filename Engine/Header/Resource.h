@@ -1,6 +1,7 @@
 #ifndef __RESOURCE_H__
 #define __RESOURCE_H__
 #include "Object.h"
+
 BEGIN(ENGINE)
 class ENGINE_DLL Resource abstract : public Object
 {
@@ -12,7 +13,9 @@ protected:
 	virtual ~Resource() = default;
 	// Object을(를) 통해 상속됨
 	virtual void Free()			PURE;
+	virtual void Editor()override;
 public:
+	bool              bClone = true;
 	virtual Resource* Clone()	PURE;
 };
 END

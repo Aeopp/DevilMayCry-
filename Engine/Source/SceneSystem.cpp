@@ -56,6 +56,14 @@ HRESULT SceneSystem::LateUpdateSceneSystem(const float _fDeltaTime)
 	return S_OK;
 }
 
+void SceneSystem::EditUpdateSceneSystem()
+{
+	if (nullptr == m_pCurrentScene)
+		return;
+
+	m_pCurrentScene->EditUpdate();
+}
+
 HRESULT SceneSystem::LoadScene(Scene* const _pScene, const bool _bSceneActivation)
 {
 	if (nullptr == _pScene)

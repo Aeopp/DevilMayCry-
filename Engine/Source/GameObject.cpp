@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "Renderer.h"
 
+
 USING(ENGINE)
 
 GameObject::GameObject()
@@ -67,6 +68,11 @@ void GameObject::SetStatic(const bool _bStatic)
 	m_bStatic = _bStatic;
 }
 
+void GameObject::PushEditEntity(Object* _EditObject)
+{
+	m_pEditObjects.push_back(_EditObject);
+}
+
 void GameObject::SetScene(Scene* const _pScene)
 {
 	m_pScene = _pScene;
@@ -85,6 +91,21 @@ UINT GameObject::GetLoopIdx()
 void GameObject::SetLoopIdx(const UINT _nLoopIdx)
 {
 	m_nLoopIdx = _nLoopIdx;
+}
+
+void GameObject::Editor()
+{
+	Object::Editor();
+
+	if (bEdit)
+	{
+		ImGui::Begin(EditName.c_str());
+		for (auto& _EditObj : m_pEditObjects)
+		{
+			_EditObj->Editor();
+		}
+		ImGui::End();
+	}
 }
 
 void GameObject::OnEnable()

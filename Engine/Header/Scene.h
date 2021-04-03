@@ -28,6 +28,7 @@ public:
 	virtual HRESULT Start()								PURE;
 	virtual HRESULT	Update(const float _fDeltaTime)		PURE;
 	virtual HRESULT LateUpdate(const float _fDeltaTime)	PURE;
+	virtual void    EditUpdate();
 	void	PushToRenderSystem();
 	
 	void	Destroy();

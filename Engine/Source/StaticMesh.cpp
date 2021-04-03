@@ -7,6 +7,7 @@ USING(ENGINE)
 StaticMesh::StaticMesh(LPDIRECT3DDEVICE9 const _pDevice)
 	: Mesh(_pDevice)
 {
+	
 }
 
 StaticMesh::StaticMesh(const StaticMesh& _rOther)
@@ -35,6 +36,18 @@ Resource* StaticMesh::Clone()
 {
 	StaticMesh* pClone = new StaticMesh(*this);
 	return pClone;
+}
+void StaticMesh::Editor()
+{
+	Mesh::Editor();
+	if (bEdit)
+	{
+
+	}
+}
+std::string StaticMesh::GetName()
+{
+	return "StaticMesh";
 };
 
 HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
@@ -83,7 +96,7 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB)))
+			&tVBDesc, &pVB, &pIB,nullptr,false)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
@@ -129,8 +142,9 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 
 	MakeVertexLcationsFromSubset();
 
-	return S_OK;
 
+
+	return S_OK;
 }
 
 

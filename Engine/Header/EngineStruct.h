@@ -9,21 +9,24 @@ typedef struct tagVertexBufferDesc
 	uint32							nNumFaces;
 	uint32							nNumVertices;
 	uint32							nNumUVChannel;
-	
+	uint32                          nNumBones;
+	uint32							nMaxBonesRefPerVtx;
+
 	std::vector<uint32>				vecNumUVComponents;
 
 	bool							bHasPosition;
 	bool							bHasNormal;
 	bool							bHasTangentBiNormal;
-
+	bool                            bHasBone;
 	std::shared_ptr<std::vector<D3DXVECTOR3>> LocalVertexLocation;
 	LPDIRECT3DVERTEXDECLARATION9	          pVertexDecl;
 public:
 	tagVertexBufferDesc()
 	{
-		nBufferSize = nStride = nNumFaces = nNumVertices = nNumUVChannel = 0u;
+		nMaxBonesRefPerVtx=nNumBones=
+			nBufferSize = nStride = nNumFaces = nNumVertices = nNumUVChannel = 0u;
 		pVertexDecl = nullptr;
-		bHasPosition = bHasNormal = bHasTangentBiNormal = false;
+		bHasBone = bHasPosition = bHasNormal = bHasTangentBiNormal = false;
 		LocalVertexLocation = std::make_shared<std::vector<D3DXVECTOR3>>();
 	}
 	~tagVertexBufferDesc()
@@ -31,6 +34,7 @@ public:
 		SafeRelease(pVertexDecl);
 	}
 }VERTEXBUFFERDESC, *LPVERTEXBUFFERDESC;
+
 
 typedef struct tagMaterial
 {

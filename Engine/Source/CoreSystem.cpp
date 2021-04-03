@@ -171,10 +171,10 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed)
 		return E_FAIL;
 	}
 
-	bDebugMode = false;
-	bEditMode  = false;
-	bDebugCollision = false;
-	bDebugRenderTargetRender = false;
+	g_bDebugMode = false;
+	g_bEditMode  = false;
+	g_bCollisionVisible = false;
+	g_bRenderTargetVisible = false;
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -193,12 +193,28 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed)
 	return S_OK;
 }
 
+static void GlobalVariableEditor()
+{
+	ImGui::Begin("System");
+	{
+		ImGui::Checkbox("bDebug", &g_bDebugMode);
+		if (g_bDebugMode)
+		{
+			ImGui::Checkbox("bEditor", &g_bEditMode);
+			ImGui::Checkbox("bCollisionVisible", &g_bCollisionVisible);
+			ImGui::Checkbox("bRenderTargetVisible", &g_bRenderTargetVisible);
+		}
+	}
+	ImGui::End();
+}
+
 HRESULT CoreSystem::UpdateEngine()
 {
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	ImGui::ShowDemoWindow();
+	GlobalVariableEditor();
 
 	if (FAILED(m_pInputSystem.lock()->UpdateInputSystem()))
 	{
@@ -219,6 +235,15 @@ HRESULT CoreSystem::UpdateEngine()
 	{
 		PRINT_LOG(TEXT("Error"),TEXT("Failed to LateUpdateSceneSystem."));
 		return E_FAIL;
+	}
+	if (g_bDebugMode)
+	{
+		if (g_bEditMode)
+		{
+			ImGui::Begin("Object Editor");
+			m_pSceneSystem.lock()->EditUpdateSceneSystem();
+			ImGui::End();
+		}
 	}
 	
 

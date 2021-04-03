@@ -20,6 +20,8 @@ public:
 							const std::filesystem::path _Path);
 	// Mesh을(를) 통해 상속됨
 	virtual Resource* Clone() override;
+	virtual void	  Editor()override;
+	virtual std::string GetName() override;
 public:
 	HRESULT LoadMeshFromFile(const std::filesystem::path _Path)&;
 protected:
