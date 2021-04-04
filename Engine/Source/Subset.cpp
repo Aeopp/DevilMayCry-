@@ -1,4 +1,5 @@
 #include "Subset.h"
+#include "Texture.h"
 
 USING(ENGINE)
 Subset::Subset(LPDIRECT3DDEVICE9 const _pDevice)
@@ -32,6 +33,15 @@ void Subset::Editor()
 		ImGui::Text("bHasNormal %d", m_tVertexBufferDesc.bHasNormal);
 		ImGui::Text("bHasTangentBiNormal %d", m_tVertexBufferDesc.bHasTangentBiNormal);
 		ImGui::Text("bHasBone %d", m_tVertexBufferDesc.bHasBone);
+
+		m_tMaterial.Editor();
+		for (auto&  [Key,TexArray] : m_tMaterial.Textures)
+		{
+			for(auto& TexPtr: TexArray)
+			{
+				TexPtr->Editor();
+			}
+		}
 	}
 }
 
@@ -69,6 +79,19 @@ const LPDIRECT3DVERTEXBUFFER9 Subset::GetVertexBuffer()
 const LPDIRECT3DINDEXBUFFER9 Subset::GetIndexBuffer()
 {
 	return m_pIndexBuffer;
+}
+
+void Subset::BindProperty(const UINT TexType,const uint64 TexIdx,const std::string& ShaderParamName ,
+	ID3DXEffect* const Fx)&
+{
+	if (auto Tex = m_tMaterial.GetTexture(TexType, TexIdx);
+		Tex)
+	{
+		if (FAILED(Fx->SetTexture(ShaderParamName.c_str(), Tex->GetTexture())))
+		{
+			PRINT_LOG(L"Failed ",L"Shader Texture Bind !!");
+		}
+	}
 }
 
 const VERTEXBUFFERDESC& Subset::GetVertexBufferDesc()

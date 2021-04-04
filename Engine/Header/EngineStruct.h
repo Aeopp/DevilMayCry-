@@ -1,5 +1,8 @@
 #ifndef __ENGINE_STRUCT_H__
 #define __ENGINE_STRUCT_H__
+#include <memory>
+#include <string>
+#include "TextureType.h"
 
 BEGIN(ENGINE)
 typedef struct tagVertexBufferDesc
@@ -41,15 +44,20 @@ typedef struct tagMaterial
 public:
 	typedef std::unordered_map<UINT, std::vector<std::shared_ptr<class Texture>>> TEXTURES;
 	TEXTURES		Textures;
-	TSTRING			sName;
+	std::string			sName;
 	D3DMATERIAL9	tMaterial;
 public:
+	void Editor()
+	{
+		ImGui::BulletText("Name : %s", (sName).c_str());
+	}
+
 	tagMaterial()
 	{
-		sName = TEXT("");
+		sName.clear();
 		ZeroMemory(&tMaterial, sizeof(D3DMATERIAL9));
 	}
-	const TSTRING& GetMaterialName() const
+	const std::string& GetMaterialName() const
 	{
 		return sName;
 	}
@@ -68,9 +76,14 @@ public:
 				}
 			}
 			
-			return nullptr;
+			
 		}
+
+		PRINT_LOG(L"Warning!", L"Search for a texture that doesn't exist");
+		return nullptr;
+
 	}
+
 }MATERIAL, *LPMATERIAL;
 
 typedef struct tagTextureDesc
@@ -80,6 +93,7 @@ typedef struct tagTextureDesc
 	uint32	eTextureOperator;
 	uint32	eMappingMode;
 	uint32	eMappingType;
+	std::string Name;
 }TEXTUREDESC, * LPTEXTUREDESC;
 END
 #endif // !__ENGINE_STRUCT_H__

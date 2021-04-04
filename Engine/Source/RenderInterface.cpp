@@ -26,16 +26,14 @@ void RenderInterface::RenderForwardAlphaBlend()
 	};
 
 	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
-	_CurRenderInfo.CameraView;
-	_CurRenderInfo.CameraProjection;
-	
+
 	if (_InitializeInfo.ForwardAlphaBlendShader)
 	{
 		auto Fx = _InitializeInfo.ForwardAlphaBlendShader->GetEffect();
 		Fx->SetMatrix("World", &_UpdateInfo.World);
 		Fx->SetMatrix("View", &_CurRenderInfo.CameraView);
 		Fx->SetMatrix("Projection", &_CurRenderInfo.CameraProjection);
-
+		/// <summary>
 		UINT Passes{ 0u };
 		if (FAILED(Fx->Begin(&Passes, NULL)))
 		{

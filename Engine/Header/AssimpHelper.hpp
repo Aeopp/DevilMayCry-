@@ -452,6 +452,7 @@ static inline HRESULT LoadMaterial(
 	pAiMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, color);
 	_pMaterial->tMaterial.Emissive = D3DCOLORVALUE(color.r, color.g, color.b, color.a);
 	_pMaterial->tMaterial.Power = 1.f;
+	_pMaterial->sName = pAiMaterial->GetName().C_Str();
 
 	//재질 텍스처 로드.
 	for (const auto& aiTexType : _AiTexTypes)

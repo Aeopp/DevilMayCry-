@@ -19,6 +19,7 @@ public:
 	static Texture*   Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem::path _Path);
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone() override;
+	virtual void Editor()override;
 private:
 	HRESULT LoadTextureFromFile(const std::filesystem::path _Path);
 public:

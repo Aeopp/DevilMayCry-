@@ -19,7 +19,7 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	BoneSkinningMatries{ _rOther.BoneSkinningMatries } ,
 	VTFPitch{ _rOther.VTFPitch } 
 {
-	
+
 }
 
 void SkeletonMesh::AnimationEditor()&

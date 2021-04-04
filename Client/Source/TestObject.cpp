@@ -12,8 +12,7 @@ void TestObject::Free()
 std::string TestObject::GetName()
 {
 	return "TestObject";
-}
-;
+};
 
 TestObject* TestObject::Create()
 {
@@ -33,36 +32,9 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 			SharedSubset)
 		{
 			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight,3u);
-
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-
-			auto& CurMat = SharedSubset->GetMaterial();
-
-			auto ALBM0Map=CurMat.GetTexture(TextureType::DIFFUSE, 0u);
-			if (ALBM0Map)
-			{
-				_ImplInfo.Fx->SetTexture("ALBMMap", 
-					ALBM0Map->GetTexture());
-			}
-
-			auto NRMR0Map = CurMat.GetTexture(TextureType::NORMALS,
-				0u);
-			if (NRMR0Map)
-			{
-				_ImplInfo.Fx->SetTexture("NRMRMap",
-					NRMR0Map->GetTexture());
-			}
+			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
 			SharedSubset->Render(_ImplInfo.Fx);
-
-			//g_pDevice->SetVertexDeclaration(VtxBufDesc.pVertexDecl);
-			//g_pDevice->SetStreamSource(0u, SharedSubset->GetVertexBuffer(),
-			//	0u,
-			//	VtxBufDesc.nStride);
-			//g_pDevice->SetIndices(SharedSubset->GetIndexBuffer());
-			//
-			//g_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
-			//	0u, 0u, VtxBufDesc.nNumVertices, 0u, VtxBufDesc.nNumFaces);
-
 		}
 	}
 }
@@ -94,7 +66,7 @@ HRESULT TestObject::Ready()
 	RenderInterface::Initialize(_InitRenderProp, ShaderPath);
 	const std::filesystem::path FbxPath
 	{
-		L"..\\..\\Resource\\Mesh\\Static\\Tester.fbx"
+		L"..\\..\\Resource\\Mesh\\Static\\Tester.X"
 	};
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });

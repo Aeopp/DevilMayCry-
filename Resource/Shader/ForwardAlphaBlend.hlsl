@@ -17,10 +17,10 @@ sampler VTFSampler = sampler_state
     sRGBTexture = false;
 };
 
-texture ALBMMap;
-sampler ALBM = sampler_state
+texture ALBM0Map;
+sampler ALBM0 = sampler_state
 {
-    texture = ALBMMap;
+    texture = ALBM0Map;
     minfilter = anisotropic;
     magfilter = anisotropic;
     mipfilter = anisotropic;
@@ -28,10 +28,10 @@ sampler ALBM = sampler_state
     MaxAnisotropy = 16;
 };
 
-texture NRMRMap;
-sampler NRMR = sampler_state
+texture NRMR0Map;
+sampler NRMR0 = sampler_state
 {
-    texture = NRMRMap;
+    texture = NRMR0Map;
     minfilter = point;
     magfilter = point;
     mipfilter = point;
@@ -178,11 +178,11 @@ PsOut PsMain(PsIn In)
     PsOut Out = (PsOut) 0;
 
    
-    float4 ALBMSample = tex2D(ALBM, In.UV);
+    float4 ALBMSample = tex2D(ALBM0, In.UV);
     float3 Albedo = ALBMSample.xyz;
     float Metalness = ALBMSample.w;
 
-    float4 NRMRSample = tex2D(NRMR, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
     const float2 NormalXY = NRMRSample.xy *2.f-1.f;
     const  float  NormalZ =sqrt(1 - dot(NormalXY, NormalXY));
     float  Roughness = NRMRSample.w;
