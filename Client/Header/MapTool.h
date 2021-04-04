@@ -59,14 +59,14 @@ private:
 	int																m_iTableID = ERR_ID;
 	std::unordered_map<UINT, std::list<std::weak_ptr<GameObject>>>  m_mapObjDatas;
 
+	Matrix															m_matCameraWorld;
 	Matrix															m_matView;
 	Matrix															m_matProj;
 	float															m_fFOV;
 	Vector3															m_vCameraPos;
 	Vector3															m_vRot;
-	Vector2															m_fCameraSpeed; // x =  x z  , y = y 
+	Vector2															m_vCameraSpeed; // x =  x z  , y = y 
 	float															m_fCameraAngSpeed;
-
 
 private:
 	void			ShowMapTool();
@@ -89,6 +89,7 @@ private:
 	//Camera
 	void			UpdateProj(); //프로젝션 값 수정시 호출 
 	void			UpdateView(); //뷰스페이스 수정시 호출 
+	void			CameraControl(const float& _fDeltaTime);
 
 	//Gui 정리
 	void			NameTableGroup();
@@ -97,6 +98,7 @@ private:
 	void			TransFormCtrlGroup();
 	void			PropsOptionGroup();
 	void			SaveFileGroup();
+
 
 public:
 	static MapTool* Create();

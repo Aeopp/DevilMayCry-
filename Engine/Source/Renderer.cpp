@@ -63,31 +63,38 @@ HRESULT Renderer::Render()&
 	return S_OK;
 }
 
+HRESULT Renderer::Set_Info(const Matrix& _CameraView, const Matrix& _CameraProjection)
+{
+	CurrentRenderInfo.Make(_CameraView, _CameraProjection);
+	return S_OK;
+}
+
 void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
-
 	// 테스트를 위해 임시로 카메라와 투영 설정...
-	Matrix CameraView, CameraProjection;
-	{
-		// 카메라 .. 
-		{
-			const Vector3 Eye{ 0,0,-10 };
-			const Vector3 At{ 0,0,0 };
-			const Vector3 WorldUp = { 0,1,0 };
-			D3DXMatrixLookAtLH(&CameraView, &Eye, &At, &WorldUp);
-		}
-		// 프로젝션
-		{
-			const float FovY = FMath::ToRadian(45.f);
-			const float Aspect = static_cast<float>(g_nWndCX)/ static_cast<float>(g_nWndCY);
-			const float NearPlane = 0.1f;
-			const float FarPlane = 100.f;
-			D3DXMatrixPerspectiveFovLH(&CameraProjection, FovY, Aspect,NearPlane,FarPlane);
-		}
-	}
+	//Matrix CameraView, CameraProjection;
+	//{
+	//    // 카메라 .. 
+	//    {
+	//        const Vector3 Eye{ 0,0,-10 };
+	//        const Vector3 At{ 0,0,0 };
+	//        const Vector3 WorldUp = { 0,1,0 };
+	//        D3DXMatrixLookAtLH(&CameraView, &Eye, &At, &WorldUp);
+	//    }
+	//    // 프로젝션
+	//    {
+	//        const float FovY = FMath::ToRadian(45.f);
+	//        const float Aspect = static_cast<float>(g_nWndCX)/ static_cast<float>(g_nWndCY);
+	//        const float NearPlane = 0.1f;
+	//        const float FarPlane = 100.f;
+	//        D3DXMatrixPerspectiveFovLH(&CameraProjection, FovY, Aspect,NearPlane,FarPlane);
+	//    }
+	//}
 	///
-
+	Matrix CameraView, CameraProjection;
+	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
+	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
 	CurrentRenderInfo.Make(CameraView, CameraProjection);
 	Culling();
 }

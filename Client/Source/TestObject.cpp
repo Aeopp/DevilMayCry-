@@ -3,7 +3,8 @@
 #include "Transform.h"
 #include "Subset.h"
 #include "TextureType.h"
-
+//#include "Renderer.h"
+USING(ENGINE)
 void TestObject::Free()
 {
 };
@@ -71,10 +72,10 @@ HRESULT TestObject::Ready()
 
 
 	RenderInterface::Initialize(_InitRenderProp, ShaderPath);
-
+	 
 	const std::filesystem::path FbxPath
 	{
-		L"../../Resource/Mesh/Static/BenchOri/BenchOri.fbx"
+		L"..\\..\\Resource\\MaptoolUtill\\Bench_Ori.fbx"
 	};
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(FbxPath);
 	if (!_StaticMesh)
@@ -119,6 +120,10 @@ UINT TestObject::Update(const float _fDeltaTime)
 			Sptransform->SetScale({AllScale,AllScale,AllScale });
 		}
 	}
+
+
+
+
 	return 0;
 }
 

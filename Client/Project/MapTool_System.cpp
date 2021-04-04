@@ -3,7 +3,6 @@
 
 #include "TestObject.h"
 
-
 #include <fstream>
 #include <ostream>
 #include <iostream>
@@ -11,6 +10,7 @@
 /*
 ImGui 아닌 함수들 모음
 */
+//#include "Renderer.h"
 
 using namespace std;
 
@@ -59,8 +59,10 @@ HRESULT MapTool::LoadScene()
 	m_strSelectName = L"";
 	m_fFOV = D3DXToRadian(90.f);
 	UpdateProj();
-
-
+	D3DXMatrixIdentity(&m_matCameraWorld);
+	m_vCameraSpeed = { 5.f,3.f };
+	m_vCameraPos = vZero;
+	m_vRot = vZero;
 	AddGameObject<TestObject>();
 
 
@@ -88,14 +90,13 @@ HRESULT MapTool::Update(const float _fDeltaTime)
 	ShowMapTool();
 	ShowPivotControl();
 	HotKey();
+	CameraControl(_fDeltaTime);
 	return S_OK;
 }
 
 HRESULT MapTool::LateUpdate(const float _fDeltaTime)
 {
 	Scene::LateUpdate(_fDeltaTime);
-
-
 	UpdateView();
 	return S_OK;
 }
@@ -260,13 +261,66 @@ void MapTool::UpdateProj()
 
 void MapTool::UpdateView()
 {
+	static bool t = true;
+
+	if (Input::GetKey(DIK_F1))
+		t = !t;
+
+	if (t)
+	{
+
 	Matrix a;
-	m_matView *= (*D3DXMatrixRotationX(&a, D3DXToRadian(m_vRot.x)));
-	m_matView *= (*D3DXMatrixRotationY(&a, D3DXToRadian(m_vRot.y)));
-	m_matView *= (*D3DXMatrixRotationZ(&a, D3DXToRadian(m_vRot.z)));
-	m_matView *= (*D3DXMatrixTranslation(&a, m_vCameraPos.x,m_vCameraPos.y,m_vCameraPos.z));
-	D3DXMatrixInverse(&m_matView, NULL, &m_matView);
+	D3DXMatrixIdentity(&m_matCameraWorld);
+	m_matCameraWorld *= (*D3DXMatrixRotationX(&a, D3DXToRadian(m_vRot.x)));
+	m_matCameraWorld *= (*D3DXMatrixRotationY(&a, D3DXToRadian(m_vRot.y)));
+	m_matCameraWorld *= (*D3DXMatrixRotationZ(&a, D3DXToRadian(m_vRot.z)));
+	m_matCameraWorld *= (*D3DXMatrixTranslation(&a, m_vCameraPos.x,m_vCameraPos.y,m_vCameraPos.z));
+	D3DXMatrixInverse(&m_matView, NULL, &m_matCameraWorld);
 	g_pDevice->SetTransform(D3DTS_VIEW, &m_matView);
+	}
+	else
+	{
+		D3DXVECTOR3 vLook(0.f, 0.f, 0.f);
+		memcpy_s(&vLook, sizeof(D3DXVECTOR3), m_matCameraWorld.m[2], sizeof(D3DXVECTOR3));
+		D3DXVec3Normalize(&vLook, &vLook);
+
+		Vector3 vAt = m_vCameraPos + vLook;
+		Vector3 vUp(0, 1, 0);
+		D3DXMatrixLookAtLH(&m_matView, &m_vCameraPos, &vAt, &vUp);
+		g_pDevice->SetTransform(D3DTS_VIEW, &m_matView);
+	}
+
+
+}
+
+void MapTool::CameraControl(const float& _fDeltaTime)
+{
+	D3DXVECTOR3 vLook(0.f, 0.f, 0.f);
+	memcpy_s(&vLook, sizeof(D3DXVECTOR3), m_matCameraWorld.m[2], sizeof(D3DXVECTOR3));
+	D3DXVECTOR3 vRight(0.f, 0.f, 0.f);
+	memcpy_s(&vRight, sizeof(D3DXVECTOR3), m_matCameraWorld.m[0], sizeof(D3DXVECTOR3));
+	D3DXVec3Normalize(&vLook, &vLook);
+	D3DXVec3Normalize(&vRight, &vRight);
+	vLook*= _fDeltaTime;
+	vRight*= _fDeltaTime;
+
+	if (Input::GetKey(DIK_W))
+		m_vCameraPos += vLook * m_vCameraSpeed.x;
+	if (Input::GetKey(DIK_S))
+		m_vCameraPos += -vLook * m_vCameraSpeed.x;
+	if (Input::GetKey(DIK_A))
+		m_vCameraPos += -vRight * m_vCameraSpeed.x;
+	if (Input::GetKey(DIK_D))
+		m_vCameraPos += vRight * m_vCameraSpeed.x;
+	if (Input::GetKey(DIK_Z))
+		m_vCameraPos += vec3(0, -1, 0) * m_vCameraSpeed.y * _fDeltaTime;
+	if (Input::GetKey(DIK_C))
+		m_vCameraPos += vec3(0, 1, 0) * m_vCameraSpeed.y * _fDeltaTime;
+
+	//if (Input::GetMouse(MOUSEBUTTON::DIM_R))
+	//{
+	//	if(Input::GetMouseMove(MOUSEAXIS::DIM_Y))
+	//}
 }
 
 void MapTool::HotKey()
@@ -300,6 +354,7 @@ void MapTool::PivotControl()
 	else if (Input::GetKeyDown(VK_END))	 // y Axis minus
 		vPivotPos.x += m_fPivotMoveSpeed;
 	//pivot->getTrans()->SetPos(vPos)
+
 }
 
 

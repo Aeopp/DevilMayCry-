@@ -24,7 +24,7 @@ void RenderInterface::RenderForwardAlphaBlend()
 	{
 		return;
 	};
-
+	
 	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
 	_CurRenderInfo.CameraView;
 	_CurRenderInfo.CameraProjection;

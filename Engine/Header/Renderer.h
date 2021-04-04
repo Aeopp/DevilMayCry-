@@ -31,6 +31,9 @@ public :
 	HRESULT Render()&;
 	RenderInformation CurrentRenderInfo{};
 	RenderInformation PrevRenderInfo{};
+
+	//юс╫ц
+	HRESULT Set_Info(const Matrix & _CameraView, const Matrix & _CameraProjection);
 private:
 	void RenderReady()&;
 	void RenderReadyEntitys()&;
