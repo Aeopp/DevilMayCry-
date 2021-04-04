@@ -75,11 +75,9 @@ public:
 					return SpTexture;
 				}
 			}
-			
-			
 		}
 
-		PRINT_LOG(L"Warning!", L"Search for a texture that doesn't exist");
+		Log("Search for a texture that doesn't exist");
 		return nullptr;
 
 	}
@@ -93,7 +91,6 @@ typedef struct tagTextureDesc
 	uint32	eTextureOperator;
 	uint32	eMappingMode;
 	uint32	eMappingType;
-	std::string Name;
 }TEXTUREDESC, * LPTEXTUREDESC;
 END
 #endif // !__ENGINE_STRUCT_H__

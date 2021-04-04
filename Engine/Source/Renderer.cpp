@@ -18,6 +18,7 @@ Renderer::Renderer()
 void Renderer::Free()
 {
 	CameraFrustum.Release();
+	_ShaderTester.Clear();
 };
 
 
@@ -26,6 +27,7 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	m_pDevice = _pDevice;
 	SafeAddRef(m_pDevice);
 	CameraFrustum.Initialize(m_pDevice);
+	_ShaderTester.Initialize();
 
 	return S_OK;
 }
@@ -53,12 +55,15 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 
 HRESULT Renderer::Render()&
 {
-	RenderReady();
+	
+	/*RenderReady();
 	GraphicSystem::GetInstance()->Begin();
-	RenderImplementation();
+	RenderImplementation();*/
+	_ShaderTester.Render();
+
 	ImguiRender();
-	GraphicSystem::GetInstance()->End();
-	RenderEnd();
+	//GraphicSystem::GetInstance()->End();
+	//RenderEnd();
 
 	return S_OK;
 }
@@ -67,7 +72,7 @@ void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
 
-	// 테스트를 위해 임시로 카메라와 투영 설정...
+	 // 테스트를 위해 임시로 카메라와 투영 설정...
 	Matrix CameraView, CameraProjection;
 	{
 		// 카메라 .. 
@@ -86,8 +91,10 @@ void Renderer::RenderReady()&
 			D3DXMatrixPerspectiveFovLH(&CameraProjection, FovY, Aspect,NearPlane,FarPlane);
 		}
 	}
-	///
-
+	
+	/*Matrix CameraView, CameraProjection;
+	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
+	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);*/
 	CurrentRenderInfo.Make(CameraView, CameraProjection);
 	Culling();
 }

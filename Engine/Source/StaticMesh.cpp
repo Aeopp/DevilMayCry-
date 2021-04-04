@@ -54,9 +54,10 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {
 	//Assimp Importer 积己.
 	auto AiImporter = Assimp::Importer{};
+	ResourcePath = _Path;
 	//FBX颇老阑 佬绢辑 Scene 积己.
 	const aiScene* const AiScene = AiImporter.ReadFile(
-		_Path.string(),
+		ResourcePath.string(),
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
@@ -74,7 +75,7 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		aiProcess_SplitLargeMeshes
 	);
 
-	return LoadStaticMeshImplementation(AiScene,  _Path);
+	return LoadStaticMeshImplementation(AiScene, ResourcePath);
 }
 HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 										const std::filesystem::path _Path)

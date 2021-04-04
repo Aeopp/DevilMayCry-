@@ -12,6 +12,23 @@ struct ENGINE_DLL AnimationInformation
 	float      Duration = 1.f;
 	float      TickPerSecond = 30.f;
 	float      TransitionTime = 0.25f;
+	void       SetAcceleration(const float NewAcceleration)
+	{
+		Acceleration = NewAcceleration;
+	}
+	float     CalcAcceleration() const 
+	{
+		return Acceleration * TickPerSecond;
+	}
+	float& RefOriginAcceleration()
+	{
+		return Acceleration;
+	}
+	float GetOriginAcceleration()const
+	{
+		return Acceleration;
+	}
+private:
 	float      Acceleration = 1.f;
 };
 END

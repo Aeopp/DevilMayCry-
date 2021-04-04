@@ -43,6 +43,7 @@
     <ClCompile Include="..\Source\AnimationBlendInfo.cpp" />
     <ClCompile Include="..\Source\AnimationInformation.cpp" />
     <ClCompile Include="..\Source\AnimNotify.cpp" />
+    <ClCompile Include="..\Source\ShaderTester.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Reference\Header\imgui\imconfig.h" />
@@ -107,5 +108,6 @@
     <ClInclude Include="..\Header\AnimationInformation.h" />
     <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
+    <ClInclude Include="..\Header\ShaderTester.h" />
   </ItemGroup>
 </Project>

@@ -252,7 +252,15 @@ HRESULT CoreSystem::UpdateEngine()
 			ImGui::Begin("Object Editor");
 			m_pSceneSystem.lock()->EditUpdateSceneSystem();
 			ImGui::End();
+
+			ImGui::Begin("Log");
+			for (const auto& CurLog : g_Logs)
+			{
+				ImGui::Text(CurLog.c_str());
+			}
+			ImGui::End();
 		}
+		g_Logs.clear();
 	}
 	
 
@@ -262,6 +270,7 @@ HRESULT CoreSystem::UpdateEngine()
 		return E_FAIL;
 	}
 
+	
 	return S_OK;
 }
 

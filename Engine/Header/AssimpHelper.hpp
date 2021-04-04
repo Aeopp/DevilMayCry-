@@ -492,7 +492,7 @@ static inline HRESULT LoadMaterial(
 				tTextureDesc.eTextureOperator	= eAiTextureOp;
 				tTextureDesc.fBlendFactor		= fBlendFactor;
 				tTextureDesc.nUVIdx				= nUVIdx;
-
+				
 				const std::filesystem::path FileNamePath   = sAiPath.C_Str();
 				 std::filesystem::path	CurTexFilePath = _Path / FileNamePath.filename();
 				 
@@ -504,7 +504,7 @@ static inline HRESULT LoadMaterial(
 					 if (pTexture)
 					 {
 						 pTexture->SetDesc(tTextureDesc);
-
+						 pTexture->ResourcePath = CurTexFilePath;
 						 if (nullptr != pTexture)
 							 _pMaterial->Textures[aiTexType][nTexIdx] = pTexture;
 					 }
@@ -521,7 +521,7 @@ static inline HRESULT LoadMaterial(
 						 if (pTexture)
 						 {
 							 pTexture->SetDesc(tTextureDesc);
-
+							 pTexture->ResourcePath = CurTexFilePath;
 							 if (nullptr != pTexture)
 								 _pMaterial->Textures[aiTexType][nTexIdx] = pTexture;
 						 }

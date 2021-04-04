@@ -45,9 +45,7 @@ public:
 	Node*	GetNode(const std::string & NodeName)&;
 	void    PlayAnimation(
 		const std::string & InitAnimName, 
-		const bool  bLoop,
-		const float Acceleration,
-		const float TransitionTime,
+		const bool  bLoop ,
 		const AnimNotify & _Notify = {});
 	void    ContinueAnimation()&;
 	void    StopAnimation();
@@ -61,8 +59,8 @@ private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
 	void    AnimationUpdateImplementation()&;
-	void    Save()&;
-	void    Load()&;
+	void    AnimationSave(const std::filesystem::path & FullPath)&;
+	void    AnimationLoad(const std::filesystem::path & FullPath)&;
 private:
 	HRESULT LoadSkeletonMeshImplementation(const aiScene * AiScene,
 								const std::filesystem::path _Path);
@@ -79,8 +77,6 @@ private:
 	float  PrevAnimMotionTime{ 0.0 };
 	float  TransitionRemainTime = -1.0;
 	float  TransitionDuration = 0.0;
-	float  PrevAnimAcceleration = 1.f;
-	float  Acceleration = 1.f;
 	bool   bLoop = false;
 	bool   bAnimationEnd = true;
 	bool   bAnimStop = false;

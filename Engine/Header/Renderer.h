@@ -9,6 +9,7 @@
 #include "Frustum.h"
 #include "RenderInformation.h"
 #include "RenderInterface.h"
+#include "ShaderTester.h"
 
 BEGIN(ENGINE)
 class ENGINE_DLL Renderer final : public Object
@@ -43,6 +44,9 @@ private:
 	HRESULT RenderImplementation()&;
 	HRESULT RenderForwardAlphaBlend()&;
 	HRESULT ImguiRender()&;
+
+private:
+	ShaderTester _ShaderTester{};
 };
 END
 

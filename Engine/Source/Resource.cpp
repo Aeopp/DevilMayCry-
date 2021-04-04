@@ -11,7 +11,8 @@ Resource::Resource(LPDIRECT3DDEVICE9 const _pDevice)
 
 Resource::Resource(const Resource& _rOther)
 	: Object (_rOther) ,
-	  m_pDevice(_rOther.m_pDevice)
+	  m_pDevice(_rOther.m_pDevice) ,
+	ResourcePath{ _rOther.ResourcePath }
 {
 	SafeAddRef(m_pDevice);
 }
@@ -25,5 +26,9 @@ void Resource::Free()
 void Resource::Editor()
 {
 	Object::Editor();
+	if (bEdit)
+	{
+		ImGui::BulletText("Resource Path : %s", ResourcePath.c_str());
+	}
 }
 

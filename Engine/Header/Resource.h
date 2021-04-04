@@ -15,6 +15,7 @@ protected:
 	virtual void Free()			PURE;
 	virtual void Editor()override;
 public:
+	std::filesystem::path ResourcePath{};
 	bool              bClone = true;
 	virtual Resource* Clone()	PURE;
 };

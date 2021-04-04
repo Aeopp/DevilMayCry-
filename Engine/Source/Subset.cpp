@@ -39,7 +39,10 @@ void Subset::Editor()
 		{
 			for(auto& TexPtr: TexArray)
 			{
-				TexPtr->Editor();
+				if (TexPtr)
+				{
+					TexPtr->Editor();
+				}
 			}
 		}
 	}

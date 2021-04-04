@@ -2,6 +2,9 @@
 #include "SkeletonMesh.h"
 #include "Subset.h"
 #include <optional>
+#include <fstream>
+#include <ostream>
+
 
 USING(ENGINE)
 
@@ -26,15 +29,19 @@ void SkeletonMesh::AnimationEditor()&
 {
 	if (AnimInfoTable)
 	{
+		if (ImGui::Button("Save"))
+		{
+			AnimationSave(ResourcePath);
+		}
+
 		for (auto& AnimInfoIter : *AnimInfoTable)
 		{
 			auto& AnimInfo = AnimInfoIter.second;
 			if (ImGui::TreeNode(AnimInfo.Name.c_str()))
 			{
-				ImGui::BulletText("Name : %s", AnimInfo.Name.c_str());
 				ImGui::BulletText("Duration : %2.3f", AnimInfo.Duration);
-				ImGui::BulletText("TickPerSecond : %2.3f", AnimInfo.TickPerSecond);
-				ImGui::SliderFloat("Acceleration", &AnimInfo.Acceleration, 0.1f, 10.f);
+				ImGui::BulletText("TickPerSecond : %3.3f", AnimInfo.TickPerSecond);
+				ImGui::SliderFloat("Acceleration", &AnimInfo.RefOriginAcceleration(), 0.1f, 10.f);
 				ImGui::SliderFloat("TransitionTime", &AnimInfo.TransitionTime, 0.1f, 10.f);
 
 				if (AnimInfo.Name == AnimName && !bAnimationEnd)
@@ -53,20 +60,20 @@ void SkeletonMesh::AnimationEditor()&
 					{
 						SetPlayingTime(PlayTime);
 					}
+					CurPlayAnimInfo = AnimInfo;
 				}
 				else
 				{
 					if ((ImGui::Button("Play")))
 					{
 						PlayAnimation(AnimInfo.Name,
-							true, AnimInfo.Acceleration, AnimInfo.TransitionTime, {});
+							true, {});
 					}
 				}
 				ENGINE::AnimNotify _Notify{};
 
 				ImGui::TreePop();
 			}
-			
 		}
 	}
 }
@@ -118,14 +125,89 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 	VTFUpdate();
 }
 
-void SkeletonMesh::Save()&
+void SkeletonMesh::AnimationSave(
+	const std::filesystem::path& FullPath)&
 {
+	if (!AnimInfoTable) return;
 
+	using namespace rapidjson;
+
+	StringBuffer StrBuf{};
+	PrettyWriter<StringBuffer> Writer(StrBuf);
+	Writer.StartObject();
+	Writer.Key("AnimationData");
+	Writer.StartArray();
+	{
+		for (const auto& [AnimName, AnimInfo] : *AnimInfoTable)
+		{
+			Writer.StartObject();
+			{
+				Writer.Key("Name");
+				Writer.String(AnimName.c_str());
+
+				Writer.Key("Acceleration");
+				Writer.Double(AnimInfo.GetOriginAcceleration());
+
+				Writer.Key("TransitionTime");
+				Writer.Double(AnimInfo.TransitionTime);
+			}
+			Writer.EndObject();
+		}
+	}
+	Writer.EndArray();
+	Writer.EndObject();
+
+	std::filesystem::path AnimPath = FullPath;
+	AnimPath.replace_extension("Animation");
+	std::ofstream Of{ AnimPath };
+	Of << StrBuf.GetString();
 }
 
-void SkeletonMesh::Load()&
+void SkeletonMesh::AnimationLoad(
+	const std::filesystem::path& FullPath)&
 {
+	using namespace rapidjson;
 
+	std::filesystem::path AnimPath = FullPath;
+	AnimPath.replace_extension("Animation");
+	std::ifstream Is{ AnimPath };
+
+	if (!Is.is_open())
+		return;
+
+	IStreamWrapper Isw(Is);
+	Document _Document{};
+	_Document.ParseStream(Isw);
+
+	
+	if (_Document.HasParseError())
+	{
+		PRINT_LOG(L"Warning!", L"Animation Parse Error!");
+		return;
+	}
+
+	const Value& AnimJsonTable = _Document["AnimationData"];
+	const auto& AnimTableArray = AnimJsonTable.GetArray();
+	for (auto iter = AnimTableArray.Begin();
+		iter != AnimTableArray.end(); ++iter)
+	{
+		
+		AnimInfoTable->find(AnimName);
+
+		if (iter->HasMember("Name"))
+		{
+			if (false == AnimInfoTable->contains(AnimName))
+			{
+				// PRINT_LOG(L"Warning!!",L"모델 애니메이션 이름과 데이터 테이블 이름이 매칭되지 않음. 애니메이션 이름이 바뀌었는지 확인해보세요.")
+			}
+
+			const std::string AnimName = 
+				iter->FindMember("Name")->value.GetString();
+			
+			(*AnimInfoTable)[AnimName].SetAcceleration(iter->FindMember("Acceleration")->value.GetFloat());
+			(*AnimInfoTable)[AnimName].TransitionTime = iter->FindMember("TransitionTime")->value.GetFloat();
+		}
+	}
 }
 
 void SkeletonMesh::Free()
@@ -176,6 +258,7 @@ void SkeletonMesh::Editor()
 		AnimationEditor();
 		NodeEditor();
 	}
+
 	Mesh::Editor();
 }
 
@@ -194,9 +277,10 @@ HRESULT SkeletonMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {
 	//Assimp Importer 생성.
 	auto AiImporter = Assimp::Importer{};
+	ResourcePath = _Path;
 	//FBX파일을 읽어서 Scene 생성.
 	const aiScene* const AiScene = AiImporter.ReadFile(
-		_Path.string(),
+		ResourcePath.string(),
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
@@ -214,7 +298,7 @@ HRESULT SkeletonMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		aiProcess_SplitLargeMeshes
 	);
 
-	return LoadSkeletonMeshImplementation(AiScene, _Path);
+	return LoadSkeletonMeshImplementation(AiScene, ResourcePath);
 }
 
 
@@ -243,9 +327,9 @@ void SkeletonMesh::DisablePrevVTF()&
 void SkeletonMesh::Update(const float DeltaTime)&
 {
 	if (bAnimationEnd || bAnimStop)return;
-
-	CurrentAnimMotionTime += (DeltaTime * Acceleration);
-	PrevAnimMotionTime += (DeltaTime * PrevAnimAcceleration);
+	
+	CurrentAnimMotionTime += (DeltaTime * CurPlayAnimInfo.CalcAcceleration());
+	PrevAnimMotionTime += (DeltaTime * PrevPlayAnimInfo.CalcAcceleration());
 	TransitionRemainTime -= DeltaTime;
 	AnimationUpdateImplementation();
 }
@@ -300,8 +384,6 @@ Node* SkeletonMesh::GetNode(const std::string& NodeName)&
 void SkeletonMesh::PlayAnimation(
 	const std::string& InitAnimName, 
 	const bool  bLoop,
-	const float AnimAcceleration,
-	const float TransitionTime,
 	const AnimNotify& _Notify)
 {
 	auto iter = AnimInfoTable->find(InitAnimName);
@@ -316,12 +398,11 @@ void SkeletonMesh::PlayAnimation(
 	CurrentAnimMotionTime = 0.0;
 	PrevAnimName = AnimName;
 	AnimName = InitAnimName;
-	TransitionDuration = TransitionRemainTime = TransitionTime;
-	PrevAnimAcceleration = Acceleration;
-	Acceleration = AnimAcceleration;
-	CurAnimNotify = _Notify;
 	PrevPlayAnimInfo = CurPlayAnimInfo;
-	CurPlayAnimInfo=iter->second;
+	CurPlayAnimInfo = iter->second;
+	TransitionDuration = TransitionRemainTime = CurPlayAnimInfo.TransitionTime;
+	CurAnimNotify = _Notify;
+	
 }
 
 void SkeletonMesh::ContinueAnimation()&
@@ -345,8 +426,7 @@ void SkeletonMesh::AnimationEnd()&
 {
 	if (bLoop)
 	{
-		PlayAnimation(AnimName,  bLoop,
-			Acceleration, TransitionDuration, CurAnimNotify);
+		PlayAnimation(AnimName,  bLoop, CurAnimNotify);
 		bAnimationEnd = false;
 	}
 	else
@@ -370,7 +450,7 @@ void SkeletonMesh::SetPlayingTime(float NewTime)
 	const float AnimDelta = NewTime - PlayingTime();
 	const float SetTime = NewTime * CurPlayAnimInfo.Duration;
 	CurrentAnimMotionTime = SetTime;
-	PrevAnimMotionTime += AnimDelta * PrevPlayAnimInfo.Acceleration;
+	PrevAnimMotionTime += AnimDelta * PrevPlayAnimInfo.CalcAcceleration(); 
 	TransitionRemainTime -= AnimDelta;
 	AnimationUpdateImplementation();
 }
@@ -500,7 +580,7 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 
 			AnimationInformation CurAnimInfo{};
 			CurAnimInfo.TickPerSecond = _AiAnimation->mTicksPerSecond;
-			CurAnimInfo.Acceleration = 1.0 *  CurAnimInfo.TickPerSecond;
+			CurAnimInfo.SetAcceleration(1.0f);
 			CurAnimInfo.Name = _AiAnimation->mName.C_Str();
 			CurAnimInfo.Duration = _AiAnimation->mDuration;
 
@@ -558,6 +638,7 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 	}
 
 	MakeVertexLcationsFromSubset();
+	AnimationLoad(_Path);
 
 	return S_OK;
 }

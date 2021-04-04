@@ -54,6 +54,7 @@ void TestObject::RenderReady()
 
 HRESULT TestObject::Ready()
 {
+	
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
 	_InitRenderProp._Order = ENGINE::RenderProperty::Order::ForwardAlphaBlend;
@@ -66,7 +67,7 @@ HRESULT TestObject::Ready()
 	RenderInterface::Initialize(_InitRenderProp, ShaderPath);
 	const std::filesystem::path FbxPath
 	{
-		L"..\\..\\Resource\\Mesh\\Static\\Tester.X"
+		L"..\\..\\Resource\\Mesh\\Static\\Nero.fbx"
 	};
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
@@ -76,17 +77,17 @@ HRESULT TestObject::Ready()
 	{
 		PRINT_LOG(L"Failed!", __FUNCTIONW__);
 	}
-	ENGINE::AnimNotify A{};
-	A.Event[0.5] = [this]() {  PRINT_LOG(L"0.5!", L"0.5!");
+	ENGINE::AnimNotify _Notify{};
+	_Notify.Event[0.5] = [this]() {  PRINT_LOG(L"0.5!", L"0.5!");
 							  return true; };
-	A.Event[0.9] = [this]() {  PRINT_LOG(L"0.9!", L"0.9!");
+	_Notify.Event[0.9] = [this]() {  PRINT_LOG(L"0.9!", L"0.9!");
 	return true; };
 
 	/*A.Event[0.3] = [this]() {  PRINT_LOG(L"0.1!", L"0.1!");
 	* // return false 하면 반복도미...
 	return false; };*/
 	_SkeletonMesh->PlayAnimation("Air_Belatos_Twohandedsword",
-		true, 1.0f, 0.25f ,A);
+		true,_Notify);
 	PushEditEntity(_SkeletonMesh.get());
 	PushEditEntity(InitTransform.lock().get());
 
