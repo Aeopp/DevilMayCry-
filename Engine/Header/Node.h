@@ -25,7 +25,7 @@ public:
 	std::string Name{};
 	int32 Index{ 0u };
 
-	 std::unordered_map<std::string,AnimationTrack> _AnimationTrack{};
+	std::unordered_map<std::string,AnimationTrack> _AnimationTrack{};
 
 	void NodeUpdate(
 		const Matrix& ParentToRoot,

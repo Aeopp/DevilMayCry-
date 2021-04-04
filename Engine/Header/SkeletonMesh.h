@@ -69,6 +69,7 @@ private:
 	Node*  MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
 		const std::unordered_map<std::string,
 		std::pair<uint32, Matrix>>&BoneTableParserInfo);
+	Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
 	void InitTextureForVertexTextureFetch()&;
 	void AnimationNotify()&;
 private:
@@ -87,8 +88,8 @@ private:
 	AnimNotify CurAnimNotify{};
 	AnimationInformation CurPlayAnimInfo{};
 	AnimationInformation PrevPlayAnimInfo{};
-	IDirect3DTexture9* BoneAnimMatrixInfo{ nullptr };
-	IDirect3DTexture9* PrevBoneAnimMatrixInfo{ nullptr };
+	IDirect3DTexture9*   BoneAnimMatrixInfo{ nullptr };
+	IDirect3DTexture9*   PrevBoneAnimMatrixInfo{ nullptr };
 	int32 VTFPitch{ 0 };
 	std::vector<Matrix> BoneSkinningMatries{};
 	std::vector<Matrix> PrevBoneSkinningMatries{};

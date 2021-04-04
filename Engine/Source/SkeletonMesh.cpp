@@ -16,12 +16,10 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	bHasAnimation{ _rOther.bHasAnimation},
 	RootNodeName{ _rOther  .RootNodeName },
 	AnimInfoTable{ _rOther.AnimInfoTable },
-	Nodes{ _rOther.Nodes } , 
-	BoneSkinningMatries{ _rOther.BoneSkinningMatries },
-	PrevBoneSkinningMatries{ _rOther.PrevBoneSkinningMatries } ,
+	BoneSkinningMatries{ _rOther.BoneSkinningMatries } ,
 	VTFPitch{ _rOther.VTFPitch } 
 {
-
+	
 }
 
 void SkeletonMesh::AnimationEditor()&
@@ -164,8 +162,9 @@ Resource* SkeletonMesh::Clone()
 	if (pClone->bClone)
 	{
 		pClone->InitTextureForVertexTextureFetch();
+		pClone->Nodes.clear();
+		pClone->MakeHierarchyForclones(nullptr, GetRootNode());
 	}
-	
 
 	return pClone;
 }
@@ -226,6 +225,7 @@ void SkeletonMesh::EnablePrevVTF()&
 		m_pDevice->CreateTexture
 		(VTFPitch, VTFPitch, 1, 0, D3DFMT_A32B32G32R32F, D3DPOOL_MANAGED,
 			&PrevBoneAnimMatrixInfo, nullptr);
+		PrevBoneSkinningMatries = BoneSkinningMatries;
 	}
 }
 
@@ -235,6 +235,8 @@ void SkeletonMesh::DisablePrevVTF()&
 	{
 		PrevBoneAnimMatrixInfo->Release();
 		PrevBoneAnimMatrixInfo = nullptr;
+		PrevBoneSkinningMatries.clear();
+		PrevBoneSkinningMatries.shrink_to_fit();
 	}
 }
 
@@ -274,7 +276,6 @@ void SkeletonMesh::VTFUpdate()&
 	std::memcpy(LockRect.pBits, BoneSkinningMatries.data(),
 		BoneSkinningMatries.size() * sizeof(Matrix));
 	BoneAnimMatrixInfo->UnlockRect(0u);
-
 }
 
 Node* SkeletonMesh::GetRootNode()&
@@ -483,6 +484,7 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 	}
 
 	BoneSkinningMatries.resize(BoneTableParserInfo.size());
+
 	RootNodeName = AiScene->mRootNode->mName.C_Str();
 	MakeHierarchy(nullptr,AiScene->mRootNode, BoneTableParserInfo);
 
@@ -577,7 +579,6 @@ static bool IsBone(
 	const std::unordered_map<std::string,
 	std::pair<uint32, Matrix>>& BoneTableParserInfo )
 {
-	 
 	const std::string TargetNodeName = AiNode->mName.C_Str();
 	auto TargetNode = std::make_shared<Node>();
 	auto iter = BoneTableParserInfo.find(TargetNodeName);
@@ -620,6 +621,35 @@ static bool IsBone(
 	auto ReturnThis =TargetNode.get();
 	return ReturnThis;
 }
+
+ Node* SkeletonMesh::MakeHierarchyForclones(
+	 Node* const Parent,
+	 const Node*const SpProtoNode)
+ {
+	 if (nullptr == SpProtoNode)
+	 {
+		 PRINT_LOG(L"Warning!", L"Nodes information deep copy error");
+	     return nullptr;
+	 }
+		
+
+	 auto CloneNode = std::make_shared<Node>(*SpProtoNode);
+	 CloneNode->Parent = Parent;
+	 CloneNode->Childrens.clear();
+	 auto Self = CloneNode.get();
+
+	 for (const auto& ProtoChildren : SpProtoNode->Childrens)
+	 {
+		 auto*const ChildrenRawPtr=MakeHierarchyForclones(Self, ProtoChildren);
+		 if (ChildrenRawPtr)
+		 {
+			 CloneNode->Childrens.push_back(ChildrenRawPtr);
+		 }
+	 }
+	 Nodes.insert({ CloneNode->Name,CloneNode });
+
+	 return Self;
+ };
 
  void SkeletonMesh::InitTextureForVertexTextureFetch()&
  {

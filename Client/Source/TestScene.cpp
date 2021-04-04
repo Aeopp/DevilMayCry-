@@ -28,6 +28,11 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 
 	AddGameObject<TestObject>();
+	AddGameObject<TestObject>().lock()->GetComponent<ENGINE::Transform>().lock()->SetPosition({ 1,0,0 });
+	AddGameObject<TestObject>().lock()->GetComponent<ENGINE::Transform>().lock()->SetPosition({ -1,0,0 });
+
+
+
 	//AddGameObject<ShaderTester>();
 
 	return S_OK;
