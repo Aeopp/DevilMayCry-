@@ -26,11 +26,12 @@ void ENGINE_DLL Log(const std::string& PushLog)
 
 std::weak_ptr<CoreSystem> Engine::m_pCoreSystem = CoreSystem::GetInstance();
 
-HRESULT Engine::ReadyEngine(const bool bWindowed)
+HRESULT Engine::ReadyEngine(const bool bWindowed,
+							const bool bMultiSample)
 {
 	if (nullptr == m_pCoreSystem.lock() || m_pCoreSystem.expired())
 		return E_FAIL;
-	return m_pCoreSystem.lock()->ReadyEngine(bWindowed);
+	return m_pCoreSystem.lock()->ReadyEngine(bWindowed, bMultiSample);
 }
 
 HRESULT Engine::UpdateEngine()

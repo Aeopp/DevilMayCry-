@@ -65,7 +65,10 @@ void Subset::Render(ID3DXEffect*const Fx)
 		return;
 	if (Fx)
 	{
-		Fx->SetInt("nMaxBonesRefPerVtx", m_tVertexBufferDesc.nMaxBonesRefPerVtx);
+		if (m_tVertexBufferDesc.bHasBone)
+		{
+			Fx->SetInt("nMaxBonesRefPerVtx", m_tVertexBufferDesc.nMaxBonesRefPerVtx);
+		}
 	}
 	Fx->CommitChanges();
 	m_pDevice->SetStreamSource(0, m_pVertexBuffer, 0, m_tVertexBufferDesc.nStride);

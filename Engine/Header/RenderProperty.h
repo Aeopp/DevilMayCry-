@@ -8,13 +8,13 @@ struct RenderProperty
 public : 
 	enum class Order : uint8
 	{
-		DefaultDeferred = 0u,
+		GBuffer = 0u,
 		ForwardAlphaBlend,
 		AlphaBlendEffect,
 		UI,
 	};
 	bool bRender = true;
-	Order _Order{ Order::DefaultDeferred };
+	Order _Order{ Order::GBuffer };
 };
 
 END

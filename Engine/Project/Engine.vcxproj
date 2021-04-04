@@ -233,6 +233,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Timer.h" />
     <ClInclude Include="..\Header\TimeSystem.h" />
     <ClInclude Include="..\Header\Transform.h" />
+    <ClInclude Include="..\Header\Vertexs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AnimationBlendInfo.cpp" />
@@ -281,6 +282,16 @@ call Engine.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>

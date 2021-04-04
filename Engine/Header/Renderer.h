@@ -10,6 +10,8 @@
 #include "RenderInformation.h"
 #include "RenderInterface.h"
 #include "ShaderTester.h"
+#include "RenderTarget.h"
+#include "Shader.h"
 
 BEGIN(ENGINE)
 class ENGINE_DLL Renderer final : public Object
@@ -21,6 +23,7 @@ private :
 	virtual void Free()	override ;
 public :
 	HRESULT ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice);
+	void    ReadyRenderTargets();
 private : 
 	Frustum CameraFrustum{};
 	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
@@ -42,11 +45,21 @@ private:
 	void RenderEntityClear()&;
 private:
 	HRESULT RenderImplementation()&;
+	HRESULT RenderGBuffer()&;
 	HRESULT RenderForwardAlphaBlend()&;
 	HRESULT ImguiRender()&;
-
 private:
-	ShaderTester _ShaderTester{};
+	void RenderTargetDebugRender()&;
+private:
+	std::shared_ptr<ENGINE::Shader> RTDebug{};
+	D3DVIEWPORT9 OldViewport{};
+	IDirect3DSurface9* BackBuffer{ nullptr };
+private:
+	RenderTarget SceneTarget{};
+	RenderTarget ALBM{};
+	RenderTarget NRMR{};
+	RenderTarget Depth{};
+	// ShaderTester _ShaderTester{};
 };
 END
 

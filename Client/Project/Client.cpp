@@ -25,8 +25,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 {
 	srand((unsigned int)time(NULL));
 
-	g_nWndCX = 1280;
-	g_nWndCY = 720;
+	g_nWndCX = 1920;
+	g_nWndCY = 1080;
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -52,7 +52,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 
 	Application* pApplication = new Application;
 
-	pApplication->ReadyApplication(true);
+	pApplication->ReadyApplication(true,false);
 
 	while (WM_QUIT != tMessage.message)
 	{

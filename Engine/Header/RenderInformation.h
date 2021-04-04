@@ -9,10 +9,10 @@ BEGIN(ENGINE)
 class ENGINE_DLL RenderInformation
 {
 public:
-	void Make(const Matrix& _CameraView,const Matrix& _CameraProjection);
 	Matrix  ViewInverse{};
 	Matrix  CameraView{}; 
 	Matrix  CameraProjection{};
+	Matrix  Ortho{};
 };
 END
 #endif // !_RENDERINFORMATION_H_

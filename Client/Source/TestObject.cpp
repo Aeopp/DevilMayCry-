@@ -21,7 +21,7 @@ TestObject* TestObject::Create()
 
 
 void TestObject::RenderForwardAlphaBlendImplementation(
-	const ImplementationInfo&_ImplInfo)
+	const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
 	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
@@ -31,13 +31,33 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight,3u);
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
 			SharedSubset->Render(_ImplInfo.Fx);
 		}
 	}
-}
+};
+
+void  TestObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
+{
+	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+	{
+		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			const auto& VtxBufDesc   = SharedSubset->GetVertexBufferDesc();
+			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+			SharedSubset->Render(_ImplInfo.Fx);
+		}
+	}
+};
+
 
 void TestObject::RenderReady()
 {
@@ -45,8 +65,8 @@ void TestObject::RenderReady()
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
+		_RenderProperty.bRender = true;
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.bRender = true;
 		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
 		RenderVariableBind(_UpdateInfo);
 	}
@@ -54,42 +74,32 @@ void TestObject::RenderReady()
 
 HRESULT TestObject::Ready()
 {
-	
+	SetRenderEnable(true);
+
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
 	_InitRenderProp._Order = ENGINE::RenderProperty::Order::ForwardAlphaBlend;
-	SetRenderEnable(true);
+	RenderInterface::Initialize(_InitRenderProp);
 
-	const std::filesystem::path ShaderPath
-	{
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl"
-	};
-	RenderInterface::Initialize(_InitRenderProp, ShaderPath);
-	const std::filesystem::path FbxPath
-	{
-		L"..\\..\\Resource\\Mesh\\Static\\Nero.fbx"
-	};
+	_ShaderInfo.ForwardAlphaBlendShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl");
+	_ShaderInfo.GBufferShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\GBuffer.hlsl");
+
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(FbxPath);
-	_SkeletonMesh->EnablePrevVTF();
-	if (!_SkeletonMesh)
-	{
-		PRINT_LOG(L"Failed!", __FUNCTIONW__);
-	}
-	ENGINE::AnimNotify _Notify{};
-	_Notify.Event[0.5] = [this]() {  PRINT_LOG(L"0.5!", L"0.5!");
-							  return true; };
-	_Notify.Event[0.9] = [this]() {  PRINT_LOG(L"0.9!", L"0.9!");
-	return true; };
 
-	/*A.Event[0.3] = [this]() {  PRINT_LOG(L"0.1!", L"0.1!");
-	* // return false 하면 반복도미...
-	return false; };*/
-	_SkeletonMesh->PlayAnimation("Air_Belatos_Twohandedsword",
-		true,_Notify);
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Static\\Bench_Ori.fbx");
+	_SkeletonMesh->EnablePrevVTF();
+
+	ENGINE::AnimNotify _Notify{};
+	
+	_Notify.Event[0.5] = [this]() {  Log("0.5 !! ");  return true; };
+	_Notify.Event[0.9] = [this]() {  Log("0.9 !! ");  return true; };
+
+	_SkeletonMesh->PlayAnimation("Air_Belatos_Twohandedsword",true,_Notify);
 	PushEditEntity(_SkeletonMesh.get());
 	PushEditEntity(InitTransform.lock().get());
+	PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
+	PushEditEntity(_ShaderInfo.GBufferShader.get());
 
 	return S_OK;
 };

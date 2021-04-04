@@ -123,10 +123,13 @@ void CoreSystem::Free()
 
 }
 
-HRESULT CoreSystem::ReadyEngine(const bool bWindowed)
+HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
+								const bool bMultiSample)
 {
 	m_pGraphicSystem = GraphicSystem::GetInstance();
-	if (nullptr == m_pGraphicSystem.lock() || FAILED(m_pGraphicSystem.lock()->ReadyGraphicSystem(bWindowed)))
+	if (nullptr == m_pGraphicSystem.lock() || FAILED(m_pGraphicSystem.lock()->ReadyGraphicSystem(
+		bWindowed,
+		bMultiSample)))
 	{
 		PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
 		return E_FAIL;

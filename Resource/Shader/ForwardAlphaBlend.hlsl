@@ -2,9 +2,8 @@ matrix World;
 matrix View;
 matrix Projection;
 float3 LightDirection = float3(0, -1, 0);
-static const float3 Fdielectric = 0.04;
-int nMaxBonesRefPerVtx = 4;
 
+int nMaxBonesRefPerVtx = 4;
 int VTFPitch;
 texture VTF;
 sampler VTFSampler = sampler_state
@@ -46,10 +45,10 @@ struct VsIn
     float3 Tangent : TANGENT;
     float3 BiNormal : BINORMAL;
     float2 UV : TEXCOORD0;
-    half4 BoneIds0 : BLENDINDICES0;
-    half4 BoneIds1 : BLENDINDICES1;
-    half4 Weights0 : BLENDWEIGHT0;
-    half4 Weights1 : BLENDWEIGHT1;
+    float4 BoneIds0 : BLENDINDICES0;
+    float4 BoneIds1 : BLENDINDICES1;
+    float4 Weights0 : BLENDWEIGHT0;
+    float4 Weights1 : BLENDWEIGHT1;
 };
 
 struct VsOut
@@ -184,7 +183,7 @@ PsOut PsMain(PsIn In)
 
     float4 NRMRSample = tex2D(NRMR0, In.UV);
     const float2 NormalXY = NRMRSample.xy *2.f-1.f;
-    const  float  NormalZ =sqrt(1 - dot(NormalXY, NormalXY));
+    const float  NormalZ =  sqrt(1 - dot(NormalXY, NormalXY));
     float  Roughness = NRMRSample.w;
     float3x3 TBN = float3x3(normalize(In.Tangent),
                             normalize(In.BiNormal),

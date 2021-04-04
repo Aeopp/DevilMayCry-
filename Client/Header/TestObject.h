@@ -18,6 +18,7 @@ public:
 	static TestObject* Create();
 public:
 	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
+	virtual void    RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderReady()                          override;
 public:
 	virtual HRESULT Ready() override;

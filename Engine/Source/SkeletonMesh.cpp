@@ -386,6 +386,8 @@ void SkeletonMesh::PlayAnimation(
 	const bool  bLoop,
 	const AnimNotify& _Notify)
 {
+	if (!AnimInfoTable)return;
+
 	auto iter = AnimInfoTable->find(InitAnimName);
 	if (iter == std::end(*AnimInfoTable))
 	{
