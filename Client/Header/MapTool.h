@@ -1,6 +1,15 @@
 #ifndef __MAPTOOL_SCENE_H__
 #define __MAPTOOL_SCENE_H__
 #include "Scene.h"
+
+#include "MapToolObj.h"
+#include "MapToolProps.h"
+#define LOCATIONMESHPATH "../../Resource/Map/Location/"
+#define SAVEDATAPATH "../../Resource/SaveData/"
+#define PROPSPATH "../../Resource/Map/Props/"
+
+const UINT nFileNameMaxLen = 512;
+#define ConvertGameObjPtr(x) static_cast<std::weak_ptr<GameObject>>(x)
 typedef D3DXVECTOR3 vec3;
 
 #define MIN(A, B)            (((A) < (B)) ? (A) : (B))
@@ -48,16 +57,21 @@ private:
 	ePeekingType							                        m_ePeekType;
 	bool							                                m_bPropsOption[(int)ePropsOption::End];
 	std::wstring						                            m_strSelectName;
+	std::wstring						                            m_strSelectFilePath;
 	eWorkOption						                                m_eWorkType;
 	eCreatePosition					                                m_eCreateOption;
 
 	float							                                m_fPivotMoveSpeed; //P
 	int								                                m_iPeekingCnt;			//멀티옵션시 피킹한 오브젝트 수 
 	bool							                                m_bReadyNameTable;			  // 테이블 데이터 준비 
-	std::unordered_map<UINT, PATHINFO>                              m_mapFBXNameTable; // 벨류값은 fbx파일 공통경로를 제외한 /StageN/Test.fbx이런식으로 
 
 	int																m_iTableID = ERR_ID;
-	std::unordered_map<UINT, std::list<std::weak_ptr<GameObject>>>  m_mapObjDatas;
+
+	std::unordered_map<UINT, PATHINFO>                              m_mapFBXNameTable; // 벨류값은 fbx파일 공통경로를 제외한 /StageN/Test.fbx이런식으로 
+
+	// 여기서 저장할  pros 종류랑 종류별로 파싱할 정보를 저장함  
+	// 키값 불러오면 table에서 상대경로 받아와서 저장하고 pros 접근해서 정보 저장하고 
+	std::unordered_map<UINT, std::list<std::weak_ptr<MapToolProps>>>  m_mapObjDatas;
 
 	Matrix															m_matCameraWorld;
 	Matrix															m_matView;
@@ -68,22 +82,34 @@ private:
 	Vector2															m_vCameraSpeed; // x =  x z  , y = y 
 	float															m_fCameraAngSpeed;
 
+	std::weak_ptr<MapToolProps>										m_pBaseMap ;
+	std::weak_ptr<MapToolProps>										m_pCurSelectObj;
+	std::weak_ptr<MapToolObj>										m_pPivot;
+
 private:
-	void			ShowMapTool();
-	void			ShowPivotControl();
-	void			PivotControl();
+
+	void			PivotControl(const float& fDeltaTime);
 	void			MouseInPut();
 
-	void			CreateMeshNameTable(std::wstring strStartPath);
+	HRESULT			CreateMeshNameTable(std::wstring strStartPath);
 	void			HelpMarker(const char*	esc);
 	bool			CheckWindow(const char* Text);
 	void			HotKey();//단축키 모음 
+	 
+	bool			ObjKeyFinder(const _TCHAR* pTag);//키중복 확인 Haskey .
+	//Base map
+	HRESULT			LoadBaseMap(std::wstring strFilePath);
 
 	bool			NewFBXNameTable(const _TCHAR* pPath);//파일 읽어서 새로운 파일 테이블 생성 
 	bool			LoadFBXnametable(const _TCHAR* pPath);//파일 읽어서 
 
+	//add & Select
+	void			AddProps(const _TCHAR* pPath,const _TCHAR* pName);
+	void			SelectFile();
+
+	//Save
 	void			SaveLoadingList(const std::string& pPath);//이게 스테이지에 로딩할거 목록 
-	void			SaveObjInfo(const std::string& pPath);//행렬정보등 저장 
+	void			SaveProps(const std::string& pPath);// 소품 저장 
 
 	void			ApplyPropsOption();  //오브젝트 속성값 수정시 호출 그냥 콤보박스 누르면 호출됨 
 	//Camera
@@ -92,6 +118,10 @@ private:
 	void			CameraControl(const float& _fDeltaTime);
 
 	//Gui 정리
+	void			ShowMapTool();
+	void			ShowPivotOption();
+	void			ShowCameraOption();
+
 	void			NameTableGroup();
 	void			BaseMapCreateGroup();
 	void			PeekingOptionGroup();
@@ -99,6 +129,10 @@ private:
 	void			PropsOptionGroup();
 	void			SaveFileGroup();
 
+	bool			IsHoverUIWindow();
+
+	std::wstring		convertToWstring(const std::string& s);
+	std::string			convertToString(const std::wstring& s);
 
 public:
 	static MapTool* Create();
@@ -110,6 +144,7 @@ public:
 	virtual HRESULT Update(const float _fDeltaTime) override;
 	virtual HRESULT LateUpdate(const float _fDeltaTime) override;
 };
+
 
 
 #endif // !__MAPTOOL_SCENE_H__

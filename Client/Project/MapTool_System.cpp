@@ -2,10 +2,12 @@
 #include "MapTool.h"
 
 #include "TestObject.h"
-
+#include "MapToolObj.h"
 #include <fstream>
 #include <ostream>
 #include <iostream>
+
+#include <commdlg.h>
 
 /*
 ImGui 아닌 함수들 모음
@@ -34,6 +36,14 @@ MapTool* MapTool::Create()
 	return pInstance;
 }
 
+bool MapTool::IsHoverUIWindow()
+{
+	for (int i = 0; i < (int)eWindowID::End; ++i)
+		if (m_bHoveredMaptool[i])
+			return true;
+	return false;
+}
+
 void MapTool::HelpMarker(const char* desc)
 {
 	ImGui::TextDisabled("(?)");
@@ -48,6 +58,47 @@ void MapTool::HelpMarker(const char* desc)
 }
 
 
+void MapTool::SelectFile()
+{
+	TCHAR   szPropsPath[MAX_PATH] = L"";
+	TCHAR   szPropsName[MAX_PATH] = L"";
+
+	OPENFILENAME open;
+	memset(&open, 0, sizeof(OPENFILENAME));
+	open.lStructSize = sizeof(OPENFILENAME);
+	open.hwndOwner = g_hWnd;
+	open.lpstrFilter = L"All Files(*.*)\0*.*\0";
+	open.nMaxFile = nFileNameMaxLen;
+	open.nMaxFileTitle = nFileNameMaxLen;
+	open.lpstrFile = szPropsPath;
+	open.lpstrFileTitle = szPropsName;
+	if (0 != GetOpenFileName(&open))
+	{
+		m_strSelectName = szPropsName;
+		//check
+		bool bFindID = false;
+		m_iTableID = ERR_ID;
+
+		//테이블시트에서 id 찾고 
+		for (auto pair : m_mapFBXNameTable)
+		{
+			if (!lstrcmpW(m_strSelectName.c_str(), pair.second.sFileName.c_str()))
+			{
+				m_iTableID = pair.first;
+				bFindID = true;
+				break;
+			}
+		}
+		if (bFindID == false)
+		{
+			PRINT_LOG(L"File Name Not exist NameTable", __FUNCTIONW__);
+			return;
+		}
+
+	
+	}
+}
+
 HRESULT MapTool::LoadScene()
 {
 	Scene::LoadScene();
@@ -57,15 +108,15 @@ HRESULT MapTool::LoadScene()
 	m_iPeekingCnt = 0;
 	m_iTableID = 0;
 	m_strSelectName = L"";
-	m_fFOV = D3DXToRadian(90.f);
+	m_fFOV = 90.f;
 	UpdateProj();
 	D3DXMatrixIdentity(&m_matCameraWorld);
-	m_vCameraSpeed = { 5.f,3.f };
+	m_vCameraSpeed = { 20.f,10.f };
 	m_vCameraPos = vZero;
 	m_vRot = vZero;
-	AddGameObject<TestObject>();
+	m_fCameraAngSpeed = 100.f;
 
-
+	m_pPivot =  AddGameObject<MapToolObj>();
 	return S_OK;
 }
 
@@ -83,14 +134,29 @@ HRESULT MapTool::Start()
 	return S_OK;
 }
 
+std::wstring MapTool::convertToWstring(const std::string& s)
+{
+	std::wstring Convert;
+	Convert.assign(std::begin(s), std::end(s));
+	return Convert;
+}
+
+std::string MapTool::convertToString(const std::wstring& s)
+{
+	std::string Convert;
+	Convert.assign(std::begin(s), std::end(s));
+	return Convert;
+}
 HRESULT MapTool::Update(const float _fDeltaTime)
 {
 	Scene::Update(_fDeltaTime);
 
 	ShowMapTool();
-	ShowPivotControl();
+	ShowPivotOption();
+	ShowCameraOption();
 	HotKey();
 	CameraControl(_fDeltaTime);
+	PivotControl(_fDeltaTime);
 	return S_OK;
 }
 
@@ -101,15 +167,13 @@ HRESULT MapTool::LateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
-
-
 bool MapTool::NewFBXNameTable(const _TCHAR* pPath)
 {
-	auto convertToString = [](const std::wstring& w) {
-		std::string Convert;
-		Convert.assign(std::begin(w), std::end(w));
-		return Convert;
-	};
+	if (FAILED(CreateMeshNameTable(TEXT(PROPSPATH))))
+	{
+		PRINT_LOG(L"Failed!", __FUNCTIONW__);
+		return false;
+	}
 
 	using namespace rapidjson;
 	std::filesystem::path TargetPath = "..\\..\\Resource\\SaveData\\PropsNameTable.json";
@@ -144,12 +208,6 @@ bool MapTool::NewFBXNameTable(const _TCHAR* pPath)
 
 bool MapTool::LoadFBXnametable(const _TCHAR* pPath)
 {
-	auto convertToWstring = [](const std::string& s) {
-		std::wstring Convert;
-		Convert.assign(std::begin(s), std::end(s));
-		return Convert;
-	};
-
 	using namespace rapidjson;
 	std::ifstream Is{ "../../Resource/SaveData/PropsNameTable.json" };
 	if (!Is.is_open())
@@ -182,15 +240,40 @@ bool MapTool::LoadFBXnametable(const _TCHAR* pPath)
 void MapTool::SaveLoadingList(const std::string& pPath)
 {
 
-
 }
-
-void MapTool::SaveObjInfo(const std::string& pPath)
+void MapTool::SaveProps(const std::string& pPath)
 {
 }
 
 
-void MapTool::CreateMeshNameTable(std::wstring strStartPath)
+HRESULT MapTool::LoadBaseMap(std::wstring strFilePath)
+{
+	m_pBaseMap = AddGameObject<MapToolProps>();
+	m_pBaseMap.lock()->SetFBXPath(strFilePath);
+	return S_OK;
+}
+
+void MapTool::AddProps(const _TCHAR* pPath, const _TCHAR* pName)
+{
+	//추가 후 테이블에서 경로 값 넣어서 fbx 로드하게 해주고 아이디 넣어주고 
+	m_pCurSelectObj = AddGameObject<MapToolProps>();
+	m_pCurSelectObj.lock()->SetFBXPath(m_mapFBXNameTable[m_iTableID].sFileLocation);
+	m_pCurSelectObj.lock()->m_iPropsID = m_iTableID;
+
+	//map에 중복확인 
+	auto iterFind = m_mapObjDatas.find(m_iTableID);
+
+	if (iterFind == m_mapObjDatas.end())
+	{
+		iterFind = m_mapObjDatas.emplace(m_iTableID, std::list<std::weak_ptr<MapToolProps>>()).first;
+		iterFind->second.emplace_back(m_pCurSelectObj);
+	}
+	else
+		iterFind->second.emplace_back(m_pCurSelectObj);
+}
+
+
+HRESULT MapTool::CreateMeshNameTable(std::wstring strStartPath)
 {
 	WIN32_FIND_DATA tFindData;
 	std::wstring tCurPath = strStartPath + L"/*.*";
@@ -199,7 +282,7 @@ void MapTool::CreateMeshNameTable(std::wstring strStartPath)
 	if (hFind == INVALID_HANDLE_VALUE)
 	{
 		FindClose(hFind);
-		return;
+		return E_FAIL;
 	}
 	BOOL bContinue = false;
 	do
@@ -220,6 +303,12 @@ void MapTool::CreateMeshNameTable(std::wstring strStartPath)
 				bContinue = FindNextFile(hFind, &tFindData);
 				continue;
 			};
+			std::wstring CheckExtension = tFindData.cFileName;
+			if (std::wstring::npos != CheckExtension.find(L".tga")) // 나중에 텍스쳐 경로 지정되면 삭제 
+			{
+				bContinue = FindNextFile(hFind, &tFindData);
+				continue;
+			}
 			PATHINFO tInfo;
 			tInfo.sFileLocation = strStartPath;
 			tInfo.sFileName = tFindData.cFileName;
@@ -229,7 +318,7 @@ void MapTool::CreateMeshNameTable(std::wstring strStartPath)
 	} while (bContinue);
 
 	FindClose(hFind);
-	return;
+	return S_OK;
 }
 
 void MapTool::ApplyPropsOption()
@@ -255,7 +344,7 @@ void MapTool::ApplyPropsOption()
 
 void MapTool::UpdateProj()
 {
-	D3DXMatrixPerspectiveFovLH(&m_matProj, m_fFOV, (float)g_nWndCX / g_nWndCY, 0.1f, 500.f);
+	D3DXMatrixPerspectiveFovLH(&m_matProj, D3DXToRadian(m_fFOV), (float)g_nWndCX / g_nWndCY, 0.1f, 500.f);
 	g_pDevice->SetTransform(D3DTS_PROJECTION, &m_matProj);
 }
 
@@ -295,6 +384,9 @@ void MapTool::UpdateView()
 
 void MapTool::CameraControl(const float& _fDeltaTime)
 {
+	if (IsHoverUIWindow())
+		return;
+
 	D3DXVECTOR3 vLook(0.f, 0.f, 0.f);
 	memcpy_s(&vLook, sizeof(D3DXVECTOR3), m_matCameraWorld.m[2], sizeof(D3DXVECTOR3));
 	D3DXVECTOR3 vRight(0.f, 0.f, 0.f);
@@ -317,10 +409,20 @@ void MapTool::CameraControl(const float& _fDeltaTime)
 	if (Input::GetKey(DIK_C))
 		m_vCameraPos += vec3(0, 1, 0) * m_vCameraSpeed.y * _fDeltaTime;
 
-	//if (Input::GetMouse(MOUSEBUTTON::DIM_R))
-	//{
-	//	if(Input::GetMouseMove(MOUSEAXIS::DIM_Y))
-	//}
+	if (Input::GetMouse(MOUSEBUTTON::DIM_R))
+	{
+		long	dwMouseMove = 0;
+
+		if (dwMouseMove = Input::GetMouseMove(MOUSEAXIS::DIM_Y))
+			m_vRot.x += dwMouseMove * m_fCameraAngSpeed * _fDeltaTime;
+		if (dwMouseMove = Input::GetMouseMove(MOUSEAXIS::DIM_X))
+			m_vRot.y += dwMouseMove * m_fCameraAngSpeed * _fDeltaTime;
+
+		POINT	ptMouse{ g_nWndCX >> 1, g_nWndCY >> 1 };
+
+		ClientToScreen(g_hWnd, &ptMouse);
+		SetCursorPos(ptMouse.x, ptMouse.y);
+	}
 }
 
 void MapTool::HotKey()
@@ -337,24 +439,35 @@ void MapTool::HotKey()
 
 
 
-void MapTool::PivotControl()
+void MapTool::PivotControl(const float& fDeltaTime)
 {
-	vec3 vPivotPos; // =  get Position
+	vec3 vPivotPos   = m_pPivot.lock()->Get_Trans().lock()->GetPosition();  
+	D3DXVECTOR3 vLook(0.f, 0.f, 0.f);
+	memcpy_s(&vLook, sizeof(D3DXVECTOR3), m_matCameraWorld.m[2], sizeof(D3DXVECTOR3));
+	D3DXVECTOR3 vRight(0.f, 0.f, 0.f);
+	memcpy_s(&vRight, sizeof(D3DXVECTOR3), m_matCameraWorld.m[0], sizeof(D3DXVECTOR3));
+	D3DXVec3Normalize(&vLook, &vLook);
+	D3DXVec3Normalize(&vRight, &vRight);
+	vLook *= fDeltaTime;
+	vRight *= fDeltaTime;
 
-	if (Input::GetKeyDown(VK_LEFT)) // x Axis minus
-		vPivotPos.x += -m_fPivotMoveSpeed;
-	else if (Input::GetKeyDown(VK_RIGHT)) // x Axis plus 
-		vPivotPos.x += m_fPivotMoveSpeed;
-	else if (Input::GetKeyDown(VK_UP))  // z Axis plus
-		vPivotPos.x += m_fPivotMoveSpeed;
-	else if (Input::GetKeyDown(VK_DOWN)) // z Axis minus
-		vPivotPos.x += m_fPivotMoveSpeed;
-	else if (Input::GetKeyDown(VK_HOME))// y Axis plus
-		vPivotPos.x += m_fPivotMoveSpeed;
-	else if (Input::GetKeyDown(VK_END))	 // y Axis minus
-		vPivotPos.x += m_fPivotMoveSpeed;
-	//pivot->getTrans()->SetPos(vPos)
+	if (Input::GetKey(DIK_LEFT)) // x Axis minus
+	{
+		vPivotPos += vRight *  -m_fPivotMoveSpeed;
+		std::cout << vPivotPos.x << std::endl;
+	}
+	 if (Input::GetKey(DIK_RIGHT)) // x Axis plus 
+		vPivotPos+= vRight * m_fPivotMoveSpeed;
+	 if (Input::GetKey(DIK_UP))  // z Axis plus
+		vPivotPos += vLook * m_fPivotMoveSpeed;
+	 if (Input::GetKey(DIK_DOWN)) // z Axis minus
+		vPivotPos += vLook *  -m_fPivotMoveSpeed;
+	 if (Input::GetKey(DIK_HOME))// y Axis plus
+		vPivotPos += Vector3(0,1,0) * m_fPivotMoveSpeed * fDeltaTime;
+	 if (Input::GetKey(DIK_END))	 // y Axis minus
+		vPivotPos+= Vector3(0, -1, 0) * m_fPivotMoveSpeed  * fDeltaTime;
 
+	m_pPivot.lock()->Get_Trans().lock()->SetPosition(vPivotPos);
 }
 
 
@@ -369,5 +482,26 @@ void MapTool::MouseInPut()
 	{
 
 	}
+}
 
+bool MapTool::ObjKeyFinder(const _TCHAR* pTag)
+{
+
+	bool bFindID = false;
+	int  iTableID = -1;
+	for (auto pair : m_mapFBXNameTable)
+	{
+		if (!lstrcmpW(m_strSelectName.c_str(), pair.second.sFileName.c_str()))
+		{
+			bFindID = true;
+			break;
+		}
+	}
+	if (bFindID == false)
+	{
+		PRINT_LOG(L"File Name Not exist NameTable", __FUNCTIONW__);
+		return;
+	}
+
+	return false;
 }

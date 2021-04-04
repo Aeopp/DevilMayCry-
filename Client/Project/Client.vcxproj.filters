@@ -34,6 +34,12 @@
     <Filter Include="02.GameObject\99.MapToolObj">
       <UniqueIdentifier>{a8a6d637-26d9-41f3-a8b7-5564bc404c83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\99.MapToolObj\Pivot">
+      <UniqueIdentifier>{40c6f37c-bfe0-48c1-a827-051b1b1a45fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\99.MapToolObj\Props">
+      <UniqueIdentifier>{97839231-662b-4f22-a9e5-b18da66c610d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -61,11 +67,14 @@
       <Filter>02.GameObject</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\ShaderTester.h" />
-    <ClInclude Include="..\Header\MapToolObj.h">
-      <Filter>02.GameObject\99.MapToolObj</Filter>
-    </ClInclude>
     <ClInclude Include="..\Header\MapTool.h">
       <Filter>03.Scene\98.MapTool</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MapToolObj.h">
+      <Filter>02.GameObject\99.MapToolObj\Pivot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MapToolProps.h">
+      <Filter>02.GameObject\99.MapToolObj\Props</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -101,11 +110,14 @@
     <ClCompile Include="..\Source\TestScene.cpp">
       <Filter>03.Scene\99.TestScene</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\MapToolObj.cpp">
-      <Filter>02.GameObject\99.MapToolObj</Filter>
-    </ClCompile>
     <ClCompile Include="MapTool_System.cpp">
       <Filter>03.Scene\98.MapTool</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapToolObj.cpp">
+      <Filter>02.GameObject\99.MapToolObj\Pivot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapToolProps.cpp">
+      <Filter>02.GameObject\99.MapToolObj\Props</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

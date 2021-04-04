@@ -1,3 +1,74 @@
 {
-    "NameTable": []
+    "NameTable": [
+        {
+            "ID": 0,
+            "FileLocation": "../../Resource/Map/Props//Stage1/MakaiWall_00_00S",
+            "FileName": "MakaiWall_00_00S.fbx"
+        },
+        {
+            "ID": 1,
+            "FileLocation": "../../Resource/Map/Props//Stage1/MakaiWall_00_01S",
+            "FileName": "imgui.ini"
+        },
+        {
+            "ID": 2,
+            "FileLocation": "../../Resource/Map/Props//Stage1/MakaiWall_00_01S",
+            "FileName": "MakaiWall_00_01S.fbx"
+        },
+        {
+            "ID": 3,
+            "FileLocation": "../../Resource/Map/Props//Stage1/MakaiWall_00_02S",
+            "FileName": "MakaiWall_00_02S.fbx"
+        },
+        {
+            "ID": 4,
+            "FileLocation": "../../Resource/Map/Props//Stage2/Pylon_00_00S",
+            "FileName": "Pylon_00_00S.fbx"
+        },
+        {
+            "ID": 5,
+            "FileLocation": "../../Resource/Map/Props//Stage2/SandFence_00_00S",
+            "FileName": "SandFence_00_00S.fbx"
+        },
+        {
+            "ID": 6,
+            "FileLocation": "../../Resource/Map/Props//Stage2/SandFence_00_01S",
+            "FileName": "SandFence_00_01S.fbx"
+        },
+        {
+            "ID": 7,
+            "FileLocation": "../../Resource/Map/Props//Stage2/SandFence_00_02S",
+            "FileName": "SandFence_00_02S.fbx"
+        },
+        {
+            "ID": 8,
+            "FileLocation": "../../Resource/Map/Props//Stage2/ScrapWood_00_00S",
+            "FileName": "ScrapWood_00_00S.fbx"
+        },
+        {
+            "ID": 9,
+            "FileLocation": "../../Resource/Map/Props//Stage2/Stairs_00_00S",
+            "FileName": "Stairs_00_00S.fbx"
+        },
+        {
+            "ID": 10,
+            "FileLocation": "../../Resource/Map/Props//Stage3/OliCan_00_00S",
+            "FileName": "OliCan_00_00S.fbx"
+        },
+        {
+            "ID": 11,
+            "FileLocation": "../../Resource/Map/Props//Stage3/OliCan_01_00S",
+            "FileName": "OliCan_01_00S.fbx"
+        },
+        {
+            "ID": 12,
+            "FileLocation": "../../Resource/Map/Props//Stage3/OliCan_02_00S",
+            "FileName": "OliCan_02_00S.fbx"
+        },
+        {
+            "ID": 13,
+            "FileLocation": "../../Resource/Map/Props//Stage3/OliCan_03_00S",
+            "FileName": "OliCan_03_00S.fbx"
+        }
+    ]
 }

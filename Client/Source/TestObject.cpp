@@ -4,7 +4,6 @@
 #include "Subset.h"
 #include "TextureType.h"
 //#include "Renderer.h"
-USING(ENGINE)
 void TestObject::Free()
 {
 };
@@ -99,31 +98,6 @@ HRESULT TestObject::Start()
 
 UINT TestObject::Update(const float _fDeltaTime)
 {
-	if  ( auto Sptransform = GetComponent<ENGINE::Transform>().lock();
-		   Sptransform)
-	{ 
-		{
-			Vector3 SliderPosition = Sptransform->GetPosition();
-			ImGui::DragFloat3("Position", (float*)&SliderPosition.x, 0.01f);
-			Sptransform->SetPosition(SliderPosition);
-		}
-
-		{
-			Vector3 Rot = Sptransform->GetRotation();
-			ImGui::DragFloat3("Rot", (float*)&Rot.x, 0.01f);
-			Sptransform->SetRotation(Rot);
-		}
-
-		{
-			float AllScale = Sptransform->GetScale().x;
-			ImGui::DragFloat("All Scale", &AllScale, 0.001f,1.f);
-			Sptransform->SetScale({AllScale,AllScale,AllScale });
-		}
-	}
-
-
-
-
 	return 0;
 }
 

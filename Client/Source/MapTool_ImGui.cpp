@@ -1,18 +1,13 @@
 #include "stdafx.h"
 #include "MapTool.h"
-
+#include "MapToolProps.h"
 #include <fstream>
 #include <ostream>
 #include <iostream>
 
-
 /*
 ImGui cpp
 */
-
-
-
-
 
 bool MapTool::CheckWindow(const char* Text)
 {
@@ -34,23 +29,25 @@ void MapTool::ShowMapTool()
 	{
 		//balse
 		BaseMapCreateGroup();
-		if (ImGui::CollapsingHeader("Props Tree"))
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.6f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.7f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.8f, 0.8f));
+		if (ImGui::Button("Props Select",ImVec2(400,20)))
 		{
-			ImGui::Text("Test");
-			ImGui::Text("Test");
-			ImGui::Text("Test");
-			ImGui::Text("Test");
-			ImGui::Text("Test");
+			SelectFile();
+	
 		}
-		if (ImGui::CollapsingHeader("InterationObject Tree"))
+		ImGui::PopStyleColor(3);
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.6f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.7f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.8f, 0.8f));
+		if(ImGui::Button("InterationObject Select", ImVec2(400, 20)))
 		{
-			ImGui::Text("Test");
-			ImGui::Text("Test");
-			ImGui::Text("Test");
-			ImGui::Text("Test");
-			ImGui::Text("Test");
-			ImGui::Text("Test");
+	
 		}
+		ImGui::PopStyleColor(3);
+
+
 		//PeekingOption
 		PeekingOptionGroup();
 		TransFormCtrlGroup();
@@ -61,16 +58,19 @@ void MapTool::ShowMapTool()
 	ImGui::End();
 }
 
-void MapTool::ShowPivotControl()
+void MapTool::ShowPivotOption()
 {
-
+	if (m_pPivot.expired())
+	{
+		ImGui::End();
+		return;
+	}
 	ImGui::Begin("Hellow Pivot"); ImGui::SameLine();
 	ImGui::SetWindowPos(ImVec2(g_nWndCX- 350.f, g_nWndCY - 200.f));
 	ImGui::SetWindowSize(ImVec2(350, 200));
 
 	m_bHoveredMaptool[(int)eWindowID::Pivot] = ImGui::IsWindowHovered();
 
-	
 	ImGui::Text("Drag Sensitivity"); ImGui::SameLine(); 
 	HelpMarker("Edit value Drag Power");
 	static float fSensitivety = 0.1f;
@@ -87,21 +87,40 @@ void MapTool::ShowPivotControl()
 		"Drag to edit value.\n"
 		"Hold SHIFT/ALT for faster/slower edit.\n"
 		"Double-click or CTRL+click to input value.");
-	static vec3 TestPos = vZero;  // pivot pos Get 
-	ImGui::DragFloat3("", (float*)&TestPos.x,fSensitivety);
 
-
+	 vec3 vPivotPos = m_pPivot.lock()->Get_Trans().lock()->GetPosition();  // pivot pos Get 
+	 if (ImGui::DragFloat3("", (float*)&vPivotPos.x, fSensitivety))
+		 std::cout << vPivotPos.x << std::endl;
+	m_pPivot.lock()->Get_Trans().lock()->SetPosition(vPivotPos);
 
 	ImGui::End();
 }
 
+void MapTool::ShowCameraOption()
+{
+	ImGui::Begin("Hellow Camera"); 
+	ImGui::SetWindowPos(ImVec2(g_nWndCX - 350.f, g_nWndCY -300.f));
+	ImGui::SetWindowSize(ImVec2(350.f, 100.f));
+	m_bHoveredMaptool[(int)eWindowID::Camera] = ImGui::IsWindowHovered();
 
+	ImGui::DragFloat2("MoveSpeed", m_vCameraSpeed, 1.f, 0.f, 200.f); ImGui::SameLine();
+	HelpMarker("Move Key WSAD , 1 parameter x,z Axis Speed  2 y Axis Speed");
+
+	ImGui::DragFloat("AngleSpeed", &m_fCameraAngSpeed, 1.f, 0.f, 200.f); ImGui::SameLine();
+	HelpMarker("Press Mouse RBnt + Mouse Move  -> Angle Control" );
+
+	if (ImGui::DragFloat("FOV", &m_fFOV, 0.1f, 10.f, 120.f))
+		UpdateProj();
+	
+
+	ImGui::End();
+}
 
 void MapTool::NameTableGroup()
 {
 	ImGui::Text("NameTable"); ImGui::SameLine();
-	HelpMarker("Must be Ready Name Table"); ImGui::SameLine();
-	ImGui::Text("NameTable Ready :"); ImGui::SameLine();
+	HelpMarker("Must be Exist NameTable"); ImGui::SameLine();
+	ImGui::Text("NameTable Exist :"); ImGui::SameLine();
 
 	ImVec4 fTextColor = m_bReadyNameTable ? ImVec4(0.0f, 0.0f, 1.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 	ImGui::TextColored(fTextColor, m_bReadyNameTable ? "TRUE " : "FALSE");
@@ -140,8 +159,8 @@ void MapTool::NameTableGroup()
 
 		ImGui::EndPopup();
 	}
-	ImGui::SameLine();
 
+	ImGui::SameLine();
 	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7 / 7.0f, 0.6f, 0.6f));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(7 / 7.0f, 0.7f, 0.7f));
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(7 / 7.0f, 0.8f, 0.8f));
@@ -153,43 +172,55 @@ void MapTool::NameTableGroup()
 	ImGui::PopStyleColor(3);
 }
 
+
+
 void MapTool::BaseMapCreateGroup()
 {
 	if(ImGui::CollapsingHeader("==============BaseMapCreate=============", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		ImGui::Text("BaseMap"); ImGui::SameLine();
-		HelpMarker("Write FBX Path but Only one file can be loaded");
-		static char szBaseMapPath[MAX_PATH] = "";
-		ImGui::InputText("`", szBaseMapPath, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); ImGui::SameLine();
-		//ImGui::PushID(0);
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0 / 7.0f, 0.7f, 0.7f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
-		if (ImGui::Button("Ins"))
+		ImGui::Text("Need BaseMap"); ImGui::SameLine();
+		HelpMarker("Write FBX Path but Only one file can be loaded"); ImGui::SameLine();
+		if (m_pBaseMap.expired())
 		{
-			//체크전에 로드 된거 있으면 릴리즈 
+			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0 / 7.0f, 0.7f, 0.7f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
+			if (ImGui::Button("Load", ImVec2(150, 20)))
+			{
+				TCHAR   szPropsPath[MAX_PATH] = L"";
+				OPENFILENAME open;
+				memset(&open, 0, sizeof(OPENFILENAME));
+				open.lStructSize = sizeof(OPENFILENAME);
+				open.hwndOwner = g_hWnd;
+				open.lpstrFilter = L"All Files(*.*)\0*.*\0";
+				open.nMaxFile = nFileNameMaxLen;
+				open.lpstrFile = szPropsPath;
+				if (0 != GetOpenFileName(&open))
+				{
+					m_pBaseMap = AddGameObject<MapToolProps>();
+					m_pBaseMap.lock()->SetFBXPath(szPropsPath);
+				}
+			}
+			ImGui::PopStyleColor(3);
 		}
-		ImGui::PopStyleColor(3);
-		ImGui::SameLine();
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
-		if (ImGui::Button("Del"))
+		else
 		{
+			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+			if (ImGui::Button("Delete", ImVec2(150, 20)))
+			{
+				m_pBaseMap.lock()->Destroy(ConvertGameObjPtr(m_pBaseMap));
+				m_pBaseMap.reset();
+			}
+			ImGui::PopStyleColor(3);
+		}
 
-		}
-		ImGui::PopStyleColor(3);
 	}
 }
 
 void MapTool::PeekingOptionGroup()
 {
-	auto convertToString = [](const std::wstring& w) {
-		std::string Convert;
-		Convert.assign(std::begin(w), std::end(w));
-		return Convert;
-	};
-
 
 	if (ImGui::CollapsingHeader("==============PeekingOption=============", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -198,7 +229,6 @@ void MapTool::PeekingOptionGroup()
 		ImGui::RadioButton("Delete", (int*)&m_eWorkType, (int)eWorkOption::Delete); ImGui::SameLine();
 		ImGui::RadioButton("Modyfy", (int*)&m_eWorkType, (int)eWorkOption::Modify); ImGui::SameLine();
 		HelpMarker("Hot Key [R] [T] [Y] \n If you want to modify it, in the hotkey function");
-
 
 		if (m_eWorkType == eWorkOption::Create)
 		{
@@ -217,8 +247,6 @@ void MapTool::PeekingOptionGroup()
 				HelpMarker("When in creation mode, press the space bar to create an object");
 			}
 		}
-
-
 
 		ImGui::Text("PeekingType");
 		ImGui::RadioButton("Single", (int*)&m_ePeekType, (int)ePeekingType::Single);
@@ -254,14 +282,17 @@ void MapTool::PeekingOptionGroup()
 
 void MapTool::TransFormCtrlGroup()
 {
+	if (m_pCurSelectObj.expired())
+		return;
+
 	if (ImGui::CollapsingHeader("==============TransForm=============", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Text("Drag Sensitivity"); ImGui::SameLine();
 		HelpMarker("Edit value Drag Power");
 		static float fSensitivety = 0.1f;
-		static vec3 TestScale = vZero;  // obj pos Get 
-		static vec3 TestRot = vZero;  // obj pos Get 
-		static vec3 TestPos = vZero;  // obj pos Get 
+		 vec3 TestScale = m_pCurSelectObj.lock()->Get_Trans().lock()->GetScale();  // obj pos Get 
+		 vec3 TestRot = m_pCurSelectObj.lock()->Get_Trans().lock()->GetRotation(); // obj pos Get 
+		 vec3 TestPos = m_pCurSelectObj.lock()->Get_Trans().lock()->GetPosition();  // obj pos Get 
 
 		ImGui::InputFloat("", &fSensitivety, 0.1f);
 		ImGui::SameLine();
@@ -305,13 +336,14 @@ void MapTool::SaveFileGroup()
 {
 	if (ImGui::CollapsingHeader("==============SaveFile=============", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+
+
+#pragma region Loading List 
 		ImGui::TextColored(ImVec4(0.3f, 0.f, 0.f, 1.f), "Loading List"); ImGui::SameLine();
 		HelpMarker("ex) ***.json\n"
 			"Saves the list of meshes used in the current scene. \n"
-			"It is used to load the prototype when loading the scene.");
+			"It is used to load the prototype when loading the scene."); ImGui::SameLine();
 
-		static char szLoadingListName[MAX_PATH] = "";
-		ImGui::InputText("FileName", szLoadingListName, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); ImGui::SameLine();
 		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7 / 7.0f, 0.6f, 0.6f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(7 / 7.0f, 0.7f, 0.7f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(7 / 7.0f, 0.8f, 0.8f));
@@ -320,6 +352,10 @@ void MapTool::SaveFileGroup()
 			ImGui::OpenPopup("Save LoadingList");
 
 		ImGui::PopStyleColor(3);
+
+		static char szLoadingListName[MAX_PATH] = "";
+		ImGui::InputText("FileName", szLoadingListName, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); 
+
 
 		if (ImGui::BeginPopupModal("Save LoadingList", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
@@ -344,32 +380,47 @@ void MapTool::SaveFileGroup()
 			ImGui::PopStyleColor(3);
 			ImGui::EndPopup();
 		}
+#pragma endregion
 
-		///////////////////////////////////////////
+
+#pragma region PropsSave
+
 
 		ImGui::TextColored(ImVec4(0.1f, 0.f, 3.f, 1.f), "Object Info"); ImGui::SameLine();
-		HelpMarker("ex) ***.json\n" "Saves the Size, Rotation, Position and Option values");
+		HelpMarker("ex) ***.json\n" "Saves the Scale, Rotation, Position and Option values");  ImGui::SameLine();
 
 
-		static char szObjInfo [MAX_PATH] = "";
-		ImGui::InputText("FileName", szObjInfo, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); ImGui::SameLine();
 		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7 / 7.0f, 0.6f, 0.6f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(7 / 7.0f, 0.7f, 0.7f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(7 / 7.0f, 0.8f, 0.8f));
-
 		if (ImGui::Button(" Save "))
 			ImGui::OpenPopup("Save ObjInfo");
+		ImGui::SameLine();
 		ImGui::PopStyleColor(3);
 
+
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3/ 7.0f, 0.6f, 0.6f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+		if (ImGui::Button(" Load "))
+			ImGui::OpenPopup("Load ObjInfo");
+		ImGui::PopStyleColor(3);
+
+		static char szSavePropsPath[MAX_PATH] = "";
+		ImGui::InputText("FileName", szSavePropsPath, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); ImGui::SameLine();
+
+		//Popup
 		if (ImGui::BeginPopupModal("Save ObjInfo", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::Text("Do you want to Save data?\n");
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
+			
 			if (ImGui::Button("OK", ImVec2(100, 0)))
 			{
-				SaveLoadingList("../../Resource/SaveData/SaveStage/" + std::string(szObjInfo));
+				SaveProps("../../Resource/SaveData/SaveStage/" + std::string(szSavePropsPath));
+				strcpy_s(szSavePropsPath, "");
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::PopStyleColor(3);
@@ -384,6 +435,36 @@ void MapTool::SaveFileGroup()
 			ImGui::PopStyleColor(3);
 			ImGui::EndPopup();
 		}
+
+
+		if (ImGui::BeginPopupModal("Load ObjInfo", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Do you want to Load data?\n");
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
+			if (ImGui::Button("OK", ImVec2(100, 0)))
+			{
+				SaveLoadingList("../../Resource/SaveData/SaveStage/" + std::string(szSavePropsPath));
+				strcpy_s(szSavePropsPath, "");
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::PopStyleColor(3);
+
+
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, 1.f));
+			if (ImGui::Button("Cancel", ImVec2(100, 0)))
+				ImGui::CloseCurrentPopup();
+			ImGui::PopStyleColor(3);
+			ImGui::EndPopup();
+		}
+
+
+#pragma endregion
+
 	}
 }
 

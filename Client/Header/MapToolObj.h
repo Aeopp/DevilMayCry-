@@ -2,10 +2,13 @@
 #define __MAPTOOLOBJ_H__
 #include "GameObject.h"
 #include "RenderInterface.h"
-
 class MapToolObj : public ENGINE::GameObject , 
 					public ENGINE::RenderInterface
 {
+
+public:
+	bool							m_bRender = true;
+	std::weak_ptr<Transform>		Get_Trans() { return GetComponent<ENGINE::Transform>(); };
 private:
 	std::shared_ptr<ENGINE::StaticMesh> _StaticMesh{};
 private:

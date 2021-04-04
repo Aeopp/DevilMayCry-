@@ -158,6 +158,7 @@
     <ClInclude Include="..\Header\Application.h" />
     <ClInclude Include="..\Header\MapTool.h" />
     <ClInclude Include="..\Header\MapToolObj.h" />
+    <ClInclude Include="..\Header\MapToolProps.h" />
     <ClInclude Include="..\Header\ShaderTester.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="..\Source\Application.cpp" />
     <ClCompile Include="..\Source\MapTool_ImGui.cpp" />
     <ClCompile Include="..\Source\MapToolObj.cpp" />
+    <ClCompile Include="..\Source\MapToolProps.cpp" />
     <ClCompile Include="..\Source\ShaderTester.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
