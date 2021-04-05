@@ -39,6 +39,13 @@
 *.Build.CppClean.log
 *.idb
 *.iobj
+*.exe.recipe
+*.res
+*.obj.enc
+*.pch~origin_KHJ
+
+
+
 
 
 
