@@ -27,7 +27,7 @@ void TestEffect::RenderForwardAlphaBlendImplementation(
 	//_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
-		auto WeakSubset = _PlaneMesh->GetSubset(SubsetIdx);
+		auto WeakSubset = _PlaneMesh->GetSubset(static_cast<UINT>(SubsetIdx));
 
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
@@ -63,7 +63,7 @@ void TestEffect::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo
 	//_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
-		auto WeakSubset = _PlaneMesh->GetSubset(SubsetIdx);
+		auto WeakSubset = _PlaneMesh->GetSubset(static_cast<UINT>(SubsetIdx));
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
@@ -117,9 +117,9 @@ HRESULT TestEffect::Ready()
 	_ShaderInfo.GBufferShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\GBuffer.hlsl");
 
 	auto InitTransform = AddComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.01,0.01,0.01 });
+	InitTransform.lock()->SetScale({ 0.01f, 0.01f, 0.01f });
 
-	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\sphere02.fbx");
+	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
 	//PlaneMesh->EnablePrevVTF();
 
 	//ENGINE::AnimNotify _Notify{};
