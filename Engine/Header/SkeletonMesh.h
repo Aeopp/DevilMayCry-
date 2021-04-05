@@ -29,6 +29,7 @@ public:
 	virtual Resource* Clone() override;
 public:
 	HRESULT LoadMeshFromFile(const std::filesystem::path _Path)&;
+<<<<<<< HEAD
 
 	/*struct ENGINE_DLL AnimationNotify
 	{
@@ -44,6 +45,42 @@ private:
 		const std::filesystem::path _Path);
 private:
 	Bone* MakeHierarchy(Bone * BoneParent, const aiNode* const AiNode);
+=======
+public:
+	void    EnablePrevVTF()&;
+	void    DisablePrevVTF()&;
+	void    Update(const float DeltaTime)&;
+	void    VTFUpdate()&;
+	Node*   GetRootNode()&;
+	Node*	GetNode(const std::string & NodeName)&;
+	void    PlayAnimation(
+		const std::string & InitAnimName, 
+		const bool  bLoop ,
+		const AnimNotify & _Notify = {});
+	void    ContinueAnimation()&;
+	void    StopAnimation();
+	void	AnimationEnd()&;
+	// 0 ~ 1 정규화 
+	float   PlayingTime();
+	//                       정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
+	void    SetPlayingTime(float NewTime);
+	std::optional<AnimationInformation> GetAnimInfo(const std::string& AnimName) const&;
+private:
+	void	AnimationEditor()&;
+	void	NodeEditor();
+	void    AnimationUpdateImplementation()&;
+	void    AnimationSave(const std::filesystem::path & FullPath)&;
+	void    AnimationLoad(const std::filesystem::path & FullPath)&;
+private:
+	HRESULT LoadSkeletonMeshImplementation(const aiScene * AiScene,
+								const std::filesystem::path _Path);
+	Node*  MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
+		const std::unordered_map<std::string,
+		std::pair<uint32, Matrix>>&BoneTableParserInfo);
+	// Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
+	void InitTextureForVertexTextureFetch()&;
+	void AnimationNotify()&;
+>>>>>>> a8ab4edb3eac470353904547d5f18b753d795ff0
 private:
 	uint32 PrevAnimIndex = 0u;
 	uint32 AnimIdx{ 0u };
@@ -76,9 +113,18 @@ private:
 	IDirect3DTexture9* PrevBoneAnimMatrixInfo{ nullptr };
 
 	int32 VTFPitch{ 0 };
+<<<<<<< HEAD
 
 	std::filesystem::path FilePath{};
 	std::filesystem::path FilePureName{};
+=======
+	std::vector<Matrix> BoneSkinningMatries{};
+	std::vector<Matrix> PrevBoneSkinningMatries{};
+	bool bHasAnimation = false;
+	std::string RootNodeName{};
+	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
+	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
+>>>>>>> a8ab4edb3eac470353904547d5f18b753d795ff0
 };
 END
 #endif // !_SKELETONMESH_H_

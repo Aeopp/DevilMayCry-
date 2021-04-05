@@ -22,6 +22,44 @@
 *.so
 *.dylib
 
+#Build Results
+*.obj
+*.dll.recipe
+*.log
+*.tlog
+*.write.1.tlog
+*.lastbuildstate
+*.write.1u.tlog
+*.write.1.tlog
+*.link.read.1.tlog
+*.read.1.tlog
+*.command.1.tlog
+*.10452.write.1.tlog
+*.vcxproj.FileListAbsolute.txt
+*.Build.CppClean.log
+*.idb
+*.iobj
+*.exe.recipe
+*.res
+*.obj.enc
+*.pch~origin_KHJ
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Fortran module files
 *.mod
 *.smod
