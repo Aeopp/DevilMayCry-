@@ -1,6 +1,9 @@
 #ifndef __TEST_SCENE_H__
 #define __TEST_SCENE_H__
 #include "Scene.h"
+
+
+
 class TestScene : public Scene
 {
 private:
@@ -8,6 +11,8 @@ private:
 	virtual ~TestScene() = default;
 	// Scene을(를) 통해 상속됨
 	virtual void Free() override;
+
+
 public:
 	static TestScene* Create();
 public:

@@ -7,18 +7,17 @@ class TestObject : public ENGINE::GameObject ,
 				   public ENGINE::RenderInterface				
 {
 private:
-	std::shared_ptr<ENGINE::SkeletonMesh> _SkeletonMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _StaticMesh{};
 private:
 	explicit TestObject() = default;
 	virtual ~TestObject() = default;
 	// GameObject을(를) 통해 상속됨
 	virtual void Free() override;
-	virtual std::string GetName() override;
+
 public:
 	static TestObject* Create();
 public:
 	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
-	virtual void    RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderReady()                          override;
 public:
 	virtual HRESULT Ready() override;
@@ -26,7 +25,6 @@ public:
 	virtual HRESULT Start() override;
 	virtual UINT    Update(const float _fDeltaTime) override;
 	virtual UINT    LateUpdate(const float _fDeltaTime) override;
-	virtual void    Editor()override;
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
 };
