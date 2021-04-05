@@ -43,6 +43,13 @@
 *.res
 *.obj.enc
 *.pch~origin_KHJ
+Engine.dll
+Engine.exp
+Engine.lib
+Engine.pdb
+vc142.pdb
+Client.pdb
+Client.exe
 
 
 
