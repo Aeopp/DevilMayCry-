@@ -23,7 +23,6 @@ public:
 	HRESULT ReadySceneSystem();
 	HRESULT	UpdateSceneSystem(const float _fDeltaTime);
 	HRESULT LateUpdateSceneSystem(const float _fDeltaTime);
-	void    EditUpdateSceneSystem();
 public:
 	HRESULT LoadScene(Scene* const _pScene, const bool _bSceneActivation = true);
 	bool	IsLoaded();

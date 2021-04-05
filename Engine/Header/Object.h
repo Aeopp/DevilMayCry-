@@ -9,12 +9,6 @@ protected:
 	explicit Object();
 	virtual ~Object() = default;
 	virtual void Free()	PURE;
-public:
-	virtual void Editor();
-	virtual std::string GetName();
-	bool         bEdit = false;
-	const uint32 UniqueID;
-	std::string  EditName{};
 };
 END
 #endif // !__OBJECT_H__

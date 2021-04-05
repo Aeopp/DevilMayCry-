@@ -3,14 +3,12 @@
 #include "Object.h"
 #include "RenderProperty.h"
 
-
 BEGIN(ENGINE)
 class Scene;
 class Component;
 class Renderer;
 
 class ENGINE_DLL GameObject abstract : public Object
-								
 {
 	friend Scene;
 private:
@@ -25,7 +23,6 @@ private:
 	UINT		m_nLoopIdx;
 	bool		m_bRenderRegist;
 protected:
-	std::vector<Object*> m_pEditObjects{};
 	std::weak_ptr<GameObject>	m_pGameObject;
 protected:
 	explicit GameObject();
@@ -38,7 +35,6 @@ public:
 	virtual HRESULT Start()								PURE;
 	virtual UINT	Update(const float _fDeltaTime)		PURE;
 	virtual	UINT	LateUpdate(const float _fDeltaTime)	PURE;
-	virtual void    Editor()                        override;
 	virtual void	OnEnable()							PURE;
 	virtual void	OnDisable()							PURE;
 public:
@@ -56,7 +52,6 @@ public:
 	void	SetActive(const bool _bActive);
 	bool	IsStatic();
 	void	SetStatic(const bool _bStatic);
-	void    PushEditEntity(Object * _EditObject);
 private:
 	void	SetScene(Scene* const _pScene);
 	void	SetGameObject(std::weak_ptr<GameObject> _pGameObject);

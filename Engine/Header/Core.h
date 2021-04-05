@@ -8,8 +8,7 @@ class ENGINE_DLL Engine abstract
 private:
 	static std::weak_ptr<CoreSystem> m_pCoreSystem;
 public:
-	static HRESULT ReadyEngine(
-		const bool bWindowed,const bool bMultiSample);
+	static HRESULT ReadyEngine(const bool bWindowed);
 	static HRESULT UpdateEngine();
 	static HRESULT ReleaseEngine();
 };

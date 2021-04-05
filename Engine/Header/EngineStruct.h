@@ -1,9 +1,5 @@
 #ifndef __ENGINE_STRUCT_H__
 #define __ENGINE_STRUCT_H__
-#include <memory>
-#include <string>
-#include "TextureType.h"
-
 BEGIN(ENGINE)
 typedef struct tagVertexBufferDesc
 {
@@ -12,24 +8,22 @@ typedef struct tagVertexBufferDesc
 	uint32							nNumFaces;
 	uint32							nNumVertices;
 	uint32							nNumUVChannel;
-	uint32                          nNumBones;
-	uint32							nMaxBonesRefPerVtx;
-
+	
 	std::vector<uint32>				vecNumUVComponents;
 
-	bool									  bHasPosition;
-	bool									  bHasNormal;
-	bool									  bHasTangentBiNormal;
-	bool									  bHasBone;
+	bool							bHasPosition;
+	bool							bHasNormal;
+	bool							bHasTangentBiNormal;
+
 	std::shared_ptr<std::vector<D3DXVECTOR3>> LocalVertexLocation;
-	LPDIRECT3DVERTEXDECLARATION9	          pVertexDecl;
+
+	LPDIRECT3DVERTEXDECLARATION9	pVertexDecl;
 public:
 	tagVertexBufferDesc()
 	{
-		nMaxBonesRefPerVtx=nNumBones=
-			nBufferSize = nStride = nNumFaces = nNumVertices = nNumUVChannel = 0u;
+		nBufferSize = nStride = nNumFaces = nNumVertices = nNumUVChannel = 0u;
 		pVertexDecl = nullptr;
-		bHasBone = bHasPosition = bHasNormal = bHasTangentBiNormal = false;
+		bHasPosition = bHasNormal = bHasTangentBiNormal = false;
 		LocalVertexLocation = std::make_shared<std::vector<D3DXVECTOR3>>();
 	}
 	~tagVertexBufferDesc()
@@ -38,26 +32,20 @@ public:
 	}
 }VERTEXBUFFERDESC, *LPVERTEXBUFFERDESC;
 
-
 typedef struct tagMaterial
 {
 public:
 	typedef std::unordered_map<UINT, std::vector<std::shared_ptr<class Texture>>> TEXTURES;
 	TEXTURES		Textures;
-	std::string			sName;
+	TSTRING			sName;
 	D3DMATERIAL9	tMaterial;
 public:
-	void Editor()
-	{
-		ImGui::BulletText("Name : %s", (sName).c_str());
-	}
-
 	tagMaterial()
 	{
-		sName.clear();
+		sName = TEXT("");
 		ZeroMemory(&tMaterial, sizeof(D3DMATERIAL9));
 	}
-	const std::string& GetMaterialName() const
+	const TSTRING& GetMaterialName() const
 	{
 		return sName;
 	}
@@ -75,13 +63,10 @@ public:
 					return SpTexture;
 				}
 			}
+			
+			return nullptr;
 		}
-
-		Log("Search for a texture that doesn't exist");
-		return nullptr;
-
 	}
-
 }MATERIAL, *LPMATERIAL;
 
 typedef struct tagTextureDesc

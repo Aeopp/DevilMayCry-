@@ -54,7 +54,6 @@ public:
 	std::weak_ptr<Transform>	GetParent();
 	void						SetParent(std::weak_ptr<Transform> _pParent);
 
-	virtual std::string GetName()override;
 private:
 	void	UpdateTransform();
 };

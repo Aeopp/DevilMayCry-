@@ -6,35 +6,13 @@ USING(ENGINE)
 Mesh::Mesh(LPDIRECT3DDEVICE9 const _pDevice)
 	: Resource(_pDevice)
 {
-
 }
 
 Mesh::Mesh(const Mesh& _rOther)
 	: Resource(_rOther)
 	, m_vecSubset(_rOther.m_vecSubset)
-	, m_spVertexLocations(_rOther.m_spVertexLocations)
 {
 }
-void Mesh::MakeVertexLcationsFromSubset()&
-{
-	m_spVertexLocations = std::make_shared<std::vector<Vector3>>();
-
-	for (const auto& CurSubset : m_vecSubset)
-	{
-		if (CurSubset)
-		{
-			const auto& CurLocalVertexLocations = CurSubset->GetVertexBufferDesc().LocalVertexLocation;
-			if (CurLocalVertexLocations)
-			{
-				for (const Vector3 LocalVertexLocation : *CurLocalVertexLocations)
-				{
-					m_spVertexLocations->push_back(LocalVertexLocation);
-				}
-			}
-		}
-	}
-};
-
 void Mesh::Free()
 {
 	m_vecSubset.clear();
@@ -42,13 +20,13 @@ void Mesh::Free()
 	Resource::Free();
 }
 
-HRESULT Mesh::Render(ID3DXEffect* const Fx)
+HRESULT Mesh::Render()
 {
 	for (auto& pSubset : m_vecSubset)
 	{
 		if (nullptr == pSubset)
 			continue;
-		pSubset->Render(Fx);
+		pSubset->Render();
 	}
 
 	return S_OK;
@@ -65,18 +43,6 @@ std::weak_ptr<Subset> Mesh::GetSubset(const UINT _nIndex)
 		return std::weak_ptr<Subset>();
 
 	return m_vecSubset[_nIndex];
-}
-
-void Mesh::Editor()
-{
-	Resource::Editor();
-	if (bEdit)
-	{
-		for (auto& _Subset:m_vecSubset)
-		{
-			_Subset->Editor();
-		}
-	}
 }
 
 const VERTEXBUFFERDESC& Mesh::GetVertexBufferDesc(const UINT _nSubsetIdx)

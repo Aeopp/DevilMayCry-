@@ -102,25 +102,9 @@ HRESULT Scene::LateUpdate(const float _fDeltaTime)
 			continue;
 		}
 		(*m_LoopIter).lock()->LateUpdate(_fDeltaTime);
-
 		++m_LoopIter;
 	}
 	return S_OK;
-}
-
-void Scene::EditUpdate()
-{
-	for (m_LoopIter = m_Loop[ACTIVE][LOOP_UPDATE].begin(); m_LoopIter != m_Loop[ACTIVE][LOOP_UPDATE].end(); )
-	{
-		if ((*m_LoopIter).expired())
-		{
-			m_LoopIter = m_Loop[ACTIVE][LOOP_UPDATE].erase(m_LoopIter);
-			continue;
-		}
-		(*m_LoopIter).lock()->Editor();
-
-		++m_LoopIter;
-	}
 }
 
 void Scene::PushToRenderSystem()

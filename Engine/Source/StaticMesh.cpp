@@ -5,10 +5,14 @@
 USING(ENGINE)
 
 StaticMesh::StaticMesh(LPDIRECT3DDEVICE9 const _pDevice)
-	: Mesh(_pDevice){}
+	: Mesh(_pDevice)
+{
+}
 
 StaticMesh::StaticMesh(const StaticMesh& _rOther)
-	: Mesh(_rOther){}
+	: Mesh(_rOther)
+{
+}
 
 void StaticMesh::Free()
 {
@@ -31,28 +35,15 @@ Resource* StaticMesh::Clone()
 {
 	StaticMesh* pClone = new StaticMesh(*this);
 	return pClone;
-}
-void StaticMesh::Editor()
-{
-	Mesh::Editor();
-	if (bEdit)
-	{
-
-	}
-}
-std::string StaticMesh::GetName()
-{
-	return "StaticMesh";
 };
 
 HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {
 	//Assimp Importer 생성.
-	auto AiImporter = Assimp::Importer{};
-	ResourcePath = _Path;
+	Assimp::Importer AiImporter;
 	//FBX파일을 읽어서 Scene 생성.
 	const aiScene* const AiScene = AiImporter.ReadFile(
-		ResourcePath.string(),
+		_Path.string(),
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
@@ -70,11 +61,6 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		aiProcess_SplitLargeMeshes
 	);
 
-	return LoadStaticMeshImplementation(AiScene, ResourcePath);
-}
-HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
-										const std::filesystem::path _Path)
-{
 	//Subset을 보관하는 vector 메모리 공간 확보.
 	m_vecSubset.resize(AiScene->mNumMeshes);
 
@@ -82,7 +68,7 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 	for (uint32 MeshIdx = 0u; MeshIdx < AiScene->mNumMeshes; ++MeshIdx)
 	{
 		//
-		const auto* const AiMesh = AiScene->mMeshes[MeshIdx];
+		const auto *const AiMesh = AiScene->mMeshes[MeshIdx];
 		//
 		std::shared_ptr<Subset> _CurrentSubset;
 		_CurrentSubset.reset(Subset::Create(m_pDevice), Deleter<Object>());
@@ -92,7 +78,7 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB,nullptr)))
+			&tVBDesc, &pVB, &pIB)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
@@ -135,10 +121,6 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 		_CurrentSubset->Initialize(pVB, pIB, tVBDesc, tMaterial);
 		m_vecSubset[MeshIdx] = _CurrentSubset;
 	};
-
-	MakeVertexLcationsFromSubset();
-
-
 
 	return S_OK;
 }

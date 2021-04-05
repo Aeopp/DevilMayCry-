@@ -203,11 +203,6 @@ void Transform::SetParent(std::weak_ptr<Transform> _pParent)
 	m_bUpdate = true;
 }
 
-std::string Transform::GetName()
-{
-	return "Transform";
-}
-
 void Transform::UpdateTransform()
 {
 	if (nullptr == m_pParent.lock())

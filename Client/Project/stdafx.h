@@ -19,6 +19,9 @@
 #include "Engine.h"
 #include <windows.h>
 
+#pragma warning(disable : 6387)
+#pragma warning(disable : 26812)
+
 
 USING(ENGINE)
 

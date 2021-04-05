@@ -2,18 +2,31 @@
 #define _ANIMATIONBLENDINFO_H_
 #include "EngineDefine.h"
 #include "EngineTypedef.h"
+#include <vector>
+#include <unordered_map>
 #include <string>
+#include <map>
 
 BEGIN(ENGINE)
-struct  ENGINE_DLL AnimationBlendInfo
+class ENGINE_DLL AnimationBlendInfo
 {
-	std::string PrevAnimationName{ 0u };
-	 double PrevAnimationWeight = 0.0;
-	 double AnimationTime{ 0.0 };
+public:
+	uint32 PrevAnimationIdx{ 0u };
+
+	const double PrevAnimationWeight = 0.0;
+	const double AnimationTime{ 0.0 };
+
+	const std::unordered_map<std::string,
+		std::map<double, Vector3>>&ScaleTrack;
+
+	const std::unordered_map<std::string,
+		std::map<double, Quaternion>>&QuatTrack;
+
+	const std::unordered_map<std::string, std::map<double, Vector3>>& PosTrack;
 };
 END
 
-#endif // !_ANIMATIONBLENDINFO_H_
+#endif // !ANIMATIONBLENDINFO
 
 
 

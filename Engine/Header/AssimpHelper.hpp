@@ -55,17 +55,14 @@ static inline Quaternion ConvertQuat(const aiQuaternion& AiQuaternion)
 	return _Quat;
 };
 
+
 static inline HRESULT LoadMesh(
 	IN	const aiMesh* const				_pAiMesh,
 	IN	LPDIRECT3DDEVICE9 const			_pDevice,
 	OUT LPVERTEXBUFFERDESC const		_pVBDesc,
 	OUT	LPDIRECT3DVERTEXBUFFER9* const	_ppVB,
-	OUT LPDIRECT3DINDEXBUFFER9*	 const	_ppIB,
-	// 본 이름과 본 (인덱스,오프셋) 매핑 정보 ... 
-	IN  OUT std::unordered_map<std::string, 
-						std::pair<uint32,Matrix>>* _rBoneTableParsingInfoFromName)
+	OUT LPDIRECT3DINDEXBUFFER9*	const	_ppIB)
 {
-	static const  uint32 SupportMaxBoneNum = 8u;
 #pragma region SET VERTEX BUFFER DESCRIPTION
 	_pVBDesc->nNumFaces				= _pAiMesh->mNumFaces;
 	_pVBDesc->nNumVertices			= _pAiMesh->mNumVertices;
@@ -73,62 +70,13 @@ static inline HRESULT LoadMesh(
 	_pVBDesc->bHasPosition			= _pAiMesh->HasPositions();
 	_pVBDesc->bHasNormal			= _pAiMesh->HasNormals();
 	_pVBDesc->bHasTangentBiNormal	= _pAiMesh->HasTangentsAndBitangents();
-	_pVBDesc->bHasBone              = _pAiMesh->HasBones();
+
 	_pVBDesc->vecNumUVComponents.reserve(_pVBDesc->nNumUVChannel);
 #pragma endregion
-	// 키는 버텍스 인덱스   값은   본 인덱스와 가중치들
-	std::map<uint32,
-		std::vector< std::pair<uint32, float>> > BoneIdxAndWeights{};
-	if (_rBoneTableParsingInfoFromName && _pVBDesc->bHasBone)
-	{
-		_pVBDesc->nNumBones=_pAiMesh->mNumBones;
-		for (uint32 i = 0; i < _pAiMesh->mNumBones; ++i)
-		{
-			const auto* const CurBone=_pAiMesh->mBones[i];
-			const std::string BoneName = CurBone->mName.C_Str();
-			
-			uint32 CurBoneIdx = 0u;
 
-			auto iter = _rBoneTableParsingInfoFromName->find(BoneName);
-			if (iter != std::end(*_rBoneTableParsingInfoFromName))
-			{
-				CurBoneIdx = iter->second.first;
-			}
-			else
-			{
-				 CurBoneIdx = _rBoneTableParsingInfoFromName->size();
-
-				_rBoneTableParsingInfoFromName->insert({ BoneName,
-					{
-						CurBoneIdx,
-						AssimpHelper::ConvertMatrix(CurBone->mOffsetMatrix)
-					}});
-			}
-
-			for (uint32 j = 0u; j < CurBone->mNumWeights; ++j)
-			{
-				const auto WeightInfo = CurBone->mWeights[j];
-				auto& CurVtxIdBoneIdxAndWeights = BoneIdxAndWeights[WeightInfo.mVertexId];
-				CurVtxIdBoneIdxAndWeights.push_back
-				(
-					{ CurBoneIdx ,WeightInfo.mWeight }
-				);
-				if (CurVtxIdBoneIdxAndWeights.size() > _pVBDesc->nMaxBonesRefPerVtx)
-				{
-					_pVBDesc->nMaxBonesRefPerVtx = CurVtxIdBoneIdxAndWeights.size();
-				}
-			}
-		}
-	}
 #pragma region SET VERTEXELEMENT & CREATE VERTEXDECLARATION
 	std::vector<D3DVERTEXELEMENT9> vecElements;
-	const bool MaxBonesRefPerVtx4Over = _pVBDesc->nMaxBonesRefPerVtx > 4u;
-	if (_pVBDesc->nMaxBonesRefPerVtx > 8u)
-	{
-		PRINT_LOG(L"Warning!!",
-			L"When the number of bones referenced per vertex exceeds 8, there is a chance that skinning will behave unexpectedly.");
-	}
-	
+
 	if (_pVBDesc->bHasPosition)
 	{
 		vecElements.push_back
@@ -232,73 +180,6 @@ static inline HRESULT LoadMesh(
 		);
 		_pVBDesc->nStride += (sizeof(float) * _pVBDesc->vecNumUVComponents[i]);
 	}
-	
-	if (_pVBDesc->bHasBone && _rBoneTableParsingInfoFromName)
-	{
-		vecElements.push_back
-		(
-			D3DVERTEXELEMENT9
-			{
-				0,
-				(WORD)_pVBDesc->nStride,
-				D3DDECLTYPE_FLOAT4,
-				D3DDECLMETHOD_DEFAULT,
-				D3DDECLUSAGE_BLENDINDICES,
-				0 
-			}
-		);
-
-		_pVBDesc->nStride += (sizeof(float) * 4u);
-
-		if (MaxBonesRefPerVtx4Over)
-		{
-			vecElements.push_back
-			(
-				D3DVERTEXELEMENT9
-				{
-					0,
-					(WORD)_pVBDesc->nStride,
-					D3DDECLTYPE_FLOAT4,
-					D3DDECLMETHOD_DEFAULT,
-					D3DDECLUSAGE_BLENDINDICES,
-					1
-				}
-			);
-			_pVBDesc->nStride += (sizeof(float) * 4u);
-		}
-		
-
-		vecElements.push_back
-		(
-			D3DVERTEXELEMENT9
-			{
-				0,
-				(WORD)_pVBDesc->nStride,
-				D3DDECLTYPE_FLOAT4,
-				D3DDECLMETHOD_DEFAULT,
-				D3DDECLUSAGE_BLENDWEIGHT,
-				0
-			}
-		);
-		_pVBDesc->nStride += (sizeof(float) * 4u);
-
-		if (MaxBonesRefPerVtx4Over)
-		{
-			vecElements.push_back
-			(
-				D3DVERTEXELEMENT9
-				{
-					0,
-					(WORD)_pVBDesc->nStride,
-					D3DDECLTYPE_FLOAT4,
-					D3DDECLMETHOD_DEFAULT,
-					D3DDECLUSAGE_BLENDWEIGHT,
-					1
-				}
-			);
-			_pVBDesc->nStride += (sizeof(float) * 4u);
-		}
-	}
 
 	vecElements.push_back(D3DDECL_END());
 
@@ -313,7 +194,6 @@ static inline HRESULT LoadMesh(
 
 	//_pAiMesh로 부터 메쉬를 이루는 정점 정보 로드
 	std::vector<float>	vecVertices;
-	const uint32 RefBoneMaxIdx = MaxBonesRefPerVtx4Over ? 8u : 4u;
 
 	for (UINT nVertexIdx = 0; nVertexIdx < _pVBDesc->nNumVertices; ++nVertexIdx)
 	{
@@ -351,28 +231,6 @@ static inline HRESULT LoadMesh(
 			for (uint32 i = 0; i < nCurNumUVComponents; ++i)
 				vecVertices.push_back(TexCoordPtr[i]);
 		}
-
-		if (_pVBDesc->bHasBone && _rBoneTableParsingInfoFromName)
-		{
-			auto iter = BoneIdxAndWeights.find(nVertexIdx);
-			const auto& RefBoneInfos =iter->second;
-			for (const auto& RefBoneInfo : RefBoneInfos)
-			{
-				vecVertices.push_back(RefBoneInfo.first);
-			}
-			for (uint32 i = RefBoneInfos.size(); i < RefBoneMaxIdx; ++i)
-			{
-				vecVertices.push_back(0.0f);
-			}
-			for (const auto& RefBoneInfo : RefBoneInfos)
-			{
-				vecVertices.push_back(RefBoneInfo.second);
-			}
-			for (uint32 i = RefBoneInfos.size(); i < RefBoneMaxIdx; ++i)
-			{
-				vecVertices.push_back(0.0f);
-			}
-		}
 	}
 
 	//정점 버퍼 생성
@@ -388,6 +246,8 @@ static inline HRESULT LoadMesh(
 	(*_ppVB)->Lock(0, 0, &pVertices, 0);
 	memcpy(pVertices, vecVertices.data(), (size_t)_pVBDesc->nBufferSize);
 	(*_ppVB)->Unlock();
+
+
 #pragma endregion
 
 #pragma region CREATE INDEX BUFFER
@@ -417,7 +277,6 @@ static inline HRESULT LoadMesh(
 #pragma endregion
 	return S_OK;
 }
-
 
 static inline HRESULT LoadMaterial(
 	IN const aiScene* const				_pAiScene,
@@ -452,7 +311,6 @@ static inline HRESULT LoadMaterial(
 	pAiMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, color);
 	_pMaterial->tMaterial.Emissive = D3DCOLORVALUE(color.r, color.g, color.b, color.a);
 	_pMaterial->tMaterial.Power = 1.f;
-	_pMaterial->sName = pAiMaterial->GetName().C_Str();
 
 	//재질 텍스처 로드.
 	for (const auto& aiTexType : _AiTexTypes)
@@ -492,39 +350,31 @@ static inline HRESULT LoadMaterial(
 				tTextureDesc.eTextureOperator	= eAiTextureOp;
 				tTextureDesc.fBlendFactor		= fBlendFactor;
 				tTextureDesc.nUVIdx				= nUVIdx;
-				
+
 				const std::filesystem::path FileNamePath   = sAiPath.C_Str();
 				 std::filesystem::path	CurTexFilePath = _Path / FileNamePath.filename();
-				 
-				 if (std::filesystem::exists(CurTexFilePath)
-					 && std::filesystem::is_regular_file(CurTexFilePath))
+
+				 const bool IsExistFile = std::filesystem::exists(CurTexFilePath)
+					 && std::filesystem::is_regular_file(CurTexFilePath);
+
+				 if (IsExistFile)
 				 {
+
 					 std::shared_ptr<Texture> pTexture = Resources::Load<Texture>(CurTexFilePath.wstring());
+
+					 if (!pTexture)
+					 {
+						 CurTexFilePath.replace_extension("tga");
+						 pTexture = Resources::Load<Texture>(CurTexFilePath.wstring());
+					 }
+
 
 					 if (pTexture)
 					 {
 						 pTexture->SetDesc(tTextureDesc);
-						 pTexture->ResourcePath = CurTexFilePath;
+
 						 if (nullptr != pTexture)
 							 _pMaterial->Textures[aiTexType][nTexIdx] = pTexture;
-					 }
-				 }
-				 else
-				 {
-					 CurTexFilePath.replace_extension("tga");
-
-					 if (std::filesystem::exists(CurTexFilePath)
-						 && std::filesystem::is_regular_file(CurTexFilePath))
-					 {
-						 std::shared_ptr<Texture> pTexture = Resources::Load<Texture>(CurTexFilePath.wstring());
-
-						 if (pTexture)
-						 {
-							 pTexture->SetDesc(tTextureDesc);
-							 pTexture->ResourcePath = CurTexFilePath;
-							 if (nullptr != pTexture)
-								 _pMaterial->Textures[aiTexType][nTexIdx] = pTexture;
-						 }
 					 }
 				 }
 			}

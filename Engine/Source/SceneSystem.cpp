@@ -27,6 +27,7 @@ void SceneSystem::Free()
 
 HRESULT SceneSystem::ReadySceneSystem()
 {
+
 	return S_OK;
 }
 
@@ -54,14 +55,6 @@ HRESULT SceneSystem::LateUpdateSceneSystem(const float _fDeltaTime)
 	m_pCurrentScene->LateUpdate(_fDeltaTime);
 	m_pCurrentScene->PushToRenderSystem();
 	return S_OK;
-}
-
-void SceneSystem::EditUpdateSceneSystem()
-{
-	if (nullptr == m_pCurrentScene)
-		return;
-
-	m_pCurrentScene->EditUpdate();
 }
 
 HRESULT SceneSystem::LoadScene(Scene* const _pScene, const bool _bSceneActivation)
