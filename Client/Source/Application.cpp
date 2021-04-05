@@ -14,7 +14,7 @@ HRESULT Application::ReadyApplication(const bool bWindowed,
 		return E_FAIL;
 
 	//SceneManager::LoadScene(TestScene::Create());
-	
+
 	SceneManager::LoadScene(MapTool::Create());
 
 	return S_OK;

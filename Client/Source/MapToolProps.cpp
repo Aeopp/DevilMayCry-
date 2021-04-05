@@ -4,6 +4,7 @@
 #include "Subset.h"
 #include "TextureType.h"
 #include "Renderer.h"
+#include <iostream>
 
 MapToolProps* MapToolProps::Create()
 {
@@ -17,6 +18,7 @@ void MapToolProps::Free()
 HRESULT MapToolProps::Ready()
 {
 	m_iPropsID = -1;
+	ZeroMemory(m_bOption, sizeof(bool) * (int)ePropsOption::End);
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.01,0.01,0.01 });
 
@@ -42,16 +44,22 @@ HRESULT MapToolProps::Start()
 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
 
-
 	// 경로값 확인 
 	if (m_strFilePath.empty())
 	{
 		PRINT_LOG(L"Failed! m_strFilePath.empty()", __FUNCTIONW__);
 		return E_FAIL;
 	}
+
+
 	_TCHAR test[MAX_PATH];
 	lstrcpy(test, m_strFilePath.c_str());
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(test);
+	if (!lstrcmp(test, L"../../Resource/Mesh/Map/Props/1/1.fbx"))
+	{
+		int a = 0; 
+	}
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(m_strFilePath);
+
 
 	ENGINE::AnimNotify _Notify{};
 

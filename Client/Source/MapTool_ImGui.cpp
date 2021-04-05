@@ -29,11 +29,8 @@ void MapTool::ShowMapTool()
 	{
 		//balse
 		BaseMapCreateGroup();
-
 		if (ImGui::Button("Props Select",ImVec2(400,20)))
 			SelectFile();
-
-
 		//PeekingOption
 		PeekingOptionGroup();
 		TransFormCtrlGroup();
@@ -187,6 +184,7 @@ void MapTool::PeekingOptionGroup()
 
 		if (m_eWorkType == eWorkOption::Create)
 		{
+
 			if (m_strSelectName.empty())
 			{
 				ImGui::TextColored(ImVec4(1, 0, 0, 1),  "Click the FBX Name node "); 
@@ -201,6 +199,7 @@ void MapTool::PeekingOptionGroup()
 				HelpMarker("When in creation mode,If PivotPos Mode press the space bar to create an object");
 			}
 		}
+
 
 		if (m_eCreateOption == eCreatePosition::PeekingPos)
 		{
@@ -220,12 +219,18 @@ void MapTool::PeekingOptionGroup()
 		}
 
 
-
+		/// <summary>
+		/// Peeking Type
+		/// </summary>
 		ImGui::Text("PeekingType");
 		ImGui::RadioButton("Single", (int*)&m_ePeekType, (int)ePeekingType::Single);
 
 		if (m_eWorkType != eWorkOption::Modify)
+		{
+			//Modity 아닐시 멀티파킹 아니면 그냥 계속 멀티피킹 리스트 초기화하는걸로
+			ClearMultiPeeking();
 			m_ePeekType = ePeekingType::Single;
+		}
 		else
 		{
 			ImGui::SameLine();
@@ -234,53 +239,99 @@ void MapTool::PeekingOptionGroup()
 				"Multiple objects can be modified at the same time.");
 		}
 
+		/// <summary>
+		/// 피킹 타입 설정 후 검사 및 초기화 처리 피킹된 오브젝트 간단하게 표시 
+		/// </summary>
+		/// 
 		if (m_ePeekType == ePeekingType::Single)
 		{
+			ClearMultiPeeking();//싱글타입으로 교체시
 			ImGui::Text("Peeking Object Name : "); ImGui::SameLine();
 			ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", m_strPeekingName.empty() ? "NULL" : convertToString(m_strPeekingName).c_str());
 		}
-		else
+		else //멀티 피킹시 
 		{
-			ImGui::Text("Peeking Object Cnt: "); ImGui::SameLine();
-			char szCnt[64];
-			if (m_iPeekingCnt == 0)
-				strcpy_s(szCnt, "ZERO");
-			else
-				_itoa_s(m_iPeekingCnt, szCnt, 10);
+			//현재 피킹 구현이 안되있음으로 막음 
+			PRINT_LOG(L"Waring", L"Not Ready peeking ");
+			m_ePeekType = ePeekingType::Single;
+			return;
+			/////////
 
-			ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", szCnt);
+			//멀티 피킹 카운팅 표시 
+			ImGui::Text("Peeking Object Cnt : "); 
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "%d", m_listMultiPeeking.size());
 		}
 	}
 }
 
+//트렌스폼 수정관련 기능 그룹 
 void MapTool::TransFormCtrlGroup()
 {
-	if (m_pCurSelectObj.expired())
+
+	//싱글 피킹상태일떄 피킹대상이 없는 경우 or 멀티 피킹상태시 멀티피킹 갯수가 0 
+	if (m_ePeekType == ePeekingType::Single &&  m_pCurSelectObj.expired()
+		|| m_ePeekType == ePeekingType::Multi && m_listMultiPeeking.empty())
 		return;
 
 	if (ImGui::CollapsingHeader("==============TransForm=============", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Text("Drag Sensitivity"); ImGui::SameLine();
 		HelpMarker("Edit value Drag Power");
-		static float fSensitivety = 0.1f;
-		 vec3 TestScale = m_pCurSelectObj.lock()->Get_Trans().lock()->GetScale();  // obj pos Get 
-		 vec3 TestRot = m_pCurSelectObj.lock()->Get_Trans().lock()->GetRotation(); // obj pos Get 
-		 vec3 TestPos = m_pCurSelectObj.lock()->Get_Trans().lock()->GetPosition();  // obj pos Get 
+		static float fSensitivety = 0.001f;
 
-		ImGui::InputFloat("", &fSensitivety, 0.1f);
-		ImGui::SameLine();
-		HelpMarker("Drag to edit value. Range 0~100 \n"
-			"Hold SHIFT/ALT for faster/slower edit.\n"
-			"Double-click or CTRL+click to input value.");
-		fSensitivety = CLAMP(fSensitivety, 0, 100);
-		ImGui::Text("Sacle    ");
-		ImGui::SameLine();
-		ImGui::DragFloat3("        ",(float*)&TestScale.x, fSensitivety);
-		ImGui::Text("Rotate");
-		ImGui::SameLine();
-		ImGui::DragFloat3("     ",(float*)&TestRot.x, fSensitivety);
-		ImGui::Text("Positon"); ImGui::SameLine();
-		ImGui::DragFloat3("   ",(float*)&TestPos.x, fSensitivety);
+		if (m_ePeekType == ePeekingType::Single)
+		{
+			float fScale = m_pCurSelectObj.lock()->Get_Trans().lock()->GetScale().x;  // obj pos Get 
+			vec3 vRot = m_pCurSelectObj.lock()->Get_Trans().lock()->GetRotation(); // obj pos Get 
+			vec3 vPos = m_pCurSelectObj.lock()->Get_Trans().lock()->GetPosition();  // obj pos Get 
+
+			ImGui::InputFloat("", &fSensitivety, 0.001f); ImGui::SameLine();
+			HelpMarker("Drag to edit value. Range 0~100 \n"
+				"Hold SHIFT/ALT for faster/slower edit.\n"
+				"Double-click or CTRL+click to input value.");
+
+			fSensitivety = CLAMP(fSensitivety, 0, 100);
+
+			ImGui::Text("Sacle    ");
+			ImGui::SameLine();
+			ImGui::DragFloat("        ", &fScale, fSensitivety);
+			ImGui::Text("Rotate");
+			ImGui::SameLine();
+			ImGui::DragFloat3("     ", (float*)&vRot.x, fSensitivety);
+			ImGui::Text("Positon"); ImGui::SameLine();
+			ImGui::DragFloat3("   ", (float*)&vPos.x, fSensitivety);
+
+			m_pCurSelectObj.lock()->Get_Trans().lock()->SetScale(Vector3(fScale, fScale, fScale));
+			m_pCurSelectObj.lock()->Get_Trans().lock()->SetRotation(vRot);
+			m_pCurSelectObj.lock()->Get_Trans().lock()->SetPosition(vPos);
+		}
+		else
+		{
+			//멀티 피킹 일떄는 
+			//드래그  누적갑으로 
+			float fScale = 0.f;
+			vec3 vRot = vZero;// = vector(0,0,0)
+			vec3 vPos = vZero;
+			ImGui::InputFloat("", &fSensitivety, 0.001f); 
+
+			ImGui::Text("Sacle    ");
+			ImGui::SameLine();
+			ImGui::DragFloat("        ", &fScale, fSensitivety);
+			ImGui::Text("Rotate");
+			ImGui::SameLine();
+			ImGui::DragFloat3("     ", (float*)&vRot.x, fSensitivety);
+			ImGui::Text("Positon"); ImGui::SameLine();
+			ImGui::DragFloat3("   ", (float*)&vPos.x, fSensitivety);
+
+			//0 상태에서 인풋값들 누적하는걸로 
+
+			//for (auto& pObj : m_listMultiPeeking)
+			//{
+			//	//Trnasform add 함수 필요 
+			//	pObj.lock()->Get_Trans().lock()->se
+
+			//}
+		}
 	}
 }
 
@@ -291,15 +342,15 @@ void MapTool::PropsOptionGroup()
 		if (ImGui::CollapsingHeader("==============PropsOption=============", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Option");
-			if (ImGui::Checkbox("Decoration", &m_bPropsOption[(int)ePropsOption::Decoration]))
+			if (ImGui::Checkbox("Decoration", &m_bPropsOption[(int)MapToolProps::ePropsOption::Decoration]))
 				ApplyPropsOption();
 			ImGui::SameLine();
 
-			if (ImGui::Checkbox("Floating", &m_bPropsOption[(int)ePropsOption::Floating]))
+			if (ImGui::Checkbox("Floating", &m_bPropsOption[(int)MapToolProps::ePropsOption::Floating]))
 				ApplyPropsOption();
 			ImGui::SameLine();
 
-			if (ImGui::Checkbox("Fixed", &m_bPropsOption[(int)ePropsOption::Fixed]))
+			if (ImGui::Checkbox("Fixed", &m_bPropsOption[(int)MapToolProps::ePropsOption::Fixed]))
 				ApplyPropsOption();
 		}
 	}
@@ -317,25 +368,17 @@ void MapTool::SaveFileGroup()
 			"Saves the list of meshes used in the current scene. \n"
 			"It is used to load the prototype when loading the scene."); ImGui::SameLine();
 
-
 		if (ImGui::Button("Save"))
 			ImGui::OpenPopup("Save LoadingList");
-
-
-		static char szLoadingListName[MAX_PATH] = "";
-		ImGui::InputText("FileName", szLoadingListName, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); 
-
 
 		if (ImGui::BeginPopupModal("Save LoadingList", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::Text("Do you want to Save data?\n");
 			if (ImGui::Button("OK", ImVec2(100, 0)))
 			{
-				SaveLoadingList("../../Resource/SaveData/SaveStage/" + std::string(szLoadingListName));
+				SaveLoadingList();
 				ImGui::CloseCurrentPopup();
 			}
-
-
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel", ImVec2(100, 0)))
 				ImGui::CloseCurrentPopup();
@@ -345,8 +388,6 @@ void MapTool::SaveFileGroup()
 
 
 #pragma region PropsSave
-
-
 		ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, 1.f), "Object Info"); ImGui::SameLine();
 		HelpMarker("ex) ***.json\n" "Saves the Scale, Rotation, Position and Option values");  ImGui::SameLine();
 
@@ -360,8 +401,6 @@ void MapTool::SaveFileGroup()
 			ImGui::OpenPopup("Load ObjInfo");
 
 		static char szSavePropsPath[MAX_PATH] = "";
-		ImGui::InputText("FileName", szSavePropsPath, MAX_PATH, ImGuiInputTextFlags_NoUndoRedo); ImGui::SameLine();
-
 		//Popup
 		if (ImGui::BeginPopupModal("Save ObjInfo", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{

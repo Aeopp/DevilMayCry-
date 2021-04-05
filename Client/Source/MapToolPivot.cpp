@@ -33,8 +33,7 @@ HRESULT MapToolPivot::Ready()
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.01,0.01,0.01 });
 
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Map\\Props\\Stage1\\CeilingRoot_00_00S\\CeilingRoot_00_00S.fbx");
-	//_SkeletonMesh->EnablePrevVTF();
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"../../Resource/Mesh/Maptool/Pivot2.FBX");
 
 	ENGINE::AnimNotify _Notify{};
 
@@ -46,8 +45,6 @@ HRESULT MapToolPivot::Ready()
 	PushEditEntity(InitTransform.lock().get());
 	PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
 	PushEditEntity(_ShaderInfo.GBufferShader.get());
-	
-	
 	/////
     return S_OK;
 }
@@ -84,7 +81,6 @@ void MapToolPivot::OnDisable()
 void MapToolPivot::RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-	//_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
@@ -103,7 +99,6 @@ void MapToolPivot::RenderForwardAlphaBlendImplementation(const ImplementationInf
 void MapToolPivot::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-	//_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);

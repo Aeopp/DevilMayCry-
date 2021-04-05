@@ -23,7 +23,7 @@ public:
 	virtual void	  Editor()override;
 	virtual std::string GetName() override;
 public:
-	HRESULT LoadMeshFromFile(const std::filesystem::path _Path)&;
+	HRESULT LoadMeshFromFile(const std::filesystem::path _Path);
 protected:
 	HRESULT LoadStaticMeshImplementation(const aiScene* AiScene ,
 									const std::filesystem::path _Path);

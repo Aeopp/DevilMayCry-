@@ -21,7 +21,7 @@ MapTool::MapTool()
 	, m_fPivotMoveSpeed(0.1f)
 	, m_bReadyNameTable(false)
 {
-	ZeroMemory(m_bPropsOption, sizeof(bool) * (int)ePropsOption::End);
+	ZeroMemory(m_bPropsOption, sizeof(bool) * (int)MapToolProps::ePropsOption::End);
 	ZeroMemory(m_bHoveredMaptool, sizeof(bool) * (int)eWindowID::End);
 }
 
@@ -63,6 +63,8 @@ void MapTool::SelectFile()
 	TCHAR   szPropsPath[MAX_PATH] = L"";
 	TCHAR   szPropsName[MAX_PATH] = L"";
 
+	std::filesystem::path rootPath = std::filesystem::absolute("./");
+
 	OPENFILENAME open;
 	memset(&open, 0, sizeof(OPENFILENAME));
 	open.lStructSize = sizeof(OPENFILENAME);
@@ -94,6 +96,19 @@ void MapTool::SelectFile()
 			PRINT_LOG(L"File Name Not exist NameTable", __FUNCTIONW__);
 			return;
 		}
+	}
+
+	SetCurrentDirectory(rootPath.wstring().c_str());
+}
+
+void MapTool::ClearMultiPeeking()
+{
+	if (!m_listMultiPeeking.empty())
+	{
+		for (auto& pObj : m_listMultiPeeking)
+			pObj.lock()->m_bMultiPeekPeeking = false;
+
+		m_listMultiPeeking.clear();
 	}
 }
 
@@ -166,7 +181,7 @@ HRESULT MapTool::LateUpdate(const float _fDeltaTime)
 
 bool MapTool::NewFBXNameTable(const _TCHAR* pPath)
 {
-	if (FAILED(CreateMeshNameTable(TEXT(PROPSPATH))))
+	if (FAILED(CreateMeshNameTable(PROPSPATH)))
 	{
 		PRINT_LOG(L"Failed!", __FUNCTIONW__);
 		return false;
@@ -234,14 +249,128 @@ bool MapTool::LoadFBXnametable(const _TCHAR* pPath)
 	return true;
 }
 
-void MapTool::SaveLoadingList(const std::string& pPath)
+void MapTool::SaveLoadingList()
 {
 
+	//Get Path
+	TCHAR   szPropsPath[MAX_PATH] = L"";
+	TCHAR   szPropsName[MAX_PATH] = L"";
+	std::filesystem::path rootPath = std::filesystem::absolute("./");
+	OPENFILENAME open;
+	memset(&open, 0, sizeof(OPENFILENAME));
+	open.lStructSize = sizeof(OPENFILENAME);
+	open.hwndOwner = g_hWnd;
+	open.lpstrFilter = L"Json Files(*.json)\0*.json\0";
+	open.nMaxFile = nFileNameMaxLen;
+	open.nMaxFileTitle = nFileNameMaxLen;
+	open.lpstrFile = szPropsPath;
+	open.lpstrFileTitle = szPropsName;
+	if (0 != GetSaveFileName(&open)) {}; //저장경로 
+	SetCurrentDirectory(rootPath.wstring().c_str());
+
+	m_mapObjDatas;
+	//Save json
+	using namespace rapidjson;
+	std::filesystem::path TargetPath = std::filesystem::relative(szPropsPath);;
+	TargetPath += L".json";
+
+	StringBuffer StrBuf;
+	PrettyWriter<StringBuffer> js(StrBuf);
+	UINT iID = 0;
+	js.StartObject();
+	js.Key("LoadingList");
+	js.StartArray();
+	{
+		for (auto& pair : m_mapObjDatas)
+		{
+			js.StartObject();
+			{
+				js.Key("ID");
+				js.Uint(pair.first);
+			}
+			js.EndObject();
+		}
+	}
+	js.EndArray();
+	js.EndObject();
+	std::ofstream Of{ TargetPath };
+	Of << StrBuf.GetString();
 }
 void MapTool::SaveProps(const std::string& pPath)
 {
-}
+	//Get Path
+	TCHAR   szPropsPath[MAX_PATH] = L"";
+	TCHAR   szPropsName[MAX_PATH] = L"";
+	std::filesystem::path rootPath = std::filesystem::absolute("./");
+	OPENFILENAME open;
+	memset(&open, 0, sizeof(OPENFILENAME));
+	open.lStructSize = sizeof(OPENFILENAME);
+	open.hwndOwner = g_hWnd;
+	open.lpstrFilter = L"Json Files(*.json)\0*.json\0";
+	open.nMaxFile = nFileNameMaxLen;
+	open.nMaxFileTitle = nFileNameMaxLen;
+	open.lpstrFile = szPropsPath;
+	open.lpstrFileTitle = szPropsName;
+	if (0 != GetSaveFileName(&open)) {}; //저장경로 
+	SetCurrentDirectory(rootPath.wstring().c_str());
 
+	m_mapObjDatas;
+	//Save json
+	using namespace rapidjson;
+	std::filesystem::path TargetPath = std::filesystem::relative(szPropsPath);;
+	TargetPath += L".json";
+	StringBuffer StrBuf;
+	PrettyWriter<StringBuffer> js(StrBuf);
+	UINT iID = 0;
+	js.StartObject();
+	{
+		js.Key("LoadingList");
+		js.StartArray();
+		{
+			for (auto& pair : m_mapObjDatas) // pair second is list 
+			{
+				js.Key("ID");
+				js.Uint(pair.first); // 정수형을 키값으로 파일 이름대신에 사용 테이블 탐색을 문자열보단 빠를 거같음 
+				js.StartObject();
+				{
+					js.StartArray();
+					{
+						for (auto& pObj : pair.second) // list의 원소 Props 객체 
+						{
+							js.Key("Scale"); 
+							js.Double(pObj.lock()->Get_Trans().lock()->GetScale().x);
+
+							js.Key("Rotate");
+							js.StartArray();
+							{
+								js.Double(pObj.lock()->Get_Trans().lock()->GetRotation().x);
+								js.Double(pObj.lock()->Get_Trans().lock()->GetRotation().y);
+								js.Double(pObj.lock()->Get_Trans().lock()->GetRotation().z);
+							}
+							js.EndArray();
+							js.Key("Position");
+							js.StartArray();
+							{
+								js.Double(pObj.lock()->Get_Trans().lock()->GetPosition().x);
+								js.Double(pObj.lock()->Get_Trans().lock()->GetPosition().y);
+								js.Double(pObj.lock()->Get_Trans().lock()->GetPosition().z);
+							}
+							js.EndArray(); // end of positon
+							// 기본적인 월드 정보 끝 
+							js.Key("option");
+							js.StartArray();
+							for (int i = 0; i < (int)MapToolProps::ePropsOption::End; ++i)
+								js.Bool(pObj.lock()->m_bOption[i]);
+							js.EndArray();
+						}
+					}js.EndArray(); // end of id ojbect
+				}js.EndObject();
+			}
+		}js.EndArray();
+	}js.EndObject();
+	std::ofstream Of{ TargetPath };
+	Of << StrBuf.GetString();
+}
 
 HRESULT MapTool::LoadBaseMap(std::wstring strFilePath)
 {
@@ -257,20 +386,20 @@ void MapTool::AddProps()
 		PRINT_LOG(L"Create Lock", L"Check Setting");
 		return;
 	}
-
 	//추가 후 테이블에서 경로 값 넣어서 fbx 로드하게 해주고 아이디 넣어주고 
 	if (m_eCreateOption == eCreatePosition::PeekingPos)
 	{
 		//피킹 지점 추가 후 삭제
 		//m_pCurSelectObj = AddGameObject<MapToolProps>();
 		//m_pCurSelectObj.lock()->SetFBXPath(m_mapFBXNameTable[m_iTableID].sFileLocation);
-		//m_pCurSelectObj.lock()->m_iPropsID = m_iTableID;
+		//m_pCurSelectObj.lock()->m_iPropsID = m_iTableID;	
 	}
 	else if(m_eCreateOption == eCreatePosition::PivotPos)
 	{
 		//생성위치를 피봇으로 
 		m_pCurSelectObj = AddGameObject<MapToolProps>();
-		m_pCurSelectObj.lock()->SetFBXPath(m_mapFBXNameTable[m_iTableID].sFileLocation);
+		m_strPeekingName = m_mapFBXNameTable[m_iTableID].sFileLocation;
+		m_pCurSelectObj.lock()->SetFBXPath(m_strPeekingName);
 		m_pCurSelectObj.lock()->m_iPropsID = m_iTableID;
 		m_pCurSelectObj.lock()->Get_Trans().lock()->SetPosition(m_pPivot.lock()->Get_Trans().lock()->GetPosition());
 	}
@@ -314,7 +443,7 @@ HRESULT MapTool::CreateMeshNameTable(std::wstring strStartPath)
 		}
 		else if (FILE_ATTRIBUTE_DIRECTORY == tFindData.dwFileAttributes)
 		{
-			CreateMeshNameTable(strStartPath + L"/" + tFindData.cFileName);
+			CreateMeshNameTable(strStartPath + L'/' + tFindData.cFileName);
 		}
 		else
 		{
@@ -331,12 +460,10 @@ HRESULT MapTool::CreateMeshNameTable(std::wstring strStartPath)
 				bContinue = FindNextFile(hFind, &tFindData);
 				continue;
 			}
-			
-			//
 
 			PATHINFO tInfo;
 
-			tInfo.sFileLocation = strStartPath +L'/' +  tFindData.cFileName;
+			tInfo.sFileLocation = strStartPath +L"/" +  tFindData.cFileName;
 			tInfo.sFileName = tFindData.cFileName;
 			m_mapFBXNameTable.emplace(m_iTableID++, tInfo);
 		}
@@ -351,20 +478,20 @@ void MapTool::ApplyPropsOption()
 {
 	if (m_ePeekType == ePeekingType::Single)
 	{
-		for (int i = 0; i < (int)ePropsOption::End; ++i)
+		for (int i = 0; i < (int)MapToolProps::ePropsOption::End; ++i)
 		{
-			//m_pSelectObj->SetOptino(i , m_bPropsOption[i]);
+			m_pCurSelectObj.lock()->m_bOption[i] = m_bPropsOption[i];
 		}
 	}
-	else
+	else // Multi
 	{
-		//for (auto& pObj : m_pListMultiSelectObj)
-		//{
-		//	for (int i = 0; i << ePropsOption::End; ++i)
-		//	{
-		//		//pObj->SetOptino(i , m_bPropsOption[i]);
-		//	}
-		//}
+		for (auto& pObj : m_listMultiPeeking)
+		{
+			for (int i = 0; i < (int)MapToolProps::ePropsOption::End; ++i)
+			{
+				pObj.lock()->m_bOption[i] = m_bPropsOption[i];
+			}
+		}
 	}
 }
 
@@ -376,14 +503,6 @@ void MapTool::UpdateProj()
 
 void MapTool::UpdateView()
 {
-	static bool t = true;
-
-	if (Input::GetKey(DIK_F1))
-		t = !t;
-
-	if (t)
-	{
-
 	Matrix a;
 	D3DXMatrixIdentity(&m_matCameraWorld);
 	m_matCameraWorld *= (*D3DXMatrixRotationX(&a, D3DXToRadian(m_vRot.x)));
@@ -392,20 +511,6 @@ void MapTool::UpdateView()
 	m_matCameraWorld *= (*D3DXMatrixTranslation(&a, m_vCameraPos.x,m_vCameraPos.y,m_vCameraPos.z));
 	D3DXMatrixInverse(&m_matView, NULL, &m_matCameraWorld);
 	g_pDevice->SetTransform(D3DTS_VIEW, &m_matView);
-	}
-	else
-	{
-		D3DXVECTOR3 vLook(0.f, 0.f, 0.f);
-		memcpy_s(&vLook, sizeof(D3DXVECTOR3), m_matCameraWorld.m[2], sizeof(D3DXVECTOR3));
-		D3DXVec3Normalize(&vLook, &vLook);
-
-		Vector3 vAt = m_vCameraPos + vLook;
-		Vector3 vUp(0, 1, 0);
-		D3DXMatrixLookAtLH(&m_matView, &m_vCameraPos, &vAt, &vUp);
-		g_pDevice->SetTransform(D3DTS_VIEW, &m_matView);
-	}
-
-
 }
 
 void MapTool::CameraControl(const float& _fDeltaTime)
@@ -459,7 +564,7 @@ void MapTool::HotKey()
 		m_eWorkType = eWorkOption::Delete;
 	if (Input::GetKey(DIK_Y))
 		m_eWorkType = eWorkOption::Modify;
-	if (Input::GetKey(DIK_SPACE) && m_eWorkType == eWorkOption::Create && m_eCreateOption == eCreatePosition::PivotPos)
+	if (Input::GetKeyDown(DIK_SPACE) && m_eWorkType == eWorkOption::Create && m_eCreateOption == eCreatePosition::PivotPos)
 		AddProps();
 }
 
@@ -476,7 +581,8 @@ void MapTool::PivotControl(const float& fDeltaTime)
 	D3DXVec3Normalize(&vRight, &vRight);
 	vLook *= fDeltaTime;
 	vRight *= fDeltaTime;
-
+	vLook.y = 0;
+	vRight.y = 0;
 	if (Input::GetKey(DIK_LEFT)) // x Axis minus
 	{
 		vPivotPos += vRight *  -m_fPivotMoveSpeed;
@@ -499,20 +605,17 @@ void MapTool::PivotControl(const float& fDeltaTime)
 
 void MapTool::MouseInPut()
 {
-	//피킹 타입에 분기 때리고 피킹 카운트 제어 
 	if (m_ePeekType == ePeekingType::Single)
 	{
-
 	}
-	else
-	{
+	else  // multi
+ 	{
 
 	}
 }
 
 bool MapTool::ObjKeyFinder(const _TCHAR* pTag)
 {
-
 	bool bFindID = false;
 	int  iTableID = -1;
 	for (auto pair : m_mapFBXNameTable)

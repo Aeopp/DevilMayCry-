@@ -6,7 +6,7 @@
 #include "MapToolProps.h"
 #define LOCATIONMESHPATH "../../Resource/Mesh/Map/Location/"
 #define SAVEDATAPATH "../../SaveFile/SaveData/"
-#define PROPSPATH "../../Resource/Mesh/Map/Props"
+#define PROPSPATH L"../../Resource/Mesh/Map/Props"
 
 const UINT nFileNameMaxLen = 512;
 #define ConvertGameObjPtr(x) static_cast<std::weak_ptr<GameObject>>(x)
@@ -21,7 +21,6 @@ typedef D3DXVECTOR3 vec3;
 
 class MapTool final : public ENGINE::Scene
 {
-	enum class ePropsOption { Decoration, Floating, Fixed, End };
 	enum class eWorkOption { Create, Delete, Modify, End };
 	enum class eCreatePosition { PeekingPos, PivotPos, End };
 	enum  class ePeekingType { Single, Multi, End };
@@ -55,7 +54,7 @@ private:
 	// 피킹 함수에서 이거 체크 까먹지 말기  
 	bool															m_bHoveredMaptool[(int)eWindowID::End];
 	ePeekingType							                        m_ePeekType;
-	bool							                                m_bPropsOption[(int)ePropsOption::End];
+	bool							                                m_bPropsOption[(int)MapToolProps::ePropsOption::End];
 	std::wstring						                            m_strSelectName;
 	std::wstring						                            m_strPeekingName;
 	std::wstring						                            m_strSelectFilePath;
@@ -83,57 +82,60 @@ private:
 	Vector2															m_vCameraSpeed; // x =  x z  , y = y 
 	float															m_fCameraAngSpeed;
 
-	std::weak_ptr<MapToolProps>										m_pBaseMap ;
-	std::weak_ptr<MapToolProps>										m_pCurSelectObj;
+	std::weak_ptr<MapToolProps>										m_pBaseMap ; //마우스 피킹대상 
+	std::weak_ptr<MapToolProps>										m_pCurSelectObj; // 싱글타입 피킹일대 현재 선택한 오브젝트 
+	std::list<std::weak_ptr<MapToolProps>>							m_listMultiPeeking; // 멀티피킹일떄 피킹 대상들 담을 녀석 
 	std::weak_ptr<MapToolPivot>										m_pPivot;
 
 private:
 
-	void			PivotControl(const float& fDeltaTime);
-	void			MouseInPut();
+	void									PivotControl(const float& fDeltaTime);
+	void									MouseInPut();
 
-	HRESULT			CreateMeshNameTable(std::wstring strStartPath);
-	void			HelpMarker(const char*	esc);
-	bool			CheckWindow(const char* Text);
-	void			HotKey();//단축키 모음 
+	HRESULT									CreateMeshNameTable(std::wstring strStartPath);
+	void									HelpMarker(const char*	esc);
+	bool									CheckWindow(const char* Text);
+	void									HotKey();//단축키 모음 
 	 
-	bool			ObjKeyFinder(const _TCHAR* pTag);//키중복 확인 Haskey .
+	bool									ObjKeyFinder(const _TCHAR* pTag);//키중복 확인 Haskey .
 	//Base map
-	HRESULT			LoadBaseMap(std::wstring strFilePath);
+	HRESULT									LoadBaseMap(std::wstring strFilePath);
 
-	bool			NewFBXNameTable(const _TCHAR* pPath);//파일 읽어서 새로운 파일 테이블 생성 
-	bool			LoadFBXnametable(const _TCHAR* pPath);//파일 읽어서 
+	bool									NewFBXNameTable(const _TCHAR* pPath);//파일 읽어서 새로운 파일 테이블 생성 
+	bool									LoadFBXnametable(const _TCHAR* pPath);//파일 읽어서 
 
 	//add & Select
-	void			AddProps();
-	void			SelectFile();
+	void									AddProps();
+	void									SelectFile();
+	void									ClearMultiPeeking(); //피킹 타입 바뀌거나 Workoption 변경시 멀티피킹리스트 초기화 처리 
+
 
 	//Save
-	void			SaveLoadingList(const std::string& pPath);//이게 스테이지에 로딩할거 목록 
-	void			SaveProps(const std::string& pPath);// 소품 저장 
+	void									SaveLoadingList();//이게 스테이지에 로딩할거 목록 
+	void									SaveProps(const std::string& pPath);// 소품 저장 
 
-	void			ApplyPropsOption();  //오브젝트 속성값 수정시 호출 그냥 콤보박스 누르면 호출됨 
+	void									ApplyPropsOption();  //오브젝트 속성값 수정시 호출 그냥 콤보박스 누르면 호출됨 
 	//Camera
-	void			UpdateProj(); //프로젝션 값 수정시 호출 
-	void			UpdateView(); //뷰스페이스 수정시 호출 
-	void			CameraControl(const float& _fDeltaTime);
+	void									UpdateProj(); //프로젝션 값 수정시 호출 
+	void									UpdateView(); //뷰스페이스 수정시 호출 
+	void									CameraControl(const float& _fDeltaTime);
 
 	//Gui 정리
-	void			ShowMapTool();
-	void			ShowPivotOption();
-	void			ShowCameraOption();
+	void									ShowMapTool();
+	void									ShowPivotOption();
+	void									ShowCameraOption();
 
-	void			NameTableGroup();
-	void			BaseMapCreateGroup();
-	void			PeekingOptionGroup();
-	void			TransFormCtrlGroup();
-	void			PropsOptionGroup();
-	void			SaveFileGroup();
+	void									NameTableGroup();
+	void									BaseMapCreateGroup();
+	void									PeekingOptionGroup();
+	void									TransFormCtrlGroup();
+	void									PropsOptionGroup();
+	void									SaveFileGroup();
 
-	bool			IsHoverUIWindow();
+	bool									IsHoverUIWindow();
 
-	std::wstring		convertToWstring(const std::string& s);
-	std::string			convertToString(const std::wstring& s);
+	std::wstring							convertToWstring(const std::string& s);
+	std::string								convertToString(const std::wstring& s);
 
 public:
 	static MapTool* Create();
