@@ -28,6 +28,9 @@
     <Filter Include="99.Default\02.Header">
       <UniqueIdentifier>{c0f00759-e8c5-4e2a-86ff-caad12de51fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\Test">
+      <UniqueIdentifier>{1b9a4088-9bc4-4aa4-858f-9454e3cda42e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -52,7 +55,10 @@
       <Filter>03.Scene\99.TestScene</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\TestObject.h">
-      <Filter>02.GameObject</Filter>
+      <Filter>02.GameObject\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\TestAnimationObject.h">
+      <Filter>02.GameObject\Test</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\TestEffect.h">
       <Filter>02.GameObject</Filter>
@@ -84,8 +90,11 @@
     <ClCompile Include="..\Source\TestScene.cpp">
       <Filter>03.Scene\99.TestScene</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\TestAnimationObject.cpp">
+      <Filter>02.GameObject\Test</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\TestObject.cpp">
-      <Filter>02.GameObject</Filter>
+      <Filter>02.GameObject\Test</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\TestEffect.cpp">
       <Filter>02.GameObject</Filter>

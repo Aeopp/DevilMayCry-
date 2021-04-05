@@ -1,11 +1,11 @@
 #include "stdafx.h"
-
 #include "..\Header\TestScene.h"
 #include "Scene.h"
 #include "TestObject.h"
 #include "ShaderTester.h"
 #include "TestEffect.h"
 
+#include "TestAnimationObject.h"
 #include <iostream>
 using namespace std;
 
@@ -28,33 +28,13 @@ HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
 
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>(); 
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestObject>();
-
-
 	//AddGameObject<ShaderTester>();
 
 
 	AddGameObject<TestEffect>();
 
+	//AddGameObject<TestObject>();
+	//AddGameObject<TestAnimationObject>();
 	return S_OK;
 }
 
