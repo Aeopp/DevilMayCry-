@@ -117,9 +117,9 @@ HRESULT TestEffect::Ready()
 	_ShaderInfo.GBufferShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\GBuffer.hlsl");
 
 	auto InitTransform = AddComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
+	InitTransform.lock()->SetScale({ 0.01,0.01,0.01 });
 
-	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
+	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\sphere02.fbx");
 	//PlaneMesh->EnablePrevVTF();
 
 	//ENGINE::AnimNotify _Notify{};

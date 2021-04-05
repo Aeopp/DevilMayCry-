@@ -3,9 +3,9 @@
 #include "Scene.h"
 #include "TestObject.h"
 #include "ShaderTester.h"
+#include "TestAnimationObject.h"
 #include "TestEffect.h"
 
-#include "TestAnimationObject.h"
 #include <iostream>
 using namespace std;
 
@@ -30,11 +30,11 @@ HRESULT TestScene::LoadScene()
 
 	//AddGameObject<ShaderTester>();
 
+	//AddGameObject<TestObject>();
+	//AddGameObject<TestAnimationObject>();
 
 	AddGameObject<TestEffect>();
 
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestAnimationObject>();
 	return S_OK;
 }
 
@@ -53,7 +53,9 @@ HRESULT TestScene::Start()
 HRESULT TestScene::Update(const float _fDeltaTime)
 {
 	Scene::Update(_fDeltaTime);
+
 	cout << "SceneUpdate" << endl;
+
 	return S_OK;
 }
 
