@@ -9,9 +9,9 @@ BEGIN(ENGINE)
 struct ENGINE_DLL AnimationInformation
 {
 	std::string Name{};
-	float      Duration = 1.f;
-	float      TickPerSecond = 30.f;
-	float      TransitionTime = 0.25f;
+	float       Duration = 1.f;
+	float       TickPerSecond = 30.f;
+	float       TransitionTime = 0.25f;
 	void       SetAcceleration(const float NewAcceleration)
 	{
 		Acceleration = NewAcceleration;

@@ -67,7 +67,7 @@ private:
 	Node*  MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
 		const std::unordered_map<std::string,
 		std::pair<uint32, Matrix>>&BoneTableParserInfo);
-	Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
+	// Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
 	void InitTextureForVertexTextureFetch()&;
 	void AnimationNotify()&;
 private:
@@ -91,9 +91,8 @@ private:
 	std::vector<Matrix> PrevBoneSkinningMatries{};
 	bool bHasAnimation = false;
 	std::string RootNodeName{};
-	std::shared_ptr<std::map<std::string,AnimationInformation>>
-		AnimInfoTable{};
-	std::unordered_map<std::string,std::shared_ptr<Node>> Nodes{};
+	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
+	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
 };
 END
 #endif // !_SKELETONMESH_H_

@@ -24,7 +24,7 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 	const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	 _SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
@@ -43,7 +43,7 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 void  TestObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	 _SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
@@ -88,7 +88,7 @@ HRESULT TestObject::Ready()
 	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
 
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Static\\Em5000.X");
-	_SkeletonMesh->EnablePrevVTF();
+	 _SkeletonMesh->EnablePrevVTF();
 
 	ENGINE::AnimNotify _Notify{};
 	
