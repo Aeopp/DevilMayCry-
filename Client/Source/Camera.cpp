@@ -12,8 +12,8 @@ Camera* Camera::Create()
 
 HRESULT Camera::Ready()
 {
-    m_vEye = Vector3(0.f, 7.f, -5.f);
-    m_vAt = Vector3(0.f, 0.f, 1.f);
+    m_vEye = Vector3(0.f, 0.f, -5.f);
+    m_vAt = Vector3(0.f, 0.f, 0.f);
     m_vUp = Vector3(0.f, 1.f, 0.f);
 
     m_fFovY = D3DXToRadian(60.f);
