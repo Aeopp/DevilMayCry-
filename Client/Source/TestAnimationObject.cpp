@@ -4,6 +4,7 @@
 #include "Subset.h"
 #include "TextureType.h"
 #include "Renderer.h"
+#include <filesystem>
 
 
 void TestAnimationObject::Free()
@@ -62,11 +63,11 @@ HRESULT TestAnimationObject::Ready()
 	RenderInterface::Initialize(_InitRenderProp);
 
 	_ShaderInfo.ForwardAlphaBlendShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl");
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Nero.fbx");
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Em5000.X");
 	_SkeletonMesh->EnablePrevVTF();
 
 	auto InitTransform = AddComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
+	InitTransform.lock()->SetScale({ 0.001,0.001,0.001 });
 	
 	/* 애니메이션에 따라서 콜백이 필요한 경우 설정. 
 		return true 인 경우 콜백 하고나서 삭제

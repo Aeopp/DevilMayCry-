@@ -120,7 +120,24 @@ void CoreSystem::Free()
 	ImGui_ImplDX9_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+}
 
+static void ImGuiSetUp()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	ImGui::StyleColorsDark();
+	SetupImGuiStyle(true, 0.4f);
+	ImGui_ImplWin32_Init(g_hWnd);
+	ImGui_ImplDX9_Init(GraphicSystem::GetInstance()->GetDevice());
+
+
+	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 18.0f);
+	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 10);
+	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 14);
+	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 18);
 }
 
 HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
@@ -175,14 +192,7 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 	g_bCollisionVisible = false;
 	g_bRenderTargetVisible = false;
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	ImGui::StyleColorsDark();
-	SetupImGuiStyle(true, 0.4f);
-	ImGui_ImplWin32_Init(g_hWnd);
-	ImGui_ImplDX9_Init(m_pGraphicSystem.lock()->GetDevice());
+	ImGuiSetUp();
 
 	//
 	//io.Fonts->AddFontDefault();
@@ -196,11 +206,6 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 	//// in an imgui window somewhere...
 	//ImGui::Text(ICON_FA_PAINT_BRUSH "  Paint");    // use string literal concatenation
 	//// outputs a paint brush icon and 'Paint' as a string.
-
-	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 18.0f);
-	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 10);
-	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 14);
-	io.Fonts->AddFontFromFileTTF("..\\..\\Resource\\Font\\Roboto\\Roboto-Regular.ttf", 18);
 
 	return S_OK;
 }

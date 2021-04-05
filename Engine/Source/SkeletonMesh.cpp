@@ -30,22 +30,24 @@ void SkeletonMesh::AnimationEditor()&
 {
 	if (AnimInfoTable)
 	{
+		if (ImGui::BeginPopup("Really Save?"))
+		{
+			ImGui::Text("If the file exists, the previous information will be blown away.");
+			if (ImGui::SmallButton("Yes"))
+			{
+				AnimationSave(ResourcePath);
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::SmallButton("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
 		if (ImGui::Button("Save"))
 		{
 			ImGui::OpenPopup("Really Save?");
-			if (ImGui::BeginPopup("Really Save?"))
-			{
-				ImGui::Text("If the file exists, the previous information will be blown away.");
-				if (ImGui::SmallButton("Yes"))
-				{
-					AnimationSave(ResourcePath);
-					ImGui::EndPopup();
-				}
-				else if(ImGui::SmallButton("Cancel"))
-				{
-					ImGui::EndPopup();
-				}
-			}
 		}
 
 		for (auto& AnimInfoIter : *AnimInfoTable)
