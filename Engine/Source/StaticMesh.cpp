@@ -5,15 +5,10 @@
 USING(ENGINE)
 
 StaticMesh::StaticMesh(LPDIRECT3DDEVICE9 const _pDevice)
-	: Mesh(_pDevice)
-{
-	
-}
+	: Mesh(_pDevice){}
 
 StaticMesh::StaticMesh(const StaticMesh& _rOther)
-	: Mesh(_rOther)
-{
-}
+	: Mesh(_rOther){}
 
 void StaticMesh::Free()
 {
