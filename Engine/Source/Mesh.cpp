@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "Subset.h"
+#include "FMath.hpp"
 
 USING(ENGINE)
 
@@ -15,6 +16,7 @@ Mesh::Mesh(const Mesh& _rOther)
 	, m_spVertexLocations(_rOther.m_spVertexLocations)
 {
 }
+
 void Mesh::MakeVertexLcationsFromSubset()&
 {
 	m_spVertexLocations = std::make_shared<std::vector<Vector3>>();

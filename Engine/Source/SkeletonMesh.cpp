@@ -130,7 +130,6 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 		IsAnimationBlend = _PrevAnimBlend;
 	}
 
-
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
 	Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime,AnimName, IsAnimationBlend);
@@ -601,8 +600,7 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 	
 	if (bHasAnimation)
 	{
-		AnimInfoTable = std::make_shared
-			<std::map<std::string, AnimationInformation>>();
+		AnimInfoTable = std::make_shared<std::map<std::string,AnimationInformation>>();
 
 		for (uint32 AnimIdx = 0u; AnimIdx < AiScene->mNumAnimations; ++AnimIdx)
 		{

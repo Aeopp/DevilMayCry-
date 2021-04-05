@@ -10,7 +10,6 @@
 #include <map>
 #include "AnimationTrack.h"
 
-
 BEGIN(ENGINE)
 class ENGINE_DLL Node
 {
