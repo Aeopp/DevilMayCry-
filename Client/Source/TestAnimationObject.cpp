@@ -62,7 +62,7 @@ HRESULT TestAnimationObject::Ready()
 	RenderInterface::Initialize(_InitRenderProp);
 
 	_ShaderInfo.ForwardAlphaBlendShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl");
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Static\\Em5000.X");
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Nero.fbx");
 	_SkeletonMesh->EnablePrevVTF();
 
 	auto InitTransform = AddComponent<ENGINE::Transform>();

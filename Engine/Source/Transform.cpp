@@ -23,6 +23,40 @@ void Transform::Free()
 	Component::Free();
 }
 
+void Transform::Editor()
+{
+	Component::Editor();
+
+	if (bEdit)
+	{
+		if (ImGui::TreeNode("Transform Edit"))
+		{
+			static float ScaleSensitivy = 1.0f;
+			ImGui::SliderFloat("ScaleSensitivy", &ScaleSensitivy, -100.0f, 100.f);
+
+			float Scale = 0.0f; 
+			if (ImGui::SliderFloat("Scale", &Scale, -ScaleSensitivy, +ScaleSensitivy))
+			{
+				SetScale(GetScale() + Vector3{ Scale ,Scale,Scale } );
+			}
+			Vector3 Rotation{ 0,0,0 };
+			if (ImGui::SliderFloat("Rotation", Rotation,-360.f,+360.f))
+			{
+				SetRotation(GetRotation()+Rotation);
+			}
+			static float PositionSensitivy = 1.0f;
+			ImGui::SliderFloat("PositionSensitivy", &PositionSensitivy, -100.0f, 100.f);
+			Vector3 Position{ 0,0,0 };
+			if (ImGui::SliderFloat3("Position", Position, -PositionSensitivy, +PositionSensitivy))
+			{
+				SetPosition(GetScale() + Position);
+			}
+
+			ImGui::TreePop();
+		}
+	}
+}
+
 Transform* Transform::Create(std::weak_ptr<GameObject> const _pGameObject)
 {
 	Transform* pInstance = new Transform(_pGameObject);

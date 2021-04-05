@@ -28,7 +28,7 @@ void Resource::Editor()
 	Object::Editor();
 	if (bEdit)
 	{
-		ImGui::BulletText("Resource Path : %s", ResourcePath.c_str());
+		ImGui::Text("Resource Path : %s", ResourcePath.string().c_str());
 	}
 }
 

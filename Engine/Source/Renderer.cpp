@@ -11,10 +11,7 @@
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
 
-Renderer::Renderer()
-{
-
-}
+Renderer::Renderer(){}
 
 void Renderer::Free()
 {
@@ -33,8 +30,7 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	SafeAddRef(m_pDevice);
 	ReadyRenderTargets();
 	CameraFrustum.Initialize(m_pDevice);
-	RTDebug = Resources::Load<ENGINE::Shader>
-		(L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
+	RTDebug = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
 	// _ShaderTester.Initialize();
 
 	return S_OK;

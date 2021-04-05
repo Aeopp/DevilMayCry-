@@ -14,6 +14,11 @@ void Component::Free()
 	Object::Free();
 }
 
+void Component::Editor()
+{
+	Object::Editor();
+}
+
 std::weak_ptr<GameObject> Component::GetGameObject()
 {
 	return m_pGameObject;
