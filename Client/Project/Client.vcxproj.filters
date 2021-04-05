@@ -31,6 +31,9 @@
     <Filter Include="02.GameObject\Test">
       <UniqueIdentifier>{1b9a4088-9bc4-4aa4-858f-9454e3cda42e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\00.Camera">
+      <UniqueIdentifier>{513c2145-8637-4661-bc26-c9f4620c842e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -59,6 +62,9 @@
     </ClInclude>
     <ClInclude Include="..\Header\TestAnimationObject.h">
       <Filter>02.GameObject\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Camera.h">
+      <Filter>02.GameObject\00.Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\TestObject.cpp">
       <Filter>02.GameObject\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Camera.cpp">
+      <Filter>02.GameObject\00.Camera</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

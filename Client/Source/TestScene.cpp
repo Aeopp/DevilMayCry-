@@ -5,6 +5,7 @@
 #include "ShaderTester.h"
 #include "TestAnimationObject.h"
 #include <iostream>
+#include "Camera.h"
 using namespace std;
 
 TestScene::TestScene()
@@ -26,7 +27,9 @@ HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
 
+	AddGameObject<Camera>();
 	AddGameObject<TestObject>();
+	
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestObject>();

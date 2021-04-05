@@ -149,17 +149,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT nMessage, WPARAM wParam, LPARAM lParam)
 
 	switch (nMessage)
 	{
+	case WM_COMMAND:
+	{
+		int wmId = LOWORD(wParam);
+		// 메뉴 선택을 구문 분석합니다.
+		switch (wmId)
+		{
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, nMessage, wParam, lParam);
+		}
+	}
+	break;
+
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_ESCAPE:
+
+			PostQuitMessage(0);
+			break;
+		}
+		break;
+
 	case WM_DESTROY:
+
 		PostQuitMessage(0);
 		break;
-	case WM_SIZE:
-		g_nWndCX = LOWORD(lParam);
-		g_nWndCY = HIWORD(lParam);
-		break;
 	default:
-		break;
+		return DefWindowProc(hWnd, nMessage, wParam, lParam);
 	}
-	return DefWindowProc(hWnd, nMessage, wParam, lParam);
+	return 0;
 }
 
 
