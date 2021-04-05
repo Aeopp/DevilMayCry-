@@ -158,6 +158,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Application.h" />
+    <ClInclude Include="..\Header\MapTool.h" />
+    <ClInclude Include="..\Header\MapToolPivot.h" />
+    <ClInclude Include="..\Header\MapToolProps.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
     <ClInclude Include="Client.h" />
@@ -168,6 +171,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Application.cpp" />
+    <ClCompile Include="..\Source\MapToolPivot.cpp" />
+    <ClCompile Include="..\Source\MapToolProps.cpp" />
+    <ClCompile Include="..\Source\MapTool_ImGui.cpp" />
+    <ClCompile Include="..\Source\MapTool_System.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
     <ClCompile Include="Client.cpp" />

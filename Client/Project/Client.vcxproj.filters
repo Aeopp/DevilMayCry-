@@ -28,6 +28,12 @@
     <Filter Include="99.Default\02.Header">
       <UniqueIdentifier>{c0f00759-e8c5-4e2a-86ff-caad12de51fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.Scene\98.MapTool">
+      <UniqueIdentifier>{f3d1e80e-cd69-4355-872a-d7e75a7270bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Scene\98.MapTool\obj">
+      <UniqueIdentifier>{40b2a10b-99ba-4164-805f-298acfa9f467}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -53,6 +59,15 @@
     </ClInclude>
     <ClInclude Include="..\Header\TestObject.h">
       <Filter>02.GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MapTool.h">
+      <Filter>03.Scene\98.MapTool</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MapToolProps.h">
+      <Filter>03.Scene\98.MapTool\obj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MapToolPivot.h">
+      <Filter>03.Scene\98.MapTool\obj</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +98,18 @@
     </ClCompile>
     <ClCompile Include="..\Source\TestObject.cpp">
       <Filter>02.GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapTool_ImGui.cpp">
+      <Filter>03.Scene\98.MapTool</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapToolProps.cpp">
+      <Filter>03.Scene\98.MapTool\obj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapToolPivot.cpp">
+      <Filter>03.Scene\98.MapTool\obj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MapTool_System.cpp">
+      <Filter>03.Scene\98.MapTool</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

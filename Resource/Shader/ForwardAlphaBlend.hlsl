@@ -73,7 +73,7 @@ VsOut VsMain(VsIn In)
     float4 AnimBiNormal = float4(0, 0, 0, 0);
     float4 AnimPos = float4(0, 0, 0, 1);
     
-    In.Position.w = 1.0f;
+   
     
     const float UVCorrection = 0.5f;
     float FVTFPitch = float(VTFPitch);
@@ -142,17 +142,15 @@ VsOut VsMain(VsIn In)
         }
     }
         
-    
-    
-    
-    
+    In.Position.w = 1.0f;
     Out.UV = In.UV;
-    Out.Position = mul(float4(AnimPos.xyz, 1.f), WVP);
+    Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     Out.Normal = normalize(mul(float4(AnimNormal.xyz, 0.f), World));
     Out.Tangent = normalize(mul(float4(AnimTanget.xyz, 0.f), World));
     Out.BiNormal = normalize(mul(float4(AnimBiNormal.xyz, 0.f), World));
     Out.WorldPosition = mul(float4(AnimPos.xyz, 1.f), World);
 
+    
     return Out;
 };
 
@@ -190,29 +188,10 @@ PsOut PsMain(PsIn In)
                             normalize(In.Normal));
 
     const float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
-
-	//float3 Lo = normalize(EyePosition - In.WorldPosition);
- //   float cosLo = max(0.0,dot(N,Lo));
- //   float3 Lr = 2.0 * cosLo * N - Lo;
-	//float3 F0 = lerp(Fdielectric, albedo, metalness);
-
- //	float3 directLighting = 0.0;
- //   for(uint i=0;i<NumLights;++i)
- //   {
-        
- //   }
-    
-     
-   
-    
-    
     float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
     
     Out.Color.rgb  =  Diffuse *Albedo;
-
-    
-    // Out.Color = float4(0.77f, 0.55f, 0.33f, 1.f);
-    
+   
     return Out;
 };
 
@@ -226,7 +205,7 @@ technique Default
         zwriteenable = true;
         sRGBWRITEENABLE = true;
         cullmode = ccw;
-        fillmode = solid;
+        fillmode = wireframe;
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain();
     }

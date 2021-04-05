@@ -2,7 +2,7 @@
 #include "Application.h"
 
 #include "TestScene.h"
-
+#include "MapTool.h"
 Application::Application()
 {
 }
@@ -13,7 +13,10 @@ HRESULT Application::ReadyApplication(const bool bWindowed,
 	if (FAILED(Engine::ReadyEngine(bWindowed, bMultiSample)))
 		return E_FAIL;
 
-	SceneManager::LoadScene(TestScene::Create());
+	//SceneManager::LoadScene(TestScene::Create());
+	
+	SceneManager::LoadScene(MapTool::Create());
+
 	return S_OK;
 }
 
