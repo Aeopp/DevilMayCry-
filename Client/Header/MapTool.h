@@ -57,6 +57,7 @@ private:
 	ePeekingType							                        m_ePeekType;
 	bool							                                m_bPropsOption[(int)ePropsOption::End];
 	std::wstring						                            m_strSelectName;
+	std::wstring						                            m_strPeekingName;
 	std::wstring						                            m_strSelectFilePath;
 	eWorkOption						                                m_eWorkType;
 	eCreatePosition					                                m_eCreateOption;
@@ -64,7 +65,7 @@ private:
 	float							                                m_fPivotMoveSpeed; //P
 	int								                                m_iPeekingCnt;			//멀티옵션시 피킹한 오브젝트 수 
 	bool							                                m_bReadyNameTable;			  // 테이블 데이터 준비 
-
+	bool															m_bCreateLock = false; // 생성 조건 부족시 블락처리용
 	int																m_iTableID = ERR_ID;
 
 	std::unordered_map<UINT, PATHINFO>                              m_mapFBXNameTable; // 벨류값은 fbx파일 공통경로를 제외한 /StageN/Test.fbx이런식으로 

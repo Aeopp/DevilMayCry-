@@ -35,7 +35,6 @@ void MapTool::ShowMapTool()
 		if (ImGui::Button("Props Select",ImVec2(400,20)))
 		{
 			SelectFile();
-	
 		}
 		ImGui::PopStyleColor(3);
 		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.6f));
@@ -179,7 +178,7 @@ void MapTool::BaseMapCreateGroup()
 	if(ImGui::CollapsingHeader("==============BaseMapCreate=============", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Text("Need BaseMap"); ImGui::SameLine();
-		HelpMarker("Write FBX Path but Only one file can be loaded"); ImGui::SameLine();
+		HelpMarker("Only one file can be loaded"); ImGui::SameLine();
 		if (m_pBaseMap.expired())
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
@@ -197,8 +196,7 @@ void MapTool::BaseMapCreateGroup()
 				open.lpstrFile = szPropsPath;
 				if (0 != GetOpenFileName(&open))
 				{
-					m_pBaseMap = AddGameObject<MapToolProps>();
-					m_pBaseMap.lock()->SetFBXPath(szPropsPath);
+					LoadBaseMap(szPropsPath);
 				}
 			}
 			ImGui::PopStyleColor(3);
@@ -221,7 +219,6 @@ void MapTool::BaseMapCreateGroup()
 
 void MapTool::PeekingOptionGroup()
 {
-
 	if (ImGui::CollapsingHeader("==============PeekingOption=============", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Text("WorkType");
@@ -239,14 +236,34 @@ void MapTool::PeekingOptionGroup()
 			}
 			else
 			{
+				ImGui::TextColored(ImVec4(0, 0, 0, 1), "Select Props : %s \tID: %d", convertToString(m_strSelectName).c_str(), m_iTableID);
 				ImGui::Text("Create location");
-				ImGui::RadioButton("PeekingPos", (int*)&m_eCreateOption, (int)eCreatePosition::PeekingPos);
+				if (ImGui::RadioButton("PeekingPos", (int*)&m_eCreateOption, (int)eCreatePosition::PeekingPos))
 				ImGui::SameLine();
-				ImGui::RadioButton("PivotPos", (int*)&m_eCreateOption, (int)eCreatePosition::PivotPos);
+				if (ImGui::RadioButton("PivotPos", (int*)&m_eCreateOption, (int)eCreatePosition::PivotPos))
 				ImGui::SameLine();
 				HelpMarker("When in creation mode, press the space bar to create an object");
 			}
 		}
+
+		if (m_eCreateOption == eCreatePosition::PeekingPos)
+		{
+			if (m_pBaseMap.expired())
+			{
+				m_bCreateLock = false;
+				ImGui::TextColored(ImVec4(1, 0, 0, 1), "Not Exist Base Map");
+			}
+			else
+			{
+				m_bCreateLock = true;
+			}
+		}
+		else
+		{
+			m_bCreateLock = true;
+		}
+
+
 
 		ImGui::Text("PeekingType");
 		ImGui::RadioButton("Single", (int*)&m_ePeekType, (int)ePeekingType::Single);
@@ -264,7 +281,7 @@ void MapTool::PeekingOptionGroup()
 		if (m_ePeekType == ePeekingType::Single)
 		{
 			ImGui::Text("Peeking Object Name : "); ImGui::SameLine();
-			ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", m_strSelectName.empty() ? "NULL" : convertToString(m_strSelectName).c_str());
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", m_strPeekingName.empty() ? "NULL" : convertToString(m_strPeekingName).c_str());
 		}
 		else
 		{

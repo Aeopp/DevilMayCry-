@@ -94,8 +94,6 @@ void MapTool::SelectFile()
 			PRINT_LOG(L"File Name Not exist NameTable", __FUNCTIONW__);
 			return;
 		}
-
-	
 	}
 }
 
@@ -115,7 +113,7 @@ HRESULT MapTool::LoadScene()
 	m_vCameraPos = vZero;
 	m_vRot = vZero;
 	m_fCameraAngSpeed = 100.f;
-
+	m_fPivotMoveSpeed = 10.f;
 	m_pPivot =  AddGameObject<MapToolObj>();
 	return S_OK;
 }
@@ -433,8 +431,12 @@ void MapTool::HotKey()
 		m_eWorkType = eWorkOption::Delete;
 	if (Input::GetKey(DIK_Y))
 		m_eWorkType = eWorkOption::Modify;
-	if (Input::GetKey(DIK_SPACE) && m_eWorkType == eWorkOption::Create && m_eCreateOption == eCreatePosition::PivotPos)
-		ApplyPropsOption();
+	if (Input::GetKey(DIK_SPACE)
+		&& m_eWorkType == eWorkOption::Create
+		&& m_eCreateOption == eCreatePosition::PivotPos)
+	{
+
+	}
 }
 
 
