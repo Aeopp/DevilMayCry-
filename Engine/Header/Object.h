@@ -7,6 +7,7 @@ class ENGINE_DLL Object abstract
 	friend Deleter<Object>;
 protected:
 	explicit Object();
+	explicit Object(const Object& rOther);
 	virtual ~Object() = default;
 	virtual void Free()	PURE;
 public:

@@ -34,6 +34,11 @@ void Texture::Editor()
 	};
 }
 
+std::string Texture::GetName()
+{
+	return "Texture";
+}
+
 void Texture::Free()
 {
 	SafeRelease(m_pTexture);
@@ -91,7 +96,7 @@ HRESULT Texture::LoadTextureFromFile(const std::filesystem::path _Path)
 		PRINT_LOG(TEXT("Warning"), TEXT("Failed to D3DXCreateTextureFromFileEx"));
 		return E_FAIL;
 	}
-	ResourcePath = _Path.string();
+	ResourcePath = sFilePath;
 	
 	return S_OK;
 }
