@@ -1,5 +1,6 @@
 #ifndef __RESOURCES_HPP__
 #define __RESOURCES_HPP__
+
 BEGIN(ENGINE)
 template<typename TYPE>
 inline std::shared_ptr<TYPE> Resources::Load(const std::filesystem::path _Path)

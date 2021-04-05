@@ -7,6 +7,7 @@
 #include "TestEffect.h"
 
 #include <iostream>
+#include "Camera.h"
 using namespace std;
 
 TestScene::TestScene()
@@ -35,6 +36,7 @@ HRESULT TestScene::LoadScene()
 
 	AddGameObject<TestEffect>();
 
+	AddGameObject<Camera>();
 	return S_OK;
 }
 

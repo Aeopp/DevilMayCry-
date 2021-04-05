@@ -32,6 +32,7 @@ private:
 	virtual ~Transform() = default;
 	// Component을(를) 통해 상속됨
 	virtual void Free() override;
+	virtual void Editor() override;
 public:
 	static Transform* Create(std::weak_ptr<GameObject> const _pGameObject);
 public:

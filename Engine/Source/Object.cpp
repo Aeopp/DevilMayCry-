@@ -6,10 +6,17 @@ static uint32 UniqueIDRegist = 0u;
 Object::Object() :
 	UniqueID { UniqueIDRegist++}
 {
+
+}
+
+Object::Object(const Object& rOther)
+	: UniqueID{ UniqueIDRegist++ }
+{
 }
 
 void Object::Free()
 {
+
 }
 
 void Object::Editor()
