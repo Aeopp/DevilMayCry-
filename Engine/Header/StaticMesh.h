@@ -5,7 +5,6 @@
 #include <optional>
 
 class aiScene;
-
 BEGIN(ENGINE)
 class ENGINE_DLL StaticMesh : public Mesh				
 {

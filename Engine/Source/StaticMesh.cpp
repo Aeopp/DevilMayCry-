@@ -67,7 +67,8 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		aiProcess_GenSmoothNormals |
 		aiProcess_SortByPType |
 		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes
+		aiProcess_SplitLargeMeshes |
+		aiProcess_JoinIdenticalVertices
 	);
 
 	return LoadStaticMeshImplementation(AiScene, ResourcePath);

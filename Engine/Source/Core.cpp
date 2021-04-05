@@ -1,5 +1,8 @@
 #include "Core.h"
 #include "CoreSystem.h"
+#include <d3dx9.h>
+#include <d3dx9mesh.h>
+
 
 USING(ENGINE)
 
@@ -14,7 +17,7 @@ ENGINE_DLL bool					g_bDebugMode;
 ENGINE_DLL bool                 g_bEditMode;
 ENGINE_DLL bool                 g_bCollisionVisible;
 ENGINE_DLL bool					g_bRenderTargetVisible;
-ENGINE_DLL ID3DXMesh*			g_pSphereMesh;
+ENGINE_DLL ID3DXMesh* g_pSphereMesh;
 
 ENGINE_DLL std::vector<std::string> g_Logs{};
 
