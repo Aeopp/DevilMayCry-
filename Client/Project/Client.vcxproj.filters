@@ -54,6 +54,9 @@
     <ClInclude Include="..\Header\TestObject.h">
       <Filter>02.GameObject</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\TestEffect.h">
+      <Filter>02.GameObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -82,6 +85,9 @@
       <Filter>03.Scene\99.TestScene</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\TestObject.cpp">
+      <Filter>02.GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\TestEffect.cpp">
       <Filter>02.GameObject</Filter>
     </ClCompile>
   </ItemGroup>

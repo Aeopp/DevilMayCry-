@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Application.h" />
+    <ClInclude Include="..\Header\TestEffect.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
     <ClInclude Include="Client.h" />
@@ -168,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Application.cpp" />
+    <ClCompile Include="..\Source\TestEffect.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
     <ClCompile Include="Client.cpp" />
