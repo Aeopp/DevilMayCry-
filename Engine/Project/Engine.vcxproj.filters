@@ -99,7 +99,6 @@
     <ClInclude Include="..\Header\RenderTarget.h" />
     <ClInclude Include="..\Header\RenderInterface.h" />
     <ClInclude Include="..\Header\RenderInformation.h" />
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl" />
     <ClInclude Include="..\Header\TextureType.h" />
     <ClInclude Include="..\Header\SkeletonMesh.h" />
     <ClInclude Include="..\Header\Node.h" />
@@ -112,5 +111,10 @@
     <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl" />
     <ClInclude Include="..\Header\Vertexs.h" />
     <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl" />
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl" />
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\GBufferSK.hlsl" />
   </ItemGroup>
 </Project>
