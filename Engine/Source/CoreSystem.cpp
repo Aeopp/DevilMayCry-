@@ -180,7 +180,7 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	ImGui::StyleColorsDark();
-	SetupImGuiStyle(true, 0.15f);
+	SetupImGuiStyle(true, 0.4f);
 	ImGui_ImplWin32_Init(g_hWnd);
 	ImGui_ImplDX9_Init(m_pGraphicSystem.lock()->GetDevice());
 

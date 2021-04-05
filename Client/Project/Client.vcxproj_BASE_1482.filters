@@ -28,15 +28,6 @@
     <Filter Include="99.Default\02.Header">
       <UniqueIdentifier>{c0f00759-e8c5-4e2a-86ff-caad12de51fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="03.Scene\98.MapTool">
-      <UniqueIdentifier>{f3d1e80e-cd69-4355-872a-d7e75a7270bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03.Scene\98.MapTool\obj">
-      <UniqueIdentifier>{40b2a10b-99ba-4164-805f-298acfa9f467}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObject\Test">
-      <UniqueIdentifier>{1b9a4088-9bc4-4aa4-858f-9454e3cda42e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -61,19 +52,7 @@
       <Filter>03.Scene\99.TestScene</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\TestObject.h">
-      <Filter>02.GameObject\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\TestAnimationObject.h">
-      <Filter>02.GameObject\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\MapTool.h">
-      <Filter>03.Scene\98.MapTool</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\MapToolProps.h">
-      <Filter>03.Scene\98.MapTool\obj</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\MapToolPivot.h">
-      <Filter>03.Scene\98.MapTool\obj</Filter>
+      <Filter>02.GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -102,23 +81,8 @@
     <ClCompile Include="..\Source\TestScene.cpp">
       <Filter>03.Scene\99.TestScene</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\TestAnimationObject.cpp">
-      <Filter>02.GameObject\Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\TestObject.cpp">
-      <Filter>02.GameObject\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MapTool_ImGui.cpp">
-      <Filter>03.Scene\98.MapTool</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MapToolProps.cpp">
-      <Filter>03.Scene\98.MapTool\obj</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MapToolPivot.cpp">
-      <Filter>03.Scene\98.MapTool\obj</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\MapTool_System.cpp">
-      <Filter>03.Scene\98.MapTool</Filter>
+      <Filter>02.GameObject</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

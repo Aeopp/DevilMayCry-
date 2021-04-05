@@ -32,7 +32,20 @@ void SkeletonMesh::AnimationEditor()&
 	{
 		if (ImGui::Button("Save"))
 		{
-			AnimationSave(ResourcePath);
+			ImGui::OpenPopup("Really Save?");
+			if (ImGui::BeginPopup("Really Save?"))
+			{
+				ImGui::Text("If the file exists, the previous information will be blown away.");
+				if (ImGui::SmallButton("Yes"))
+				{
+					AnimationSave(ResourcePath);
+					ImGui::EndPopup();
+				}
+				else if(ImGui::SmallButton("Cancel"))
+				{
+					ImGui::EndPopup();
+				}
+			}
 		}
 
 		for (auto& AnimInfoIter : *AnimInfoTable)
@@ -329,7 +342,6 @@ void SkeletonMesh::DisablePrevVTF()&
 void SkeletonMesh::Update(const float DeltaTime)&
 {
 	if (bAnimationEnd || bAnimStop)return;
-
 
 	CurrentAnimMotionTime += (DeltaTime * CurPlayAnimInfo.CalcAcceleration());
 	PrevAnimMotionTime += (DeltaTime * PrevPlayAnimInfo.CalcAcceleration());
