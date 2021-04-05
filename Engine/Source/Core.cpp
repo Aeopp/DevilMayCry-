@@ -14,6 +14,7 @@ ENGINE_DLL bool					g_bDebugMode;
 ENGINE_DLL bool                 g_bEditMode;
 ENGINE_DLL bool                 g_bCollisionVisible;
 ENGINE_DLL bool					g_bRenderTargetVisible;
+
 ENGINE_DLL std::vector<std::string> g_Logs{};
 
 void ENGINE_DLL Log(const std::string& PushLog)

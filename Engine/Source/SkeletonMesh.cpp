@@ -125,8 +125,6 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 	{
 		AnimationEnd();
 	}
-
-	
 }
 
 void SkeletonMesh::AnimationSave(
