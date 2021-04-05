@@ -28,7 +28,6 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 
 	AddGameObject<TestObject>();
-
 	//AddGameObject<ShaderTester>();
 
 	return S_OK;
@@ -51,7 +50,6 @@ HRESULT TestScene::Update(const float _fDeltaTime)
 	Scene::Update(_fDeltaTime);
 	
 
-	cout << "SceneUpdate" << endl;
 	return S_OK;
 }
 
