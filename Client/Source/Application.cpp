@@ -7,13 +7,15 @@ Application::Application()
 {
 }
 
-HRESULT Application::ReadyApplication(const bool bWindowed)
+HRESULT Application::ReadyApplication(const bool bWindowed,
+	const bool bMultiSample)
 {
-	if (FAILED(Engine::ReadyEngine(bWindowed)))
+	if (FAILED(Engine::ReadyEngine(bWindowed, bMultiSample)))
 		return E_FAIL;
 
-	SceneManager::LoadScene(MapTool::Create());
 	//SceneManager::LoadScene(TestScene::Create());
+
+	SceneManager::LoadScene(MapTool::Create());
 
 	return S_OK;
 }

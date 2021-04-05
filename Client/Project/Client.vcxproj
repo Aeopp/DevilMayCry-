@@ -122,9 +122,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\Header\;$(SolutionDir)Reference\Header\;../Bin/;../Header/;../Source/;./;$(SolutionDir)Reference\Header\imgui\;$(SolutionDir)Reference\Header\rapidjson\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,6 +145,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\Header\;$(SolutionDir)Reference\Header\;../Bin/;../Header/;../Source/;./;$(SolutionDir)Reference\Header\imgui\;$(SolutionDir)Reference\Header\rapidjson\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,9 +159,9 @@
   <ItemGroup>
     <ClInclude Include="..\Header\Application.h" />
     <ClInclude Include="..\Header\MapTool.h" />
-    <ClInclude Include="..\Header\MapToolObj.h" />
+    <ClInclude Include="..\Header\MapToolPivot.h" />
     <ClInclude Include="..\Header\MapToolProps.h" />
-    <ClInclude Include="..\Header\ShaderTester.h" />
+    <ClInclude Include="..\Header\TestAnimationObject.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
     <ClInclude Include="Client.h" />
@@ -170,14 +172,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Application.cpp" />
-    <ClCompile Include="..\Source\MapTool_ImGui.cpp" />
-    <ClCompile Include="..\Source\MapToolObj.cpp" />
+    <ClCompile Include="..\Source\MapToolPivot.cpp" />
     <ClCompile Include="..\Source\MapToolProps.cpp" />
-    <ClCompile Include="..\Source\ShaderTester.cpp" />
+    <ClCompile Include="..\Source\MapTool_ImGui.cpp" />
+    <ClCompile Include="..\Source\MapTool_System.cpp" />
+    <ClCompile Include="..\Source\TestAnimationObject.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="MapTool_System.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

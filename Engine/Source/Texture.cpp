@@ -12,13 +12,26 @@ Texture::Texture(LPDIRECT3DDEVICE9 const _pDevice)
 }
 
 Texture::Texture(const Texture& _rOther)
-	: Resource(_rOther.m_pDevice)
+	: Resource(_rOther)
 	, m_pTexture(_rOther.m_pTexture)
 {
 	SafeAddRef(m_pTexture);
 	memcpy_s(&m_tInfo, sizeof(D3DXIMAGE_INFO), &_rOther.m_tInfo, sizeof(D3DXIMAGE_INFO));
-	memcpy_s(&m_tDesc, sizeof(TEXTUREDESC), &_rOther.m_tDesc, sizeof(TEXTUREDESC));
+	m_tDesc=_rOther.m_tDesc;
+}
 
+void Texture::Editor()
+{
+	Resource::Editor();
+
+	if (bEdit)
+	{
+		ImGui::BulletText("UV Index : %d", GetDesc().nUVIdx);
+		ImGui::BulletText("fBlendFactor : %3.3f", GetDesc().fBlendFactor);
+		ImGui::BulletText("eMappingMode : %d", GetDesc().eMappingMode);
+		ImGui::BulletText("eMappingType : %d", GetDesc().eMappingType);
+		ImGui::BulletText("eTextureOperator : %d", GetDesc().eTextureOperator);
+	};
 }
 
 void Texture::Free()
@@ -37,7 +50,8 @@ Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem
 		return nullptr;
 	}
 	return pInstance;
-}
+};
+
 
 Resource* Texture::Clone()
 {
@@ -52,7 +66,7 @@ HRESULT Texture::LoadTextureFromFile(const std::filesystem::path _Path)
 #else
 	std::string sFilePath = _Path.string();
 #endif // UNICODE
-
+	
 	if (FAILED(D3DXGetImageInfoFromFile(sFilePath.c_str(), &m_tInfo)))
 	{
 		PRINT_LOG(TEXT("Warning"), TEXT("Failed to D3DXGetImageInfoFromFile"));
@@ -77,6 +91,8 @@ HRESULT Texture::LoadTextureFromFile(const std::filesystem::path _Path)
 		PRINT_LOG(TEXT("Warning"), TEXT("Failed to D3DXCreateTextureFromFileEx"));
 		return E_FAIL;
 	}
+	ResourcePath = _Path.string();
+	
 	return S_OK;
 }
 

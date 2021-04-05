@@ -6,6 +6,7 @@ USING(ENGINE)
 Mesh::Mesh(LPDIRECT3DDEVICE9 const _pDevice)
 	: Resource(_pDevice)
 {
+
 }
 
 Mesh::Mesh(const Mesh& _rOther)
@@ -20,13 +21,13 @@ void Mesh::Free()
 	Resource::Free();
 }
 
-HRESULT Mesh::Render()
+HRESULT Mesh::Render(ID3DXEffect* const Fx)
 {
 	for (auto& pSubset : m_vecSubset)
 	{
 		if (nullptr == pSubset)
 			continue;
-		pSubset->Render();
+		pSubset->Render(Fx);
 	}
 
 	return S_OK;
@@ -43,6 +44,18 @@ std::weak_ptr<Subset> Mesh::GetSubset(const UINT _nIndex)
 		return std::weak_ptr<Subset>();
 
 	return m_vecSubset[_nIndex];
+}
+
+void Mesh::Editor()
+{
+	Resource::Editor();
+	if (bEdit)
+	{
+		for (auto& _Subset:m_vecSubset)
+		{
+			_Subset->Editor();
+		}
+	}
 }
 
 const VERTEXBUFFERDESC& Mesh::GetVertexBufferDesc(const UINT _nSubsetIdx)

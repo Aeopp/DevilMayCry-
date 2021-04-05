@@ -3,7 +3,7 @@
 #include "StaticMesh.h"
 #include "AnimationBlendInfo.h"
 #include "AnimationTrack.h"
-#include "Bone.h"
+#include "Node.h"
 #include "AnimationInformation.h"
 #include <vector>
 #include <unordered_map>
@@ -12,73 +12,88 @@
 #include <map>
 #include <functional>
 #include <set>
+#include "AnimNotify.h"
+
+
+class aiNode;
 
 BEGIN(ENGINE)
 class ENGINE_DLL SkeletonMesh final : public StaticMesh
 {
 private:
 	explicit SkeletonMesh(LPDIRECT3DDEVICE9 const _pDevice);
-	explicit SkeletonMesh(const StaticMesh& _rOther);
+	explicit SkeletonMesh(const SkeletonMesh& _rOther);
 	virtual ~SkeletonMesh() = default;
 	// Mesh을(를) 통해 상속됨
 	virtual void Free() override;
 public:
 	static SkeletonMesh* Create(LPDIRECT3DDEVICE9 const _pDevice,
-		const std::filesystem::path _Path);
+								const std::filesystem::path _Path);
 	// Mesh을(를) 통해 상속됨
 	virtual Resource* Clone() override;
+	virtual void Editor()override;
+	virtual std::string GetName() override;
+	void BindVTF(ID3DXEffect * Fx)&;
 public:
 	HRESULT LoadMeshFromFile(const std::filesystem::path _Path)&;
-
-	/*struct ENGINE_DLL AnimationNotify
-	{
-		std::string Name{};
-		bool bAnimationEnd{ false };
-		bool bLoop{ false };
-		std::map<double, std::function<void(SkeletonMesh* const)>, std::greater<float>>
-			AnimTimeEventCallMapping{};
-		std::set<double> HavebeenCalledEvent{};
-	};*/
+public:
+	void    EnablePrevVTF()&;
+	void    DisablePrevVTF()&;
+	void    Update(const float DeltaTime)&;
+	void    VTFUpdate()&;
+	Node*   GetRootNode()&;
+	Node*	GetNode(const std::string & NodeName)&;
+	void    PlayAnimation(
+		const std::string & InitAnimName, 
+		const bool  bLoop ,
+		const AnimNotify & _Notify = {});
+	void    ContinueAnimation()&;
+	void    StopAnimation();
+	void	AnimationEnd()&;
+	// 0 ~ 1 정규화 
+	float   PlayingTime();
+	//                       정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
+	void    SetPlayingTime( float NewTime);
+	std::optional<AnimationInformation> GetAnimInfo(const std::string& AnimName) const&;
+private:
+	void	AnimationEditor()&;
+	void	NodeEditor();
+	void    AnimationUpdateImplementation()&;
+	void    AnimationSave(const std::filesystem::path & FullPath)&;
+	void    AnimationLoad(const std::filesystem::path & FullPath)&;
 private:
 	HRESULT LoadSkeletonMeshImplementation(const aiScene * AiScene,
-		const std::filesystem::path _Path);
+								const std::filesystem::path _Path);
+	Node*  MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
+		const std::unordered_map<std::string,
+		std::pair<uint32, Matrix>>&BoneTableParserInfo);
+	// Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
+	void InitTextureForVertexTextureFetch()&;
+	void AnimationNotify()&;
 private:
-	Bone* MakeHierarchy(Bone * BoneParent, const aiNode* const AiNode);
-private:
-	uint32 PrevAnimIndex = 0u;
-	uint32 AnimIdx{ 0u };
-	uint32 AnimEndAfterAnimIdx{ 0u };
+	std::string PrevAnimName{};
+	std::string AnimName{};
+	float  CurrentAnimMotionTime{ 0.0 };
+	float  PrevAnimMotionTime{ 0.0 };
+	float  TransitionRemainTime = -1.0;
+	float  TransitionDuration = 0.0;
+	bool   bLoop = false;
+	bool   bAnimationEnd = true;
+	bool   bAnimStop = false;
+	bool   bAnimSaveButton = false;
 
-	double CurrentAnimMotionTime{ 0.0 };
-	double PrevAnimMotionTime{ 0.0 };
-	double TransitionRemainTime = -1.0;
-	double TransitionDuration = 0.0;
-
-	uint32 MaxAnimIdx{ 0u };
-	bool bBoneDebug = false;
-private:
-	// AnimNotify CurrentNotify{};
-private:
-	std::vector<Matrix> RenderBoneMatricies{};
-	std::string         RootBoneName{};
-	std::shared_ptr<std::set<std::string>> BoneNameSet{};
-	double PrevAnimAcceleration = 1.f;
-	double Acceleration = 1.f;
-
-	std::vector<AnimationInformation>                          AnimInfoTable{};
-	std::unordered_map<std::string, uint32>                     AnimIdxFromName{};
-
-	std::shared_ptr<AnimationTrack>                             _AnimationTrack{};
-	std::unordered_map<std::string, uint64>						BoneTableIdxFromName{};
-	std::vector<std::shared_ptr<Bone>>							BoneTable{};
-	// VTF 기술로 버텍스 쉐이더에서 애니메이션 스키닝을 수행.
-	IDirect3DTexture9* BoneAnimMatrixInfo{ nullptr };
-	IDirect3DTexture9* PrevBoneAnimMatrixInfo{ nullptr };
-
+	AnimNotify           CurAnimNotify{};
+	AnimationInformation CurPlayAnimInfo{};
+	AnimationInformation PrevPlayAnimInfo{};
+	IDirect3DTexture9*   BoneAnimMatrixInfo{ nullptr };
+	IDirect3DTexture9*   PrevBoneAnimMatrixInfo{ nullptr };
 	int32 VTFPitch{ 0 };
-
-	std::filesystem::path FilePath{};
-	std::filesystem::path FilePureName{};
+	std::vector<Matrix> BoneSkinningMatries{};
+	std::vector<Matrix> PrevBoneSkinningMatries{};
+	bool bHasAnimation = false;
+	std::string RootNodeName{};
+	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
+	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
 };
 END
 #endif // !_SKELETONMESH_H_

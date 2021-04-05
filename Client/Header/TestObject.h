@@ -13,7 +13,7 @@ private:
 	virtual ~TestObject() = default;
 	// GameObject을(를) 통해 상속됨
 	virtual void Free() override;
-
+	virtual std::string GetName() override;
 public:
 	static TestObject* Create();
 public:
@@ -25,6 +25,7 @@ public:
 	virtual HRESULT Start() override;
 	virtual UINT    Update(const float _fDeltaTime) override;
 	virtual UINT    LateUpdate(const float _fDeltaTime) override;
+	virtual void    Editor()override;
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
 };

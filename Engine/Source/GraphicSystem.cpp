@@ -15,7 +15,9 @@ void GraphicSystem::Free()
 	SafeRelease(m_pSDK);
 }
 
-HRESULT GraphicSystem::ReadyGraphicSystem(const bool bWindowed)
+HRESULT GraphicSystem::ReadyGraphicSystem(
+	const bool bWindowed ,
+	const bool bMultiSample)
 {
 	g_pSDK =m_pSDK = Direct3DCreate9(D3D_SDK_VERSION);
 
@@ -52,20 +54,26 @@ HRESULT GraphicSystem::ReadyGraphicSystem(const bool bWindowed)
 	tD3DPP.BackBufferHeight = g_nWndCY;
 	tD3DPP.BackBufferFormat = D3DFMT_A8R8G8B8;
 	tD3DPP.BackBufferCount = 1;
+	tD3DPP.MultiSampleType = D3DMULTISAMPLE_NONE;
+	tD3DPP.MultiSampleQuality = 0;
 
-	// 가장 높은 퀼리티의 안티엘리어싱 수준과 레벨을 찾는다 .
-	for (uint32 i = 2; i <= 16; ++i)
+	if (bMultiSample)
 	{
-		unsigned long QualtyLevel{0u};
-
-		if (SUCCEEDED(m_pSDK->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
-			D3DDEVTYPE_HAL, tD3DPP.BackBufferFormat, g_bWindowed,
-			static_cast<D3DMULTISAMPLE_TYPE>(i), &QualtyLevel)))
+		// 가장 높은 퀼리티의 안티엘리어싱 수준과 레벨을 찾는다 .
+		for (uint32 i = 2; i <= 16; ++i)
 		{
-			tD3DPP.MultiSampleType = static_cast<D3DMULTISAMPLE_TYPE>(i);
-			tD3DPP.MultiSampleQuality = QualtyLevel - 1;
+			unsigned long QualtyLevel{ 0u };
+
+			if (SUCCEEDED(m_pSDK->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT,
+				D3DDEVTYPE_HAL, tD3DPP.BackBufferFormat, g_bWindowed,
+				static_cast<D3DMULTISAMPLE_TYPE>(i), &QualtyLevel)))
+			{
+				tD3DPP.MultiSampleType = static_cast<D3DMULTISAMPLE_TYPE>(i);
+				tD3DPP.MultiSampleQuality = QualtyLevel - 1;
+			}
 		}
 	}
+	
 
 	tD3DPP.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	tD3DPP.hDeviceWindow = g_hWnd;
@@ -111,8 +119,9 @@ HRESULT GraphicSystem::ReadyGraphicSystem(const bool bWindowed)
 
 void GraphicSystem::Begin()&
 {
-	m_pDevice->Clear(0, nullptr, D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		0xffb5d692, 1.f, 0);
+	m_pDevice->Clear(0, nullptr,
+		D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		D3DXCOLOR(0, 0, 100, 255), 1.f, 0);
 	m_pDevice->BeginScene();
 }
 

@@ -8,16 +8,12 @@
 #include <map>
 
 BEGIN(ENGINE)
-class ENGINE_DLL AnimationTrack
+struct ENGINE_DLL AnimationTrack
 {
-	std::vector       <std::unordered_map<std::string,
-		std::map<double, Vector3>>>   ScaleTimeLine{};
-
-	std::vector       <std::unordered_map<std::string,
-		std::map<double, Quaternion>>>QuatTimeLine{};
-
-	std::vector       <std::unordered_map<std::string,
-		std::map<double, Vector3>>>   PosTimeLine{};
+	//       애니메이션 이름과 타임라인 매핑...
+		std::map<double, Vector3>   ScaleTimeLine{};
+		std::map<double, Quaternion> QuatTimeLine{};
+		std::map<double, Vector3>   PosTimeLine{};
 };
 END
 

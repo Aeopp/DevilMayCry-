@@ -5,6 +5,7 @@
 #include "FMath.hpp"
 #include <d3d9.h>
 #include <d3dx9.h>
+#include "Resources.h"
 
 
 USING(ENGINE)
@@ -18,6 +19,11 @@ Renderer::Renderer()
 void Renderer::Free()
 {
 	CameraFrustum.Release();
+	SceneTarget.Release();
+	ALBM.Release();
+	NRMR.Release();
+	Depth.Release();
+	// _ShaderTester.Clear();
 };
 
 
@@ -25,9 +31,80 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 {
 	m_pDevice = _pDevice;
 	SafeAddRef(m_pDevice);
+	ReadyRenderTargets();
 	CameraFrustum.Initialize(m_pDevice);
+	RTDebug = Resources::Load<ENGINE::Shader>
+		(L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
+	// _ShaderTester.Initialize();
 
 	return S_OK;
+}
+
+void Renderer::ReadyRenderTargets()
+{
+	static const Vector2 RenderTargetDebugRenderSize{ 90.f,90.f };
+	 const  float InitX =
+		g_nWndCX / -2.f + (RenderTargetDebugRenderSize.x);
+	 const  float InitY =
+		 g_nWndCY / +2.f - (RenderTargetDebugRenderSize.y);
+
+	{
+		RenderTarget::Info InitInfo;
+		InitInfo.Width = g_nWndCX;
+		InitInfo.Height = g_nWndCY;
+		InitInfo.Levels = 1;
+		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
+		InitInfo.Format = D3DFMT_A16B16G16R16F;
+		InitInfo._D3DPool = D3DPOOL_DEFAULT;
+		SceneTarget.Initialize(InitInfo);
+		SceneTarget.DebugBufferInitialize(
+			{ InitX,InitY },
+			RenderTargetDebugRenderSize);
+	}
+
+	{
+		RenderTarget::Info InitInfo;
+		InitInfo.Width = g_nWndCX;
+		InitInfo.Height = g_nWndCY;
+		InitInfo.Levels = 1;
+		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
+		InitInfo.Format = D3DFMT_A8R8G8B8;
+		InitInfo._D3DPool = D3DPOOL_DEFAULT;
+		ALBM.Initialize(InitInfo);
+		ALBM.DebugBufferInitialize(
+			{ InitX,InitY*3.f },
+			RenderTargetDebugRenderSize);
+	}
+
+	{
+		RenderTarget::Info InitInfo;
+		InitInfo.Width = g_nWndCX;
+		InitInfo.Height = g_nWndCY;
+		InitInfo.Levels = 1;
+		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
+		InitInfo.Format = D3DFMT_A8R8G8B8;
+		InitInfo._D3DPool = D3DPOOL_DEFAULT;
+		NRMR.Initialize(InitInfo);
+		NRMR.DebugBufferInitialize(
+			{ InitX,InitY * 5.f }, 
+			RenderTargetDebugRenderSize);
+	}
+
+	{
+		RenderTarget::Info InitInfo;
+		InitInfo.Width = g_nWndCX;
+		InitInfo.Height = g_nWndCY;
+		InitInfo.Levels = 1;
+		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
+		InitInfo.Format = D3DFMT_R32F;
+		InitInfo._D3DPool = D3DPOOL_DEFAULT;
+		Depth.Initialize(InitInfo);
+		Depth.DebugBufferInitialize(
+			{ InitX,InitY * 7.f }, 
+			RenderTargetDebugRenderSize);
+	}
+	
+	
 }
 
 void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
@@ -53,9 +130,13 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 
 HRESULT Renderer::Render()&
 {
+	
 	RenderReady();
 	GraphicSystem::GetInstance()->Begin();
 	RenderImplementation();
+	// _ShaderTester.Render();
+
+	RenderTargetDebugRender();
 	ImguiRender();
 	GraphicSystem::GetInstance()->End();
 	RenderEnd();
@@ -63,39 +144,40 @@ HRESULT Renderer::Render()&
 	return S_OK;
 }
 
-HRESULT Renderer::Set_Info(const Matrix& _CameraView, const Matrix& _CameraProjection)
-{
-	CurrentRenderInfo.Make(_CameraView, _CameraProjection);
-	return S_OK;
-}
-
 void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
-	// 테스트를 위해 임시로 카메라와 투영 설정...
+
+	 // 테스트를 위해 임시로 카메라와 투영 설정...
 	//Matrix CameraView, CameraProjection;
 	//{
-	//    // 카메라 .. 
-	//    {
-	//        const Vector3 Eye{ 0,0,-10 };
-	//        const Vector3 At{ 0,0,0 };
-	//        const Vector3 WorldUp = { 0,1,0 };
-	//        D3DXMatrixLookAtLH(&CameraView, &Eye, &At, &WorldUp);
-	//    }
-	//    // 프로젝션
-	//    {
-	//        const float FovY = FMath::ToRadian(45.f);
-	//        const float Aspect = static_cast<float>(g_nWndCX)/ static_cast<float>(g_nWndCY);
-	//        const float NearPlane = 0.1f;
-	//        const float FarPlane = 100.f;
-	//        D3DXMatrixPerspectiveFovLH(&CameraProjection, FovY, Aspect,NearPlane,FarPlane);
-	//    }
+	//	// 카메라 .. 
+	//	{
+	//		const Vector3 Eye{ 0,0,-10 };
+	//		const Vector3 At{ 0,0,0 };
+	//		const Vector3 WorldUp = { 0,1,0 };
+	//		D3DXMatrixLookAtLH(&CameraView, &Eye, &At, &WorldUp);
+	//	}
+	//	// 프로젝션
+	//	{
+	//		const float FovY = FMath::ToRadian(45.f);
+	//		const float Aspect = static_cast<float>(g_nWndCX)/ static_cast<float>(g_nWndCY);
+	//		const float NearPlane = 0.1f;
+	//		const float FarPlane = 100.f;
+	//		D3DXMatrixPerspectiveFovLH(&CameraProjection, FovY, Aspect,NearPlane,FarPlane);
+	//	}
 	//}
-	///
+	
 	Matrix CameraView, CameraProjection;
 	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
 	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
-	CurrentRenderInfo.Make(CameraView, CameraProjection);
+
+	Matrix Ortho;
+	D3DXMatrixOrthoLH(&Ortho, g_nWndCX,g_nWndCY, 0.0f, 1.f);
+	CurrentRenderInfo.CameraView = CameraView;
+	CurrentRenderInfo.CameraProjection = CameraProjection;
+	CurrentRenderInfo.ViewInverse = FMath::Inverse(CameraView);
+	CurrentRenderInfo.Ortho = Ortho;
 	Culling();
 }
 
@@ -134,14 +216,52 @@ void Renderer::RenderEntityClear()&
 
 HRESULT Renderer::RenderImplementation()&
 {
-	RenderForwardAlphaBlend();
+	m_pDevice->GetRenderTarget(0u, &BackBuffer);
+	m_pDevice->GetViewport(&OldViewport);
+	{
+		RenderGBuffer();
+		RenderForwardAlphaBlend();
+	}
+	m_pDevice->SetRenderTarget(0u, BackBuffer);
+	BackBuffer->Release();
 
+	return S_OK;
+}
+
+HRESULT Renderer::RenderGBuffer()&
+{
+	m_pDevice->SetRenderTarget(0u, ALBM.GetSurface());
+	m_pDevice->SetRenderTarget(1u, NRMR.GetSurface());
+	m_pDevice->SetRenderTarget(2u, Depth.GetSurface());
+
+	m_pDevice->Clear(0u,
+		NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		0, 1.0f, 0);
+
+	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::GBuffer);
+		_TargetGroup != std::end(RenderEntitys))
+	{
+		for (auto& _RenderEntity : _TargetGroup->second)
+		{
+			if (_RenderEntity)
+			{
+				if (_RenderEntity->GetRenderProp().bRender)
+				{
+					_RenderEntity->RenderGBuffer();
+				}
+			}
+		}
+	}
+
+	m_pDevice->SetRenderTarget(1u, nullptr);
+	m_pDevice->SetRenderTarget(2u, nullptr);
 
 	return S_OK;
 }
 
 HRESULT Renderer::RenderForwardAlphaBlend()&
 {
+	m_pDevice->SetRenderTarget(0u, BackBuffer);
 	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::ForwardAlphaBlend);
 		_TargetGroup !=    std::end(RenderEntitys))
 	{
@@ -149,7 +269,10 @@ HRESULT Renderer::RenderForwardAlphaBlend()&
 		{
 			if (_RenderEntity)
 			{
-				_RenderEntity->RenderForwardAlphaBlend();
+				if (_RenderEntity->GetRenderProp().bRender)
+				{
+					_RenderEntity->RenderForwardAlphaBlend();
+				}
 			}
 		}
 	}
@@ -168,4 +291,16 @@ HRESULT Renderer::ImguiRender()&
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
 	return S_OK;
+}
+
+void Renderer::RenderTargetDebugRender()&
+{
+	if (RTDebug && g_bRenderTargetVisible)
+	{
+		auto* const RTFx = RTDebug->GetEffect();
+		SceneTarget.DebugRender(RTFx);
+		ALBM.DebugRender(RTFx);
+		NRMR.DebugRender(RTFx);
+		Depth.DebugRender(RTFx);
+	}
 }

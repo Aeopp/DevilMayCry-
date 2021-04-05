@@ -16,8 +16,9 @@ protected:
 public:
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone()	PURE;
+	virtual void Editor()override;
 public:
-	HRESULT Render();
+	HRESULT Render(ID3DXEffect* const Fx);
 public:
 	const uint64			GetNumSubset() const; 
 	std::weak_ptr<Subset>	GetSubset(const UINT _nIndex);

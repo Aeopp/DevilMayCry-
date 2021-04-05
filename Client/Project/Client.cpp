@@ -52,7 +52,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 
 	Application* pApplication = new Application;
 
-	pApplication->ReadyApplication(true);
+	pApplication->ReadyApplication(true,false);
 
 	while (WM_QUIT != tMessage.message)
 	{

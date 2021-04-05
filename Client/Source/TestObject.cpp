@@ -3,9 +3,17 @@
 #include "Transform.h"
 #include "Subset.h"
 #include "TextureType.h"
-//#include "Renderer.h"
+#include "Renderer.h"
+
+
 void TestObject::Free()
 {
+
+}
+
+std::string TestObject::GetName()
+{
+	return "TestObject";
 };
 
 TestObject* TestObject::Create()
@@ -13,7 +21,9 @@ TestObject* TestObject::Create()
 	return new TestObject{};
 }
 
-void TestObject::RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)
+
+void TestObject::RenderForwardAlphaBlendImplementation(
+	const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _StaticMesh->GetNumSubset();
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
@@ -22,26 +32,15 @@ void TestObject::RenderForwardAlphaBlendImplementation(const ImplementationInfo&
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-			auto Diffuse0 = SharedSubset->GetMaterial().
-				GetTexture(TextureType::DIFFUSE, 0u);
-
-			if (Diffuse0)
-			{
-				_ImplInfo.Fx->SetTexture("ALBMMap", Diffuse0->GetTexture());
-			}
-			
-			g_pDevice->SetVertexDeclaration(VtxBufDesc.pVertexDecl);
-			g_pDevice->SetStreamSource(0u, SharedSubset->GetVertexBuffer(),
-				0u,
-				VtxBufDesc.nStride);
-			g_pDevice->SetIndices(SharedSubset->GetIndexBuffer());
-			_ImplInfo.Fx->CommitChanges();
-			g_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
-				0u, 0u, VtxBufDesc.nNumVertices, 0u, VtxBufDesc.nNumFaces);
+			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+			SharedSubset->Render(_ImplInfo.Fx);
 		}
 	}
-}
+};
+
 
 void TestObject::RenderReady()
 {
@@ -49,8 +48,8 @@ void TestObject::RenderReady()
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
+		_RenderProperty.bRender = true;
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.bRender = true;
 		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
 		RenderVariableBind(_UpdateInfo);
 	}
@@ -58,31 +57,23 @@ void TestObject::RenderReady()
 
 HRESULT TestObject::Ready()
 {
+	SetRenderEnable(true);
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
 	_InitRenderProp._Order = ENGINE::RenderProperty::Order::ForwardAlphaBlend;
-	SetRenderEnable(true);
+	RenderInterface::Initialize(_InitRenderProp);
 
+	_ShaderInfo.ForwardAlphaBlendShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl");
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Em5000.X");
 
-	const std::filesystem::path ShaderPath
-	{
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl"
-	};
-
-
-	RenderInterface::Initialize(_InitRenderProp, ShaderPath);
-	 
-	const std::filesystem::path FbxPath
-	{
-		L"..\\..\\Resource\\MaptoolUtill\\Bench_Ori.fbx"
-	};
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(FbxPath);
-	if (!_StaticMesh)
-	{
-		PRINT_LOG(L"Failed!", __FUNCTIONW__);
-	}
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
+
+	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
+	PushEditEntity(_StaticMesh.get());
+	PushEditEntity(InitTransform.lock().get());
+	PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
+
 	return S_OK;
 };
 
@@ -98,6 +89,7 @@ HRESULT TestObject::Start()
 
 UINT TestObject::Update(const float _fDeltaTime)
 {
+
 	return 0;
 }
 
@@ -106,11 +98,18 @@ UINT TestObject::LateUpdate(const float _fDeltaTime)
 	return 0;
 }
 
+void TestObject::Editor()
+{
+	GameObject::Editor();
+}
+
 
 void TestObject::OnEnable()
 {
+
 }
 
 void TestObject::OnDisable()
 {
+
 }

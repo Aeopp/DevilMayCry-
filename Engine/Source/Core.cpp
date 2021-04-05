@@ -10,19 +10,29 @@ ENGINE_DLL int					g_nWndCY;
 ENGINE_DLL bool 				g_bWindowed;
 ENGINE_DLL LPDIRECT3D9			g_pSDK;
 ENGINE_DLL LPDIRECT3DDEVICE9	g_pDevice;
-ENGINE_DLL bool					bDebugMode;
-ENGINE_DLL bool                 bEditMode;
-ENGINE_DLL bool                 bDebugCollision;
-ENGINE_DLL bool					bDebugRenderTargetRender;
+ENGINE_DLL bool					g_bDebugMode;
+ENGINE_DLL bool                 g_bEditMode;
+ENGINE_DLL bool                 g_bCollisionVisible;
+ENGINE_DLL bool					g_bRenderTargetVisible;
 
+ENGINE_DLL std::vector<std::string> g_Logs{};
+
+void ENGINE_DLL Log(const std::string& PushLog)
+{
+	if (g_bEditMode)
+	{
+		g_Logs.push_back(PushLog);
+	}
+}
 
 std::weak_ptr<CoreSystem> Engine::m_pCoreSystem = CoreSystem::GetInstance();
 
-HRESULT Engine::ReadyEngine(const bool bWindowed)
+HRESULT Engine::ReadyEngine(const bool bWindowed,
+							const bool bMultiSample)
 {
 	if (nullptr == m_pCoreSystem.lock() || m_pCoreSystem.expired())
 		return E_FAIL;
-	return m_pCoreSystem.lock()->ReadyEngine(bWindowed);
+	return m_pCoreSystem.lock()->ReadyEngine(bWindowed, bMultiSample);
 }
 
 HRESULT Engine::UpdateEngine()

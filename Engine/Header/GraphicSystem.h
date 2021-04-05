@@ -14,7 +14,9 @@ private:
 	// Object을(를) 통해 상속됨
 	virtual void Free() override;
 public:
-	HRESULT ReadyGraphicSystem(const bool bWindowed);
+	HRESULT ReadyGraphicSystem(
+		const bool bWindowed ,
+		const bool bMultiSample);
 	void Begin()&;
 	void End()&;
 public:
