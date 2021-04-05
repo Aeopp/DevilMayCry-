@@ -53,7 +53,7 @@ public:
 	// 0 ~ 1 정규화 
 	float   PlayingTime();
 	//                       정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
-	void    SetPlayingTime(float NewTime);
+	void    SetPlayingTime( float NewTime);
 	std::optional<AnimationInformation> GetAnimInfo(const std::string& AnimName) const&;
 private:
 	void	AnimationEditor()&;
@@ -80,8 +80,9 @@ private:
 	bool   bLoop = false;
 	bool   bAnimationEnd = true;
 	bool   bAnimStop = false;
+	bool   bAnimSaveButton = false;
 
-	AnimNotify CurAnimNotify{};
+	AnimNotify           CurAnimNotify{};
 	AnimationInformation CurPlayAnimInfo{};
 	AnimationInformation PrevPlayAnimInfo{};
 	IDirect3DTexture9*   BoneAnimMatrixInfo{ nullptr };
