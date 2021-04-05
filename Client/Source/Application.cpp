@@ -2,18 +2,19 @@
 #include "Application.h"
 
 #include "TestScene.h"
-
+#include "MapTool.h"
 Application::Application()
 {
 }
 
-HRESULT Application::ReadyApplication(const bool bWindowed,
-	const bool bMultiSample)
+HRESULT Application::ReadyApplication(const bool bWindowed)
 {
-	if (FAILED(Engine::ReadyEngine(bWindowed, bMultiSample)))
+	if (FAILED(Engine::ReadyEngine(bWindowed)))
 		return E_FAIL;
 
-	SceneManager::LoadScene(TestScene::Create());
+	SceneManager::LoadScene(MapTool::Create());
+	//SceneManager::LoadScene(TestScene::Create());
+
 	return S_OK;
 }
 
