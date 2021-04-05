@@ -2,32 +2,32 @@
     "NameTable": [
         {
             "ID": 0,
-            "FileLocation": "../../Resource/Mesh/Map/Props/Stage1/CeilingRoot_00_00S",
+            "FileLocation": "../../Resource/Mesh/Map/Props/Stage1/CeilingRoot_00_00S/CeilingRoot_00_00S.fbx",
             "FileName": "CeilingRoot_00_00S.fbx"
         },
         {
             "ID": 1,
-            "FileLocation": "../../Resource/Mesh/Map/Props/Stage1/CircleFloor_00_00S",
+            "FileLocation": "../../Resource/Mesh/Map/Props/Stage1/CircleFloor_00_00S/CircleFloor_00_00S.fbx",
             "FileName": "CircleFloor_00_00S.fbx"
         },
         {
             "ID": 2,
-            "FileLocation": "../../Resource/Mesh/Map/Props/Stage1/Crystal_00_00S",
+            "FileLocation": "../../Resource/Mesh/Map/Props/Stage1/Crystal_00_00S/Crystal_00_00S.fbx",
             "FileName": "Crystal_00_00S.fbx"
         },
         {
             "ID": 3,
-            "FileLocation": "../../Resource/Mesh/Map/Props/Stage2/Fence_00_02S",
+            "FileLocation": "../../Resource/Mesh/Map/Props/Stage2/Fence_00_02S/Fence_00_02S.fbx",
             "FileName": "Fence_00_02S.fbx"
         },
         {
             "ID": 4,
-            "FileLocation": "../../Resource/Mesh/Map/Props/Stage2/Flag_00_00S",
+            "FileLocation": "../../Resource/Mesh/Map/Props/Stage2/Flag_00_00S/Flag_00_00S.fbx",
             "FileName": "Flag_00_00S.fbx"
         },
         {
             "ID": 5,
-            "FileLocation": "../../Resource/Mesh/Map/Props/Stage2/Garbage_00_00S",
+            "FileLocation": "../../Resource/Mesh/Map/Props/Stage2/Garbage_00_00S/Garbage_00_00S.fbx",
             "FileName": "Garbage_00_00S.fbx"
         }
     ]

@@ -33,7 +33,7 @@ HRESULT MapToolPivot::Ready()
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.01,0.01,0.01 });
 
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\MapTool\\Pivot2.fbx");
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Map\\Props\\Stage1\\CeilingRoot_00_00S\\CeilingRoot_00_00S.fbx");
 	//_SkeletonMesh->EnablePrevVTF();
 
 	ENGINE::AnimNotify _Notify{};

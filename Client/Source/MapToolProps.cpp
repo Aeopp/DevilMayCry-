@@ -49,15 +49,15 @@ HRESULT MapToolProps::Start()
 		PRINT_LOG(L"Failed! m_strFilePath.empty()", __FUNCTIONW__);
 		return E_FAIL;
 	}
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(m_strFilePath);
-	//_SkeletonMesh->EnablePrevVTF();
+	_TCHAR test[MAX_PATH];
+	lstrcpy(test, m_strFilePath.c_str());
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(test);
 
 	ENGINE::AnimNotify _Notify{};
 
 	_Notify.Event[0.5] = [this]() {  Log("0.5 !! ");  return true; };
 	_Notify.Event[0.9] = [this]() {  Log("0.9 !! ");  return true; };
 
-	//_SkeletonMesh->PlayAnimation("Air_Belatos_Twohandedsword", true, _Notify);
 	PushEditEntity(_StaticMesh.get());
 	PushEditEntity(InitTransform.lock().get());
 	PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());

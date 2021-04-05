@@ -336,7 +336,7 @@ HRESULT MapTool::CreateMeshNameTable(std::wstring strStartPath)
 
 			PATHINFO tInfo;
 
-			tInfo.sFileLocation = strStartPath + L".fbx";
+			tInfo.sFileLocation = strStartPath +L'/' +  tFindData.cFileName;
 			tInfo.sFileName = tFindData.cFileName;
 			m_mapFBXNameTable.emplace(m_iTableID++, tInfo);
 		}
