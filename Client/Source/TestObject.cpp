@@ -87,7 +87,7 @@ HRESULT TestObject::Ready()
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
 
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Static\\Bench_Ori.fbx");
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Static\\Em5000.X");
 	_SkeletonMesh->EnablePrevVTF();
 
 	ENGINE::AnimNotify _Notify{};

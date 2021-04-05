@@ -28,6 +28,26 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 
 	AddGameObject<TestObject>();
+	/*AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>(); 
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestObject>();*/
+
 
 	//AddGameObject<ShaderTester>();
 
