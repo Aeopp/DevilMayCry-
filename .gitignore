@@ -1,6 +1,12 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,visualstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,visualstudio
 
+### Resource ###
+Player.fbx
+Em5000.fbx
+###            ###
+
+
 ### C++ ###
 # Prerequisites
 *.d
@@ -50,6 +56,7 @@ Engine.pdb
 vc142.pdb
 Client.pdb
 Client.exe
+
 
 
 
