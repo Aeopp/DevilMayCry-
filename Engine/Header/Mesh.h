@@ -1,6 +1,8 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 #include "Resource.h"
+
+
 BEGIN(ENGINE)
 class Subset;
 class ENGINE_DLL Mesh abstract : public Resource
