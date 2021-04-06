@@ -17,13 +17,14 @@ std::string TestAnimationObject::GetName()
 
 TestAnimationObject* TestAnimationObject::Create()
 {
+	//¿¡º£º£
 	return new TestAnimationObject{};
 }
 
 
 void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 {
-	/*const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
 	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
@@ -33,7 +34,7 @@ void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _I
 		{
 			SharedSubset->Render(_ImplInfo.Fx);
 		}
-	}*/
+	}
 }
 
 void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
