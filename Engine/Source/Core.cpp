@@ -17,7 +17,8 @@ ENGINE_DLL bool					g_bDebugMode;
 ENGINE_DLL bool                 g_bEditMode;
 ENGINE_DLL bool                 g_bCollisionVisible;
 ENGINE_DLL bool					g_bRenderTargetVisible;
-ENGINE_DLL ID3DXMesh*		g_pSphereMesh;
+ENGINE_DLL bool					g_bDebugRender;
+ENGINE_DLL ID3DXMesh*		    g_pSphereMesh;
 
 ENGINE_DLL std::vector<std::string> g_Logs{};
 

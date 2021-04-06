@@ -1,6 +1,9 @@
 #ifndef __SHADER_H__
 #define __SHADER_H__
 #include "Resource.h"
+#include <any>
+
+
 BEGIN(ENGINE)
 class ENGINE_DLL Shader final: public Resource
 {
@@ -14,7 +17,9 @@ private:
 	// Resource을(를) 통해 상속됨
 	virtual void Free() override;
 public:
-	static Shader* Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFilePath);
+	static Shader* Create(LPDIRECT3DDEVICE9 const _pDevice, 
+						  const TSTRING& _sFilePath,
+						  const std::any& InitParams);
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone() override;
 private:

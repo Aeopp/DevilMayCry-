@@ -33,8 +33,18 @@ HRESULT TestScene::LoadScene()
 
 	//AddGameObject<ShaderTester>();
 
-	//AddGameObject<TestObject>();
-	//AddGameObject<TestAnimationObject>();
+	// AddGameObject<TestObject>();
+	AddGameObject<TestAnimationObject>();
+	/*AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();*/
+
 
 	//AddGameObject<Eff_OvertureHand>();
 

@@ -85,10 +85,15 @@ HRESULT Eff_OvertureHand::Ready()
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	_InitRenderProp._Order = ENGINE::RenderProperty::Order::AlphaBlendEffect;
+	_InitRenderProp.RenderOrders =
+	{
+		ENGINE::RenderProperty::Order::AlphaBlendEffect,
+		ENGINE::RenderProperty::Order::Debug
+	};
 	RenderInterface::Initialize(_InitRenderProp);
 
-	_ShaderInfo.AlphaBlendEffectShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\Effect\\OvertureHand.hlsl");
+	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
+		L"..\\..\\Resource\\Shader\\Effect\\OvertureHand.hlsl", {});
 
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.01f, 0.01f, 0.01f });
@@ -98,11 +103,11 @@ HRESULT Eff_OvertureHand::Ready()
 	_GlowTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\tex_capcom_light_glow_0002_alpg.tga");
 	_LightningColorTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\lightning_alb.png");
 	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
-	//PushEditEntity(_HandMesh.get());
-	//PushEditEntity(_LightningTex.get());
-	//PushEditEntity(_GlowTex.get());
-	//PushEditEntity(_LightningColorTex.get());
-	//PushEditEntity(_NoiseTex.get());
+	PushEditEntity(_HandMesh.get());
+	PushEditEntity(_LightningTex.get());
+	PushEditEntity(_GlowTex.get());
+	PushEditEntity(_LightningColorTex.get());
+	PushEditEntity(_NoiseTex.get());
 
 	return S_OK;
 };

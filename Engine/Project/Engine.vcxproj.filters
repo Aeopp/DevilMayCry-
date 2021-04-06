@@ -109,19 +109,19 @@
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
     <ClInclude Include="..\Header\ShaderTester.h" />
     <ClInclude Include="..\Header\Vertexs.h" />
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
-      <Filter>Shader</Filter>
+    <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
+      <Filter>Shader\Effect</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
-      <Filter>Shader</Filter>
+      <Filter>Shader\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
-      <Filter>Shader</Filter>
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
+      <Filter>Shader\Effect</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
-      <Filter>Shader</Filter>
+      <Filter>Shader\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
+    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
       <Filter>Shader\Effect</Filter>
     </ClInclude>
   </ItemGroup>
@@ -134,8 +134,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
-      <Filter>Shader</Filter>
+    <None Include="..\..\Resource\Shader\DebugSK.hlsl">
+      <Filter>Shader\Effect</Filter>
     </None>
+    <None Include="..\..\Resource\Shader\Debug.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Resource\Shader\DebugBone.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

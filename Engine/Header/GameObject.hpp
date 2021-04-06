@@ -11,6 +11,8 @@ inline std::weak_ptr<TYPE> GameObject::AddComponent()
 
 	if (m_Components.end() != iterFind)
 	{
+		Log("Failed to AddComponent. Component is already exist.");
+
 		PRINT_LOG(TEXT("Warning"), TEXT("Failed to AddComponent. Component is already exist."));
 		return std::weak_ptr<TYPE>();
 	}

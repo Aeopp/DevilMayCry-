@@ -41,6 +41,19 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 	}
 };
 
+void TestObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
+{
+	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+	{
+		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			SharedSubset->Render(_ImplInfo.Fx);
+		}
+	}
+};
 
 void TestObject::RenderReady()
 {
@@ -57,22 +70,47 @@ void TestObject::RenderReady()
 
 HRESULT TestObject::Ready()
 {
+	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
+	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
 	SetRenderEnable(true);
+
+	// 렌더 정보 초기화 ...
 	ENGINE::RenderProperty _InitRenderProp;
+	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
-	_InitRenderProp._Order = ENGINE::RenderProperty::Order::ForwardAlphaBlend;
+	// 넘겨준 패스에서는 렌더링 호출 보장 . 
+	_InitRenderProp.RenderOrders = 
+	{ 
+		RenderProperty::Order::ForwardAlphaBlend,
+		RenderProperty::Order::Debug 
+	};
 	RenderInterface::Initialize(_InitRenderProp);
+	// 
 
-	_ShaderInfo.ForwardAlphaBlendShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl");
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Nero.fbx");
 
+	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
+	_ShaderInfo.RegistShader(
+		RenderProperty::Order::ForwardAlphaBlend,
+		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl",{});
+	_ShaderInfo.RegistShader(
+			RenderProperty::Order::Debug,
+		L"..\\..\\Resource\\Shader\\Debug.hlsl", {});
+
+	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
+	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
+	// 
+
+	// 스태틱 메쉬 로딩
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Test_Basic.fbx");
+	PushEditEntity(_StaticMesh.get());
+
+	// 트랜스폼 초기화 .. 
 	auto InitTransform = AddComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.001,0.001,0.001 });
+	PushEditEntity(InitTransform.lock().get());
 
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
-	PushEditEntity(_StaticMesh.get());
-	PushEditEntity(InitTransform.lock().get());
-	PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
+	// PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
 
 	return S_OK;
 };

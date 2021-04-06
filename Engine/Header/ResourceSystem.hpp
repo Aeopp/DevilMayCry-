@@ -2,7 +2,8 @@
 #define __RESOURCE_SYSTEM_HPP__
 BEGIN(ENGINE)
 template<typename TYPE>
-inline std::shared_ptr<TYPE> ResourceSystem::Load(const std::filesystem::path _Path)
+inline std::shared_ptr<TYPE> ResourceSystem::Load(const std::filesystem::path _Path ,
+													const std::any& InitParams)
 {
 	size_t nTypeID = typeid(TYPE).hash_code();
 
@@ -17,9 +18,10 @@ inline std::shared_ptr<TYPE> ResourceSystem::Load(const std::filesystem::path _P
 	if (iterOriginType->second.end() == iterOriginResource)
 	{
 		//盔夯 府家胶 积己.
-		Resource* pResource = TYPE::Create(m_pDevice, _Path);
+		Resource* pResource = TYPE::Create(m_pDevice, _Path , InitParams);
 		if (nullptr == pResource)
 		{
+			Log("Failed to Load Resource.");
 			PRINT_LOG(TEXT("Warning"), TEXT("Failed to Load Resource."));
 			return std::shared_ptr<TYPE>();
 		}

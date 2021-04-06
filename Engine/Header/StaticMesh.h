@@ -4,7 +4,6 @@
 #include "RenderInterface.h"
 #include <optional>
 
-class aiScene;
 BEGIN(ENGINE)
 class ENGINE_DLL StaticMesh : public Mesh				
 {
@@ -16,16 +15,16 @@ protected:
 	virtual void Free() override;
 public:
 	static StaticMesh* Create(LPDIRECT3DDEVICE9 const _pDevice, 
-							const std::filesystem::path _Path);
+								const std::filesystem::path _Path,
+								const std::any& InitParams);
 	// Mesh을(를) 통해 상속됨
 	virtual Resource* Clone() override;
 	virtual void	  Editor()override;
 	virtual std::string GetName() override;
-public:
-	HRESULT LoadMeshFromFile(const std::filesystem::path _Path)&;
 protected:
-	HRESULT LoadStaticMeshImplementation(const aiScene* AiScene ,
-									const std::filesystem::path _Path);
+	virtual HRESULT LoadMeshImplementation(const aiScene* AiScene,
+		const std::filesystem::path _Path,
+		const std::any& InitParams)override;
 };
 END
 #endif // !__STATIC_MESH_H__

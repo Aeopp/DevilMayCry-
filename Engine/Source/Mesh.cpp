@@ -1,3 +1,4 @@
+#include "AssimpHelper.hpp"
 #include "Mesh.h"
 #include "Subset.h"
 
@@ -14,8 +15,10 @@ Mesh::Mesh(const Mesh& _rOther)
 	, m_vecSubset(_rOther.m_vecSubset)
 	, m_spVertexLocations(_rOther.m_spVertexLocations)
 {
+
 }
-void Mesh::MakeVertexLcationsFromSubset()&
+
+void Mesh::MakeVertexLocationsFromSubset()&
 {
 	m_spVertexLocations = std::make_shared<std::vector<Vector3>>();
 
@@ -33,6 +36,35 @@ void Mesh::MakeVertexLcationsFromSubset()&
 			}
 		}
 	}
+}
+HRESULT Mesh::LoadMeshFromFile(const std::filesystem::path _Path, const std::any& InitParams)&
+{
+	//Assimp Importer 积己.
+	auto AiImporter = Assimp::Importer{};
+	ResourcePath = _Path;
+	//FBX颇老阑 佬绢辑 Scene 积己.
+	const aiScene* const AiScene = AiImporter.ReadFile(
+		ResourcePath.string(),
+		aiProcess_MakeLeftHanded |
+		aiProcess_FlipUVs |
+		aiProcess_FlipWindingOrder |
+		aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace |
+		aiProcess_ValidateDataStructure |
+		aiProcess_ImproveCacheLocality |
+		aiProcess_RemoveRedundantMaterials |
+		aiProcess_GenUVCoords |
+		aiProcess_TransformUVCoords |
+		aiProcess_FindInstances |
+		aiProcess_GenSmoothNormals |
+		aiProcess_SortByPType |
+		aiProcess_OptimizeMeshes |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_JoinIdenticalVertices
+	);
+
+	return LoadMeshImplementation(AiScene, ResourcePath, InitParams);
+
 };
 
 void Mesh::Free()

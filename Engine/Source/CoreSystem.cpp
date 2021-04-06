@@ -91,6 +91,27 @@ static  void  SetupImGuiStyle(bool bStyleDark_, float alpha_)
 		}
 }
 
+static void GlobalVariableSetup()
+{
+
+	g_bDebugMode = false;
+	g_bEditMode = false;
+	g_bCollisionVisible = false;
+	g_bRenderTargetVisible = false;
+	g_bDebugRender = false;
+
+	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
+	D3DXCreateSphere(g_pDevice, 1.f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
+}
+
+static void GlobalVariableFree()
+{
+	if (g_pSphereMesh)
+	{
+		g_pSphereMesh->Release();
+	}
+}
+
 
 
 
@@ -116,11 +137,12 @@ void CoreSystem::Free()
 	m_pTimeSystem.reset();
 	TimeSystem::DeleteInstance();
 
-
 	ImGui_ImplDX9_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 }
+
+
 
 static void ImGuiSetUp()
 {
@@ -187,25 +209,8 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 		return E_FAIL;
 	}
 
-	g_bDebugMode = false;
-	g_bEditMode  = false;
-	g_bCollisionVisible = false;
-	g_bRenderTargetVisible = false;
-
+	GlobalVariableSetup();
 	ImGuiSetUp();
-
-	//
-	//io.Fonts->AddFontDefault();
-
-	//// merge in icons from Font Awesome
-	//static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-	//ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-	//io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 16.0f, &icons_config, icons_ranges);
-	//// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
-
-	//// in an imgui window somewhere...
-	//ImGui::Text(ICON_FA_PAINT_BRUSH "  Paint");    // use string literal concatenation
-	//// outputs a paint brush icon and 'Paint' as a string.
 
 	return S_OK;
 }
@@ -214,12 +219,13 @@ static void GlobalVariableEditor()
 {
 	ImGui::Begin("System");
 	{
-		ImGui::Checkbox("bDebug", &g_bDebugMode);
+		ImGui::Checkbox("Edit", &g_bEditMode);
+		ImGui::Checkbox("Debug", &g_bDebugMode);
 		if (g_bDebugMode)
 		{
-			ImGui::Checkbox("bEditor", &g_bEditMode);
-			ImGui::Checkbox("bCollisionVisible", &g_bCollisionVisible);
-			ImGui::Checkbox("bRenderTargetVisible", &g_bRenderTargetVisible);
+			ImGui::Checkbox("CollisionVisible", &g_bCollisionVisible);
+			ImGui::Checkbox("Render", &g_bDebugRender);
+			ImGui::Checkbox("RenderTargetVisible", &g_bRenderTargetVisible);
 		}
 	}
 	ImGui::End();
@@ -253,24 +259,21 @@ HRESULT CoreSystem::UpdateEngine()
 		PRINT_LOG(TEXT("Error"),TEXT("Failed to LateUpdateSceneSystem."));
 		return E_FAIL;
 	}
-	if (g_bDebugMode)
+	if (g_bEditMode)
 	{
-		if (g_bEditMode)
-		{
-			ImGui::Begin("Object Editor");
-			m_pSceneSystem.lock()->EditUpdateSceneSystem();
-			ImGui::End();
+		ImGui::Begin("Object Editor");
+		m_pSceneSystem.lock()->EditUpdateSceneSystem();
+		ImGui::End();
 
-			ImGui::Begin("Log");
-			for (const auto& CurLog : g_Logs)
-			{
-				ImGui::Text(CurLog.c_str());
-			}
-			ImGui::End();
+		ImGui::Begin("Log");
+		for (const auto& CurLog : g_Logs)
+		{
+			ImGui::Text(CurLog.c_str());
 		}
-		g_Logs.clear();
+		ImGui::End();
 	}
-	
+	g_Logs.clear();
+
 
 	if (FAILED(m_pRenderer.lock()->Render()))
 	{

@@ -1,6 +1,8 @@
 #include "AssimpHelper.hpp"
 #include "SkeletonMesh.h"
 #include "Subset.h"
+#include "Renderer.h"
+
 #include <optional>
 #include <fstream>
 #include <ostream>
@@ -242,10 +244,11 @@ void SkeletonMesh::Free()
 };
 
 SkeletonMesh* SkeletonMesh::Create(LPDIRECT3DDEVICE9 const _pDevice, 
-								   const std::filesystem::path _Path)
+								   const std::filesystem::path _Path ,
+	const std::any& InitParams)
 {
 	SkeletonMesh* pInstance = new SkeletonMesh(_pDevice);
-	if (FAILED(pInstance->LoadMeshFromFile(_Path)))
+	if (FAILED(pInstance->LoadMeshFromFile(_Path, InitParams)))
 	{
 		pInstance->Free();
 		delete pInstance;
@@ -290,35 +293,6 @@ void SkeletonMesh::BindVTF(ID3DXEffect* Fx)&
 	Fx->SetInt("VTFPitch", VTFPitch);
 }
 
-HRESULT SkeletonMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
-{
-	//Assimp Importer 생성.
-	auto AiImporter = Assimp::Importer{};
-	ResourcePath = _Path;
-	//FBX파일을 읽어서 Scene 생성.
-	const aiScene* const AiScene = AiImporter.ReadFile(
-		ResourcePath.string(),
-		aiProcess_MakeLeftHanded |
-		aiProcess_FlipUVs |
-		aiProcess_FlipWindingOrder |
-		aiProcess_Triangulate |
-		aiProcess_CalcTangentSpace |
-		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality |
-		aiProcess_RemoveRedundantMaterials |
-		aiProcess_GenUVCoords |
-		aiProcess_TransformUVCoords |
-		aiProcess_FindInstances |
-		aiProcess_GenSmoothNormals |
-		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes |
-		aiProcess_JoinIdenticalVertices
-	);
-
-	return LoadSkeletonMeshImplementation(AiScene, ResourcePath);
-}
-
 
 void SkeletonMesh::EnablePrevVTF()&
 {
@@ -350,7 +324,28 @@ void SkeletonMesh::Update(const float DeltaTime)&
 	PrevAnimMotionTime += (DeltaTime * PrevPlayAnimInfo.CalcAcceleration());
 	TransitionRemainTime -= DeltaTime;
 	AnimationUpdateImplementation();
-}
+};
+
+void SkeletonMesh::BoneDebugRender(
+									const Matrix& OwnerTransformWorld,
+									ID3DXEffect* const Fx)&
+{
+	if (!Nodes) return;
+	Log("Bone Debug Render : Uninitialized nodes !");
+
+	for (auto& [NodeName, _Node] : *Nodes)
+	{
+		if (auto OToRoot = GetNodeToRoot(NodeName);
+				 OToRoot)
+		{
+			Fx->SetMatrix("ToRoot", &(OToRoot.value()));
+			if (g_pSphereMesh)
+			{
+				g_pSphereMesh->DrawSubset(0u);
+			}
+		}
+	}
+};
 
 void SkeletonMesh::VTFUpdate()&
 {
@@ -364,8 +359,7 @@ void SkeletonMesh::VTFUpdate()&
 		for (const auto& [NodeName, CurNode] : *Nodes)
 		{
 			const int32 CurNodeIndex = CurNode->Index;
-
-			if (CurNodeIndex != -1)
+			if (CurNode->IsBone())
 			{
 				BoneSkinningMatries[CurNodeIndex] = CurNode->Final;
 			}
@@ -403,8 +397,26 @@ Node* SkeletonMesh::GetNode(const std::string& NodeName)&
 		}
 	}
 
-
 	return nullptr;
+}
+
+std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
+{
+	if (Nodes)
+	{
+		auto iter = Nodes->find(NodeName);
+		if (iter != std::end(*Nodes))
+		{
+			auto SpNode = iter->second;
+			const uint32 NodeIndex = SpNode->Index;
+			if (SpNode->IsBone())
+			{
+				return   FMath::Inverse(SpNode->Offset)* BoneSkinningMatries[NodeIndex];
+			}
+		}
+	}
+
+	return std::nullopt;
 }
 
 void SkeletonMesh::PlayAnimation(
@@ -519,10 +531,17 @@ static aiNode* FindBone(aiNode* AiNode ,
 };
 
 
-HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
+HRESULT SkeletonMesh::LoadMeshImplementation(
 	const aiScene* AiScene,
-	const std::filesystem::path _Path)
+	const std::filesystem::path _Path ,
+	const std::any& InitParams)
 {
+	Mesh::InitializeInfo _InitInfo{};
+	if (InitParams.has_value())
+	{
+		_InitInfo = std::any_cast<Mesh::InitializeInfo>(InitParams);
+	}
+
 	//Subset을 보관하는 vector 메모리 공간 확보.
 	m_vecSubset.resize(AiScene->mNumMeshes);
 	//FBX의 Scene을 구성하는 Mesh(Subset)로 부터 데이터 구성.
@@ -541,7 +560,7 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB , &BoneTableParserInfo)))
+			&tVBDesc, &pVB, &pIB , &BoneTableParserInfo , _InitInfo.bLocalVertexLocationsStorage)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
@@ -667,7 +686,10 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 		}
 	}
 
-	MakeVertexLcationsFromSubset();
+	if (_InitInfo.bLocalVertexLocationsStorage)
+	{
+		MakeVertexLocationsFromSubset();
+	}
 	AnimationLoad(_Path);
 
 	return S_OK;
@@ -704,7 +726,6 @@ static bool IsBone(
 	}
 	else
 	{
-		TargetNode->Index = -1;
 		TargetNode->Offset = FMath::Identity();
 	}
 	

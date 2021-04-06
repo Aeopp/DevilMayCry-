@@ -1,6 +1,8 @@
 #ifndef __TEXTURE_H__
 #define __TEXTURE_H__
 #include "Resource.h"
+#include <any>
+
 BEGIN(ENGINE)
 class ENGINE_DLL Texture final : public Resource
 {
@@ -15,7 +17,9 @@ private:
 	// Resource을(를) 통해 상속됨
 	virtual void Free() override;
 public:
-	static Texture*   Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem::path _Path);
+	static Texture*   Create(LPDIRECT3DDEVICE9 const _pDevice, 
+							const std::filesystem::path _Path ,
+							const std::any& InitParams);
 	// Resource을(를) 통해 상속됨
 	virtual Resource* Clone() override;
 	virtual void Editor()override;
