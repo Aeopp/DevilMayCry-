@@ -123,7 +123,7 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 	if (1.5f < _AccumulateTime)
 	{
 		_RandTexV0 = FMath::Random<float>(0.7f, 0.9f);
-		_RandTexV0 = FMath::Random<float>(0.4f, 0.8f);
+		_RandTexV1 = FMath::Random<float>(0.4f, 0.8f);
 		_AccumulateTime = 0.f;
 	}
 

@@ -52,7 +52,7 @@ struct VsIn
 struct VsOut
 {
     float4 Position : POSITION;
-    float2 UV : TEXCOORD;
+    float2 UV : TEXCOORD0;
 };
 
 VsOut VsMain(VsIn In)
@@ -111,7 +111,7 @@ PsOut PsMain_Lightning(PsIn In)
     float4 ColorSample = tex2D(Color1, NewUV);
     float4 NoiseSample = tex2D(Noise, NewUV);
     
-    float4 Noise = NoiseSample.gggg;
+    float4 Noise = NoiseSample.rrrr;
     Noise.rgb -= _SliceAmount;
     clip(Noise);
  
