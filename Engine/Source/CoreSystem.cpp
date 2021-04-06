@@ -101,7 +101,7 @@ static void GlobalVariableSetup()
 	g_bDebugRender = false;
 
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
-	D3DXCreateSphere(g_pDevice, 1.f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
+	D3DXCreateSphere(g_pDevice, 1.0f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
 }
 
 static void GlobalVariableFree()

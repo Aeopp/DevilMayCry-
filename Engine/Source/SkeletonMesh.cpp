@@ -338,7 +338,8 @@ void SkeletonMesh::BoneDebugRender(
 		if (auto OToRoot = GetNodeToRoot(NodeName);
 				 OToRoot)
 		{
-			Fx->SetMatrix("ToRoot", &(OToRoot.value()));
+			const Matrix ToRoot = OToRoot.value();
+			Fx->SetMatrix("ToRoot", &ToRoot);
 			if (g_pSphereMesh)
 			{
 				g_pSphereMesh->DrawSubset(0u);

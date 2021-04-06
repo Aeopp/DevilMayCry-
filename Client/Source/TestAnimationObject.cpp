@@ -23,7 +23,7 @@ TestAnimationObject* TestAnimationObject::Create()
 
 void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 {
-	/*const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
 	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
@@ -33,7 +33,7 @@ void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _I
 		{
 			SharedSubset->Render(_ImplInfo.Fx);
 		}
-	}*/
+	}
 }
 
 void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
@@ -117,7 +117,7 @@ HRESULT TestAnimationObject::Ready()
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 
 	// 스켈레톤 메쉬 로딩 ... 
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Static\\Em5000.X");
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\AnimationTester\\AnimationTester.fbx");
 	PushEditEntity(_SkeletonMesh.get());
 	// Prev VTF 켜기 . (모션블러등 이전 스키닝 정보가 필요할 경우
 	_SkeletonMesh->EnablePrevVTF();
