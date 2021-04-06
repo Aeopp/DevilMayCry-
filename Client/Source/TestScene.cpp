@@ -28,9 +28,9 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 
 	AddGameObject<Camera>();
-	AddGameObject<TestObject>();
-	
 	//AddGameObject<TestObject>();
+	
+	AddGameObject<TestAnimationObject>();
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestObject>();
