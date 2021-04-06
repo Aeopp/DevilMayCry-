@@ -78,4 +78,38 @@ void RenderInterface::RenderGBuffer()
 	};
 };
 
+void RenderInterface::RenderAlphaBlendEffectImplementation(const ImplementationInfo& _ImplInfo) {}
 
+void RenderInterface::RenderAlphaBlendEffect()
+{
+	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
+
+	if (_ShaderInfo.AlphaBlendEffectShader)
+	{
+		auto Fx = _ShaderInfo.AlphaBlendEffectShader->GetEffect();
+		Fx->SetMatrix("World", &_UpdateInfo.World);
+		Fx->SetMatrix("View", &_CurRenderInfo.CameraView);
+		Fx->SetMatrix("Projection", &_CurRenderInfo.CameraProjection);
+	
+		UINT Passes{ 0u };
+		if (FAILED(Fx->Begin(&Passes, NULL)))
+		{
+			PRINT_LOG(L"Failed!!", __FUNCTIONW__);
+		}
+		else
+		{
+			ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+			RenderAlphaBlendEffectImplementation(_ImplInfo);
+	
+			Fx->End();
+		}
+	};
+}
+
+void RenderInterface::RenderUIImplementation(const ImplementationInfo& _ImplInfo) {}
+
+void RenderInterface::RenderUI()
+{
+
+}

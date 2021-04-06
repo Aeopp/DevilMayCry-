@@ -47,6 +47,8 @@ private:
 	HRESULT RenderImplementation()&;
 	HRESULT RenderGBuffer()&;
 	HRESULT RenderForwardAlphaBlend()&;
+	HRESULT RenderAlphaBlendEffect()&;
+	HRESULT RenderUI()&;
 	HRESULT ImguiRender()&;
 private:
 	void RenderTargetDebugRender()&;

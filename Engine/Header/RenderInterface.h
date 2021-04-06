@@ -14,6 +14,8 @@ public:
 	{
 		std::shared_ptr<ENGINE::Shader> ForwardAlphaBlendShader{};
 		std::shared_ptr<ENGINE::Shader> GBufferShader{};
+		std::shared_ptr<ENGINE::Shader> AlphaBlendEffectShader{};
+		//std::shared_ptr<ENGINE::Shader> UIShader{};
 	};
 	struct UpdateInfo
 	{
@@ -31,6 +33,12 @@ public:
 
 	virtual void    RenderGBuffer();
 	virtual void    RenderGBufferImplementation(const ImplementationInfo& _ImplInfo);
+	
+	virtual void	RenderAlphaBlendEffect();
+	virtual void    RenderAlphaBlendEffectImplementation(const ImplementationInfo& _ImplInfo);
+	
+	virtual void	RenderUI();
+	virtual void    RenderUIImplementation(const ImplementationInfo& _ImplInfo);
 	/// </summary>
 public:
 	///<객체마다 준비해야 하는 행동을 하며 그렇지 않다면 RenderReadyUpdate 호출...>

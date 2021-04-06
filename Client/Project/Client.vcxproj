@@ -160,7 +160,7 @@
     <ClInclude Include="..\Header\Application.h" />
     <ClInclude Include="..\Header\Camera.h" />
     <ClInclude Include="..\Header\TestAnimationObject.h" />
-    <ClInclude Include="..\Header\TestEffect.h" />
+    <ClInclude Include="..\Header\Eff_OvertureHand.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
     <ClInclude Include="Client.h" />
@@ -173,7 +173,7 @@
     <ClCompile Include="..\Source\Application.cpp" />
     <ClCompile Include="..\Source\Camera.cpp" />
     <ClCompile Include="..\Source\TestAnimationObject.cpp" />
-    <ClCompile Include="..\Source\TestEffect.cpp" />
+    <ClCompile Include="..\Source\Eff_OvertureHand.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
     <ClCompile Include="Client.cpp" />

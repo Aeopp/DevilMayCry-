@@ -34,6 +34,9 @@
     <Filter Include="02.GameObject\00.Camera">
       <UniqueIdentifier>{513c2145-8637-4661-bc26-c9f4620c842e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\Effect">
+      <UniqueIdentifier>{8e0c6ea8-0509-4c04-b553-c46c6c7ecfa3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -66,8 +69,8 @@
     <ClInclude Include="..\Header\Camera.h">
       <Filter>02.GameObject\00.Camera</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\TestEffect.h">
-      <Filter>02.GameObject</Filter>
+    <ClInclude Include="..\Header\Eff_OvertureHand.h">
+      <Filter>02.GameObject\Effect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -105,8 +108,8 @@
     <ClCompile Include="..\Source\Camera.cpp">
       <Filter>02.GameObject\00.Camera</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\TestEffect.cpp">
-      <Filter>02.GameObject</Filter>
+    <ClCompile Include="..\Source\Eff_OvertureHand.cpp">
+      <Filter>02.GameObject\Effect</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

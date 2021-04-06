@@ -4,7 +4,7 @@
 #include "TestObject.h"
 #include "ShaderTester.h"
 #include "TestAnimationObject.h"
-#include "TestEffect.h"
+#include "Eff_OvertureHand.h"
 
 #include <iostream>
 #include "Camera.h"
@@ -29,14 +29,15 @@ HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
 
+	AddGameObject<Camera>();
+
 	//AddGameObject<ShaderTester>();
 
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestAnimationObject>();
 
-	AddGameObject<TestEffect>();
+	//AddGameObject<Eff_OvertureHand>();
 
-	AddGameObject<Camera>();
 	return S_OK;
 }
 
