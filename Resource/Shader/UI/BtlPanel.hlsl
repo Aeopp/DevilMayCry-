@@ -29,6 +29,15 @@ sampler RedOrbNRMR = sampler_state
     mipfilter = linear;
 };
 
+texture TargetCursorMap;
+sampler TargetCursor = sampler_state
+{
+    texture = TargetCursorMap;
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
 
 struct VsIn
 {
@@ -82,9 +91,19 @@ PsOut PsMain_RedOrb(PsIn In)
     return Out;
 };
 
+PsOut PsMain_TargetCursor(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    Out.Color = float4(1.f, 1.f, 1.f, tex2D(TargetCursor, In.UV).r);
+
+    return Out;
+};
+
+
 technique Default
 {
-	pass
+	pass p0
 	{
 		alphablendenable = true;
 		srcblend = srcalpha;
@@ -94,5 +113,16 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_RedOrb();
+    }
+    pass p1
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+
+        vertexshader = compile vs_3_0 VsMain();
+        pixelshader = compile ps_3_0 PsMain_TargetCursor();
     }
 };

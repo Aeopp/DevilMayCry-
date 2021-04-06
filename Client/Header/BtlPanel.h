@@ -10,7 +10,7 @@ private:
 	enum UI_DESC_ID
 	{
 		REDORB = 0,
-
+		TARGET_CURSOR,
 		DESC_END
 	};
 	struct UI_DESC
@@ -25,6 +25,11 @@ private:
 	std::shared_ptr<ENGINE::Texture> _RedOrbALBMTex{};
 	std::shared_ptr<ENGINE::Texture> _RedOrbATOSTex{};
 	std::shared_ptr<ENGINE::Texture> _RedOrbNRMRTex{};
+
+	std::shared_ptr<ENGINE::Texture> _TargetCursorTex{};
+
+	Vector3 _TargetCursorPos = Vector3(640.f, 360.f, 0.f);
+
 private:
 	explicit BtlPanel() = default;
 	virtual ~BtlPanel() = default;

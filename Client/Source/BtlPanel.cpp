@@ -25,14 +25,14 @@ BtlPanel* BtlPanel::Create()
 void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 {
 	UI_DESC_ID CurID = DESC_END;
-	Matrix ScreenMat;
+	Matrix ScreenMat, RotMat;
 
 	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
 
 	if (auto SharedSubset = WeakSubset_Plane.lock();
 		SharedSubset)
 	{
-		// RedOrb
+		//
 		CurID = REDORB;
 		if (_UIDescs[CurID].Using)
 		{
@@ -47,6 +47,63 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
+
+		//
+		CurID = TARGET_CURSOR;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetTexture("TargetCursorMap", _TargetCursorTex->GetTexture());
+
+			D3DXMatrixIdentity(&ScreenMat);
+			ScreenMat._11 = _UIDescs[CurID].Scale.x;
+			ScreenMat._22 = _UIDescs[CurID].Scale.y;
+			ScreenMat._33 = 1.f;
+			ScreenMat._41 = _UIDescs[CurID].Pos.x - (g_nWndCX >> 1);
+			ScreenMat._42 = -((_UIDescs[CurID].Pos.y - 40.f) - (g_nWndCY >> 1));
+			ScreenMat._43 = 0.02f;
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(1);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			D3DXMatrixIdentity(&ScreenMat);
+			ScreenMat._11 = _UIDescs[CurID].Scale.x;
+			ScreenMat._22 = _UIDescs[CurID].Scale.y;
+			ScreenMat._33 = 1.f;
+			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(120.f));
+			ScreenMat *= RotMat;
+			ScreenMat._41 = (_UIDescs[CurID].Pos.x - 35.f) - (g_nWndCX >> 1);
+			ScreenMat._42 = -((_UIDescs[CurID].Pos.y + 20.f) - (g_nWndCY >> 1));
+			ScreenMat._43 = 0.02f;
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(1);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			D3DXMatrixIdentity(&ScreenMat);
+			ScreenMat._11 = _UIDescs[CurID].Scale.x;
+			ScreenMat._22 = _UIDescs[CurID].Scale.y;
+			ScreenMat._33 = 1.f;
+			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(-120.f));
+			ScreenMat *= RotMat;
+			ScreenMat._41 = (_UIDescs[CurID].Pos.x + 35.f) - (g_nWndCX >> 1);
+			ScreenMat._42 = -((_UIDescs[CurID].Pos.y + 20.f) - (g_nWndCY >> 1));
+			ScreenMat._43 = 0.02f;
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(1);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
+
+		//
+		//CurID = TARGET_CURSOR;
+		//if (_UIDescs[CurID].Using)
+		//{
+
+		//}
 	}
 };
 
@@ -66,13 +123,12 @@ HRESULT BtlPanel::Ready()
 
 	_ShaderInfo.UIShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\UI\\BtlPanel.hlsl");
 
-	//auto InitTransform = AddComponent<ENGINE::Transform>();
-	//InitTransform.lock()->SetScale({ 0.01f, 0.01f, 0.01f });
-
 	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
 	_RedOrbALBMTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_albm.tga");
 	_RedOrbATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_atos.tga");
 	_RedOrbNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_nrmr.tga");
+
+	_TargetCursorTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\Cursor_MET.tga");
 
 	Init_UIDescs();
 	
@@ -91,7 +147,7 @@ HRESULT BtlPanel::Start()
 
 UINT BtlPanel::Update(const float _fDeltaTime)
 {
-	Imgui_Modify_UIPosAndScale(REDORB);
+	Imgui_Modify_UIPosAndScale(TARGET_CURSOR);
 
 	return 0;
 }
@@ -124,6 +180,7 @@ void BtlPanel::Init_UIDescs()
 
 	// Using, Pos, Scale
 	_UIDescs[REDORB] = { true, Vector2(1090.f, 50.f), Vector2(0.55f, 0.55f) };
+	_UIDescs[TARGET_CURSOR] = { true, Vector2(640.f, 360.f), Vector2(0.3f, 0.3f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out)
