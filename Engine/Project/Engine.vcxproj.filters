@@ -124,6 +124,9 @@
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
       <Filter>Shader\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\UI\BtlPanel.hlsl">
+      <Filter>Shader\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shader">
@@ -131,6 +134,9 @@
     </Filter>
     <Filter Include="Shader\Effect">
       <UniqueIdentifier>{9ad7bbcb-3f23-488e-a0d7-8e7fe13562eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\UI">
+      <UniqueIdentifier>{eb60c326-48c8-4eab-a8f7-1a5de0f5ef2b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

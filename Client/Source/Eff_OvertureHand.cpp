@@ -9,10 +9,11 @@
 void Eff_OvertureHand::Free()
 {
 }
+
 std::string Eff_OvertureHand::GetName()
 {
 	return "Eff_OvertureHand";
-};
+}
 
 Eff_OvertureHand* Eff_OvertureHand::Create()
 {
@@ -64,7 +65,7 @@ void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
 			_ImplInfo.Fx->EndPass();
 		}
 	}
-};
+}
 
 void Eff_OvertureHand::RenderReady()
 {
@@ -105,7 +106,7 @@ HRESULT Eff_OvertureHand::Ready()
 	//PushEditEntity(_NoiseTex.get());
 
 	return S_OK;
-};
+}
 
 HRESULT Eff_OvertureHand::Awake()
 {

@@ -199,6 +199,7 @@ HRESULT Renderer::RenderImplementation()&
 		RenderGBuffer();
 		RenderForwardAlphaBlend();
 		RenderAlphaBlendEffect();
+		RenderUI();
 	}
 	m_pDevice->SetRenderTarget(0u, BackBuffer);
 	BackBuffer->Release();
@@ -281,7 +282,23 @@ HRESULT Renderer::RenderAlphaBlendEffect()&
 
 HRESULT Renderer::RenderUI()&
 {
-	return E_NOTIMPL;
+	m_pDevice->SetRenderTarget(0u, BackBuffer);
+	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::UI);
+		_TargetGroup != std::end(RenderEntitys))
+	{
+		for (auto& _RenderEntity : _TargetGroup->second)
+		{
+			if (_RenderEntity)
+			{
+				if (_RenderEntity->GetRenderProp().bRender)
+				{
+					_RenderEntity->RenderUI();
+				}
+			}
+		}
+	}
+
+	return S_OK;
 }
 
 HRESULT Renderer::ImguiRender()&

@@ -5,6 +5,7 @@
 #include "ShaderTester.h"
 #include "TestAnimationObject.h"
 #include "Eff_OvertureHand.h"
+#include "BtlPanel.h"
 
 #include <iostream>
 #include "Camera.h"
@@ -37,6 +38,8 @@ HRESULT TestScene::LoadScene()
 	//AddGameObject<TestAnimationObject>();
 
 	//AddGameObject<Eff_OvertureHand>();
+
+	AddGameObject<BtlPanel>();
 
 	return S_OK;
 }

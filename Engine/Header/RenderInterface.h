@@ -15,7 +15,7 @@ public:
 		std::shared_ptr<ENGINE::Shader> ForwardAlphaBlendShader{};
 		std::shared_ptr<ENGINE::Shader> GBufferShader{};
 		std::shared_ptr<ENGINE::Shader> AlphaBlendEffectShader{};
-		//std::shared_ptr<ENGINE::Shader> UIShader{};
+		std::shared_ptr<ENGINE::Shader> UIShader{};
 	};
 	struct UpdateInfo
 	{

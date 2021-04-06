@@ -84,6 +84,9 @@
     <ClInclude Include="..\Header\Eff_OvertureHand.h">
       <Filter>02.GameObject\Effect\Weapon</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\BtlPanel.h">
+      <Filter>02.GameObject\UI\BtlPanel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -122,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\Eff_OvertureHand.cpp">
       <Filter>02.GameObject\Effect\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\BtlPanel.cpp">
+      <Filter>02.GameObject\UI\BtlPanel</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
