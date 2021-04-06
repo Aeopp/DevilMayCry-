@@ -279,6 +279,8 @@ void MapTool::TransFormCtrlGroup()
 		HelpMarker("Edit value Drag Power");
 		static float fSensitivety = 0.001f;
 
+		// ½ÃÀÛ
+
 		if (m_ePeekType == ePeekingType::Single)
 		{
 			float fScale = m_pCurSelectObj.lock()->Get_Trans().lock()->GetScale().x;  // obj pos Get 
