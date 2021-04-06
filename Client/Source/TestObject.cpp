@@ -79,6 +79,7 @@ HRESULT TestObject::Ready()
 
 HRESULT TestObject::Awake()
 {
+	
 	return S_OK;
 }
 

@@ -8,7 +8,7 @@ inline std::weak_ptr<TYPE> Scene::AddGameObject()
 
 	if (nullptr == pInstance)
 	{
-		PRINT_LOG(TEXT("Warning"), TEXT("Failed to AddGameObject. 'pInstance' is nullptr."));
+		PRINT_LOG(TEXT("Warning"), TEXT("Failed to AddGameObject. ' pInstance' is nullptr."));
 		return std::weak_ptr<TYPE>();
 	}
 
