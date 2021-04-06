@@ -101,7 +101,8 @@ HRESULT TestObject::Ready()
 	// 
 
 	// 스태틱 메쉬 로딩
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Nero.fbx");
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
+		L"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx");
 	PushEditEntity(_StaticMesh.get());
 
 	// 트랜스폼 초기화 .. 

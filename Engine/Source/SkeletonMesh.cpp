@@ -330,7 +330,10 @@ void SkeletonMesh::BoneDebugRender(
 									const Matrix& OwnerTransformWorld,
 									ID3DXEffect* const Fx)&
 {
-	if (!Nodes) return;
+	static auto DebugSphereMesh = Resources::Load<ENGINE::StaticMesh>(
+		"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
+
+	if (!Nodes && !DebugSphereMesh) return;
 	Log("Bone Debug Render : Uninitialized nodes !");
 
 	for (auto& [NodeName, _Node] : *Nodes)
@@ -340,10 +343,7 @@ void SkeletonMesh::BoneDebugRender(
 		{
 			const Matrix ToRoot = OToRoot.value();
 			Fx->SetMatrix("ToRoot", &ToRoot);
-			if (g_pSphereMesh)
-			{
-				g_pSphereMesh->DrawSubset(0u);
-			}
+			DebugSphereMesh->Render(Fx);
 		}
 	}
 };

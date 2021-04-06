@@ -33,7 +33,7 @@ HRESULT TestScene::LoadScene()
 
 	//AddGameObject<ShaderTester>();
 
-	// AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
 	AddGameObject<TestAnimationObject>();
 	/*AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();

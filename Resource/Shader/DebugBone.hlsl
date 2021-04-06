@@ -24,6 +24,7 @@ VsOut VsDebug(VsIn In)
     float4x4 RenderTransform = mul(ToRoot, World);
     float4x4 WVP = mul(ToRoot, ViewProjection);
     Out.UV = In.UV * UVScale;
+    Out.Position *= 0.00001f;
     Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     
     return Out;
