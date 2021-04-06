@@ -1,5 +1,6 @@
 #include "Transform.h"
 #include "FMath.hpp"
+#include <numeric>
 
 USING(ENGINE)
 
@@ -21,6 +22,74 @@ Transform::Transform(std::weak_ptr<GameObject> const _pGameObject)
 void Transform::Free()
 {
 	Component::Free();
+}
+
+void Transform::Editor()
+{
+	Component::Editor();
+
+	if (bEdit)
+	{
+		if (ImGui::TreeNode("Transform Edit"))
+		{
+			const Vector3 CurScale = GetScale(); 
+			const Vector3 CurRotation = GetRotation();
+			const Vector3 CurPosition = GetPosition();
+
+			ImGui::Text("Scale : X : %3.5f , Y : %3.5f , Z : %3.5f", CurScale.x, CurScale.y, CurScale.z);
+			ImGui::Text("Rotation : X : %3.5f , Y : %3.5f , Z : %3.5f", CurRotation.x, CurRotation.y, CurRotation.z);
+			ImGui::Text("Position : X : %3.5f , Y : %3.5f , Z : %3.5f", CurPosition.x, CurPosition.y, CurPosition.z);
+
+			{
+				float InputScale = 0.0f;
+				if (ImGui::InputFloat("InputScale", &InputScale))
+				{
+					SetScale({ InputScale , InputScale,InputScale });
+				}
+
+				Vector3 InputRotation = { 0,0,0 };
+				if (ImGui::InputFloat3("InputRotation", InputRotation))
+				{
+					SetRotation(InputRotation);
+				}
+
+				Vector3 InputPosition = { 0,0,0 };
+				if (ImGui::InputFloat3("InputPosition", InputPosition))
+				{
+					SetPosition(InputPosition);
+				}
+			}
+
+			static float ScaleSensitivy = 0.000001f;
+			ImGui::InputFloat("ScaleSensitivy", &ScaleSensitivy);
+			float Scale = 0.0f; 
+			if (ImGui::SliderFloat("Scale", &Scale,-10.f,10.f))
+			{
+				const float ResultScale = Scale* ScaleSensitivy;
+				Vector3 Result = CurScale + Vector3{ ResultScale ,ResultScale ,ResultScale };
+				if (Result.x < FLT_MIN)
+				{
+					Result = { FLT_MIN ,FLT_MIN ,FLT_MIN };
+				}
+				SetScale(Result);
+			}
+			static float RotationSensitivy = 0.0001f;
+			ImGui::InputFloat("RotationSensitivy", &RotationSensitivy);
+			Vector3 Rotation{ 0,0,0 };
+			if (ImGui::SliderFloat3("Rotation", Rotation,-360.f,+360.f))
+			{
+				SetRotation(CurRotation +Rotation * RotationSensitivy);
+			}
+			static float PositionSensitivy = 0.005f;
+			ImGui::InputFloat("PositionSensitivy", &PositionSensitivy);
+			Vector3 Position{ 0,0,0 };
+			if (ImGui::SliderFloat3("Position", Position, -10.f, +10.f))
+			{
+				SetPosition(CurPosition + Position* PositionSensitivy);
+			}
+			ImGui::TreePop();
+		}
+	}
 }
 
 Transform* Transform::Create(std::weak_ptr<GameObject> const _pGameObject)

@@ -97,6 +97,3 @@ private:
 };
 END
 #endif // !_SKELETONMESH_H_
-
-
-

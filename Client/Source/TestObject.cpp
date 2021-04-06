@@ -64,10 +64,10 @@ HRESULT TestObject::Ready()
 	RenderInterface::Initialize(_InitRenderProp);
 
 	_ShaderInfo.ForwardAlphaBlendShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl");
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Em5000.X");
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Nero.fbx");
 
 	auto InitTransform = AddComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
+	InitTransform.lock()->SetScale({ 0.001,0.001,0.001 });
 
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
 	PushEditEntity(_StaticMesh.get());

@@ -19,33 +19,34 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	bHasAnimation{ _rOther.bHasAnimation},
 	RootNodeName{ _rOther  .RootNodeName },
 	AnimInfoTable{ _rOther.AnimInfoTable },
-	BoneSkinningMatries{ _rOther.BoneSkinningMatries } ,
 	VTFPitch{ _rOther.VTFPitch }  ,
 	Nodes{ _rOther.Nodes }
 {
-
+	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
 
 void SkeletonMesh::AnimationEditor()&
 {
 	if (AnimInfoTable)
 	{
+		if (ImGui::BeginPopup("Really Save?"))
+		{
+			ImGui::Text("If the file exists, the previous information will be blown away.");
+			if (ImGui::SmallButton("Yes"))
+			{
+				AnimationSave(ResourcePath);
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::SmallButton("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
 		if (ImGui::Button("Save"))
 		{
 			ImGui::OpenPopup("Really Save?");
-			if (ImGui::BeginPopup("Really Save?"))
-			{
-				ImGui::Text("If the file exists, the previous information will be blown away.");
-				if (ImGui::SmallButton("Yes"))
-				{
-					AnimationSave(ResourcePath);
-					ImGui::EndPopup();
-				}
-				else if(ImGui::SmallButton("Cancel"))
-				{
-					ImGui::EndPopup();
-				}
-			}
 		}
 
 		for (auto& AnimInfoIter : *AnimInfoTable)
@@ -131,6 +132,7 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 
 
 	auto* const Root = GetRootNode();
+	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
 	Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime,AnimName, IsAnimationBlend);
 	VTFUpdate();
 
@@ -310,7 +312,8 @@ HRESULT SkeletonMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 		aiProcess_GenSmoothNormals |
 		aiProcess_SortByPType |
 		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes
+		aiProcess_SplitLargeMeshes |
+		aiProcess_JoinIdenticalVertices
 	);
 
 	return LoadSkeletonMeshImplementation(AiScene, ResourcePath);
@@ -801,4 +804,3 @@ static bool IsBone(
 		 }
 	 }
  }
-

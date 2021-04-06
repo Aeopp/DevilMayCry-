@@ -45,13 +45,14 @@ std::string StaticMesh::GetName()
 	return "StaticMesh";
 };
 
-HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)
+HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
 {
 	//Assimp Importer 积己.
 	auto AiImporter = Assimp::Importer{};
 	ResourcePath = _Path;
-	const aiScene* const AiScene = AiImporter.ReadFile(	
-		_Path.string(),
+	//FBX颇老阑 佬绢辑 Scene 积己.
+	const aiScene* const AiScene = AiImporter.ReadFile(
+		ResourcePath.string(),
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
@@ -66,8 +67,10 @@ HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)
 		aiProcess_GenSmoothNormals |
 		aiProcess_SortByPType |
 		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes
+		aiProcess_SplitLargeMeshes |
+		aiProcess_JoinIdenticalVertices
 	);
+
 	return LoadStaticMeshImplementation(AiScene, ResourcePath);
 }
 HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
@@ -140,6 +143,3 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 
 	return S_OK;
 }
-
-
-
