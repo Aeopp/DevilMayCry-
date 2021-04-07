@@ -81,6 +81,11 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->SetTexture("TargetHPMap", _EnemyHPTex->GetTexture());
 			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.1f);
 
+			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
+			_ImplInfo.Fx->SetFloatArray("_HP_StartPt", _TargetHP_StartPtOrtho, 2u);
+			_ImplInfo.Fx->SetFloatArray("_HP_Normal0", _TargetHP_Normal0, 2u);
+			_ImplInfo.Fx->SetFloatArray("_HP_Normal1", _TargetHP_Normal1, 2u);
+
 			Create_ScreenMat(CurID, ScreenMat);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
@@ -99,6 +104,11 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		if (_UIDescs[CurID].Using)
 		{
 			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.5f);
+
+			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
+			_ImplInfo.Fx->SetFloatArray("_HP_StartPt", _TargetHP_StartPtOrtho, 2u);
+			_ImplInfo.Fx->SetFloatArray("_HP_Normal0", _TargetHP_Normal0, 2u);
+			_ImplInfo.Fx->SetFloatArray("_HP_Normal1", _TargetHP_Normal1, 2u);
 
 			Create_ScreenMat(CurID, ScreenMat, 1);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
@@ -159,16 +169,27 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 {
 	_AccumulateTime += _fDeltaTime;
 
-	///////////////////////
-	//임시로 마우스 위치를 타겟 위치로 지정
-	POINT pt{};
-	GetCursorPos(&pt);
-	ScreenToClient(g_hWnd, &pt);
-	Vector2 ptToV2 = { static_cast<float>(pt.x), static_cast<float>(pt.y) };
-	_UIDescs[TARGET_CURSOR].Pos = ptToV2;
-	_UIDescs[TARGET_HP].Pos = ptToV2;
-	///////////////////////
-	// 
+	////////////////////////////
+	// 임시
+	std::cout << _TargetHP_Degree << std::endl;
+	if (Input::GetKey(DIK_LEFTARROW))
+	{
+		_TargetHP_Degree -= 150.f * _fDeltaTime;
+		if (0.f > _TargetHP_Degree)
+			_TargetHP_Degree = 0.f;
+	}
+	if (Input::GetKey(DIK_RIGHTARROW))
+	{
+		_TargetHP_Degree += 150.f * _fDeltaTime;
+		if (360.f < _TargetHP_Degree)
+			_TargetHP_Degree = 360.f;
+	}
+	////////////////////////////
+
+	//
+	Update_TargetInfo();
+
+	//
 	//Imgui_Modify_UIPosAndScale(TARGET_HP);
 
 	return 0;
@@ -274,6 +295,54 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		_Out._43 = 0.02f;	// 0.01로는 안됨...
 		break;
 	}
+}
+
+void BtlPanel::Update_TargetInfo()
+{
+	Matrix RotMat;
+
+	///////////////////////
+	// 
+	//m_pDevice->GetTransform(D3DTS_VIEW, &matView);
+	//D3DXVec3TransformCoord(&vTargetPos, &vTargetPos, &matView);
+	//m_pDevice->GetTransform(D3DTS_PROJECTION, &matProj);
+	//D3DXVec3TransformCoord(&vTargetPos, &vTargetPos, &matProj);
+	//vTargetPos.x = (vTargetPos.x * WINCX * 0.5f) + WINCX * 0.5f;
+	//vTargetPos.y = (vTargetPos.y * WINCY * -0.5f) + WINCY * 0.5f;
+	// 
+	// 임시로 마우스 위치를 타겟 위치로 지정
+	POINT pt{};
+	GetCursorPos(&pt);
+	ScreenToClient(g_hWnd, &pt);
+	_TargetPos = Vector3(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.f);
+	_UIDescs[TARGET_CURSOR].Pos = Vector2(_TargetPos.x, _TargetPos.y);
+	_UIDescs[TARGET_HP].Pos = Vector2(_TargetPos.x, _TargetPos.y);
+	///////////////////////
+	
+
+	_TargetHP_StartPtOrtho = ScreenPosToOrtho(_TargetPos.x, _TargetPos.y);
+	Vector2 Offset = Vector2(0.f, -100.f);	// EndPt offset (처음은 12시방향. 방향이 중요한거라 값의 크기는 관계 없는듯)
+
+	Vector2 EndPtOrtho = ScreenPosToOrtho(_TargetPos.x + Offset.x, _TargetPos.y + Offset.y);
+	Vector2 Dir = EndPtOrtho - _TargetHP_StartPtOrtho;
+	_TargetHP_Normal0 = Vector2(-Dir.y, Dir.x);
+	D3DXVec2Normalize(&_TargetHP_Normal0, &_TargetHP_Normal0);
+
+	// offset 회전
+	D3DXMatrixRotationZ(&RotMat, D3DXToRadian(_TargetHP_Degree));
+	D3DXVec2TransformCoord(&Offset, &Offset, &RotMat);
+
+	EndPtOrtho = ScreenPosToOrtho(_TargetPos.x + Offset.x, _TargetPos.y + Offset.y);
+	Dir = EndPtOrtho - _TargetHP_StartPtOrtho;
+	_TargetHP_Normal1 = Vector2(-Dir.y, Dir.x);
+	D3DXVec2Normalize(&_TargetHP_Normal1, &_TargetHP_Normal1);
+}
+
+Vector2 BtlPanel::ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY)
+{
+	Vector2 Ret = Vector2(_ScreenPosX - (g_nWndCX >> 1), -(_ScreenPosY - (g_nWndCY >> 1)));	
+	D3DXVec2TransformCoord(&Ret, &Ret, &Renderer::GetInstance()->CurrentRenderInfo.Ortho);
+	return Ret;
 }
 
 void BtlPanel::Imgui_Modify_UIPosAndScale(UI_DESC_ID _ID)

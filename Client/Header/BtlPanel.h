@@ -36,7 +36,13 @@ private:
 	std::shared_ptr<ENGINE::Texture> _EnemyHPTex{};
 
 	float _AccumulateTime = 0.f;
-	Vector3 _TargetCursorPos = Vector3(640.f, 360.f, 0.f);
+
+	Vector3 _TargetPos = Vector3(0.f, 0.f, 0.f);
+	
+	float _TargetHP_Degree = 0.f;
+	Vector2 _TargetHP_StartPtOrtho = Vector2(0.f, 0.f);
+	Vector2 _TargetHP_Normal0 = Vector2(0.f, 0.f);
+	Vector2 _TargetHP_Normal1 = Vector2(0.f, 0.f);
 
 private:
 	explicit BtlPanel() = default;
@@ -47,6 +53,8 @@ private:
 	///
 	void	Init_UIDescs();
 	void	Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt = 0);
+	void	Update_TargetInfo();
+	Vector2	ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY);
 	void	Imgui_Modify_UIPosAndScale(UI_DESC_ID _ID);
 public:
 	static BtlPanel* Create();
