@@ -25,6 +25,8 @@ public:
 	virtual void RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void Editor()override;
 public:
+	float Get_PlayingTime();
+public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;
 	virtual HRESULT Start() override;

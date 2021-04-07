@@ -81,7 +81,7 @@ HRESULT Nero::Ready()
 HRESULT Nero::Awake()
 {
 	//m_pFSM->ChangeState(NeroFSM::IDLE);
-
+	m_pMesh->PlayingTime();
 	return S_OK;
 }
 
@@ -180,4 +180,9 @@ void Nero::Editor()
 		// ¿¡µðÅÍ .... 
 	}
 
+}
+
+float Nero::Get_PlayingTime()
+{
+	return m_pMesh->PlayingTime();
 }
