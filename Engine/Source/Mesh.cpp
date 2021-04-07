@@ -80,6 +80,7 @@ HRESULT Mesh::Render(ID3DXEffect* const Fx)
 	{
 		if (nullptr == pSubset)
 			continue;
+
 		pSubset->Render(Fx);
 	}
 

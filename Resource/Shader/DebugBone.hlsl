@@ -3,7 +3,8 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float2 UVScale = { 1, 1 };
-float4 DebugColor = float4(0.7f, 0.3f, 0.0f, 0.5f);
+float4 DebugColor = float4(0.3f, 0.7f, 0.1f, 0.5f);
+
 struct VsIn
 {
     float4 Position : POSITION;
@@ -21,7 +22,7 @@ VsOut VsDebug(VsIn In)
     VsOut Out = (VsOut) 0;
     float4x4 ViewProjection = mul(View, Projection);
     float4x4 RenderTransform = mul(ToRoot, World);
-    float4x4 WVP = mul(RenderTransform, ViewProjection);
+    float4x4 WVP = mul(ToRoot, ViewProjection);
     Out.UV = In.UV * UVScale;
     Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     

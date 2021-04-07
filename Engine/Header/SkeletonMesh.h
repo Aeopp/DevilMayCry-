@@ -27,7 +27,7 @@ private:
 public:
 	static SkeletonMesh* Create(LPDIRECT3DDEVICE9 const _pDevice,
 								const std::filesystem::path _Path,
-								const std::any& InitParams);
+								const std::any & InitParams);
 	// Mesh을(를) 통해 상속됨
 	virtual Resource* Clone() override;
 	virtual void Editor()override;
@@ -39,24 +39,29 @@ public:
 	void    Update(const float DeltaTime)&;
 	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
-	Node*   GetRootNode()&;
-	Node*	GetNode(const std::string & NodeName)&;
+	Node* GetRootNode()&;
+	Node* GetNode(const std::string & NodeName)&;
 	//      본 스키닝 매트릭스에서 ToRoot 매트릭스를 계산 
 	//      (현재 스키닝 업데이트를 하지 않는다면 반환값은 마지막 스키닝 했을시의 정보)
 	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
 
-	void    PlayAnimation(
-		const std::string & InitAnimName, 
+	void   PlayAnimation(
+		const std::string & InitAnimName,
 		const bool  bLoop ,
 		const AnimNotify & _Notify = {});
+	void   PlayAnimation(
+		const uint32 AnimationIndex,
+		const bool  bLoop,
+		const AnimNotify & _Notify = {});
+
 	void    ContinueAnimation()&;
 	void    StopAnimation();
 	void	AnimationEnd()&;
 	// 0 ~ 1 정규화 
 	float   PlayingTime();
 	//                       정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
-	void    SetPlayingTime( float NewTime);
-	std::optional<AnimationInformation> GetAnimInfo(const std::string& AnimName) const&;
+	void    SetPlayingTime(float NewTime);
+	std::optional<AnimationInformation> GetAnimInfo(const std::string & AnimName) const&;
 private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
@@ -69,13 +74,15 @@ private:
 		const std::filesystem::path _Path,
 		const std::any & InitParams)override;
 
-	Node*  MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
+	Node* MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
 		const std::unordered_map<std::string,
 		std::pair<uint32, Matrix>>&BoneTableParserInfo);
 	// Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
 	void InitTextureForVertexTextureFetch()&;
 	void AnimationNotify()&;
 private:
+	std::string RootMotionStartName = "Hip";
+	bool bRootMotion = true;
 	std::string PrevAnimName{};
 	std::string AnimName{};
 	float  CurrentAnimMotionTime{ 0.0 };
@@ -90,13 +97,14 @@ private:
 	AnimNotify           CurAnimNotify{};
 	AnimationInformation CurPlayAnimInfo{};
 	AnimationInformation PrevPlayAnimInfo{};
-	IDirect3DTexture9*   BoneAnimMatrixInfo{ nullptr };
-	IDirect3DTexture9*   PrevBoneAnimMatrixInfo{ nullptr };
+	IDirect3DTexture9* BoneAnimMatrixInfo{ nullptr };
+	IDirect3DTexture9* PrevBoneAnimMatrixInfo{ nullptr };
 	int32 VTFPitch{ 0 };
 	std::vector<Matrix> BoneSkinningMatries{};
 	std::vector<Matrix> PrevBoneSkinningMatries{};
 	bool bHasAnimation = false;
 	std::string RootNodeName{};
+	std::shared_ptr<std::map<uint32, std::string>>				AnimIndexNameMap{};
 	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
 	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
 };

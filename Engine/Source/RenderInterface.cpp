@@ -102,10 +102,16 @@ void RenderInterface::RenderAlphaBlendEffect()
 		}
 		else
 		{
-			ImplementationInfo _ImplInfo{};
-			_ImplInfo.Fx = Fx;
-			RenderAlphaBlendEffectImplementation(_ImplInfo);
-	
+			for (uint32 i = 0; i < Passes; ++i)
+			{
+				Fx->BeginPass(i);
+				{
+					ImplementationInfo _ImplInfo{};
+					_ImplInfo.Fx = Fx;
+					RenderAlphaBlendEffectImplementation(_ImplInfo);
+				}
+				Fx->EndPass();
+			}
 			Fx->End();
 		}
 	};
@@ -132,9 +138,16 @@ void RenderInterface::RenderDebug()
 		}
 		else
 		{
-			ImplementationInfo _ImplInfo{};
-			_ImplInfo.Fx = Fx;
-			RenderDebugImplementation(_ImplInfo);
+			for (uint32 i = 0; i < Passes; ++i)
+			{
+				Fx->BeginPass(i);
+				{
+					ImplementationInfo _ImplInfo{};
+					_ImplInfo.Fx = Fx;
+					RenderDebugImplementation(_ImplInfo);
+				}
+				Fx->EndPass();
+			}
 			Fx->End();
 		}
 	};
@@ -161,9 +174,16 @@ void RenderInterface::RenderDebugBone()
 		}
 		else
 		{
-			ImplementationInfo _ImplInfo{};
-			_ImplInfo.Fx = Fx;
-			RenderDebugBoneImplementation(_ImplInfo);
+			for (uint32 i = 0; i < Passes; ++i)
+			{
+				Fx->BeginPass(i);
+				{
+					ImplementationInfo _ImplInfo{};
+					_ImplInfo.Fx = Fx;
+					RenderDebugBoneImplementation(_ImplInfo);
+				}
+				Fx->EndPass();
+			}
 			Fx->End();
 		}
 	};

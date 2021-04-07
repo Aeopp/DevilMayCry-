@@ -2,8 +2,14 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,visualstudio
 
 ### Resource ###
+Player.FBX
 Player.fbx
+Player.x
 Em5000.fbx
+Em5000.FBX
+Em5000.x
+Em5000.X
+Tester.pdf
 ###            ###
 
 

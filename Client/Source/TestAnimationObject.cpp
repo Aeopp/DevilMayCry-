@@ -118,7 +118,7 @@ HRESULT TestAnimationObject::Ready()
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 
 	// 스켈레톤 메쉬 로딩 ... 
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Static\\Em5000.X");
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Player.fbx");
 	PushEditEntity(_SkeletonMesh.get());
 	// Prev VTF 켜기 . (모션블러등 이전 스키닝 정보가 필요할 경우
 	_SkeletonMesh->EnablePrevVTF();
