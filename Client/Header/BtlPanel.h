@@ -11,6 +11,7 @@ private:
 	{
 		REDORB = 0,
 		TARGET_CURSOR,
+		TARGET_HP,
 		DESC_END
 	};
 	struct UI_DESC
@@ -22,12 +23,19 @@ private:
 	UI_DESC* _UIDescs = nullptr;
 
 	std::shared_ptr<ENGINE::StaticMesh> _PlaneMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _Pipe0Mesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _Pipe1Mesh{};
+
+	std::shared_ptr<ENGINE::Texture> _NoiseTex{};
+
 	std::shared_ptr<ENGINE::Texture> _RedOrbALBMTex{};
 	std::shared_ptr<ENGINE::Texture> _RedOrbATOSTex{};
 	std::shared_ptr<ENGINE::Texture> _RedOrbNRMRTex{};
 
 	std::shared_ptr<ENGINE::Texture> _TargetCursorTex{};
+	std::shared_ptr<ENGINE::Texture> _EnemyHPTex{};
 
+	float _AccumulateTime = 0.f;
 	Vector3 _TargetCursorPos = Vector3(640.f, 360.f, 0.f);
 
 private:
@@ -38,7 +46,7 @@ private:
 	virtual std::string GetName() override;
 	///
 	void	Init_UIDescs();
-	void	Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out);
+	void	Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt = 0);
 	void	Imgui_Modify_UIPosAndScale(UI_DESC_ID _ID);
 public:
 	static BtlPanel* Create();
