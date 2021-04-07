@@ -95,8 +95,14 @@ void Subset::BindProperty(const UINT TexType,const uint64 TexIdx,const std::stri
 	{
 		if (FAILED(Fx->SetTexture(ShaderParamName.c_str(), Tex->GetTexture())))
 		{
-			PRINT_LOG(L"Failed ",L"Shader Texture Bind !!");
+			Log("Shader Texture Bind Failed !!");
+
 		}
+	}
+	else
+	{
+		Log("Shader Texture Bind Failed !!");
+
 	}
 }
 

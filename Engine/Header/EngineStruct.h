@@ -30,7 +30,7 @@ public:
 			nBufferSize = nStride = nNumFaces = nNumVertices = nNumUVChannel = 0u;
 		pVertexDecl = nullptr;
 		bHasBone = bHasPosition = bHasNormal = bHasTangentBiNormal = false;
-		LocalVertexLocation = std::make_shared<std::vector<D3DXVECTOR3>>();
+		
 	}
 	~tagVertexBufferDesc()
 	{
@@ -76,8 +76,14 @@ public:
 				}
 			}
 		}
-
-		Log("Search for a texture that doesn't exist");
+		if (g_bEditMode)
+		{
+			
+			
+			const std::string DebugTex = GetTextureTypeName(
+				TextureType) + " " + std::to_string(TextureIndex) + " : Search for a texture that doesn't exist";
+			Log(DebugTex);
+		}
 		return nullptr;
 
 	}

@@ -18,8 +18,10 @@ private:
 public:
 	static TestAnimationObject* Create();
 public:
+	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
-	virtual void    RenderReady()                          override;
+	virtual void    RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override;
+	virtual void    RenderReady()override;
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

@@ -1,4 +1,3 @@
-
 texture RenderTargetTexture;
 matrix Ortho;
 matrix ScreenMatrix;

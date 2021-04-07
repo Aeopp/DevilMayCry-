@@ -1,6 +1,8 @@
 #include "AssimpHelper.hpp"
 #include "SkeletonMesh.h"
 #include "Subset.h"
+#include "Renderer.h"
+
 #include <optional>
 #include <fstream>
 #include <ostream>
@@ -15,37 +17,39 @@ SkeletonMesh::SkeletonMesh(LPDIRECT3DDEVICE9 const _pDevice)
 }
 
 SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
-	: StaticMesh(_rOther) ,
-	bHasAnimation{ _rOther.bHasAnimation},
-	RootNodeName{ _rOther  .RootNodeName },
+	: StaticMesh(_rOther),
+	bHasAnimation{ _rOther.bHasAnimation },
+	RootNodeName{ _rOther.RootNodeName },
 	AnimInfoTable{ _rOther.AnimInfoTable },
-	BoneSkinningMatries{ _rOther.BoneSkinningMatries } ,
-	VTFPitch{ _rOther.VTFPitch }  ,
-	Nodes{ _rOther.Nodes }
+	VTFPitch{ _rOther.VTFPitch },
+	Nodes{ _rOther.Nodes },
+	AnimIndexNameMap{ _rOther.AnimIndexNameMap}
 {
-
+	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
 
 void SkeletonMesh::AnimationEditor()&
 {
 	if (AnimInfoTable)
 	{
+		if (ImGui::BeginPopup("Really Save?"))
+		{
+			ImGui::Text("If the file exists, the previous information will be blown away.");
+			if (ImGui::SmallButton("Yes"))
+			{
+				AnimationSave(ResourcePath);
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::SmallButton("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
 		if (ImGui::Button("Save"))
 		{
 			ImGui::OpenPopup("Really Save?");
-			if (ImGui::BeginPopup("Really Save?"))
-			{
-				ImGui::Text("If the file exists, the previous information will be blown away.");
-				if (ImGui::SmallButton("Yes"))
-				{
-					AnimationSave(ResourcePath);
-					ImGui::EndPopup();
-				}
-				else if(ImGui::SmallButton("Cancel"))
-				{
-					ImGui::EndPopup();
-				}
-			}
 		}
 
 		for (auto& AnimInfoIter : *AnimInfoTable)
@@ -56,7 +60,7 @@ void SkeletonMesh::AnimationEditor()&
 				ImGui::BulletText("Duration : %2.3f", AnimInfo.Duration);
 				ImGui::BulletText("TickPerSecond : %3.3f", AnimInfo.TickPerSecond);
 				ImGui::SliderFloat("Acceleration", &AnimInfo.RefOriginAcceleration(), 0.1f, 10.f);
-				ImGui::SliderFloat("TransitionTime", &AnimInfo.TransitionTime, 0.1f, 10.f);
+				ImGui::SliderFloat("TransitionTime", &AnimInfo.TransitionTime, 0.01f, 5.f);
 
 				if (AnimInfo.Name == AnimName && !bAnimationEnd)
 				{
@@ -131,6 +135,7 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 
 
 	auto* const Root = GetRootNode();
+	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
 	Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime,AnimName, IsAnimationBlend);
 	VTFUpdate();
 
@@ -240,10 +245,11 @@ void SkeletonMesh::Free()
 };
 
 SkeletonMesh* SkeletonMesh::Create(LPDIRECT3DDEVICE9 const _pDevice, 
-								   const std::filesystem::path _Path)
+								   const std::filesystem::path _Path ,
+	const std::any& InitParams)
 {
 	SkeletonMesh* pInstance = new SkeletonMesh(_pDevice);
-	if (FAILED(pInstance->LoadMeshFromFile(_Path)))
+	if (FAILED(pInstance->LoadMeshFromFile(_Path, InitParams)))
 	{
 		pInstance->Free();
 		delete pInstance;
@@ -288,34 +294,6 @@ void SkeletonMesh::BindVTF(ID3DXEffect* Fx)&
 	Fx->SetInt("VTFPitch", VTFPitch);
 }
 
-HRESULT SkeletonMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
-{
-	//Assimp Importer 생성.
-	auto AiImporter = Assimp::Importer{};
-	ResourcePath = _Path;
-	//FBX파일을 읽어서 Scene 생성.
-	const aiScene* const AiScene = AiImporter.ReadFile(
-		ResourcePath.string(),
-		aiProcess_MakeLeftHanded |
-		aiProcess_FlipUVs |
-		aiProcess_FlipWindingOrder |
-		aiProcess_Triangulate |
-		aiProcess_CalcTangentSpace |
-		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality |
-		aiProcess_RemoveRedundantMaterials |
-		aiProcess_GenUVCoords |
-		aiProcess_TransformUVCoords |
-		aiProcess_FindInstances |
-		aiProcess_GenSmoothNormals |
-		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes
-	);
-
-	return LoadSkeletonMeshImplementation(AiScene, ResourcePath);
-}
-
 
 void SkeletonMesh::EnablePrevVTF()&
 {
@@ -347,7 +325,30 @@ void SkeletonMesh::Update(const float DeltaTime)&
 	PrevAnimMotionTime += (DeltaTime * PrevPlayAnimInfo.CalcAcceleration());
 	TransitionRemainTime -= DeltaTime;
 	AnimationUpdateImplementation();
-}
+};
+
+void SkeletonMesh::BoneDebugRender(
+									const Matrix& OwnerTransformWorld,
+									ID3DXEffect* const Fx)&
+{
+	static auto DebugSphereMesh = Resources::Load<ENGINE::StaticMesh>(
+		"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
+
+	if (!Nodes || !DebugSphereMesh || bAnimationEnd) return;
+
+	Log("Bone Debug Render : Uninitialized nodes !");
+
+	for (auto& [NodeName, _Node] : *Nodes)
+	{
+		if (auto OToRoot = GetNodeToRoot(NodeName);
+				 OToRoot)
+		{
+			const Matrix ToRoot = OToRoot.value();
+			Fx->SetMatrix("ToRoot", &ToRoot);
+			DebugSphereMesh->Render(Fx);
+		}
+	}
+};
 
 void SkeletonMesh::VTFUpdate()&
 {
@@ -361,8 +362,7 @@ void SkeletonMesh::VTFUpdate()&
 		for (const auto& [NodeName, CurNode] : *Nodes)
 		{
 			const int32 CurNodeIndex = CurNode->Index;
-
-			if (CurNodeIndex != -1)
+			if (CurNode->IsBone())
 			{
 				BoneSkinningMatries[CurNodeIndex] = CurNode->Final;
 			}
@@ -400,8 +400,26 @@ Node* SkeletonMesh::GetNode(const std::string& NodeName)&
 		}
 	}
 
-
 	return nullptr;
+}
+
+std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
+{
+	if (Nodes)
+	{
+		auto iter = Nodes->find(NodeName);
+		if (iter != std::end(*Nodes))
+		{
+			auto SpNode = iter->second;
+			const uint32 NodeIndex = SpNode->Index;
+			if (SpNode->IsBone())
+			{
+				return   FMath::Inverse(SpNode->Offset)* BoneSkinningMatries[NodeIndex];
+			}
+		}
+	}
+
+	return std::nullopt;
 }
 
 void SkeletonMesh::PlayAnimation(
@@ -427,7 +445,18 @@ void SkeletonMesh::PlayAnimation(
 	CurPlayAnimInfo = iter->second;
 	TransitionDuration = TransitionRemainTime = CurPlayAnimInfo.TransitionTime;
 	CurAnimNotify = _Notify;
-	
+}
+
+void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify)
+{
+	if (AnimIndexNameMap)
+	{
+		if (auto iter = AnimIndexNameMap->find(AnimationIndex);
+			 iter != std::end(*AnimIndexNameMap) )
+		{
+			PlayAnimation(iter->second, bLoop, _Notify);
+		}
+	}
 }
 
 void SkeletonMesh::ContinueAnimation()&
@@ -516,10 +545,17 @@ static aiNode* FindBone(aiNode* AiNode ,
 };
 
 
-HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
+HRESULT SkeletonMesh::LoadMeshImplementation(
 	const aiScene* AiScene,
-	const std::filesystem::path _Path)
+	const std::filesystem::path _Path ,
+	const std::any& InitParams)
 {
+	Mesh::InitializeInfo _InitInfo{};
+	if (InitParams.has_value())
+	{
+		_InitInfo = std::any_cast<Mesh::InitializeInfo>(InitParams);
+	}
+
 	//Subset을 보관하는 vector 메모리 공간 확보.
 	m_vecSubset.resize(AiScene->mNumMeshes);
 	//FBX의 Scene을 구성하는 Mesh(Subset)로 부터 데이터 구성.
@@ -538,7 +574,7 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB , &BoneTableParserInfo)))
+			&tVBDesc, &pVB, &pIB , &BoneTableParserInfo , _InitInfo.bLocalVertexLocationsStorage)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
@@ -598,6 +634,8 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 	
 	if (bHasAnimation)
 	{
+		AnimIndexNameMap = std::make_shared<std::map<uint32, std::string>>();
+
 		AnimInfoTable = std::make_shared
 			<std::map<std::string, AnimationInformation>>();
 
@@ -610,6 +648,8 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 			CurAnimInfo.SetAcceleration(1.0f);
 			CurAnimInfo.Name = _AiAnimation->mName.C_Str();
 			CurAnimInfo.Duration = _AiAnimation->mDuration;
+
+			(*AnimIndexNameMap)[AnimIdx] = CurAnimInfo.Name;
 
 			for (uint32 ChannelIdx = 0u;
 				ChannelIdx < _AiAnimation->mNumChannels; ++ChannelIdx)
@@ -664,7 +704,10 @@ HRESULT SkeletonMesh::LoadSkeletonMeshImplementation(
 		}
 	}
 
-	MakeVertexLcationsFromSubset();
+	if (_InitInfo.bLocalVertexLocationsStorage)
+	{
+		MakeVertexLocationsFromSubset();
+	}
 	AnimationLoad(_Path);
 
 	return S_OK;
@@ -701,7 +744,6 @@ static bool IsBone(
 	}
 	else
 	{
-		TargetNode->Index = -1;
 		TargetNode->Offset = FMath::Identity();
 	}
 	

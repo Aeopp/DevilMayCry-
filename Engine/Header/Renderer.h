@@ -27,7 +27,7 @@ public :
 private : 
 	Frustum CameraFrustum{};
 	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
-	std::map<RenderProperty::Order, std::vector<std::shared_ptr<RenderInterface>>> RenderEntitys{};
+	std::map<RenderProperty::Order, std::vector<RenderInterface*>> RenderEntitys{};
 public :
 	// 오브젝트의 렌더 세팅이 켜져있다면 RenderInterface 인터페이스를 검사하고 엔티티에 추가 .
 	void Push(const std::weak_ptr<GameObject>& _RenderEntity)&;
@@ -48,6 +48,8 @@ private:
 	HRESULT RenderGBuffer()&;
 	HRESULT RenderForwardAlphaBlend()&;
 	HRESULT RenderAlphaBlendEffect()&;
+	HRESULT RenderDebug()&;
+	HRESULT RenderDebugBone()&;
 	HRESULT RenderUI()&;
 	HRESULT ImguiRender()&;
 private:

@@ -2,6 +2,8 @@
 #define __RESOURCE_SYSTEM_H__
 #include "Object.h"
 #include "Resource.h"
+#include <any>
+
 BEGIN(ENGINE)
 class Resource;
 class ResourceSystem final : public Object
@@ -28,7 +30,8 @@ public:
 	void Clear();
 public:
 	template <typename TYPE>
-	std::shared_ptr<TYPE> Load(const std::filesystem::path _Path);
+	std::shared_ptr<TYPE> Load(const std::filesystem::path _Path ,
+								const std::any& InitParams);
 };
 END
 #include"ResourceSystem.hpp"

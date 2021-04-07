@@ -15,10 +15,11 @@ void StaticMesh::Free()
 	Mesh::Free();
 }
 
-StaticMesh* StaticMesh::Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem::path _Path)
+StaticMesh* StaticMesh::Create(LPDIRECT3DDEVICE9 const _pDevice, 
+				const std::filesystem::path _Path , const std::any& InitParams)
 {
 	StaticMesh* pInstance = new StaticMesh(_pDevice);
-	if (FAILED(pInstance->LoadMeshFromFile(_Path)))
+	if (FAILED(pInstance->LoadMeshFromFile(_Path, InitParams)))
 	{
 		pInstance->Free();
 		delete pInstance;
@@ -45,36 +46,16 @@ std::string StaticMesh::GetName()
 	return "StaticMesh";
 };
 
-HRESULT StaticMesh::LoadMeshFromFile(const std::filesystem::path _Path)&
+HRESULT StaticMesh::LoadMeshImplementation(const aiScene* AiScene,
+	const std::filesystem::path _Path,
+	const std::any& InitParams)
 {
-	//Assimp Importer 생성.
-	auto AiImporter = Assimp::Importer{};
-	ResourcePath = _Path;
-	//FBX파일을 읽어서 Scene 생성.
-	const aiScene* const AiScene = AiImporter.ReadFile(
-		ResourcePath.string(),
-		aiProcess_MakeLeftHanded |
-		aiProcess_FlipUVs |
-		aiProcess_FlipWindingOrder |
-		aiProcess_Triangulate |
-		aiProcess_CalcTangentSpace |
-		aiProcess_ValidateDataStructure |
-		aiProcess_ImproveCacheLocality |
-		aiProcess_RemoveRedundantMaterials |
-		aiProcess_GenUVCoords |
-		aiProcess_TransformUVCoords |
-		aiProcess_FindInstances |
-		aiProcess_GenSmoothNormals |
-		aiProcess_SortByPType |
-		aiProcess_OptimizeMeshes |
-		aiProcess_SplitLargeMeshes
-	);
+	Mesh::InitializeInfo _InitInfo{};
+	if (InitParams.has_value())
+	{
+		_InitInfo = std::any_cast<Mesh::InitializeInfo>(InitParams);
+	}
 
-	return LoadStaticMeshImplementation(AiScene, ResourcePath);
-}
-HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
-										const std::filesystem::path _Path)
-{
 	//Subset을 보관하는 vector 메모리 공간 확보.
 	m_vecSubset.resize(AiScene->mNumMeshes);
 
@@ -92,7 +73,7 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB,nullptr)))
+			&tVBDesc, &pVB, &pIB,nullptr,_InitInfo.bLocalVertexLocationsStorage)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
@@ -136,9 +117,11 @@ HRESULT StaticMesh::LoadStaticMeshImplementation(const aiScene* AiScene ,
 		m_vecSubset[MeshIdx] = _CurrentSubset;
 	};
 
-	MakeVertexLcationsFromSubset();
-
-
+	if (_InitInfo.bLocalVertexLocationsStorage)
+	{
+		MakeVertexLocationsFromSubset();
+	}
+	
 
 	return S_OK;
 }

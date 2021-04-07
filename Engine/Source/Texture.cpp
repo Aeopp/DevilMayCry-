@@ -45,7 +45,9 @@ void Texture::Free()
 	Resource::Free();
 }
 
-Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, const std::filesystem::path _Path)
+Texture* Texture::Create(LPDIRECT3DDEVICE9 const _pDevice, 
+							const std::filesystem::path _Path ,
+							const std::any& InitParams)
 {
 	Texture* pInstance = new Texture(_pDevice);
 	if (FAILED(pInstance->LoadTextureFromFile(_Path)))

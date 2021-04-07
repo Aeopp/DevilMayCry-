@@ -14,9 +14,7 @@
 #include <set>
 #include "AnimNotify.h"
 
-
 class aiNode;
-
 BEGIN(ENGINE)
 class ENGINE_DLL SkeletonMesh final : public StaticMesh
 {
@@ -28,25 +26,34 @@ private:
 	virtual void Free() override;
 public:
 	static SkeletonMesh* Create(LPDIRECT3DDEVICE9 const _pDevice,
-								const std::filesystem::path _Path);
+								const std::filesystem::path _Path,
+								const std::any& InitParams);
 	// Mesh을(를) 통해 상속됨
 	virtual Resource* Clone() override;
 	virtual void Editor()override;
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
-	HRESULT LoadMeshFromFile(const std::filesystem::path _Path)&;
-public:
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
 	void    Update(const float DeltaTime)&;
+	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
 	Node*   GetRootNode()&;
 	Node*	GetNode(const std::string & NodeName)&;
-	void    PlayAnimation(
+	//      본 스키닝 매트릭스에서 ToRoot 매트릭스를 계산 
+	//      (현재 스키닝 업데이트를 하지 않는다면 반환값은 마지막 스키닝 했을시의 정보)
+	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
+
+	void   PlayAnimation(
 		const std::string & InitAnimName, 
 		const bool  bLoop ,
 		const AnimNotify & _Notify = {});
+	void   PlayAnimation(
+		const uint32 AnimationIndex,
+		const bool  bLoop,
+		const AnimNotify & _Notify = {});
+
 	void    ContinueAnimation()&;
 	void    StopAnimation();
 	void	AnimationEnd()&;
@@ -62,8 +69,11 @@ private:
 	void    AnimationSave(const std::filesystem::path & FullPath)&;
 	void    AnimationLoad(const std::filesystem::path & FullPath)&;
 private:
-	HRESULT LoadSkeletonMeshImplementation(const aiScene * AiScene,
-								const std::filesystem::path _Path);
+	virtual HRESULT LoadMeshImplementation(
+		const aiScene * AiScene,
+		const std::filesystem::path _Path,
+		const std::any & InitParams)override;
+
 	Node*  MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
 		const std::unordered_map<std::string,
 		std::pair<uint32, Matrix>>&BoneTableParserInfo);
@@ -92,6 +102,7 @@ private:
 	std::vector<Matrix> PrevBoneSkinningMatries{};
 	bool bHasAnimation = false;
 	std::string RootNodeName{};
+	std::shared_ptr<std::map<uint32, std::string>>				AnimIndexNameMap{};
 	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
 	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
 };

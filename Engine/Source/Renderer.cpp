@@ -115,8 +115,10 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 						= std::dynamic_pointer_cast<RenderInterface>(_SharedObject);
 				_SharedRenderEntity)
 			{
-				const auto PassOrder = _SharedRenderEntity->GetRenderProp()._Order;
-				RenderEntitys[PassOrder].push_back(_SharedRenderEntity);
+				for (const auto& _EntityRenderOrder: _SharedRenderEntity->GetRenderProp().RenderOrders)
+				{
+					RenderEntitys[_EntityRenderOrder].push_back(_SharedRenderEntity.get());
+				}
 			}
 		}
 	}
@@ -157,7 +159,7 @@ void Renderer::RenderReady()&
 	CurrentRenderInfo.Ortho = Ortho;
 	Culling();
 }
-
+// 등록코드수정 
 void Renderer::RenderReadyEntitys()&
 {
 	for (auto& [_Order,RenderEntitys] : RenderEntitys)
@@ -178,7 +180,6 @@ void Renderer::FrustumCulling()&
 {
 	CameraFrustum.Make(CurrentRenderInfo.ViewInverse, CurrentRenderInfo.CameraProjection);
 	// 절두체에서 검사해서 Entity 그룹에서 지우기 ....
-
 }
 
 void Renderer::RenderEnd()&
@@ -200,6 +201,8 @@ HRESULT Renderer::RenderImplementation()&
 		RenderForwardAlphaBlend();
 		RenderAlphaBlendEffect();
 		RenderUI();
+		RenderDebug();
+		RenderDebugBone();
 	}
 	m_pDevice->SetRenderTarget(0u, BackBuffer);
 	BackBuffer->Release();
@@ -272,6 +275,54 @@ HRESULT Renderer::RenderAlphaBlendEffect()&
 				if (_RenderEntity->GetRenderProp().bRender)
 				{
 					_RenderEntity->RenderAlphaBlendEffect();
+				}
+			}
+		}
+	}
+
+	return S_OK;
+}
+
+HRESULT Renderer::RenderDebug()&
+{
+	if (g_bDebugRender)
+	{
+		m_pDevice->SetRenderTarget(0u, BackBuffer);
+		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::Debug);
+			_TargetGroup != std::end(RenderEntitys))
+		{
+			for (auto& _RenderEntity : _TargetGroup->second)
+			{
+				if (_RenderEntity)
+				{
+					if (_RenderEntity->GetRenderProp().bRender)
+					{
+						_RenderEntity->RenderDebug();
+					}
+				}
+			}
+		}
+	}
+
+	return S_OK;
+}
+
+HRESULT Renderer::RenderDebugBone()&
+{
+	if (g_bDebugRender)
+	{
+		m_pDevice->SetRenderTarget(0u, BackBuffer);
+		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::DebugBone);
+			_TargetGroup != std::end(RenderEntitys))
+		{
+			for (auto& _RenderEntity : _TargetGroup->second)
+			{
+				if (_RenderEntity)
+				{
+					if (_RenderEntity->GetRenderProp().bRender)
+					{
+						_RenderEntity->RenderDebugBone();
+					}
 				}
 			}
 		}
