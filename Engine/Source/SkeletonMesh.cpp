@@ -57,6 +57,7 @@ void SkeletonMesh::AnimationEditor()&
 			auto& AnimInfo = AnimInfoIter.second;
 			if (ImGui::TreeNode(AnimInfo.Name.c_str()))
 			{
+
 				ImGui::BulletText("Duration : %2.3f", AnimInfo.Duration);
 				ImGui::BulletText("TickPerSecond : %3.3f", AnimInfo.TickPerSecond);
 				ImGui::SliderFloat("Acceleration", &AnimInfo.RefOriginAcceleration(), 0.1f, 10.f);
