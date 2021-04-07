@@ -6,9 +6,9 @@
 #include "TestAnimationObject.h"
 #include "Eff_OvertureHand.h"
 #include "BtlPanel.h"
+#include "Camera.h"
 
 #include <iostream>
-#include "Camera.h"
 using namespace std;
 
 TestScene::TestScene()
@@ -46,10 +46,8 @@ HRESULT TestScene::LoadScene()
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();*/
 
-
-	AddGameObject<Eff_OvertureHand>();
-
-	AddGameObject<BtlPanel>();
+	//AddGameObject<Eff_OvertureHand>();
+	//AddGameObject<BtlPanel>();
 
 	return S_OK;
 }

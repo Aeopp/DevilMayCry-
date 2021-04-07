@@ -89,7 +89,7 @@ HRESULT Eff_OvertureHand::Ready()
 	_InitRenderProp.RenderOrders =
 	{
 		ENGINE::RenderProperty::Order::AlphaBlendEffect,
-		ENGINE::RenderProperty::Order::Debug
+		//ENGINE::RenderProperty::Order::Debug
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 

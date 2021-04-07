@@ -86,7 +86,6 @@ void RenderInterface::RenderAlphaBlendEffect()
 {
 	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
 	
-
 	if (auto SpShader = _ShaderInfo.GetShader(RenderProperty::Order::AlphaBlendEffect);
 		SpShader)
 	{
@@ -118,6 +117,32 @@ void RenderInterface::RenderAlphaBlendEffect()
 }
 
 void RenderInterface::RenderUIImplementation(const ImplementationInfo& _ImplInfo) {}
+
+void RenderInterface::RenderUI()
+{
+	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
+
+	if (auto SpShader = _ShaderInfo.GetShader(RenderProperty::Order::UI);
+		SpShader)
+	{
+		auto Fx = SpShader->GetEffect();
+		Fx->SetMatrix("Ortho", &_CurRenderInfo.Ortho);
+
+		UINT Passes{ 0u };
+		if (FAILED(Fx->Begin(&Passes, NULL)))
+		{
+			PRINT_LOG(L"Failed!!", __FUNCTIONW__);
+		}
+		else
+		{
+			ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+			RenderUIImplementation(_ImplInfo);
+
+			Fx->End();
+		}
+	}
+}
 
 void RenderInterface::RenderDebug()
 {
@@ -193,32 +218,6 @@ void RenderInterface::RenderDebugBoneImplementation(const ImplementationInfo& _I
 {
 
 };
-
-
-void RenderInterface::RenderUI()
-{
-	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
-
-	if (_ShaderInfo.UIShader)
-	{
-		auto Fx = _ShaderInfo.UIShader->GetEffect();
-		Fx->SetMatrix("Ortho", &_CurRenderInfo.Ortho);
-
-		UINT Passes{ 0u };
-		if (FAILED(Fx->Begin(&Passes, NULL)))
-		{
-			PRINT_LOG(L"Failed!!", __FUNCTIONW__);
-		}
-		else
-		{
-			ImplementationInfo _ImplInfo{};
-			_ImplInfo.Fx = Fx;
-			RenderUIImplementation(_ImplInfo);
-
-			Fx->End();
-		}
-	}
-}
 
 void RenderInterface::ShaderInfo::RegistShader(const RenderProperty::Order& RegistOrder,
 	const std::filesystem::path& LoadPath, const std::any& InitParams)&

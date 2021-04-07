@@ -164,10 +164,15 @@ HRESULT BtlPanel::Ready()
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	_InitRenderProp._Order = ENGINE::RenderProperty::Order::UI;
+	_InitRenderProp.RenderOrders =
+	{
+		ENGINE::RenderProperty::Order::UI,
+		//ENGINE::RenderProperty::Order::Debug
+	};
 	RenderInterface::Initialize(_InitRenderProp);
 
-	_ShaderInfo.UIShader = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\UI\\BtlPanel.hlsl");
+	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::UI,
+		L"..\\..\\Resource\\Shader\\UI\\BtlPanel.hlsl", {});
 
 	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
 	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\pipe00.fbx");
