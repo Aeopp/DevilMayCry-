@@ -30,10 +30,11 @@ public:
 								const std::any & InitParams);
 	// Mesh을(를) 통해 상속됨
 	virtual Resource* Clone() override;
-	virtual void Editor()override;
+	virtual void      Editor()override;
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
+	bool    IsAnimationEnd();
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
 	void    Update(const float DeltaTime)&;
@@ -62,6 +63,8 @@ public:
 	//                       정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
 	void    SetPlayingTime(float NewTime);
 	std::optional<AnimationInformation> GetAnimInfo(const std::string & AnimName) const&;
+
+	void SetDeltaTimeFactor(const float DeltaTimeFactor);
 private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
@@ -81,7 +84,8 @@ private:
 	void InitTextureForVertexTextureFetch()&;
 	void AnimationNotify()&;
 private:
-	std::string RootMotionStartName = "Hip";
+	float DeltaTimeFactor = 1.f;
+	std::string RootMotionStartName = "root_$AssimpFbx$_Translation";
 	bool bRootMotion = true;
 	std::string PrevAnimName{};
 	std::string AnimName{};

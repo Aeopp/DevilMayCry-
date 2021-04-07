@@ -29,13 +29,19 @@ public:
 
 	std::unordered_map<std::string,AnimationTrack> _AnimationTrack{};
 
+	static std::tuple<Vector3, Quaternion, Vector3>
+		CurrentAnimationTransform(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+
 	void NodeUpdate(
 		const Matrix& ParentToRoot,
 		const double CurrentAnimationTime,
 		const std::string& AnimationName,
-		const std::optional<AnimationBlendInfo>& IsAnimationBlend)&;
+		const std::optional<AnimationBlendInfo>& IsAnimationBlend ,
+		const std::optional<std::string>& RootMotionRootName)&;
 
-	void Editor()&;
+	void Editor(std::string& RefRootMotionName)&;
 };
 END
 

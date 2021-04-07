@@ -3,23 +3,26 @@
 USING(ENGINE)
 
 
-void Node::Editor()&
+void Node::Editor(std::string& RefRootMotionName)&
 {
 	if (ImGui::TreeNode(Name.c_str()))
 	{
-		ImGui::TreePop();
-
+		if (ImGui::Button("Set RootMotionRoot"))
+		{
+			RefRootMotionName = Name;
+		}
 		for (auto& Children : Childrens)
 		{
-			Children->Editor();
+			Children->Editor(RefRootMotionName);
 		}
+		ImGui::TreePop();
 	}
 }
 
-std::tuple<Vector3,Quaternion,Vector3>
-		CurrentAnimationTransform(
-		const AnimationTrack& AnimTrack , 
-		const double CurrentAnimationTime)
+std::tuple<Vector3, Quaternion, Vector3>
+	Node::CurrentAnimationTransform(
+	const AnimationTrack& AnimTrack,
+	const double CurrentAnimationTime)
 {
 	Vector3 Scale{ 1,1,1 };
 	Quaternion Quat{};
@@ -93,13 +96,14 @@ std::tuple<Vector3,Quaternion,Vector3>
 		}
 	}
 
-	return {Scale,Quat,Pos};
+	return { Scale,Quat,Pos };
 }
 
 void Node::NodeUpdate(const Matrix& ParentToRoot,
 				     const double CurrentAnimationTime,
 				     const std::string& AnimationName, 
-	const std::optional<AnimationBlendInfo>& IsAnimationBlend)&
+	const std::optional<AnimationBlendInfo>& IsAnimationBlend ,
+	const std::optional<std::string> & RootMotionRootName)&
 {
 	// 여기서 이전 프레임과 다음 프레임을 보간 한다.
 	
@@ -112,14 +116,14 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 
 		if (IsAnimationBlend.has_value())
 		{
-			auto PrevIter = 
+			auto PrevIter =
 				_AnimationTrack.find(IsAnimationBlend->PrevAnimationName);
 			const bool bPrevAnim = PrevIter != std::end(_AnimationTrack);
 			if (bPrevAnim)
 			{
 				auto [PrevScale, PrevQuat, PrevPos] =
 					CurrentAnimationTransform(PrevIter->second,
-					IsAnimationBlend->AnimationTime);
+						IsAnimationBlend->AnimationTime);
 
 				const double BlendWeight =
 					1.0 - IsAnimationBlend->PrevAnimationWeight;
@@ -129,7 +133,21 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 				D3DXVec3Lerp(&Pos, &PrevPos, &Pos, BlendWeight);
 			}
 		}
-			Transform = FMath::Scale(Scale) *
+
+		if (RootMotionRootName)
+		{
+			if (Name == RootMotionRootName.value())
+			{
+				Pos = { 0,0,0 };
+			}
+			
+			if (Name == "root_$AssimpFbx$_Scaling")
+			{
+				Scale = { 1,1,1 };
+			}
+		}
+
+		Transform = FMath::Scale(Scale) *
 					FMath::Rotation(Quat) *
 					FMath::Translation(Pos);
 	}
@@ -146,7 +164,7 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 		ChildrenTarget->NodeUpdate(ToRoot,
 			CurrentAnimationTime, 
 			AnimationName,
-			IsAnimationBlend);
+			IsAnimationBlend , RootMotionRootName);
 	}
 }
 

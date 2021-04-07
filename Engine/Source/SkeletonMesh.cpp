@@ -52,11 +52,11 @@ void SkeletonMesh::AnimationEditor()&
 		{
 			ImGui::OpenPopup("Really Save?");
 		}
+		ImGui::Checkbox("RootMotion", &bRootMotion);
 
 		for (auto& AnimInfoIter : *AnimInfoTable)
 		{
 			auto& AnimInfo = AnimInfoIter.second;
-			ImGui::Checkbox("RootMotion", &bRootMotion);
 
 			if (ImGui::TreeNode(AnimInfo.Name.c_str()))
 			{
@@ -106,7 +106,7 @@ void SkeletonMesh::NodeEditor()
 			auto SpNode = RootNodeIter->second;
 			if (SpNode)
 			{
-				SpNode->Editor();
+				SpNode->Editor(RootMotionStartName);
 			}
 		}
 	}
@@ -117,7 +117,7 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 {
 	AnimationNotify();
 	std::optional<AnimationBlendInfo> IsAnimationBlend = std::nullopt;
-
+	
 	if (TransitionRemainTime > 0.0)
 	{
 		if (PrevAnimMotionTime > (*AnimInfoTable)[PrevAnimName].Duration)
@@ -132,44 +132,40 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 		IsAnimationBlend = _PrevAnimBlend;
 	}
 
-
-
-
 	std::optional<std::string> IsRootMotion;
-	// 루트모션 시작 . .. 
-	//if (bRootMotion)
-	//{
-	//	auto* const RootMotionRoot = GetNode(RootMotionStartName);
-	//	if (RootMotionRoot)
-	//	{
-	//		auto iter = RootMotionRoot->_AnimationTrack.find(AnimName);
-	//		const bool bCurAnim = iter != std::end(RootMotionRoot->_AnimationTrack);
-	//		if (bCurAnim)
-	//		{
-	//			IsRootMotion = RootMotionStartName;
+	 // 루트모션 시작 . .. 
+	if (bRootMotion)
+	{
+		auto* const RootMotionRoot = GetNode(RootMotionStartName);
+		if (RootMotionRoot)
+		{
+			auto iter = RootMotionRoot->_AnimationTrack.find(AnimName);
+			const bool bCurAnim = iter != std::end(RootMotionRoot->_AnimationTrack);
+			if (bCurAnim)
+			{
+				IsRootMotion = RootMotionStartName;
 
-	//			const auto& RootAnimTrack = iter->second;
-	//			const auto
-	//				[Scale, Quat, Pos] = Node::CurrentAnimationTransform(RootAnimTrack, CurrentAnimMotionTime);
+				const auto& RootAnimTrack = iter->second;
+				const auto
+					[Scale, Quat, Pos] = Node::CurrentAnimationTransform(RootAnimTrack, CurrentAnimMotionTime);
 
-	//			// 해당 위치값으로 트랜스폼 보정 ... !! 
-	//			Pos;
+				// 해당 위치값으로 트랜스폼 보정 ... !! 
+				Pos;
 
-	//			if (IsAnimationBlend.has_value())
-	//			{
+				if (IsAnimationBlend.has_value())
+				{
+					auto PrevIter = RootMotionRoot->_AnimationTrack.find(AnimName);
 
-	//			}
-	//		}
-	//	}
+				}
+			}
+		}
 
-	//}
-	// 루트모션 종료.....
+	}
+	 // 루트모션 종료.....
 
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
-	// Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime, AnimName, IsAnimationBlend, IsRootMotion);
-	 Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime, AnimName, IsAnimationBlend);
-
+	Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime, AnimName, IsAnimationBlend, IsRootMotion);
 	//
 	VTFUpdate();
 
@@ -326,8 +322,12 @@ void SkeletonMesh::BindVTF(ID3DXEffect* Fx)&
 {
 	Fx->SetTexture("VTF", BoneAnimMatrixInfo);
 	Fx->SetInt("VTFPitch", VTFPitch);
-}
+};
 
+bool SkeletonMesh::IsAnimationEnd()
+{
+	return bAnimationEnd;
+}
 
 void SkeletonMesh::EnablePrevVTF()&
 {
@@ -355,9 +355,12 @@ void SkeletonMesh::Update(const float DeltaTime)&
 {
 	if (bAnimationEnd || bAnimStop)return;
 
-	CurrentAnimMotionTime += (DeltaTime * CurPlayAnimInfo.CalcAcceleration());
-	PrevAnimMotionTime += (DeltaTime * PrevPlayAnimInfo.CalcAcceleration());
-	TransitionRemainTime -= DeltaTime;
+	const float CalcDeltaTime = DeltaTime * DeltaTimeFactor;
+
+	CurrentAnimMotionTime += (CalcDeltaTime * CurPlayAnimInfo.CalcAcceleration());
+	PrevAnimMotionTime += (CalcDeltaTime * PrevPlayAnimInfo.CalcAcceleration());
+	TransitionRemainTime -= CalcDeltaTime;
+
 	AnimationUpdateImplementation();
 };
 
@@ -509,7 +512,7 @@ void SkeletonMesh::StopAnimation()
 		return;
 
 	bAnimStop = true;
-}
+};
 
 void SkeletonMesh::AnimationEnd()&
 {
@@ -523,7 +526,7 @@ void SkeletonMesh::AnimationEnd()&
 	{
 		bAnimationEnd = true;
 	}
-}
+};
 
 float SkeletonMesh::PlayingTime()
 {
@@ -558,6 +561,11 @@ SkeletonMesh::GetAnimInfo(const std::string& AnimName) const&
 	}
 
 	return std::nullopt;
+}
+
+void SkeletonMesh::SetDeltaTimeFactor(const float DeltaTimeFactor)
+{
+	this->DeltaTimeFactor = DeltaTimeFactor;
 }
 
 static aiNode* FindBone(aiNode* AiNode,
