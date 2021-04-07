@@ -24,6 +24,7 @@ public:
 	Matrix Offset{ FMath::Identity() };
 	std::string Name{};
 	int32 Index{ -1 };
+	int32 RootMotionFlag{ -1 };
 
 	inline bool IsBone() { return Index >=0; };
 
@@ -38,10 +39,11 @@ public:
 		const Matrix& ParentToRoot,
 		const double CurrentAnimationTime,
 		const std::string& AnimationName,
-		const std::optional<AnimationBlendInfo>& IsAnimationBlend ,
-		const std::optional<std::string>& RootMotionRootName)&;
+		const std::optional<AnimationBlendInfo>& IsAnimationBlend)&;
 
-	void Editor(std::string& RefRootMotionName)&;
+	void Editor(std::string& RefRootMotionScaleName,
+				std::string& RefRootMotionRotationName,
+				std::string& RefRootMotionTransitionName)&;
 };
 END
 

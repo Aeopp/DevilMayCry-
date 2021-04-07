@@ -40,8 +40,8 @@ public:
 	void    Update(const float DeltaTime)&;
 	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
-	Node* GetRootNode()&;
-	Node* GetNode(const std::string & NodeName)&;
+	Node*   GetRootNode()&;
+	Node*   GetNode(const std::string & NodeName)&;
 	//      본 스키닝 매트릭스에서 ToRoot 매트릭스를 계산 
 	//      (현재 스키닝 업데이트를 하지 않는다면 반환값은 마지막 스키닝 했을시의 정보)
 	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
@@ -49,11 +49,15 @@ public:
 	void   PlayAnimation(
 		const std::string & InitAnimName,
 		const bool  bLoop ,
-		const AnimNotify & _Notify = {});
+		const AnimNotify & _Notify = {} ,
+		const float _CurrentAccelerationFactor = 1.0f, 
+		const float _CurrentTransitionTimeFactor = 1.0f);
 	void   PlayAnimation(
 		const uint32 AnimationIndex,
 		const bool  bLoop,
-		const AnimNotify & _Notify = {});
+		const AnimNotify & _Notify = {} ,
+		const float _CurrentAccelerationFactor = 1.0f,
+		const float _CurrentTransitionTimeFactor = 1.0f);
 
 	void    ContinueAnimation()&;
 	void    StopAnimation();
@@ -83,12 +87,32 @@ private:
 	// Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
 	void InitTextureForVertexTextureFetch()&;
 	void AnimationNotify()&;
+
+	static inline std::string NormallyRootMotionTransitionName = 
+		"root_$AssimpFbx$_Translation";
+	static inline std::string NormallyRootMotionScaleName =
+		"root_$AssimpFbx$_Scaling";
+	static inline std::string NormallyRootMotionRotationName =
+		"root_$AssimpFbx$_Rotation";
 private:
+	std::string RootMotionScaleName = NormallyRootMotionScaleName;
+	std::string RootMotionRotationName = NormallyRootMotionRotationName;
+	std::string RootMotionTransitionName = NormallyRootMotionTransitionName;
+	
+public:
+	// 노드 정보는 클론들끼리 공유하므로 하나의 클론이 설정한 값으로 모든 클론이 작동.
+	void    EnableRootMotion(
+		const std::string& ScalingRootName="",
+		const std::string& RotationRootName="",
+		const std::string& TransitionRootName="");
+	void    DisableRootMotion();
 	float DeltaTimeFactor = 1.f;
-	std::string RootMotionStartName = "root_$AssimpFbx$_Translation";
-	bool bRootMotion = true;
+	bool bRootMotion = false;
 	std::string PrevAnimName{};
 	std::string AnimName{};
+	float  PrevAccelerationFactor = 1.0f;
+	float  CurrentAccelerationFactor = 1.0f;
+	float  CurrentTransitionTimeFactor = 1.0f;
 	float  CurrentAnimMotionTime{ 0.0 };
 	float  PrevAnimMotionTime{ 0.0 };
 	float  TransitionRemainTime = -1.0;

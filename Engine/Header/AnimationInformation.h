@@ -16,9 +16,9 @@ struct ENGINE_DLL AnimationInformation
 	{
 		Acceleration = NewAcceleration;
 	}
-	float     CalcAcceleration() const 
+	float     CalcAcceleration(const float AccelerationFactor=1.0f) const 
 	{
-		return Acceleration * TickPerSecond;
+		return Acceleration * TickPerSecond * AccelerationFactor;
 	}
 	float& RefOriginAcceleration()
 	{

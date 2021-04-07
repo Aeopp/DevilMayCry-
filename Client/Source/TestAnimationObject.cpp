@@ -117,7 +117,17 @@ HRESULT TestAnimationObject::Ready()
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 
 	// 스켈레톤 메쉬 로딩 ... 
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Player.fbx");
+	Mesh::InitializeInfo _InitInfo{};
+	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
+	_InitInfo.bLocalVertexLocationsStorage = false;
+	// 루트 모션 지원 해줘 !!
+	_InitInfo.bRootMotion = true;
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Player.fbx" , _InitInfo);
+
+	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
+	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)
+	// _SkeletonMesh->EnableRootMotion("스케일루트모션루트이름", "로테이션...", "이동...");
+
 	PushEditEntity(_SkeletonMesh.get());
 	// Prev VTF 켜기 . (모션블러등 이전 스키닝 정보가 필요할 경우
 	_SkeletonMesh->EnablePrevVTF();

@@ -24,7 +24,9 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	VTFPitch{ _rOther.VTFPitch },
 	Nodes{ _rOther.Nodes },
 	AnimIndexNameMap{ _rOther.AnimIndexNameMap },
-	RootMotionStartName{ _rOther.RootMotionStartName }
+	RootMotionScaleName{ _rOther.RootMotionScaleName } ,
+	RootMotionTransitionName{ _rOther.RootMotionTransitionName },
+	bRootMotion{ _rOther.bRootMotion }
 {
 	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
@@ -106,7 +108,10 @@ void SkeletonMesh::NodeEditor()
 			auto SpNode = RootNodeIter->second;
 			if (SpNode)
 			{
-				SpNode->Editor(RootMotionStartName);
+				
+				SpNode->Editor(RootMotionScaleName,
+								RootMotionRotationName,
+								RootMotionTransitionName);
 			}
 		}
 	}
@@ -115,9 +120,21 @@ void SkeletonMesh::NodeEditor()
 
 void SkeletonMesh::AnimationUpdateImplementation()&
 {
+	const float TimeBeyondAnimation =
+		( CurrentAnimMotionTime - CurPlayAnimInfo.Duration);
+
+	const bool bBeyondAnim = TimeBeyondAnimation > 0.0f;
+	if (bBeyondAnim)
+	{
+		AnimationEnd();
+	}
+
+	const float PercentageBeyondAnimation =
+		TimeBeyondAnimation / CurPlayAnimInfo.Duration;
+
 	AnimationNotify();
 	std::optional<AnimationBlendInfo> IsAnimationBlend = std::nullopt;
-	
+
 	if (TransitionRemainTime > 0.0)
 	{
 		if (PrevAnimMotionTime > (*AnimInfoTable)[PrevAnimName].Duration)
@@ -133,10 +150,11 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 	}
 
 	std::optional<std::string> IsRootMotion;
-	 // 루트모션 시작 . .. 
+	// 루트모션 시작 . .. 
 	if (bRootMotion)
 	{
-		auto* const RootMotionRoot = GetNode(RootMotionStartName);
+		// GetNode("")
+		auto* const RootMotionRoot = GetRootMotionNode();
 		if (RootMotionRoot)
 		{
 			auto iter = RootMotionRoot->_AnimationTrack.find(AnimName);
@@ -165,14 +183,11 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
-	Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime, AnimName, IsAnimationBlend, IsRootMotion);
+	Root->NodeUpdate(FMath::Identity(), 
+		CurrentAnimMotionTime, AnimName, IsAnimationBlend);
 	//
 	VTFUpdate();
 
-	if (CurrentAnimMotionTime > CurPlayAnimInfo.Duration)
-	{
-		AnimationEnd();
-	}
 }
 
 void SkeletonMesh::AnimationSave(
@@ -185,6 +200,16 @@ void SkeletonMesh::AnimationSave(
 	StringBuffer StrBuf{};
 	PrettyWriter<StringBuffer> Writer(StrBuf);
 	Writer.StartObject();
+
+	Writer.Key("RootMotion_ScaleName");
+	Writer.String(RootMotionScaleName.c_str());
+
+	Writer.Key("RootMotion_RotationName");
+	Writer.String(RootMotionRotationName.c_str());
+
+	Writer.Key("RootMotion_TransitionName");
+	Writer.String(RootMotionTransitionName.c_str());
+
 	Writer.Key("AnimationData");
 	Writer.StartArray();
 	{
@@ -221,7 +246,7 @@ void SkeletonMesh::AnimationLoad(
 	std::filesystem::path AnimPath = FullPath;
 	AnimPath.replace_extension("Animation");
 	std::ifstream Is{ AnimPath };
-
+	
 	if (!Is.is_open())
 		return;
 
@@ -234,6 +259,30 @@ void SkeletonMesh::AnimationLoad(
 	{
 		PRINT_LOG(L"Warning!", L"Animation Parse Error!");
 		return;
+	}
+
+	{
+		const Value& RootMotionRootName = _Document["RootMotion_ScaleName"];
+		if (false == RootMotionRootName.Empty())
+		{
+			RootMotionScaleName = RootMotionRootName.GetString();
+		}
+	}
+	
+	{
+		const Value& RootMotionRootName = _Document["RootMotion_RotationName"];
+		if (false == RootMotionRootName.Empty())
+		{
+			RootMotionRotationName = RootMotionRootName.GetString();
+		}
+	}
+
+	{
+		const Value& RootMotionRootName = _Document["RootMotion_TransitionName"];
+		if (false == RootMotionRootName.Empty())
+		{
+			RootMotionTransitionName = RootMotionRootName.GetString();
+		}
 	}
 
 	const Value& AnimJsonTable = _Document["AnimationData"];
@@ -357,9 +406,14 @@ void SkeletonMesh::Update(const float DeltaTime)&
 
 	const float CalcDeltaTime = DeltaTime * DeltaTimeFactor;
 
-	CurrentAnimMotionTime += (CalcDeltaTime * CurPlayAnimInfo.CalcAcceleration());
-	PrevAnimMotionTime += (CalcDeltaTime * PrevPlayAnimInfo.CalcAcceleration());
-	TransitionRemainTime -= CalcDeltaTime;
+	CurrentAnimMotionTime += 
+		(CalcDeltaTime * 
+			CurPlayAnimInfo.CalcAcceleration(CurrentAccelerationFactor));
+
+	PrevAnimMotionTime += (CalcDeltaTime * 
+		PrevPlayAnimInfo.CalcAcceleration(PrevAccelerationFactor));
+
+	TransitionRemainTime -=  ( CalcDeltaTime *  CurrentTransitionTimeFactor);
 
 	AnimationUpdateImplementation();
 };
@@ -415,8 +469,7 @@ void SkeletonMesh::VTFUpdate()&
 			BoneSkinningMatries.size() * sizeof(Matrix));
 		BoneAnimMatrixInfo->UnlockRect(0u);
 	}
-
-}
+};
 
 Node* SkeletonMesh::GetRootNode()&
 {
@@ -462,7 +515,10 @@ std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
 void SkeletonMesh::PlayAnimation(
 	const std::string& InitAnimName,
 	const bool  bLoop,
-	const AnimNotify& _Notify)
+	const AnimNotify& _Notify , 
+	const float _CurrentAccelerationFactor,
+	const float _CurrentTransitionTimeFactor
+	)
 {
 	if (!AnimInfoTable)return;
 	//    같은 모션 일경우 빠른 리턴.
@@ -478,6 +534,9 @@ void SkeletonMesh::PlayAnimation(
 	this->bLoop = bLoop;
 	PrevAnimMotionTime = CurrentAnimMotionTime;
 	CurrentAnimMotionTime = 0.0;
+	PrevAccelerationFactor = CurrentAccelerationFactor;
+	CurrentAccelerationFactor = _CurrentAccelerationFactor;
+	CurrentTransitionTimeFactor = _CurrentTransitionTimeFactor;
 	PrevAnimName = AnimName;
 	AnimName = InitAnimName;
 	PrevPlayAnimInfo = CurPlayAnimInfo;
@@ -486,14 +545,17 @@ void SkeletonMesh::PlayAnimation(
 	CurAnimNotify = _Notify;
 }
 
-void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify)
+void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify , 
+	const float _CurrentAccelerationFactor,
+	const float _CurrentTransitionTimeFactor)
 {
 	if (AnimIndexNameMap)
 	{
 		if (auto iter = AnimIndexNameMap->find(AnimationIndex);
 			iter != std::end(*AnimIndexNameMap))
 		{
-			PlayAnimation(iter->second, bLoop, _Notify);
+			PlayAnimation(iter->second, bLoop, _Notify ,
+				_CurrentAccelerationFactor, _CurrentTransitionTimeFactor);
 		}
 	}
 }
@@ -748,14 +810,20 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 		}
 	}
 
-
-
-
 	if (_InitInfo.bLocalVertexLocationsStorage)
 	{
 		MakeVertexLocationsFromSubset();
 	}
-	AnimationLoad(_Path);
+
+	if (bHasAnimation)
+	{
+		AnimationLoad(_Path);
+
+		if (_InitInfo.bRootMotion)
+		{
+			EnableRootMotion(RootMotionScaleName, RootMotionRotationName, RootMotionTransitionName);
+		}
+	};
 
 	return S_OK;
 }
@@ -869,7 +937,8 @@ void SkeletonMesh::InitTextureForVertexTextureFetch()&
 
 void SkeletonMesh::AnimationNotify()&
 {
-	const float AnimDurationNormalize = CurrentAnimMotionTime / (*AnimInfoTable)[AnimName].Duration;
+	const float AnimDurationNormalize =
+		CurrentAnimMotionTime / (*AnimInfoTable)[AnimName].Duration;
 
 	auto EventIter = CurAnimNotify.Event.lower_bound(AnimDurationNormalize);
 
@@ -888,6 +957,53 @@ void SkeletonMesh::AnimationNotify()&
 			}
 
 		}
+	}
+};
+
+void SkeletonMesh::EnableRootMotion(
+	const std::string& ScalingRootName ,
+	const std::string& RotationRootName,
+	const std::string& TransitionRootName)
+{
+	if (Nodes)
+	{
+		for (auto& [NodeName, _Node] : *Nodes)
+		{
+			if (_Node)
+			{
+				if (NodeName == TransitionRootName)
+				{
+					RootMotionTransitionName = NodeName;
+					_Node->RootMotionFlag = 3;
+				}
+				else if (NodeName == RotationRootName)
+				{
+					RootMotionRotationName = NodeName;
+					_Node->RootMotionFlag = 2;
+				}
+				else if (NodeName == ScalingRootName)
+				{
+					RootMotionScaleName = NodeName;
+					_Node->RootMotionFlag = 1;
+				}
+			}
+		}
+		bRootMotion = true;
+	}	
+}
+
+void SkeletonMesh::DisableRootMotion()
+{
+	if (Nodes)
+	{
+		for (auto& [NodeName, _Node] : *Nodes)
+		{
+			if (_Node)
+			{
+				_Node->RootMotionFlag = -1;
+			}
+		}
+		bRootMotion = false;
 	}
 }
 

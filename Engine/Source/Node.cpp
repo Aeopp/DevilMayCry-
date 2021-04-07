@@ -2,18 +2,34 @@
 #include "Node.h"
 USING(ENGINE)
 
-
-void Node::Editor(std::string& RefRootMotionName)&
+void Node::Editor(std::string& RefRootMotionScaleName,
+					std::string& RefRootMotionRotationName,
+					std::string& RefRootMotionTransitionName)&
 {
 	if (ImGui::TreeNode(Name.c_str()))
 	{
-		if (ImGui::Button("Set RootMotionRoot"))
+		if (ImGui::TreeNode("RootMotionSet"))
 		{
-			RefRootMotionName = Name;
+			if (ImGui::Button("Scale"))
+			{
+				RefRootMotionScaleName = Name;
+			}
+			else if (ImGui::Button("Rotation"))
+			{
+				RefRootMotionRotationName = Name;
+			}
+			else if (ImGui::Button("Transition"))
+			{
+				RefRootMotionTransitionName = Name;
+			}
+
+			ImGui::TreePop();
 		}
 		for (auto& Children : Childrens)
 		{
-			Children->Editor(RefRootMotionName);
+			Children->Editor
+			(RefRootMotionScaleName,
+				RefRootMotionRotationName , RefRootMotionTransitionName);
 		}
 		ImGui::TreePop();
 	}
@@ -102,17 +118,16 @@ std::tuple<Vector3, Quaternion, Vector3>
 void Node::NodeUpdate(const Matrix& ParentToRoot,
 				     const double CurrentAnimationTime,
 				     const std::string& AnimationName, 
-	const std::optional<AnimationBlendInfo>& IsAnimationBlend ,
-	const std::optional<std::string> & RootMotionRootName)&
+	const std::optional<AnimationBlendInfo>& IsAnimationBlend)&
 {
 	// 여기서 이전 프레임과 다음 프레임을 보간 한다.
-	
 	auto iter = _AnimationTrack.find(AnimationName);
 	const bool bCurAnim = iter != std::end(_AnimationTrack);
 
 	if (bCurAnim)
 	{
-		auto [Scale,Quat,Pos ] = CurrentAnimationTransform(iter->second, CurrentAnimationTime);
+		auto [Scale,Quat,Pos ] = 
+			CurrentAnimationTransform(iter->second, CurrentAnimationTime);
 
 		if (IsAnimationBlend.has_value())
 		{
@@ -134,17 +149,21 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 			}
 		}
 
-		if (RootMotionRootName)
+		// 포지션
+		if (RootMotionFlag == 3 /*"root_$AssimpFbx$_Transition"*/)
 		{
-			if (Name == RootMotionRootName.value())
-			{
-				Pos = { 0,0,0 };
-			}
-			
-			if (Name == "root_$AssimpFbx$_Scaling")
-			{
-				Scale = { 1,1,1 };
-			}
+			Pos = { 0,0,0 };
+		}
+		 // 로테이션 .. 
+		else if (RootMotionFlag == 2)
+		{
+			Quat = { 0,0,0,1 };
+			// Quat = UnitQuat !! 
+		}
+		 // 스케일링
+		else if (RootMotionFlag==1 /*"root_$AssimpFbx$_Scaling"*/)
+		{
+			Scale = { 1,1,1 };
 		}
 
 		Transform = FMath::Scale(Scale) *
@@ -164,7 +183,7 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 		ChildrenTarget->NodeUpdate(ToRoot,
 			CurrentAnimationTime, 
 			AnimationName,
-			IsAnimationBlend , RootMotionRootName);
+			IsAnimationBlend);
 	}
 }
 
