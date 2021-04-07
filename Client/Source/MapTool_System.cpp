@@ -35,7 +35,7 @@ MapTool* MapTool::Create()
 	MapTool* pInstance = new MapTool();
 	return pInstance;
 }
-
+//피킹함수에서 무조건 적으로 넣어줘야함 UI 클릭이 오브젝트 생성 하면 됨 
 bool MapTool::IsHoverUIWindow()
 {
 	for (int i = 0; i < (int)eWindowID::End; ++i)
@@ -63,7 +63,7 @@ void MapTool::SelectFile()
 	TCHAR   szPropsPath[MAX_PATH] = L"";
 	TCHAR   szPropsName[MAX_PATH] = L"";
 
-	std::filesystem::path rootPath = std::filesystem::absolute("./");
+	std::filesystem::path rootPath = std::filesystem::absolute("./"); //솔루션 디렉토리 경로  따로저장 
 
 	OPENFILENAME open;
 	memset(&open, 0, sizeof(OPENFILENAME));
@@ -76,21 +76,22 @@ void MapTool::SelectFile()
 	open.lpstrFileTitle = szPropsName;
 	if (0 != GetOpenFileName(&open))
 	{
-		m_strSelectName = szPropsName;
-		//check
+		m_strSelectFBXName = szPropsName;
 		bool bFindID = false;
 		m_iTableID = ERR_ID;
 
-		//테이블시트에서 id 찾고 
+		//테이블시트에서 value값 뒤져서 키값을 찾음 ...
 		for (auto pair : m_mapFBXNameTable)
 		{
-			if (!lstrcmpW(m_strSelectName.c_str(), pair.second.sFileName.c_str()))
+			if (!lstrcmpW(m_strSelectFBXName.c_str(), pair.second.sFileName.c_str()))
 			{
-				m_iTableID = pair.first;
+				m_iTableID = pair.first; // 저장해서 생성할때 이걸 m_iTableID를 세터로 넣어줌 
 				bFindID = true;
 				break;
 			}
 		}
+
+		//혹시 리소스 파일 추가해놓고 테이블 시트를 예전걸로 로드했을경우 못찾으니 확인용 
 		if (bFindID == false)
 		{
 			PRINT_LOG(L"File Name Not exist NameTable", __FUNCTIONW__);
@@ -98,7 +99,7 @@ void MapTool::SelectFile()
 		}
 	}
 
-	SetCurrentDirectory(rootPath.wstring().c_str());
+	SetCurrentDirectory(rootPath.wstring().c_str()); // 저장한걸로 교체 
 }
 
 void MapTool::ClearMultiPeeking()
@@ -119,7 +120,7 @@ HRESULT MapTool::LoadScene()
 	style.Colors[ImGuiCol_PopupBg] = ImVec4(0, 0, 0, 255);
 	m_iPeekingCnt = 0;
 	m_iTableID = 0;
-	m_strSelectName = L"";
+	m_strSelectFBXName = L"";
 	m_fFOV = 90.f;
 	UpdateProj();
 	D3DXMatrixIdentity(&m_matCameraWorld);
@@ -163,10 +164,10 @@ HRESULT MapTool::Update(const float _fDeltaTime)
 {
 	Scene::Update(_fDeltaTime);
 
-	ShowMapTool();
-	ShowPivotOption();
-	ShowCameraOption();
-	HotKey();
+	ShowMapTool(); //맵툴 
+	ShowPivotOption(); // 피봇 
+	ShowCameraOption(); // 카메라 ui 윈도우 
+	HotKey(); // 단축키 모음 
 	CameraControl(_fDeltaTime);
 	PivotControl(_fDeltaTime);
 	return S_OK;
@@ -175,18 +176,25 @@ HRESULT MapTool::Update(const float _fDeltaTime)
 HRESULT MapTool::LateUpdate(const float _fDeltaTime)
 {
 	Scene::LateUpdate(_fDeltaTime);
-	UpdateView();
+	UpdateView(); //뷰행렬 장치에 입력 
 	return S_OK;
 }
 
 bool MapTool::NewFBXNameTable(const _TCHAR* pPath)
 {
+	// new 라 필요 없겠네. 이것도 디렉토리 창으로 할거면 .. 
+	/*if(!std::filesystem::exists(pPath))
+	{
+		PRINT_LOG(L"Error Path", __FUNCTIONW__);
+		return false;
+	}*/
+
+	m_mapFBXNameTable.clear();
 	if (FAILED(CreateMeshNameTable(PROPSPATH)))
 	{
 		PRINT_LOG(L"Failed!", __FUNCTIONW__);
 		return false;
 	}
-
 	using namespace rapidjson;
 	std::filesystem::path TargetPath = pPath;
 	StringBuffer StrBuf;
@@ -220,6 +228,15 @@ bool MapTool::NewFBXNameTable(const _TCHAR* pPath)
 
 bool MapTool::LoadFBXnametable(const _TCHAR* pPath)
 {
+
+	//세이브 파일 체크 
+	if (!std::filesystem::exists(pPath))
+	{
+		PRINT_LOG(L"Error Path", __FUNCTIONW__);
+		return false;
+	}
+
+	m_mapFBXNameTable.clear();
 	using namespace rapidjson;
 	std::ifstream Is{ pPath };
 	if (!Is.is_open())
@@ -249,13 +266,12 @@ bool MapTool::LoadFBXnametable(const _TCHAR* pPath)
 	return true;
 }
 
-void MapTool::SaveLoadingList()
+void MapTool::SaveProps()
 {
-
 	//Get Path
 	TCHAR   szPropsPath[MAX_PATH] = L"";
 	TCHAR   szPropsName[MAX_PATH] = L"";
-	std::filesystem::path rootPath = std::filesystem::absolute("./");
+	std::filesystem::path rootPath = std::filesystem::absolute("./"); //루트 경로 빼놓음 
 	OPENFILENAME open;
 	memset(&open, 0, sizeof(OPENFILENAME));
 	open.lStructSize = sizeof(OPENFILENAME);
@@ -266,62 +282,18 @@ void MapTool::SaveLoadingList()
 	open.lpstrFile = szPropsPath;
 	open.lpstrFileTitle = szPropsName;
 	if (0 != GetSaveFileName(&open)) {}; //저장경로 
-	SetCurrentDirectory(rootPath.wstring().c_str());
+	SetCurrentDirectory(rootPath.wstring().c_str()); // open 쓰면 디렉토리경로 변경되니깐 위에서 미리 따로 저장한걸 세팅
 
-	m_mapObjDatas;
+	// 아 짤려니깐 json 문법 까먹어서 터짐 다시 짜주셈 
 	//Save json
-	using namespace rapidjson;
-	std::filesystem::path TargetPath = std::filesystem::relative(szPropsPath);;
-	TargetPath += L".json";
-
-	StringBuffer StrBuf;
-	PrettyWriter<StringBuffer> js(StrBuf);
-	UINT iID = 0;
-	js.StartObject();
-	js.Key("LoadingList");
-	js.StartArray();
-	{
-		for (auto& pair : m_mapObjDatas)
-		{
-			js.StartObject();
-			{
-				js.Key("ID");
-				js.Uint(pair.first);
-			}
-			js.EndObject();
-		}
-	}
-	js.EndArray();
-	js.EndObject();
-	std::ofstream Of{ TargetPath };
-	Of << StrBuf.GetString();
-}
-void MapTool::SaveProps(const std::string& pPath)
-{
-	//Get Path
-	TCHAR   szPropsPath[MAX_PATH] = L"";
-	TCHAR   szPropsName[MAX_PATH] = L"";
-	std::filesystem::path rootPath = std::filesystem::absolute("./");
-	OPENFILENAME open;
-	memset(&open, 0, sizeof(OPENFILENAME));
-	open.lStructSize = sizeof(OPENFILENAME);
-	open.hwndOwner = g_hWnd;
-	open.lpstrFilter = L"Json Files(*.json)\0*.json\0";
-	open.nMaxFile = nFileNameMaxLen;
-	open.nMaxFileTitle = nFileNameMaxLen;
-	open.lpstrFile = szPropsPath;
-	open.lpstrFileTitle = szPropsName;
-	if (0 != GetSaveFileName(&open)) {}; //저장경로 
-	SetCurrentDirectory(rootPath.wstring().c_str());
-
-	m_mapObjDatas;
-	//Save json
+	//m_mapObjDatas 저장 형식이 ID , list<GameOjbect >형식 
+	// 맵 순회하면서 ID 저장 하고 list 순회하면서 transform 값들 저장  bool 값 저장 
 	using namespace rapidjson;
 	std::filesystem::path TargetPath = std::filesystem::relative(szPropsPath);;
 	TargetPath += L".json";
 	StringBuffer StrBuf;
 	PrettyWriter<StringBuffer> js(StrBuf);
-	UINT iID = 0;
+
 	js.StartObject();
 	{
 		js.Key("LoadingList");
@@ -372,15 +344,30 @@ void MapTool::SaveProps(const std::string& pPath)
 	Of << StrBuf.GetString();
 }
 
-HRESULT MapTool::LoadBaseMap(std::wstring strFilePath)
+HRESULT MapTool::LoadBaseMap()
 {
-	m_pBaseMap = AddGameObject<MapToolProps>();
-	m_pBaseMap.lock()->SetFBXPath(strFilePath);
+	std::filesystem::path rootPath = std::filesystem::absolute("./"); //루트 경로 빼놓음 
+	TCHAR   szPropsPath[MAX_PATH] = L"";
+	OPENFILENAME open;
+	memset(&open, 0, sizeof(OPENFILENAME));
+	open.lStructSize = sizeof(OPENFILENAME);
+	open.hwndOwner = g_hWnd;
+	open.lpstrFilter = L"All Files(*.*)\0*.*\0";
+	open.nMaxFile = nFileNameMaxLen;
+	open.lpstrFile = szPropsPath;
+
+	if (0 != GetOpenFileName(&open))
+	{
+		m_pBaseMap = AddGameObject<MapToolProps>();
+		m_pBaseMap.lock()->m_strFilePath = szPropsPath;
+	}
+	SetCurrentDirectory(rootPath.wstring().c_str()); // open 쓰면 디렉토리경로 변경되니깐 위에서 미리 따로 저장한걸 세팅
 	return S_OK;
 }
 
-void MapTool::AddProps()
+void MapTool::CreateProps()
 {
+	//
 	if (m_bCreateLock)
 	{
 		PRINT_LOG(L"Create Lock", L"Check Setting");
@@ -389,17 +376,19 @@ void MapTool::AddProps()
 	//추가 후 테이블에서 경로 값 넣어서 fbx 로드하게 해주고 아이디 넣어주고 
 	if (m_eCreateOption == eCreatePosition::PeekingPos)
 	{
-		//피킹 지점 추가 후 삭제
+		Vector3 vPeekPos = vZero;
+		//피킹 지점 추가 후 삭제 
+		// ex m_pbBase.lock()->피킹지정 반환 
 		//m_pCurSelectObj = AddGameObject<MapToolProps>();
 		//m_pCurSelectObj.lock()->SetFBXPath(m_mapFBXNameTable[m_iTableID].sFileLocation);
 		//m_pCurSelectObj.lock()->m_iPropsID = m_iTableID;	
+		//m_pCurSelectObj.lock()->Get_Trans().lock()->SetPos(vPeekPos);
 	}
 	else if(m_eCreateOption == eCreatePosition::PivotPos)
 	{
-		//생성위치를 피봇으로 
 		m_pCurSelectObj = AddGameObject<MapToolProps>();
-		m_strPeekingName = m_mapFBXNameTable[m_iTableID].sFileLocation;
-		m_pCurSelectObj.lock()->SetFBXPath(m_strPeekingName);
+		//생성위치를 피봇으로 ./  생성한건 바로  수정 할 수 있도록 하는게 편하겠지?  
+		m_pCurSelectObj.lock()->m_strFilePath = m_strPeekingName = m_mapFBXNameTable[m_iTableID].sFileLocation;
 		m_pCurSelectObj.lock()->m_iPropsID = m_iTableID;
 		m_pCurSelectObj.lock()->Get_Trans().lock()->SetPosition(m_pPivot.lock()->Get_Trans().lock()->GetPosition());
 	}
@@ -424,49 +413,57 @@ void MapTool::AddProps()
 
 HRESULT MapTool::CreateMeshNameTable(std::wstring strStartPath)
 {
+	//d2d 때 파일 탐색 로직 
+	if (std::filesystem::exists(strStartPath))
+	{
+		PRINT_LOG(L"Erorr Path Check plz", __FUNCTIONW__);
+		return E_FAIL;
+	}
+
 	WIN32_FIND_DATA tFindData;
 	std::wstring tCurPath = strStartPath + L"/*.*";
-	HANDLE hFind;
-	hFind = FindFirstFile(tCurPath.c_str(), &tFindData);
+	int keyValue = 0;
+	HANDLE hFind = FindFirstFile(tCurPath.c_str(), &tFindData);
 	if (hFind == INVALID_HANDLE_VALUE)
 	{
+		PRINT_LOG(L"Error Path", __FUNCTIONW__);
 		FindClose(hFind);
 		return E_FAIL;
 	}
 	BOOL bContinue = false;
 	do
 	{
-		if (TEXT('.') == tFindData.cFileName[0])
+		if (TEXT('.') == tFindData.cFileName[0]) // . , .. 패스 
 		{
 			bContinue = FindNextFile(hFind, &tFindData);
 			continue;
 		}
-		else if (FILE_ATTRIBUTE_DIRECTORY == tFindData.dwFileAttributes)
+		else if (FILE_ATTRIBUTE_DIRECTORY == tFindData.dwFileAttributes) // 디렉토리면 재귀 
 		{
 			CreateMeshNameTable(strStartPath + L'/' + tFindData.cFileName);
 		}
 		else
 		{
-			if (FILE_ATTRIBUTE_SYSTEM == tFindData.dwFileAttributes)
+			if (FILE_ATTRIBUTE_SYSTEM == tFindData.dwFileAttributes) // 시스템 파일 패스 
 			{
 				bContinue = FindNextFile(hFind, &tFindData);
 				continue;
 			};
 
-			// TGA  제외 
+			//이상하게 ImGui ini 이  생성이 됨   나중에 fbx 만 폴더에다 모으고 텍스쳐 한폴더에 모으면  tga 는 빼도 됨 
 			std::wstring CheckExtension = tFindData.cFileName;
-			if (std::wstring::npos != CheckExtension.find(L".tga") || std::wstring::npos != CheckExtension.find(L".ini")) // 나중에 텍스쳐 경로 지정되면 삭제  ini 이 계속 들어가있음 가끔 
+			if (std::wstring::npos != CheckExtension.find(L".tga") || std::wstring::npos != CheckExtension.find(L".ini")) 
 			{
 				bContinue = FindNextFile(hFind, &tFindData);
 				continue;
 			}
 
 			PATHINFO tInfo;
-
 			tInfo.sFileLocation = strStartPath +L"/" +  tFindData.cFileName;
 			tInfo.sFileName = tFindData.cFileName;
-			m_mapFBXNameTable.emplace(m_iTableID++, tInfo);
+			m_mapFBXNameTable.emplace(keyValue++, tInfo);
 		}
+
 		bContinue = FindNextFile(hFind, &tFindData);
 	} while (bContinue);
 
@@ -476,6 +473,7 @@ HRESULT MapTool::CreateMeshNameTable(std::wstring strStartPath)
 
 void MapTool::ApplyPropsOption()
 {
+	//check box 누를 때마다 호출 되는 함수 그냥 bool 적용해줌 
 	if (m_ePeekType == ePeekingType::Single)
 	{
 		for (int i = 0; i < (int)MapToolProps::ePropsOption::End; ++i)
@@ -518,10 +516,10 @@ void MapTool::CameraControl(const float& _fDeltaTime)
 	if (IsHoverUIWindow())
 		return;
 
-	D3DXVECTOR3 vLook(0.f, 0.f, 0.f);
-	memcpy_s(&vLook, sizeof(D3DXVECTOR3), m_matCameraWorld.m[2], sizeof(D3DXVECTOR3));
-	D3DXVECTOR3 vRight(0.f, 0.f, 0.f);
-	memcpy_s(&vRight, sizeof(D3DXVECTOR3), m_matCameraWorld.m[0], sizeof(D3DXVECTOR3));
+	Vector3 vLook(0.f, 0.f, 0.f);
+	memcpy_s(&vLook, sizeof(Vector3), m_matCameraWorld.m[2], sizeof(Vector3));
+	Vector3 vRight(0.f, 0.f, 0.f);
+	memcpy_s(&vRight, sizeof(Vector3), m_matCameraWorld.m[0], sizeof(Vector3));
 	D3DXVec3Normalize(&vLook, &vLook);
 	D3DXVec3Normalize(&vRight, &vRight);
 	vLook*= _fDeltaTime;
@@ -536,9 +534,9 @@ void MapTool::CameraControl(const float& _fDeltaTime)
 	if (Input::GetKey(DIK_D))
 		m_vCameraPos += vRight * m_vCameraSpeed.x;
 	if (Input::GetKey(DIK_Z))
-		m_vCameraPos += vec3(0, -1, 0) * m_vCameraSpeed.y * _fDeltaTime;
+		m_vCameraPos += Vector3(0, -1, 0) * m_vCameraSpeed.y * _fDeltaTime;
 	if (Input::GetKey(DIK_C))
-		m_vCameraPos += vec3(0, 1, 0) * m_vCameraSpeed.y * _fDeltaTime;
+		m_vCameraPos += Vector3(0, 1, 0) * m_vCameraSpeed.y * _fDeltaTime;
 
 	if (Input::GetMouse(MOUSEBUTTON::DIM_R))
 	{
@@ -565,24 +563,24 @@ void MapTool::HotKey()
 	if (Input::GetKey(DIK_Y))
 		m_eWorkType = eWorkOption::Modify;
 	if (Input::GetKeyDown(DIK_SPACE) && m_eWorkType == eWorkOption::Create && m_eCreateOption == eCreatePosition::PivotPos)
-		AddProps();
+		CreateProps();
 }
-
-
 
 void MapTool::PivotControl(const float& fDeltaTime)
 {
-	vec3 vPivotPos   = m_pPivot.lock()->Get_Trans().lock()->GetPosition();  
-	D3DXVECTOR3 vLook(0.f, 0.f, 0.f);
-	memcpy_s(&vLook, sizeof(D3DXVECTOR3), m_matCameraWorld.m[2], sizeof(D3DXVECTOR3));
-	D3DXVECTOR3 vRight(0.f, 0.f, 0.f);
-	memcpy_s(&vRight, sizeof(D3DXVECTOR3), m_matCameraWorld.m[0], sizeof(D3DXVECTOR3));
+	Vector3 vPivotPos   = m_pPivot.lock()->Get_Trans().lock()->GetPosition();  
+	Vector3 vLook(0.f, 0.f, 0.f);
+	memcpy_s(&vLook, sizeof(Vector3), m_matCameraWorld.m[2], sizeof(Vector3));
+	Vector3 vRight(0.f, 0.f, 0.f);
+	memcpy_s(&vRight, sizeof(Vector3), m_matCameraWorld.m[0], sizeof(Vector3));
 	D3DXVec3Normalize(&vLook, &vLook);
 	D3DXVec3Normalize(&vRight, &vRight);
 	vLook *= fDeltaTime;
 	vRight *= fDeltaTime;
+	// 카메라 룩 라이트 가지고 움직일려니 y값 들어가서 이상하게 움직임 y 값 제거 
 	vLook.y = 0;
 	vRight.y = 0;
+
 	if (Input::GetKey(DIK_LEFT)) // x Axis minus
 	{
 		vPivotPos += vRight *  -m_fPivotMoveSpeed;
@@ -603,34 +601,62 @@ void MapTool::PivotControl(const float& fDeltaTime)
 }
 
 
-void MapTool::MouseInPut()
+void MapTool::MousePeeking()
 {
-	if (m_ePeekType == ePeekingType::Single)
-	{
-	}
-	else  // multi
- 	{
+	// 피킹자체가 아직 안되지만 대략적으로 틀은 이럼  
 
-	}
-}
-
-bool MapTool::ObjKeyFinder(const _TCHAR* pTag)
-{
-	bool bFindID = false;
-	int  iTableID = -1;
-	for (auto pair : m_mapFBXNameTable)
+	if (Input::GetMouse(MOUSEBUTTON::DIM_L)) // 클릭시 
 	{
-		if (!lstrcmpW(m_strSelectName.c_str(), pair.second.sFileName.c_str()))
+		switch (m_eWorkType) // Create Delete Modify 에 따라 작동 
 		{
-			bFindID = true;
+		case MapTool::eWorkOption::Create:
+			//if(m_pBaseMap.lock() -> 피킹 g호출 )
+			//{
+			//	AddProps();
+			//}
+			break;
+		case MapTool::eWorkOption::Delete:
+			for (auto& pair : m_mapObjDatas)
+			{
+				for (auto& pObj : pair.second)
+				{
+					//if (pObj.lock()->피킹 호출)
+					//{
+					//	//pObj.lock()->Destroy()
+						//케스팅 디파인 잡아놓음  몬가 불편함 
+					//	//ConvertGameObjPtr(x) static_cast<std::weak_ptr<GameObject>>(x) 
+					//}
+				}
+			}
+			break;
+		case MapTool::eWorkOption::Modify:
+			for (auto& pair : m_mapObjDatas)
+			{
+				for (auto& pObj : pair.second)
+				{
+					//if(pObj.lock()-> 피킹 호출 ) // 피킹성공 
+					{
+						if (m_ePeekType == ePeekingType::Single)
+						{
+							m_pCurSelectObj = pObj;
+							//UI에 옵션을 피킹한 오브젝트걸로 동기화 
+							for (int i = 0; i < (int)MapToolProps::ePropsOption::End; ++i)
+								m_bPropsOption[i] = pObj.lock()->m_bOption[i];
+						}
+						else  // multi
+						{
+							if (pObj.lock()->m_bMultiPeekPeeking == false)
+							{
+								pObj.lock()->m_bMultiPeekPeeking = true;
+							}
+						}
+					}
+				}
+			}
+			break;
+		case MapTool::eWorkOption::End:
 			break;
 		}
 	}
-	if (bFindID == false)
-	{
-		PRINT_LOG(L"File Name Not exist NameTable", __FUNCTIONW__);
-		return bFindID;
-	}
-
-	return false;
 }
+

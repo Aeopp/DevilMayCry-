@@ -32,7 +32,6 @@ void TestAnimationObject::RenderForwardAlphaBlendImplementation(
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
 			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);

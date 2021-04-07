@@ -35,12 +35,6 @@ HRESULT MapToolPivot::Ready()
 
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(L"../../Resource/Mesh/Maptool/Pivot2.FBX");
 
-	ENGINE::AnimNotify _Notify{};
-
-	_Notify.Event[0.5] = [this]() {  Log("0.5 !! ");  return true; };
-	_Notify.Event[0.9] = [this]() {  Log("0.9 !! ");  return true; };
-
-	//_SkeletonMesh->PlayAnimation("Air_Belatos_Twohandedsword", true, _Notify);
 	PushEditEntity(_StaticMesh.get());
 	PushEditEntity(InitTransform.lock().get());
 	PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
@@ -87,7 +81,6 @@ void MapToolPivot::RenderForwardAlphaBlendImplementation(const ImplementationInf
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
 			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);

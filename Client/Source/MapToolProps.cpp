@@ -5,6 +5,8 @@
 #include "TextureType.h"
 #include "Renderer.h"
 #include <iostream>
+#include "StaticMesh.h"
+
 
 MapToolProps* MapToolProps::Create()
 {
@@ -60,12 +62,6 @@ HRESULT MapToolProps::Start()
 	}
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(m_strFilePath);
 
-
-	ENGINE::AnimNotify _Notify{};
-
-	_Notify.Event[0.5] = [this]() {  Log("0.5 !! ");  return true; };
-	_Notify.Event[0.9] = [this]() {  Log("0.9 !! ");  return true; };
-
 	PushEditEntity(_StaticMesh.get());
 	PushEditEntity(InitTransform.lock().get());
 	PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
@@ -102,7 +98,6 @@ void MapToolProps::RenderForwardAlphaBlendImplementation(const ImplementationInf
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
 			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);

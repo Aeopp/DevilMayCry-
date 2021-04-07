@@ -4,18 +4,19 @@
 
 #include "MapToolPivot.h"
 #include "MapToolProps.h"
+
+
 #define LOCATIONMESHPATH "../../Resource/Mesh/Map/Location/"
 #define SAVEDATAPATH "../../SaveFile/SaveData/"
 #define PROPSPATH L"../../Resource/Mesh/Map/Props"
 
 const UINT nFileNameMaxLen = 512;
-#define ConvertGameObjPtr(x) static_cast<std::weak_ptr<GameObject>>(x)
-typedef D3DXVECTOR3 vec3;
 
-#define MIN(A, B)            (((A) < (B)) ? (A) : (B))
-#define MAX(A, B)            (((A) >= (B)) ? (A) : (B))
+//Destory 호출 시 컨버트용
+#define ConvertGameObjPtr(x) static_cast<std::weak_ptr<GameObject>>(x)  
+
 #define CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
-#define vZero vec3(0,0,0)
+#define vZero Vector3(0,0,0)
 #define ERR_ID -1
 
 
@@ -36,14 +37,12 @@ class MapTool final : public ENGINE::Scene
 		{
 			return sFileLocation + L"/" + sFileName;
 		}
-		std::wstring sFileName; // 
-		std::wstring sFileLocation;//파일 위치 
+		//FBX  이름 
+		std::wstring sFileName;  
+		//FBx 파일까지의 경로  상대경로임 
+		std::wstring sFileLocation;
 
 	}PATHINFO;
-
-
-
-
 private:
 	explicit MapTool();
 	virtual ~MapTool() = default;
@@ -53,19 +52,18 @@ private:
 
 	// 피킹 함수에서 이거 체크 까먹지 말기  
 	bool															m_bHoveredMaptool[(int)eWindowID::End];
-	ePeekingType							                        m_ePeekType;
 	bool							                                m_bPropsOption[(int)MapToolProps::ePropsOption::End];
-	std::wstring						                            m_strSelectName;
-	std::wstring						                            m_strPeekingName;
-	std::wstring						                            m_strSelectFilePath;
+	std::wstring						                            m_strSelectFBXName; // 선택한 fbx 파일 이름 
+	std::wstring						                            m_strPeekingName;  // 수정모드에서 선택한 파일 이름 
+
+	ePeekingType							                        m_ePeekType;
 	eWorkOption						                                m_eWorkType;
 	eCreatePosition					                                m_eCreateOption;
 
-	float							                                m_fPivotMoveSpeed; //P
-	int								                                m_iPeekingCnt;			//멀티옵션시 피킹한 오브젝트 수 
-	bool							                                m_bReadyNameTable;			  // 테이블 데이터 준비 
-	bool															m_bCreateLock = false; // 생성 조건 부족시 블락처리용
-	int																m_iTableID = ERR_ID;
+	int								                                m_iPeekingCnt;			//멀티피킹시 피킹한  오브젝트 수 
+	bool							                                m_bReadyNameTable;		// 테이블 데이터 준비체크 
+	bool															m_bCreateLock = false;  // 생성 조건 부족시 블락처리용
+	int																m_iTableID = ERR_ID;    // 이 아이디로 오브젝트 생성 할때 테이블의 키값으로 사용해서 매쉬 경로 값을 오브젝트한테 넘김 
 
 	std::unordered_map<UINT, PATHINFO>                              m_mapFBXNameTable; // 벨류값은 fbx파일 공통경로를 제외한 /StageN/Test.fbx이런식으로 
 
@@ -79,6 +77,7 @@ private:
 	float															m_fFOV;
 	Vector3															m_vCameraPos;
 	Vector3															m_vRot;
+	float							                                m_fPivotMoveSpeed; //P
 	Vector2															m_vCameraSpeed; // x =  x z  , y = y 
 	float															m_fCameraAngSpeed;
 
@@ -89,50 +88,42 @@ private:
 
 private:
 
-	void									PivotControl(const float& fDeltaTime);
-	void									MouseInPut();
+	void															HotKey();//단축키 모음 
+	void															PivotControl(const float& fDeltaTime);
+	void															MousePeeking();
+	void															UpdateProj(); //프로젝션 값 수정시 호출 
+	void															UpdateView(); //뷰스페이스 수정시 호출 
+	void															CameraControl(const float& _fDeltaTime);
 
-	HRESULT									CreateMeshNameTable(std::wstring strStartPath);
-	void									HelpMarker(const char*	esc);
-	bool									CheckWindow(const char* Text);
-	void									HotKey();//단축키 모음 
-	 
-	bool									ObjKeyFinder(const _TCHAR* pTag);//키중복 확인 Haskey .
-	//Base map
-	HRESULT									LoadBaseMap(std::wstring strFilePath);
-
-	bool									NewFBXNameTable(const _TCHAR* pPath);//파일 읽어서 새로운 파일 테이블 생성 
-	bool									LoadFBXnametable(const _TCHAR* pPath);//파일 읽어서 
-
-	//add & Select
-	void									AddProps();
-	void									SelectFile();
-	void									ClearMultiPeeking(); //피킹 타입 바뀌거나 Workoption 변경시 멀티피킹리스트 초기화 처리 
-
-
-	//Save
-	void									SaveLoadingList();//이게 스테이지에 로딩할거 목록 
-	void									SaveProps(const std::string& pPath);// 소품 저장 
-
-	void									ApplyPropsOption();  //오브젝트 속성값 수정시 호출 그냥 콤보박스 누르면 호출됨 
-	//Camera
-	void									UpdateProj(); //프로젝션 값 수정시 호출 
-	void									UpdateView(); //뷰스페이스 수정시 호출 
-	void									CameraControl(const float& _fDeltaTime);
+	void															SelectFile();
+	void															CreateProps(); // 오브젝트 Create 시 호출 
+	void															ClearMultiPeeking(); //피킹 타입 바뀌거나 Workoption 변경시 멀티피킹리스트 초기화 처리 
+	void															ApplyPropsOption();  //오브젝트 속성값 수정시 호출 그냥 콤보박스 누르면 호출됨 
+	
+	//Save Load
+	HRESULT															LoadBaseMap(); 
+	HRESULT															CreateMeshNameTable(std::wstring strStartPath); //파일 탐색하면서 NameTable 세팅 
+	bool															NewFBXNameTable(const _TCHAR* pPath);//리소스 파일 탐색하면서 네임테이블 세팅 및 결과값 json으로 저장 
+	bool															LoadFBXnametable(const _TCHAR* pPath);//저장한 json 파일로 nameTable 세팅 
+	void															SaveProps();// 저장 
 
 	//Gui 정리
-	void									ShowMapTool();
-	void									ShowPivotOption();
-	void									ShowCameraOption();
+	void															ShowMapTool();
+	void															ShowPivotOption();
+	void															ShowCameraOption();
 
-	void									NameTableGroup();
-	void									BaseMapCreateGroup();
-	void									PeekingOptionGroup();
-	void									TransFormCtrlGroup();
-	void									PropsOptionGroup();
-	void									SaveFileGroup();
+	void															HelpMarker(const char* esc);
+	//Goupe
+	void															NameTableGroup();
+	void															BaseMapCreateGroup();
+	void															PeekingOptionGroup();
+	void															TransFormCtrlGroup();
+	void															PropsOptionGroup();
+	void															SaveFileGroup();
 
-	bool									IsHoverUIWindow();
+	//마우스가 UI 위에 있을 경우 피킹 블락용으로 쓸거임 혹은  
+	//이전 버전에서 타이핑 칠때  wads 가 카메라 조작키이니 이걸로 카메라 무브도 막았음 타이핑 필요하면 이거 호출 
+	bool									IsHoverUIWindow(); 
 
 	std::wstring							convertToWstring(const std::string& s);
 	std::string								convertToString(const std::wstring& s);
