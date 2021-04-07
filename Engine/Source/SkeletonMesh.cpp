@@ -17,12 +17,13 @@ SkeletonMesh::SkeletonMesh(LPDIRECT3DDEVICE9 const _pDevice)
 }
 
 SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
-	: StaticMesh(_rOther) ,
-	bHasAnimation{ _rOther.bHasAnimation},
-	RootNodeName{ _rOther  .RootNodeName },
+	: StaticMesh(_rOther),
+	bHasAnimation{ _rOther.bHasAnimation },
+	RootNodeName{ _rOther.RootNodeName },
 	AnimInfoTable{ _rOther.AnimInfoTable },
-	VTFPitch{ _rOther.VTFPitch }  ,
-	Nodes{ _rOther.Nodes }
+	VTFPitch{ _rOther.VTFPitch },
+	Nodes{ _rOther.Nodes },
+	AnimIndexNameMap{ _rOther.AnimIndexNameMap}
 {
 	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
@@ -59,7 +60,7 @@ void SkeletonMesh::AnimationEditor()&
 				ImGui::BulletText("Duration : %2.3f", AnimInfo.Duration);
 				ImGui::BulletText("TickPerSecond : %3.3f", AnimInfo.TickPerSecond);
 				ImGui::SliderFloat("Acceleration", &AnimInfo.RefOriginAcceleration(), 0.1f, 10.f);
-				ImGui::SliderFloat("TransitionTime", &AnimInfo.TransitionTime, 0.1f, 10.f);
+				ImGui::SliderFloat("TransitionTime", &AnimInfo.TransitionTime, 0.01f, 5.f);
 
 				if (AnimInfo.Name == AnimName && !bAnimationEnd)
 				{
@@ -333,7 +334,8 @@ void SkeletonMesh::BoneDebugRender(
 	static auto DebugSphereMesh = Resources::Load<ENGINE::StaticMesh>(
 		"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
 
-	if (!Nodes && !DebugSphereMesh) return;
+	if (!Nodes || !DebugSphereMesh || bAnimationEnd) return;
+
 	Log("Bone Debug Render : Uninitialized nodes !");
 
 	for (auto& [NodeName, _Node] : *Nodes)
@@ -443,7 +445,18 @@ void SkeletonMesh::PlayAnimation(
 	CurPlayAnimInfo = iter->second;
 	TransitionDuration = TransitionRemainTime = CurPlayAnimInfo.TransitionTime;
 	CurAnimNotify = _Notify;
-	
+}
+
+void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify)
+{
+	if (AnimIndexNameMap)
+	{
+		if (auto iter = AnimIndexNameMap->find(AnimationIndex);
+			 iter != std::end(*AnimIndexNameMap) )
+		{
+			PlayAnimation(iter->second, bLoop, _Notify);
+		}
+	}
 }
 
 void SkeletonMesh::ContinueAnimation()&
@@ -621,6 +634,8 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 	
 	if (bHasAnimation)
 	{
+		AnimIndexNameMap = std::make_shared<std::map<uint32, std::string>>();
+
 		AnimInfoTable = std::make_shared
 			<std::map<std::string, AnimationInformation>>();
 
@@ -633,6 +648,8 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 			CurAnimInfo.SetAcceleration(1.0f);
 			CurAnimInfo.Name = _AiAnimation->mName.C_Str();
 			CurAnimInfo.Duration = _AiAnimation->mDuration;
+
+			(*AnimIndexNameMap)[AnimIdx] = CurAnimInfo.Name;
 
 			for (uint32 ChannelIdx = 0u;
 				ChannelIdx < _AiAnimation->mNumChannels; ++ChannelIdx)

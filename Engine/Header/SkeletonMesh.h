@@ -45,10 +45,15 @@ public:
 	//      (현재 스키닝 업데이트를 하지 않는다면 반환값은 마지막 스키닝 했을시의 정보)
 	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
 
-	void    PlayAnimation(
+	void   PlayAnimation(
 		const std::string & InitAnimName, 
 		const bool  bLoop ,
 		const AnimNotify & _Notify = {});
+	void   PlayAnimation(
+		const uint32 AnimationIndex,
+		const bool  bLoop,
+		const AnimNotify & _Notify = {});
+
 	void    ContinueAnimation()&;
 	void    StopAnimation();
 	void	AnimationEnd()&;
@@ -97,6 +102,7 @@ private:
 	std::vector<Matrix> PrevBoneSkinningMatries{};
 	bool bHasAnimation = false;
 	std::string RootNodeName{};
+	std::shared_ptr<std::map<uint32, std::string>>				AnimIndexNameMap{};
 	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
 	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
 };
