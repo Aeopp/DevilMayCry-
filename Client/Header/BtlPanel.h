@@ -12,6 +12,7 @@ private:
 		REDORB = 0,
 		TARGET_CURSOR,
 		TARGET_HP,
+		BOSS_GUAGE,
 		DESC_END
 	};
 	struct UI_DESC
@@ -35,14 +36,20 @@ private:
 	std::shared_ptr<ENGINE::Texture> _TargetCursorTex{};
 	std::shared_ptr<ENGINE::Texture> _EnemyHPTex{};
 
+	std::shared_ptr<ENGINE::Texture> _BossGaugeAOTSTex{};
+	std::shared_ptr<ENGINE::Texture> _BossGaugeNRMRTex{};
+
 	float _AccumulateTime = 0.f;
 
 	Vector3 _TargetPos = Vector3(0.f, 0.f, 0.f);
-	
 	float _TargetHP_Degree = 0.f;
 	Vector2 _TargetHP_StartPtOrtho = Vector2(0.f, 0.f);
 	Vector2 _TargetHP_Normal0 = Vector2(0.f, 0.f);
 	Vector2 _TargetHP_Normal1 = Vector2(0.f, 0.f);
+	
+	float _BossGauge_CurXPosOrtho = 0.f;
+
+	Vector3 _LightDir = Vector3(0.f, 0.f, 1.f);
 
 private:
 	explicit BtlPanel() = default;

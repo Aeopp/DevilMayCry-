@@ -37,7 +37,7 @@ HRESULT TestScene::LoadScene()
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestAnimationObject>();
 
-	//AddGameObject<Eff_OvertureHand>();
+	AddGameObject<Eff_OvertureHand>();
 
 	AddGameObject<BtlPanel>();
 

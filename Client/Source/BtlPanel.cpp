@@ -37,7 +37,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = REDORB;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(-1.f, 0.f, 0.f), 3u);
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 1.f, 1.f), 3u);
 
 			_ImplInfo.Fx->SetTexture("RedOrbALBMMap", _RedOrbALBMTex->GetTexture());
 			_ImplInfo.Fx->SetTexture("RedOrbATOSMap", _RedOrbATOSTex->GetTexture());
@@ -56,7 +56,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		if (_UIDescs[CurID].Using)
 		{
 			_ImplInfo.Fx->SetTexture("TargetCursorMap", _TargetCursorTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.1f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.3f);
 
 			for (int i = 0; i < 3; ++i)
 			{
@@ -67,6 +67,39 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				SharedSubset->Render(_ImplInfo.Fx);
 				_ImplInfo.Fx->EndPass();
 			}
+		}
+
+		//
+		CurID = BOSS_GUAGE;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 0.f, 1.f), 3u);
+			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
+
+			_ImplInfo.Fx->SetTexture("BossGaugeATOSMap", _BossGaugeAOTSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("BossGaugeNRMRMap", _BossGaugeNRMRTex->GetTexture());
+
+			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
+			_ImplInfo.Fx->SetFloat("_BossGaugeCurXPosOrtho", _BossGauge_CurXPosOrtho);
+
+			Create_ScreenMat(CurID, ScreenMat);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(4);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			_ImplInfo.Fx->BeginPass(5);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			_ImplInfo.Fx->BeginPass(6);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			_ImplInfo.Fx->BeginPass(7);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
 		}
 	}
 
@@ -147,8 +180,10 @@ HRESULT BtlPanel::Ready()
 	_RedOrbNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_nrmr.tga");
 
 	_TargetCursorTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\Cursor_MET.tga");
-
 	_EnemyHPTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\Enemy_HP_Target_01_IM.tga");
+
+	_BossGaugeAOTSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BossGauge_ATOS.tga");
+	_BossGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BossGauge_NRMR.tga");
 
 	Init_UIDescs();
 	
@@ -171,18 +206,17 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 
 	////////////////////////////
 	// 임시
-	std::cout << _TargetHP_Degree << std::endl;
 	if (Input::GetKey(DIK_LEFTARROW))
-	{
-		_TargetHP_Degree -= 150.f * _fDeltaTime;
-		if (0.f > _TargetHP_Degree)
-			_TargetHP_Degree = 0.f;
-	}
-	if (Input::GetKey(DIK_RIGHTARROW))
 	{
 		_TargetHP_Degree += 150.f * _fDeltaTime;
 		if (360.f < _TargetHP_Degree)
 			_TargetHP_Degree = 360.f;
+	}
+	if (Input::GetKey(DIK_RIGHTARROW))
+	{
+		_TargetHP_Degree -= 150.f * _fDeltaTime;
+		if (0.f > _TargetHP_Degree)
+			_TargetHP_Degree = 0.f;
 	}
 	////////////////////////////
 
@@ -190,7 +224,18 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	Update_TargetInfo();
 
 	//
-	//Imgui_Modify_UIPosAndScale(TARGET_HP);
+	float _BossGaugeOrthoOffsetToCenter = 0.344f; // 직접 수작업으로 찾아야 하나 ㅠㅠ
+	// + 적 체력 받아와서 degree 같은 애들 갱신하자
+	// 일단 임시
+	_BossGauge_CurXPosOrtho = -_BossGaugeOrthoOffsetToCenter + ((360.f - _TargetHP_Degree) / 360.f * 2.f * _BossGaugeOrthoOffsetToCenter);
+	//std::cout << _BossGauge_CurXPosOrtho << std::endl;
+
+	//
+	//Imgui_Modify_UIPosAndScale(BOSS_GUAGE);
+
+	//Vector3 Vector = _LightDir;
+	//ImGui::SliderFloat3("LightVec", Vector, 0.f, 1.f);
+	//_LightDir = Vector;
 
 	return 0;
 }
@@ -225,6 +270,7 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[REDORB] = { true, Vector2(1090.f, 50.f), Vector2(0.55f, 0.55f) };
 	_UIDescs[TARGET_CURSOR] = { true, Vector2(640.f, 360.f), Vector2(0.3f, 0.3f) };
 	_UIDescs[TARGET_HP] = { true, Vector2(640.f, 360.f), Vector2(0.46f, 0.46f) };
+	_UIDescs[BOSS_GUAGE] = { true, Vector2(640.f, 670.f), Vector2(4.7f, 5.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -317,6 +363,9 @@ void BtlPanel::Update_TargetInfo()
 	_TargetPos = Vector3(static_cast<float>(pt.x), static_cast<float>(pt.y), 0.f);
 	_UIDescs[TARGET_CURSOR].Pos = Vector2(_TargetPos.x, _TargetPos.y);
 	_UIDescs[TARGET_HP].Pos = Vector2(_TargetPos.x, _TargetPos.y);
+	
+	//Vector2 v = ScreenPosToOrtho(_TargetPos.x, _TargetPos.y);
+	//std::cout << v.x << " " << v.y << std::endl;
 	///////////////////////
 	
 
