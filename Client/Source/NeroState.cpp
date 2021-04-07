@@ -45,11 +45,12 @@ Idle::~Idle()
 
 Idle* Idle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Idle(_pFSM,_nIndex,_pNero);
 }
 
 HRESULT Idle::StateEnter()
 {
+	
 	return S_OK;
 }
 
@@ -77,7 +78,7 @@ Idle_Switch_Leg::~Idle_Switch_Leg()
 
 Idle_Switch_Leg* Idle_Switch_Leg::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Idle_Switch_Leg(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Idle_Switch_Leg::StateEnter()
@@ -106,7 +107,7 @@ Idle_Battle::~Idle_Battle()
 
 Idle_Battle* Idle_Battle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Idle_Battle(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Idle_Battle::StateEnter()
@@ -135,7 +136,7 @@ Jump_Basic::~Jump_Basic()
 
 Jump_Basic* Jump_Basic::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Basic(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Basic::StateEnter()
@@ -164,7 +165,7 @@ Jump_Fly_Loop::~Jump_Fly_Loop()
 
 Jump_Fly_Loop* Jump_Fly_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Fly_Loop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Fly_Loop::StateEnter()
@@ -193,7 +194,7 @@ Jump_Landing::~Jump_Landing()
 
 Jump_Landing* Jump_Landing::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Landing(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Landing::StateEnter()
@@ -222,7 +223,7 @@ Jump_Landing_Gun::~Jump_Landing_Gun()
 
 Jump_Landing_Gun* Jump_Landing_Gun::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Landing_Gun(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Landing_Gun::StateEnter()
@@ -251,7 +252,7 @@ Jump_Landing_High::~Jump_Landing_High()
 
 Jump_Landing_High* Jump_Landing_High::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Landing_High(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Landing_High::StateEnter()
@@ -280,7 +281,7 @@ Jump_Twice::~Jump_Twice()
 
 Jump_Twice* Jump_Twice::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Twice(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Twice::StateEnter()
@@ -309,7 +310,7 @@ Jump_Front::~Jump_Front()
 
 Jump_Front* Jump_Front::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Front(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Front::StateEnter()
@@ -338,7 +339,7 @@ Jump_Front_Landing::~Jump_Front_Landing()
 
 Jump_Front_Landing* Jump_Front_Landing::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Front_Landing(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Front_Landing::StateEnter()
@@ -367,7 +368,7 @@ Jump_Front_Twice::~Jump_Front_Twice()
 
 Jump_Front_Twice* Jump_Front_Twice::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Front_Twice(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Front_Twice::StateEnter()
@@ -396,7 +397,7 @@ Jump_Back::~Jump_Back()
 
 Jump_Back* Jump_Back::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Back(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Back::StateEnter()
@@ -425,7 +426,7 @@ Jump_Back_Twice::~Jump_Back_Twice()
 
 Jump_Back_Twice* Jump_Back_Twice::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Back_Twice(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Back_Twice::StateEnter()
@@ -454,7 +455,7 @@ Jump_Stinger::~Jump_Stinger()
 
 Jump_Stinger* Jump_Stinger::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Stinger(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Stinger::StateEnter()
@@ -483,7 +484,7 @@ Jump_Stinger_Loop::~Jump_Stinger_Loop()
 
 Jump_Stinger_Loop* Jump_Stinger_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Stinger_Loop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Stinger_Loop::StateEnter()
@@ -512,7 +513,7 @@ Jump_Stinger_Landing::~Jump_Stinger_Landing()
 
 Jump_Stinger_Landing* Jump_Stinger_Landing::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Jump_Stinger_Landing(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Jump_Stinger_Landing::StateEnter()
@@ -541,7 +542,7 @@ RunLoop::~RunLoop()
 
 RunLoop* RunLoop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new RunLoop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT RunLoop::StateEnter()
@@ -570,7 +571,7 @@ RunStartFront::~RunStartFront()
 
 RunStartFront* RunStartFront::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new RunStartFront(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT RunStartFront::StateEnter()
@@ -599,7 +600,7 @@ RunStop::~RunStop()
 
 RunStop* RunStop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new RunStop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT RunStop::StateEnter()
@@ -628,7 +629,7 @@ RunTurn::~RunTurn()
 
 RunTurn* RunTurn::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new RunTurn(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT RunTurn::StateEnter()
@@ -657,7 +658,7 @@ RunTurn_L::~RunTurn_L()
 
 RunTurn_L* RunTurn_L::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new RunTurn_L(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT RunTurn_L::StateEnter()
@@ -686,7 +687,7 @@ DashLoop::~DashLoop()
 
 DashLoop* DashLoop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new DashLoop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT DashLoop::StateEnter()
@@ -715,7 +716,7 @@ DashStop::~DashStop()
 
 DashStop* DashStop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new DashStop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT DashStop::StateEnter()
@@ -744,7 +745,7 @@ DashTurn::~DashTurn()
 
 DashTurn* DashTurn::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new DashTurn(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT DashTurn::StateEnter()
@@ -773,7 +774,7 @@ GunWalkFront::~GunWalkFront()
 
 GunWalkFront* GunWalkFront::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GunWalkFront(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GunWalkFront::StateEnter()
@@ -802,7 +803,7 @@ GunWalkLeft::~GunWalkLeft()
 
 GunWalkLeft* GunWalkLeft::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GunWalkLeft(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GunWalkLeft::StateEnter()
@@ -831,7 +832,7 @@ GunWalkBack::~GunWalkBack()
 
 GunWalkBack* GunWalkBack::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GunWalkBack(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GunWalkBack::StateEnter()
@@ -860,7 +861,7 @@ GunWalkRight::~GunWalkRight()
 
 GunWalkRight* GunWalkRight::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GunWalkRight(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GunWalkRight::StateEnter()
@@ -889,7 +890,7 @@ GunWalkRightBack::~GunWalkRightBack()
 
 GunWalkRightBack* GunWalkRightBack::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GunWalkRightBack(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GunWalkRightBack::StateEnter()
@@ -918,7 +919,7 @@ WalkLoop::~WalkLoop()
 
 WalkLoop* WalkLoop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new WalkLoop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT WalkLoop::StateEnter()
@@ -947,7 +948,7 @@ WalkStart::~WalkStart()
 
 WalkStart* WalkStart::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new WalkStart(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT WalkStart::StateEnter()
@@ -976,7 +977,7 @@ WalkStartRight::~WalkStartRight()
 
 WalkStartRight* WalkStartRight::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new WalkStartRight(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT WalkStartRight::StateEnter()
@@ -1005,7 +1006,7 @@ WalkStart180::~WalkStart180()
 
 WalkStart180* WalkStart180::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return  new WalkStart180(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT WalkStart180::StateEnter()
@@ -1034,7 +1035,7 @@ WalkStartLeft::~WalkStartLeft()
 
 WalkStartLeft* WalkStartLeft::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new WalkStartLeft(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT WalkStartLeft::StateEnter()
@@ -1063,7 +1064,7 @@ WalkStop::~WalkStop()
 
 WalkStop* WalkStop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new WalkStop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT WalkStop::StateEnter()
@@ -1092,7 +1093,7 @@ WalkTurn180::~WalkTurn180()
 
 WalkTurn180* WalkTurn180::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new WalkTurn180(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT WalkTurn180::StateEnter()
@@ -1121,7 +1122,7 @@ Evade_L::~Evade_L()
 
 Evade_L* Evade_L::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Evade_L(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Evade_L::StateEnter()
@@ -1150,7 +1151,7 @@ Evade_R::~Evade_R()
 
 Evade_R* Evade_R::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Evade_R(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Evade_R::StateEnter()
@@ -1179,7 +1180,7 @@ Idle_To_Shoot::~Idle_To_Shoot()
 
 Idle_To_Shoot* Idle_To_Shoot::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Idle_To_Shoot(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Idle_To_Shoot::StateEnter()
@@ -1208,7 +1209,7 @@ Idle_To_Shoot_Left::~Idle_To_Shoot_Left()
 
 Idle_To_Shoot_Left* Idle_To_Shoot_Left::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Idle_To_Shoot_Left(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Idle_To_Shoot_Left::StateEnter()
@@ -1237,7 +1238,7 @@ Idle_To_Shoot_Right::~Idle_To_Shoot_Right()
 
 Idle_To_Shoot_Right* Idle_To_Shoot_Right::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Idle_To_Shoot_Right(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Idle_To_Shoot_Right::StateEnter()
@@ -1266,7 +1267,7 @@ Shoot_To_Idle::~Shoot_To_Idle()
 
 Shoot_To_Idle* Shoot_To_Idle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Shoot_To_Idle(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Shoot_To_Idle::StateEnter()
@@ -1295,7 +1296,7 @@ HitFront::~HitFront()
 
 HitFront* HitFront::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new HitFront(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT HitFront::StateEnter()
@@ -1324,7 +1325,7 @@ HitFront_Big::~HitFront_Big()
 
 HitFront_Big* HitFront_Big::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new HitFront_Big(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT HitFront_Big::StateEnter()
@@ -1353,7 +1354,7 @@ Hit_Air::~Hit_Air()
 
 Hit_Air* Hit_Air::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Hit_Air(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Hit_Air::StateEnter()
@@ -1382,7 +1383,7 @@ Wind_Pressure_Small::~Wind_Pressure_Small()
 
 Wind_Pressure_Small* Wind_Pressure_Small::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wind_Pressure_Small(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wind_Pressure_Small::StateEnter()
@@ -1411,7 +1412,7 @@ Wind_Pressure_Big::~Wind_Pressure_Big()
 
 Wind_Pressure_Big* Wind_Pressure_Big::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wind_Pressure_Big(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wind_Pressure_Big::StateEnter()
@@ -1440,7 +1441,7 @@ Wind_Pressure_Small_End::~Wind_Pressure_Small_End()
 
 Wind_Pressure_Small_End* Wind_Pressure_Small_End::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wind_Pressure_Small_End(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wind_Pressure_Small_End::StateEnter()
@@ -1469,7 +1470,7 @@ Wind_Pressure_Big_End::~Wind_Pressure_Big_End()
 
 Wind_Pressure_Big_End* Wind_Pressure_Big_End::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wind_Pressure_Big_End(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wind_Pressure_Big_End::StateEnter()
@@ -1498,7 +1499,7 @@ KnockBack_Front::~KnockBack_Front()
 
 KnockBack_Front* KnockBack_Front::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new KnockBack_Front(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT KnockBack_Front::StateEnter()
@@ -1527,7 +1528,7 @@ KnockBack_Get_Up::~KnockBack_Get_Up()
 
 KnockBack_Get_Up* KnockBack_Get_Up::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new KnockBack_Get_Up(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT KnockBack_Get_Up::StateEnter()
@@ -1556,7 +1557,7 @@ Die::~Die()
 
 Die* Die::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Die(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Die::StateEnter()
@@ -1585,7 +1586,7 @@ Resurrection::~Resurrection()
 
 Resurrection* Resurrection::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Resurrection(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Resurrection::StateEnter()
@@ -1614,7 +1615,7 @@ Resurrection_GetUp::~Resurrection_GetUp()
 
 Resurrection_GetUp* Resurrection_GetUp::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Resurrection_GetUp(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Resurrection_GetUp::StateEnter()
@@ -1643,7 +1644,7 @@ StunStart::~StunStart()
 
 StunStart* StunStart::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new StunStart(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT StunStart::StateEnter()
@@ -1672,7 +1673,7 @@ StunLoop::~StunLoop()
 
 StunLoop* StunLoop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new StunLoop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT StunLoop::StateEnter()
@@ -1701,7 +1702,7 @@ StunEnd::~StunEnd()
 
 StunEnd* StunEnd::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new StunEnd(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT StunEnd::StateEnter()
@@ -1730,7 +1731,7 @@ EarthQuakeStart::~EarthQuakeStart()
 
 EarthQuakeStart* EarthQuakeStart::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new EarthQuakeStart(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT EarthQuakeStart::StateEnter()
@@ -1759,7 +1760,7 @@ EarthQuakeLoop::~EarthQuakeLoop()
 
 EarthQuakeLoop* EarthQuakeLoop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new EarthQuakeLoop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT EarthQuakeLoop::StateEnter()
@@ -1788,7 +1789,7 @@ EarthQuakeEnd::~EarthQuakeEnd()
 
 EarthQuakeEnd* EarthQuakeEnd::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new EarthQuakeEnd(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT EarthQuakeEnd::StateEnter()
@@ -1817,7 +1818,7 @@ Wire_Pull::~Wire_Pull()
 
 Wire_Pull* Wire_Pull::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull::StateEnter()
@@ -1846,7 +1847,7 @@ Wire_Pull_Up::~Wire_Pull_Up()
 
 Wire_Pull_Up* Wire_Pull_Up::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Up(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Up::StateEnter()
@@ -1875,7 +1876,7 @@ Wire_Pull_Down::~Wire_Pull_Down()
 
 Wire_Pull_Down* Wire_Pull_Down::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Down(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Down::StateEnter()
@@ -1904,7 +1905,7 @@ Wire_Fly_Start::~Wire_Fly_Start()
 
 Wire_Fly_Start* Wire_Fly_Start::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Fly_Start(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Fly_Start::StateEnter()
@@ -1933,7 +1934,7 @@ Wire_Fly_Loop::~Wire_Fly_Loop()
 
 Wire_Fly_Loop* Wire_Fly_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Fly_Loop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Fly_Loop::StateEnter()
@@ -1962,7 +1963,7 @@ Wire_Fly_End::~Wire_Fly_End()
 
 Wire_Fly_End* Wire_Fly_End::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Fly_End(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Fly_End::StateEnter()
@@ -1991,7 +1992,7 @@ Wire_Pull_Air::~Wire_Pull_Air()
 
 Wire_Pull_Air* Wire_Pull_Air::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Air(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Air::StateEnter()
@@ -2020,7 +2021,7 @@ Wire_Pull_Air_Up::~Wire_Pull_Air_Up()
 
 Wire_Pull_Air_Up* Wire_Pull_Air_Up::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Air_Up(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Air_Up::StateEnter()
@@ -2049,7 +2050,7 @@ Wire_Pull_Air_Down::~Wire_Pull_Air_Down()
 
 Wire_Pull_Air_Down* Wire_Pull_Air_Down::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Air_Down(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Air_Down::StateEnter()
@@ -2078,7 +2079,7 @@ Wire_Pull_Air_Hard::~Wire_Pull_Air_Hard()
 
 Wire_Pull_Air_Hard* Wire_Pull_Air_Hard::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Air_Hard(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Air_Hard::StateEnter()
@@ -2107,7 +2108,7 @@ Wire_Pull_Air_Hard_Up::~Wire_Pull_Air_Hard_Up()
 
 Wire_Pull_Air_Hard_Up* Wire_Pull_Air_Hard_Up::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Air_Hard_Up(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Air_Hard_Up::StateEnter()
@@ -2136,7 +2137,7 @@ Wire_Pull_Air_Hard_Down::~Wire_Pull_Air_Hard_Down()
 
 Wire_Pull_Air_Hard_Down* Wire_Pull_Air_Hard_Down::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Wire_Pull_Air_Hard_Down(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Wire_Pull_Air_Hard_Down::StateEnter()
@@ -2165,7 +2166,7 @@ BT_Att1::~BT_Att1()
 
 BT_Att1* BT_Att1::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att1(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att1::StateEnter()
@@ -2194,7 +2195,7 @@ BT_Att2::~BT_Att2()
 
 BT_Att2* BT_Att2::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att2(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att2::StateEnter()
@@ -2223,7 +2224,7 @@ BT_Att3::~BT_Att3()
 
 BT_Att3* BT_Att3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att3(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att3::StateEnter()
@@ -2252,7 +2253,7 @@ BT_Att4::~BT_Att4()
 
 BT_Att4* BT_Att4::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att4(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att4::StateEnter()
@@ -2281,7 +2282,7 @@ BT_Att_ComboB::~BT_Att_ComboB()
 
 BT_Att_ComboB* BT_Att_ComboB::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboB(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboB::StateEnter()
@@ -2310,7 +2311,7 @@ BT_Att_ComboC_R_to_L::~BT_Att_ComboC_R_to_L()
 
 BT_Att_ComboC_R_to_L* BT_Att_ComboC_R_to_L::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboC_R_to_L(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboC_R_to_L::StateEnter()
@@ -2339,7 +2340,7 @@ BT_Att_ComboC_L_to_R::~BT_Att_ComboC_L_to_R()
 
 BT_Att_ComboC_L_to_R* BT_Att_ComboC_L_to_R::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboC_L_to_R(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboC_L_to_R::StateEnter()
@@ -2368,7 +2369,7 @@ BT_Att_ComboC_1::~BT_Att_ComboC_1()
 
 BT_Att_ComboC_1* BT_Att_ComboC_1::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboC_1(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboC_1::StateEnter()
@@ -2397,7 +2398,7 @@ BT_Att_ComboC_2::~BT_Att_ComboC_2()
 
 BT_Att_ComboC_2* BT_Att_ComboC_2::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboC_2(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboC_2::StateEnter()
@@ -2426,7 +2427,7 @@ BT_Att_ComboC_3::~BT_Att_ComboC_3()
 
 BT_Att_ComboC_3* BT_Att_ComboC_3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboC_3(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboC_3::StateEnter()
@@ -2455,7 +2456,7 @@ BT_Att_ComboC_4::~BT_Att_ComboC_4()
 
 BT_Att_ComboC_4* BT_Att_ComboC_4::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboC_4(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboC_4::StateEnter()
@@ -2484,7 +2485,7 @@ BT_Att_ComboD_1::~BT_Att_ComboD_1()
 
 BT_Att_ComboD_1* BT_Att_ComboD_1::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboD_1(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboD_1::StateEnter()
@@ -2513,7 +2514,7 @@ BT_Att_ComboD_2::~BT_Att_ComboD_2()
 
 BT_Att_ComboD_2* BT_Att_ComboD_2::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboD_2(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboD_2::StateEnter()
@@ -2542,7 +2543,7 @@ BT_Att_ComboD_3::~BT_Att_ComboD_3()
 
 BT_Att_ComboD_3* BT_Att_ComboD_3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboD_3(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboD_3::StateEnter()
@@ -2571,7 +2572,7 @@ BT_Att_ComboD_4::~BT_Att_ComboD_4()
 
 BT_Att_ComboD_4* BT_Att_ComboD_4::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att_ComboD_4(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att_ComboD_4::StateEnter()
@@ -2600,7 +2601,7 @@ BT_Air_Att1::~BT_Air_Att1()
 
 BT_Air_Att1* BT_Air_Att1::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Air_Att1(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Air_Att1::StateEnter()
@@ -2629,7 +2630,7 @@ BT_Air_Att2::~BT_Air_Att2()
 
 BT_Air_Att2* BT_Air_Att2::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Air_Att2(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Air_Att2::StateEnter()
@@ -2658,7 +2659,7 @@ BT_Air_Att3::~BT_Air_Att3()
 
 BT_Air_Att3* BT_Air_Att3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Air_Att3(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Air_Att3::StateEnter()
@@ -2687,7 +2688,7 @@ BT_Air_ComboB::~BT_Air_ComboB()
 
 BT_Air_ComboB* BT_Air_ComboB::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Air_ComboB(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Air_ComboB::StateEnter()
@@ -2716,7 +2717,7 @@ BT_Att1_To_RunStart::~BT_Att1_To_RunStart()
 
 BT_Att1_To_RunStart* BT_Att1_To_RunStart::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att1_To_RunStart(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att1_To_RunStart::StateEnter()
@@ -2745,7 +2746,7 @@ BT_Att1_To_RunLoop::~BT_Att1_To_RunLoop()
 
 BT_Att1_To_RunLoop* BT_Att1_To_RunLoop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att1_To_RunLoop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att1_To_RunLoop::StateEnter()
@@ -2774,7 +2775,7 @@ BT_Att1_To_Idle::~BT_Att1_To_Idle()
 
 BT_Att1_To_Idle* BT_Att1_To_Idle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att1_To_Idle(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att1_To_Idle::StateEnter()
@@ -2803,7 +2804,7 @@ BT_Att1_To_Idle_End::~BT_Att1_To_Idle_End()
 
 BT_Att1_To_Idle_End* BT_Att1_To_Idle_End::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att1_To_Idle_End(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att1_To_Idle_End::StateEnter()
@@ -2832,7 +2833,7 @@ BT_Att2_To_RunStart::~BT_Att2_To_RunStart()
 
 BT_Att2_To_RunStart* BT_Att2_To_RunStart::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att2_To_RunStart(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att2_To_RunStart::StateEnter()
@@ -2861,7 +2862,7 @@ BT_Att2_To_Idle::~BT_Att2_To_Idle()
 
 BT_Att2_To_Idle* BT_Att2_To_Idle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att2_To_Idle(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att2_To_Idle::StateEnter()
@@ -2890,7 +2891,7 @@ BT_Att1_Dash::~BT_Att1_Dash()
 
 BT_Att1_Dash* BT_Att1_Dash::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Att1_Dash(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Att1_Dash::StateEnter()
@@ -2919,7 +2920,7 @@ BT_Parrying::~BT_Parrying()
 
 BT_Parrying* BT_Parrying::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new BT_Parrying(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT BT_Parrying::StateEnter()
@@ -2948,7 +2949,7 @@ Skill_E_Start::~Skill_E_Start()
 
 Skill_E_Start* Skill_E_Start::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_E_Start(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_E_Start::StateEnter()
@@ -2977,7 +2978,7 @@ Skill_E_Loop::~Skill_E_Loop()
 
 Skill_E_Loop* Skill_E_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_E_Loop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_E_Loop::StateEnter()
@@ -3006,7 +3007,7 @@ Skill_Split::~Skill_Split()
 
 Skill_Split* Skill_Split::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Split(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Split::StateEnter()
@@ -3035,7 +3036,7 @@ Skill_Split_Loop::~Skill_Split_Loop()
 
 Skill_Split_Loop* Skill_Split_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Split_Loop(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Split_Loop::StateEnter()
@@ -3064,7 +3065,7 @@ Skill_Split_Landing::~Skill_Split_Landing()
 
 Skill_Split_Landing* Skill_Split_Landing::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Split_Landing(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Split_Landing::StateEnter()
@@ -3093,7 +3094,7 @@ Skill_Float_Ground::~Skill_Float_Ground()
 
 Skill_Float_Ground* Skill_Float_Ground::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Float_Ground(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Float_Ground::StateEnter()
@@ -3122,7 +3123,7 @@ Skill_Float_Ground_Ex3::~Skill_Float_Ground_Ex3()
 
 Skill_Float_Ground_Ex3* Skill_Float_Ground_Ex3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Float_Ground_Ex3(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Float_Ground_Ex3::StateEnter()
@@ -3151,7 +3152,7 @@ Skill_Float_Ground_Finish::~Skill_Float_Ground_Finish()
 
 Skill_Float_Ground_Finish* Skill_Float_Ground_Finish::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Float_Ground_Finish(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Float_Ground_Finish::StateEnter()
@@ -3180,7 +3181,7 @@ Skill_Float_Air::~Skill_Float_Air()
 
 Skill_Float_Air* Skill_Float_Air::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Float_Air(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Float_Air::StateEnter()
@@ -3209,7 +3210,7 @@ Skill_Float_Air_Ex3::~Skill_Float_Air_Ex3()
 
 Skill_Float_Air_Ex3* Skill_Float_Air_Ex3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Float_Air_Ex3(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Float_Air_Ex3::StateEnter()
@@ -3238,7 +3239,7 @@ Skill_Shuffle::~Skill_Shuffle()
 
 Skill_Shuffle* Skill_Shuffle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Shuffle(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Shuffle::StateEnter()
@@ -3267,7 +3268,7 @@ Skill_Caliber::~Skill_Caliber()
 
 Skill_Caliber* Skill_Caliber::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Caliber(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Caliber::StateEnter()
@@ -3296,7 +3297,7 @@ Skill_Streak::~Skill_Streak()
 
 Skill_Streak* Skill_Streak::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Streak(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Streak::StateEnter()
@@ -3325,7 +3326,7 @@ Skill_Streak_Ex3::~Skill_Streak_Ex3()
 
 Skill_Streak_Ex3* Skill_Streak_Ex3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new Skill_Streak_Ex3(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT Skill_Streak_Ex3::StateEnter()
@@ -3354,7 +3355,7 @@ GT_Equip::~GT_Equip()
 
 GT_Equip* GT_Equip::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Equip(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Equip::StateEnter()
@@ -3383,7 +3384,7 @@ GT_Crush_Reload::~GT_Crush_Reload()
 
 GT_Crush_Reload* GT_Crush_Reload::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Crush_Reload(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Crush_Reload::StateEnter()
@@ -3412,7 +3413,7 @@ GT_Crush_Just::~GT_Crush_Just()
 
 GT_Crush_Just* GT_Crush_Just::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Crush_Just(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Crush_Just::StateEnter()
@@ -3441,7 +3442,7 @@ GT_Bomb::~GT_Bomb()
 
 GT_Bomb* GT_Bomb::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Bomb(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Bomb::StateEnter()
@@ -3470,7 +3471,7 @@ GT_PickUp::~GT_PickUp()
 
 GT_PickUp* GT_PickUp::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_PickUp(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_PickUp::StateEnter()
@@ -3499,7 +3500,7 @@ GT_Air_Crush_Reload::~GT_Air_Crush_Reload()
 
 GT_Air_Crush_Reload* GT_Air_Crush_Reload::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Air_Crush_Reload(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Air_Crush_Reload::StateEnter()
@@ -3528,7 +3529,7 @@ GT_Air_Crush_Just::~GT_Air_Crush_Just()
 
 GT_Air_Crush_Just* GT_Air_Crush_Just::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Air_Crush_Just(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Air_Crush_Just::StateEnter()
@@ -3557,7 +3558,7 @@ GT_Air_Bomb::~GT_Air_Bomb()
 
 GT_Air_Bomb* GT_Air_Bomb::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Air_Bomb(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Air_Bomb::StateEnter()
@@ -3586,7 +3587,7 @@ GT_Spark_Basic::~GT_Spark_Basic()
 
 GT_Spark_Basic* GT_Spark_Basic::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Spark_Basic(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Spark_Basic::StateEnter()
@@ -3615,7 +3616,7 @@ GT_Spark_Basic_Up::~GT_Spark_Basic_Up()
 
 GT_Spark_Basic_Up* GT_Spark_Basic_Up::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 {
-	return nullptr;
+	return new GT_Spark_Basic_Up(_pFSM, _nIndex, _pNero);
 }
 
 HRESULT GT_Spark_Basic_Up::StateEnter()

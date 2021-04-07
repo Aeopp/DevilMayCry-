@@ -71,7 +71,7 @@ HRESULT Nero::Ready()
 	m_pMesh->PlayAnimation("RunLoop", true , _Notify);
 
 	//FSM ¡ÿ∫Ò
-	//m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
+	m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
 
 	
 	return S_OK;
@@ -80,7 +80,7 @@ HRESULT Nero::Ready()
 
 HRESULT Nero::Awake()
 {
-	//m_pFSM->ChangeState(NeroFSM::IDLE);
+	m_pFSM->ChangeState(NeroFSM::IDLE);
 	m_pMesh->PlayingTime();
 	return S_OK;
 }
@@ -92,8 +92,8 @@ HRESULT Nero::Start()
 
 UINT Nero::Update(const float _fDeltaTime)
 {
-	//if (nullptr != m_pFSM)
-	//	m_pFSM->UpdateFSM(_fDeltaTime);
+	if (nullptr != m_pFSM)
+		m_pFSM->UpdateFSM(_fDeltaTime);
 
 	m_pMesh->Update(_fDeltaTime);
 
