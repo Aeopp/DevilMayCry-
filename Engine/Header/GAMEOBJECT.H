@@ -8,7 +8,7 @@ BEGIN(ENGINE)
 class Scene;
 class Component;
 class Renderer;
-
+class Transform;
 class ENGINE_DLL GameObject abstract : public Object
 								
 {
@@ -27,6 +27,7 @@ private:
 protected:
 	std::vector<Object*> m_pEditObjects{};
 	std::weak_ptr<GameObject>	m_pGameObject;
+	std::weak_ptr<Transform>	m_pTransform;
 protected:
 	explicit GameObject();
 	virtual ~GameObject() = default;

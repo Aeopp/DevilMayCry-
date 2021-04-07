@@ -5,7 +5,7 @@
 #include "ShaderTester.h"
 #include "TestAnimationObject.h"
 #include "Eff_OvertureHand.h"
-
+#include "Nero.h"
 #include <iostream>
 #include "Camera.h"
 using namespace std;
@@ -34,7 +34,8 @@ HRESULT TestScene::LoadScene()
 	//AddGameObject<ShaderTester>();
 
 	// AddGameObject<TestObject>();
-	AddGameObject<TestAnimationObject>();
+	//AddGameObject<TestAnimationObject>();
+	AddGameObject<Nero>();
 	/*AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();

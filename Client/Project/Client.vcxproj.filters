@@ -37,6 +37,27 @@
     <Filter Include="02.GameObject\Effect">
       <UniqueIdentifier>{8e0c6ea8-0509-4c04-b553-c46c6c7ecfa3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\01.Player">
+      <UniqueIdentifier>{9de00f74-5160-49b6-842e-f2c251fc17a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="88.FSM">
+      <UniqueIdentifier>{6cefde13-a833-4139-81f3-11deb3313134}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="88.FSM\00.FSMBase">
+      <UniqueIdentifier>{7bc5668e-faf7-4aa5-8276-4e49bb9c93bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="88.FSM\01.FSMState">
+      <UniqueIdentifier>{44fb3f99-11cc-4e6c-8472-5dd2107cf85c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\01.Player\99.FSM">
+      <UniqueIdentifier>{a4363662-0b3f-4763-a47b-642667489725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\01.Player\99.FSM\Base">
+      <UniqueIdentifier>{34821a37-f33f-4913-baf7-10de731b905d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\01.Player\99.FSM\State">
+      <UniqueIdentifier>{0efdc1d5-1d1c-4aee-ae80-ed9de9bcf82f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -72,6 +93,19 @@
     <ClInclude Include="..\Header\Eff_OvertureHand.h">
       <Filter>02.GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\Nero.h">
+      <Filter>02.GameObject\01.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\FSMBase.h">
+      <Filter>88.FSM\00.FSMBase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\FSMState.h">
+      <Filter>88.FSM\01.FSMState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\NeroFSM.h">
+      <Filter>02.GameObject\01.Player\99.FSM\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\NeroState.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -111,5 +145,18 @@
     <ClCompile Include="..\Source\Eff_OvertureHand.cpp">
       <Filter>02.GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Nero.cpp">
+      <Filter>02.GameObject\01.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\FSMBase.cpp">
+      <Filter>88.FSM\00.FSMBase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\FSMState.cpp">
+      <Filter>88.FSM\01.FSMState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\NeroFSM.cpp">
+      <Filter>02.GameObject\01.Player\99.FSM\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\NeroState.cpp" />
   </ItemGroup>
 </Project>
