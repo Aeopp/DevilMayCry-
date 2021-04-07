@@ -4,7 +4,10 @@
 #include "TestObject.h"
 #include "ShaderTester.h"
 #include "TestAnimationObject.h"
+#include "Eff_OvertureHand.h"
+
 #include <iostream>
+#include "Camera.h"
 using namespace std;
 
 TestScene::TestScene()
@@ -26,8 +29,25 @@ HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
 
+	 // AddGameObject<Camera>();
+
+	//AddGameObject<ShaderTester>();
+
 	AddGameObject<TestObject>();
 	AddGameObject<TestAnimationObject>();
+	/*AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();
+	AddGameObject<TestAnimationObject>();*/
+
+
+	//AddGameObject<Eff_OvertureHand>();
+
 	return S_OK;
 }
 
@@ -46,6 +66,9 @@ HRESULT TestScene::Start()
 HRESULT TestScene::Update(const float _fDeltaTime)
 {
 	Scene::Update(_fDeltaTime);
+
+	cout << "SceneUpdate" << endl;
+
 	return S_OK;
 }
 

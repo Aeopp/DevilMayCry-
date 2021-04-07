@@ -2,6 +2,8 @@
 #define __RENDERPROPERTY_H__
 #include "EngineTypedef.h"
 #include "EngineDefine.h"
+#include <set>
+
 BEGIN(ENGINE)
 struct RenderProperty
 {
@@ -12,9 +14,12 @@ public :
 		ForwardAlphaBlend,
 		AlphaBlendEffect,
 		UI,
+		
+		Debug,
+		DebugBone,
 	};
 	bool bRender = true;
-	Order _Order{ Order::GBuffer };
+	std::set<Order> RenderOrders{};
 };
 
 END

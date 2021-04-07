@@ -3,6 +3,7 @@
 #include "EngineDefine.h"
 #include "EngineTypedef.h"
 
+
 enum TextureType : uint8
 {
     /** Dummy value.
@@ -115,6 +116,74 @@ enum TextureType : uint8
             */
             UNKNOWN = 18,
 };
+
+static inline std::string GetTextureTypeName(const uint8& _Type)
+{
+    switch (_Type)
+    {
+    case NONE:
+        return "NONE";
+        break;
+    case DIFFUSE:
+        return "DIFFUSE";
+        break;
+    case SPECULAR:
+        return "SPECULAR";
+        break;
+    case AMBIENT:
+        return "AMBIENT";
+        break;
+    case EMISSIVE:
+        return "EMISSIVE";
+        break;
+    case HEIGHT:
+        return "HEIGHT";
+        break;
+    case NORMALS:
+        return "NORMALS";
+        break;
+    case SHININESS:
+        return "SHININESS";
+        break;
+    case OPACITY:
+        return "OPACITY";
+        break;
+    case DISPLACEMENT:
+        return "DISPLACEMENT";
+        break;
+    case LIGHTMAP:
+        return "LIGHTMAP";
+        break;
+    case REFLECTION:
+        return "REFLECTION";
+        break;
+    case BASE_COLOR:
+        return "BASE_COLOR";
+        break;
+    case NORMAL_CAMERA:
+        return "NORMAL_CAMERA";
+        break;
+    case EMISSION_COLOR:
+        return "EMISSION_COLOR";
+        break;
+    case METALNESS:
+        return "METALNESS";
+        break;
+    case DIFFUSE_ROUGHNESS:
+        return "DIFFUSE_ROUGHNESS";
+        break;
+    case AMBIENT_OCCLUSION:
+        return "AMBIENT_OCCLUSION";
+        break;
+    case UNKNOWN:
+        return "UNKNOWN";
+        break;
+    default:
+        return "UNKNOWN";
+        break;
+    }
+    return "UNKNOWN";
+}
 
 #endif // !_TEXTURETYPE_H
 

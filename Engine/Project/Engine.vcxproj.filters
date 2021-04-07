@@ -108,13 +108,45 @@
     <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
     <ClInclude Include="..\Header\ShaderTester.h" />
-    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl" />
     <ClInclude Include="..\Header\Vertexs.h" />
-    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl" />
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl" />
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl" />
+    <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resource\Shader\GBufferSK.hlsl" />
+    <Filter Include="Shader">
+      <UniqueIdentifier>{d038249f-6022-436b-928f-24effe73d05e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Effect">
+      <UniqueIdentifier>{9ad7bbcb-3f23-488e-a0d7-8e7fe13562eb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\DebugSK.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\Debug.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Resource\Shader\DebugBone.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

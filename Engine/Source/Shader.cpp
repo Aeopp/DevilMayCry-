@@ -25,7 +25,7 @@ void Shader::Free()
 	SafeRelease(m_pErrMsg);
 }
 
-Shader* Shader::Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFilePath)
+Shader* Shader::Create(LPDIRECT3DDEVICE9 const _pDevice, const TSTRING& _sFilePath , const std::any& InitParams)
 {
 	Shader* pInstance = new Shader(_pDevice);
 

@@ -14,7 +14,7 @@ class ENGINE_DLL GameObject abstract : public Object
 {
 	friend Scene;
 private:
-	typedef std::unordered_map<size_t, std::shared_ptr<Component>> COMPONENTS;
+	typedef std::unordered_map<size_t,std::shared_ptr<Component>> COMPONENTS;
 private:
 	COMPONENTS	m_Components;
 	Scene*		m_pScene;
@@ -25,7 +25,7 @@ private:
 	UINT		m_nLoopIdx;
 	bool		m_bRenderRegist;
 protected:
-	std::vector<Object*> m_pEditObjects{};
+	std::vector<Object*>        m_pEditObjects{};
 	std::weak_ptr<GameObject>	m_pGameObject;
 protected:
 	explicit GameObject();

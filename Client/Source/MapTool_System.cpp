@@ -361,7 +361,8 @@ HRESULT MapTool::LoadBaseMap()
 		m_pBaseMap = AddGameObject<MapToolProps>();
 		m_pBaseMap.lock()->m_strFilePath = szPropsPath;
 	}
-	SetCurrentDirectory(rootPath.wstring().c_str()); // open 쓰면 디렉토리경로 변경되니깐 위에서 미리 따로 저장한걸 세팅
+	SetCurrentDirectory(rootPath.wstring().c_str());
+	// open 쓰면 디렉토리경로 변경되니깐 위에서 미리 따로 저장한걸 세팅
 	return S_OK;
 }
 
@@ -468,6 +469,8 @@ HRESULT MapTool::CreateMeshNameTable(std::wstring strStartPath)
 	} while (bContinue);
 
 	FindClose(hFind);
+
+
 	return S_OK;
 }
 

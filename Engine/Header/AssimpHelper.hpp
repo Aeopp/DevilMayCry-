@@ -3,6 +3,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
+#include <optional>
 
 #include "EngineStdafx.h"
 
@@ -64,7 +65,8 @@ static inline HRESULT LoadMesh(
 	OUT LPDIRECT3DINDEXBUFFER9*	 const	_ppIB,
 	// 본 이름과 본 (인덱스,오프셋) 매핑 정보 ... 
 	IN  OUT std::unordered_map<std::string, 
-						std::pair<uint32,Matrix>>* _rBoneTableParsingInfoFromName)
+						std::pair<uint32,Matrix>>* _rBoneTableParsingInfoFromName,
+						const bool bLoadMeshStorageVertexLocations)
 {
 	static const  uint32 SupportMaxBoneNum = 8u;
 #pragma region SET VERTEX BUFFER DESCRIPTION
@@ -316,6 +318,13 @@ static inline HRESULT LoadMesh(
 	std::vector<float>	vecVertices;
 	const uint32 RefBoneMaxIdx = MaxBonesRefPerVtx4Over ? 8u : 4u;
 
+	std::optional< std::vector<Vector3>> VertexLocations{};
+	if (bLoadMeshStorageVertexLocations)
+	{
+		VertexLocations = std::vector<Vector3>();
+		VertexLocations->resize(_pVBDesc->nNumVertices);
+	}
+
 	for (UINT nVertexIdx = 0; nVertexIdx < _pVBDesc->nNumVertices; ++nVertexIdx)
 	{
 		if (_pVBDesc->bHasPosition)
@@ -323,7 +332,11 @@ static inline HRESULT LoadMesh(
 			vecVertices.push_back(_pAiMesh->mVertices[nVertexIdx].x);
 			vecVertices.push_back(_pAiMesh->mVertices[nVertexIdx].y);
 			vecVertices.push_back(_pAiMesh->mVertices[nVertexIdx].z);
-			_pVBDesc->LocalVertexLocation->push_back(AssimpHelper::ConvertVec3(_pAiMesh->mVertices[nVertexIdx]));
+			if (VertexLocations)
+			{
+				(*VertexLocations)[nVertexIdx] = AssimpHelper::ConvertVec3(_pAiMesh->mVertices[nVertexIdx]);
+			}
+			
 		}
 
 		if (_pVBDesc->bHasNormal)
@@ -395,11 +408,24 @@ static inline HRESULT LoadMesh(
 	//_pAiMesh로 부터 메쉬를 이루는 면의 정점 인덱스 정보 로딩.
 	std::vector<uint32> vecIndices;
 
+	if (VertexLocations)
+	{
+		_pVBDesc->LocalVertexLocation = std::make_shared <std::vector<Vector3>>();
+		_pVBDesc->LocalVertexLocation->resize(uint64(_pVBDesc->nNumFaces * 3u));
+	}
+
 	for (uint32 nFaceIdx = 0; nFaceIdx < _pVBDesc->nNumFaces; ++nFaceIdx)
 	{
 		const aiFace CurrFace = _pAiMesh->mFaces[nFaceIdx];
 		for (uint32 nIdx = 0; nIdx < CurrFace.mNumIndices; ++nIdx)
-			vecIndices.push_back(CurrFace.mIndices[nIdx]);
+		{
+			const uint32 VertexIndex = CurrFace.mIndices[nIdx]; 
+			vecIndices.push_back(VertexIndex);
+			if (VertexLocations)
+			{
+				_pVBDesc->LocalVertexLocation->push_back( (*VertexLocations)[VertexIndex]);
+			}
+		}
 	}
 	//인덱스 버퍼 생성
 	const uint32 IdxBufSize = sizeof(uint32) * vecIndices.size();

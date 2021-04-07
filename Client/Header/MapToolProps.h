@@ -8,7 +8,7 @@
 class MapToolProps :public ENGINE::GameObject, public ENGINE::RenderInterface
 {
 public:
-	enum class ePropsOption { Decoration, Floating, Fixed, End }; // 이후 계속 추가 
+	enum class ePropsOption  :int{ Decoration, Floating, Fixed, End }; // 이후 계속 추가 
 public:
 	std::weak_ptr<Transform>		Get_Trans() { return GetComponent<ENGINE::Transform>(); };
 	//void							SetFBXPath(const std::wstring& strPath) { m_strFilePath = strPath; } // 걍 public 박자  근대 
@@ -20,8 +20,7 @@ public:
 
 	bool							Peeking(Vector3 vRayPos, Vector3 vRayDir, OUT Vector3 &PeekingPos); // 
 
-
-
+	virtual std::string GetName()override;
 
 	static MapToolProps* Create();
 private: 
@@ -41,7 +40,7 @@ public:
 	virtual void OnDisable() override;
 
 	virtual void RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo) override;
-	virtual void RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)override;
+	virtual void RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void RenderReady() override;
 
 };

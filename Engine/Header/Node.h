@@ -22,7 +22,9 @@ public:
 	Matrix ToRoot{ FMath::Identity() };
 	Matrix Offset{ FMath::Identity() };
 	std::string Name{};
-	int32 Index{ 0u };
+	int32 Index{ -1 };
+
+	inline bool IsBone() { return Index >=0; };
 
 	std::unordered_map<std::string,AnimationTrack> _AnimationTrack{};
 

@@ -2,6 +2,7 @@
 #define __MAPTOOLOBJ_H__
 #include "GameObject.h"
 #include "RenderInterface.h"
+
 class MapToolPivot : public ENGINE::GameObject , 
 					public ENGINE::RenderInterface
 {
@@ -26,9 +27,11 @@ public:
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
 
+	virtual void Editor()override;
+
 	// RenderInterface을(를) 통해 상속됨
 	virtual void RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo) override;
-	virtual void RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)override;
+	virtual void RenderDebugImplementation(const ImplementationInfo& _ImplInfo);
 	virtual void RenderReady() override;
 };
 
