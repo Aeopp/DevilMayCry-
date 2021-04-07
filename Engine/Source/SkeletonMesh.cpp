@@ -13,7 +13,7 @@ USING(ENGINE)
 SkeletonMesh::SkeletonMesh(LPDIRECT3DDEVICE9 const _pDevice)
 	: StaticMesh(_pDevice)
 {
-	
+
 }
 
 SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
@@ -23,7 +23,8 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	AnimInfoTable{ _rOther.AnimInfoTable },
 	VTFPitch{ _rOther.VTFPitch },
 	Nodes{ _rOther.Nodes },
-	AnimIndexNameMap{ _rOther.AnimIndexNameMap}
+	AnimIndexNameMap{ _rOther.AnimIndexNameMap },
+	RootMotionStartName{ _rOther.RootMotionStartName }
 {
 	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
@@ -55,9 +56,10 @@ void SkeletonMesh::AnimationEditor()&
 		for (auto& AnimInfoIter : *AnimInfoTable)
 		{
 			auto& AnimInfo = AnimInfoIter.second;
+			ImGui::Checkbox("RootMotion", &bRootMotion);
+
 			if (ImGui::TreeNode(AnimInfo.Name.c_str()))
 			{
-
 				ImGui::BulletText("Duration : %2.3f", AnimInfo.Duration);
 				ImGui::BulletText("TickPerSecond : %3.3f", AnimInfo.TickPerSecond);
 				ImGui::SliderFloat("Acceleration", &AnimInfo.RefOriginAcceleration(), 0.1f, 10.f);
@@ -81,15 +83,12 @@ void SkeletonMesh::AnimationEditor()&
 					}
 					CurPlayAnimInfo = AnimInfo;
 				}
-				else
+
+				if ((ImGui::Button("Play")))
 				{
-					if ((ImGui::Button("Play")))
-					{
-						PlayAnimation(AnimInfo.Name,
-							true, {});
-					}
-				}
-				ENGINE::AnimNotify _Notify{};
+					PlayAnimation(AnimInfo.Name,
+						true, {});
+				};
 
 				ImGui::TreePop();
 			}
@@ -111,7 +110,7 @@ void SkeletonMesh::NodeEditor()
 			}
 		}
 	}
-	
+
 }
 
 void SkeletonMesh::AnimationUpdateImplementation()&
@@ -129,15 +128,49 @@ void SkeletonMesh::AnimationUpdateImplementation()&
 		AnimationBlendInfo _PrevAnimBlend;
 		_PrevAnimBlend.PrevAnimationName = PrevAnimName;
 		_PrevAnimBlend.AnimationTime = PrevAnimMotionTime;
-		_PrevAnimBlend.PrevAnimationWeight =
-			TransitionRemainTime / TransitionDuration;
+		_PrevAnimBlend.PrevAnimationWeight = TransitionRemainTime / TransitionDuration;
 		IsAnimationBlend = _PrevAnimBlend;
 	}
 
 
+
+
+	std::optional<std::string> IsRootMotion;
+	// 루트모션 시작 . .. 
+	//if (bRootMotion)
+	//{
+	//	auto* const RootMotionRoot = GetNode(RootMotionStartName);
+	//	if (RootMotionRoot)
+	//	{
+	//		auto iter = RootMotionRoot->_AnimationTrack.find(AnimName);
+	//		const bool bCurAnim = iter != std::end(RootMotionRoot->_AnimationTrack);
+	//		if (bCurAnim)
+	//		{
+	//			IsRootMotion = RootMotionStartName;
+
+	//			const auto& RootAnimTrack = iter->second;
+	//			const auto
+	//				[Scale, Quat, Pos] = Node::CurrentAnimationTransform(RootAnimTrack, CurrentAnimMotionTime);
+
+	//			// 해당 위치값으로 트랜스폼 보정 ... !! 
+	//			Pos;
+
+	//			if (IsAnimationBlend.has_value())
+	//			{
+
+	//			}
+	//		}
+	//	}
+
+	//}
+	// 루트모션 종료.....
+
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
-	Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime,AnimName, IsAnimationBlend);
+	// Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime, AnimName, IsAnimationBlend, IsRootMotion);
+	 Root->NodeUpdate(FMath::Identity(), CurrentAnimMotionTime, AnimName, IsAnimationBlend);
+
+	//
 	VTFUpdate();
 
 	if (CurrentAnimMotionTime > CurPlayAnimInfo.Duration)
@@ -200,7 +233,7 @@ void SkeletonMesh::AnimationLoad(
 	Document _Document{};
 	_Document.ParseStream(Isw);
 
-	
+
 	if (_Document.HasParseError())
 	{
 		PRINT_LOG(L"Warning!", L"Animation Parse Error!");
@@ -212,7 +245,7 @@ void SkeletonMesh::AnimationLoad(
 	for (auto iter = AnimTableArray.Begin();
 		iter != AnimTableArray.end(); ++iter)
 	{
-		
+
 		AnimInfoTable->find(AnimName);
 
 		if (iter->HasMember("Name"))
@@ -222,9 +255,9 @@ void SkeletonMesh::AnimationLoad(
 				// PRINT_LOG(L"Warning!!",L"모델 애니메이션 이름과 데이터 테이블 이름이 매칭되지 않음. 애니메이션 이름이 바뀌었는지 확인해보세요.")
 			}
 
-			const std::string AnimName = 
+			const std::string AnimName =
 				iter->FindMember("Name")->value.GetString();
-			
+
 			(*AnimInfoTable)[AnimName].SetAcceleration(iter->FindMember("Acceleration")->value.GetFloat());
 			(*AnimInfoTable)[AnimName].TransitionTime = iter->FindMember("TransitionTime")->value.GetFloat();
 		}
@@ -245,8 +278,8 @@ void SkeletonMesh::Free()
 	}
 };
 
-SkeletonMesh* SkeletonMesh::Create(LPDIRECT3DDEVICE9 const _pDevice, 
-								   const std::filesystem::path _Path ,
+SkeletonMesh* SkeletonMesh::Create(LPDIRECT3DDEVICE9 const _pDevice,
+	const std::filesystem::path _Path,
 	const std::any& InitParams)
 {
 	SkeletonMesh* pInstance = new SkeletonMesh(_pDevice);
@@ -329,8 +362,8 @@ void SkeletonMesh::Update(const float DeltaTime)&
 };
 
 void SkeletonMesh::BoneDebugRender(
-									const Matrix& OwnerTransformWorld,
-									ID3DXEffect* const Fx)&
+	const Matrix& OwnerTransformWorld,
+	ID3DXEffect* const Fx)&
 {
 	static auto DebugSphereMesh = Resources::Load<ENGINE::StaticMesh>(
 		"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
@@ -342,7 +375,7 @@ void SkeletonMesh::BoneDebugRender(
 	for (auto& [NodeName, _Node] : *Nodes)
 	{
 		if (auto OToRoot = GetNodeToRoot(NodeName);
-				 OToRoot)
+			OToRoot)
 		{
 			const Matrix ToRoot = OToRoot.value();
 			Fx->SetMatrix("ToRoot", &ToRoot);
@@ -379,7 +412,7 @@ void SkeletonMesh::VTFUpdate()&
 			BoneSkinningMatries.size() * sizeof(Matrix));
 		BoneAnimMatrixInfo->UnlockRect(0u);
 	}
-	
+
 }
 
 Node* SkeletonMesh::GetRootNode()&
@@ -415,7 +448,7 @@ std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
 			const uint32 NodeIndex = SpNode->Index;
 			if (SpNode->IsBone())
 			{
-				return   FMath::Inverse(SpNode->Offset)* BoneSkinningMatries[NodeIndex];
+				return   FMath::Inverse(SpNode->Offset) * BoneSkinningMatries[NodeIndex];
 			}
 		}
 	}
@@ -424,11 +457,13 @@ std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
 }
 
 void SkeletonMesh::PlayAnimation(
-	const std::string& InitAnimName, 
+	const std::string& InitAnimName,
 	const bool  bLoop,
 	const AnimNotify& _Notify)
 {
 	if (!AnimInfoTable)return;
+	//    같은 모션 일경우 빠른 리턴.
+	if (InitAnimName == CurPlayAnimInfo.Name) return;
 
 	auto iter = AnimInfoTable->find(InitAnimName);
 	if (iter == std::end(*AnimInfoTable))
@@ -437,7 +472,7 @@ void SkeletonMesh::PlayAnimation(
 	}
 	bAnimStop = false;
 	bAnimationEnd = false;
-	this->bLoop=bLoop;
+	this->bLoop = bLoop;
 	PrevAnimMotionTime = CurrentAnimMotionTime;
 	CurrentAnimMotionTime = 0.0;
 	PrevAnimName = AnimName;
@@ -453,7 +488,7 @@ void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, 
 	if (AnimIndexNameMap)
 	{
 		if (auto iter = AnimIndexNameMap->find(AnimationIndex);
-			 iter != std::end(*AnimIndexNameMap) )
+			iter != std::end(*AnimIndexNameMap))
 		{
 			PlayAnimation(iter->second, bLoop, _Notify);
 		}
@@ -476,13 +511,13 @@ void SkeletonMesh::StopAnimation()
 	bAnimStop = true;
 }
 
-
 void SkeletonMesh::AnimationEnd()&
 {
 	if (bLoop)
 	{
-		PlayAnimation(AnimName,  bLoop, CurAnimNotify);
+		CurrentAnimMotionTime -= CurPlayAnimInfo.Duration;
 		bAnimationEnd = false;
+		// PlayAnimation(AnimName,bLoop,CurAnimNotify);
 	}
 	else
 	{
@@ -492,31 +527,31 @@ void SkeletonMesh::AnimationEnd()&
 
 float SkeletonMesh::PlayingTime()
 {
-	if(bAnimationEnd)
+	if (bAnimationEnd)
 		return 0.0f;
-	
+
 	return CurrentAnimMotionTime / CurPlayAnimInfo.Duration;
 }
 
 void SkeletonMesh::SetPlayingTime(float NewTime)
 {
 	if (bAnimationEnd)return;
-	NewTime = std::clamp(NewTime, 0.0f, 1.0f); 
+	NewTime = std::clamp(NewTime, 0.0f, 1.0f);
 	const float AnimDelta = NewTime - PlayingTime();
 	const float SetTime = NewTime * CurPlayAnimInfo.Duration;
 	CurrentAnimMotionTime = SetTime;
-	PrevAnimMotionTime += AnimDelta * PrevPlayAnimInfo.CalcAcceleration(); 
+	PrevAnimMotionTime += AnimDelta * PrevPlayAnimInfo.CalcAcceleration();
 	TransitionRemainTime -= AnimDelta;
 	AnimationUpdateImplementation();
 }
 
-std::optional<AnimationInformation> 
-	SkeletonMesh::GetAnimInfo(const std::string& AnimName) const&
+std::optional<AnimationInformation>
+SkeletonMesh::GetAnimInfo(const std::string& AnimName) const&
 {
 	if (AnimInfoTable)
 	{
 		auto iter = AnimInfoTable->find(AnimName);
-		if (iter != std::end( * AnimInfoTable))
+		if (iter != std::end(*AnimInfoTable))
 		{
 			return iter->second;
 		}
@@ -525,8 +560,8 @@ std::optional<AnimationInformation>
 	return std::nullopt;
 }
 
-static aiNode* FindBone(aiNode* AiNode ,
-				const std::set<std::string>& BoneNameSet)
+static aiNode* FindBone(aiNode* AiNode,
+	const std::set<std::string>& BoneNameSet)
 {
 	if (BoneNameSet.contains(AiNode->mName.C_Str()))
 	{
@@ -548,7 +583,7 @@ static aiNode* FindBone(aiNode* AiNode ,
 
 HRESULT SkeletonMesh::LoadMeshImplementation(
 	const aiScene* AiScene,
-	const std::filesystem::path _Path ,
+	const std::filesystem::path _Path,
 	const std::any& InitParams)
 {
 	Mesh::InitializeInfo _InitInfo{};
@@ -575,7 +610,7 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 		LPDIRECT3DINDEXBUFFER9	pIB = nullptr;
 
 		if (FAILED(AssimpHelper::LoadMesh(AiMesh, m_pDevice,
-			&tVBDesc, &pVB, &pIB , &BoneTableParserInfo , _InitInfo.bLocalVertexLocationsStorage)))
+			&tVBDesc, &pVB, &pIB, &BoneTableParserInfo, _InitInfo.bLocalVertexLocationsStorage)))
 			return E_FAIL;
 
 		MATERIAL tMaterial;
@@ -612,7 +647,7 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 			SafeRelease(pIB);
 			return E_FAIL;
 		}
-		
+
 		SafeAddRef(tVBDesc.pVertexDecl);
 
 		_CurrentSubset->Initialize(pVB, pIB, tVBDesc, tMaterial);
@@ -620,7 +655,7 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 	};
 
 	std::set<std::string> BoneNameSet{};
-	for (const auto&  [BoneName,Info] :BoneTableParserInfo)
+	for (const auto& [BoneName, Info] : BoneTableParserInfo)
 	{
 		BoneNameSet.insert(BoneName);
 	}
@@ -629,10 +664,10 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 
 	RootNodeName = AiScene->mRootNode->mName.C_Str();
 	Nodes = std::make_shared<std::unordered_map<std::string, std::shared_ptr<Node>>>();
-	MakeHierarchy(nullptr,AiScene->mRootNode, BoneTableParserInfo);
+	MakeHierarchy(nullptr, AiScene->mRootNode, BoneTableParserInfo);
 
-	bHasAnimation = AiScene->HasAnimations(); 
-	
+	bHasAnimation = AiScene->HasAnimations();
+
 	if (bHasAnimation)
 	{
 		AnimIndexNameMap = std::make_shared<std::map<uint32, std::string>>();
@@ -656,22 +691,22 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 				ChannelIdx < _AiAnimation->mNumChannels; ++ChannelIdx)
 			{
 				const auto& CurChannelkey = _AiAnimation->mChannels[ChannelIdx];
-				const std::string NodeName =CurChannelkey->mNodeName.C_Str();
+				const std::string NodeName = CurChannelkey->mNodeName.C_Str();
 				auto iter = Nodes->find(NodeName);
 				auto SpNode = iter->second;
 				auto& CurAnimTrack = SpNode->_AnimationTrack[CurAnimInfo.Name];
 				auto& RefScaleTrack = CurAnimTrack.ScaleTimeLine;
-				auto& RefQuatTrack= CurAnimTrack.QuatTimeLine;
+				auto& RefQuatTrack = CurAnimTrack.QuatTimeLine;
 				auto& RefPosTrack = CurAnimTrack.PosTimeLine;
-				
+
 				for (uint32 ScaleKeyIdx = 0u;
 					ScaleKeyIdx < CurChannelkey->mNumScalingKeys;
 					++ScaleKeyIdx)
 				{
 					const auto& CurScaleKey = CurChannelkey->mScalingKeys[ScaleKeyIdx];
 
-					RefScaleTrack.insert({ CurScaleKey .mTime,
-						AssimpHelper::ConvertVec3(CurScaleKey .mValue)});
+					RefScaleTrack.insert({ CurScaleKey.mTime,
+						AssimpHelper::ConvertVec3(CurScaleKey.mValue) });
 				}
 
 				for (uint32 QuatKeyIdx = 0u;
@@ -680,7 +715,7 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 				{
 					const auto& CurQuatKey = CurChannelkey->mRotationKeys[QuatKeyIdx];
 					auto Quat = AssimpHelper::ConvertQuat(CurQuatKey.mValue);
-					D3DXQuaternionNormalize(&Quat , &Quat);
+					D3DXQuaternionNormalize(&Quat, &Quat);
 
 					RefQuatTrack.insert({
 						CurQuatKey.mTime,
@@ -693,17 +728,20 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 					++PosKeyIdx)
 				{
 					const auto& CurPosKey = CurChannelkey->mPositionKeys[PosKeyIdx];
-					
+
 					RefPosTrack.insert({
 						CurPosKey.mTime,
-						AssimpHelper::ConvertVec3( CurPosKey.mValue )
+						AssimpHelper::ConvertVec3(CurPosKey.mValue)
 						});
 				}
 			}
-			
-			AnimInfoTable->insert({CurAnimInfo.Name , CurAnimInfo});
+
+			AnimInfoTable->insert({ CurAnimInfo.Name , CurAnimInfo });
 		}
 	}
+
+
+
 
 	if (_InitInfo.bLocalVertexLocationsStorage)
 	{
@@ -722,20 +760,20 @@ static bool IsBone(
 	{
 		return BoneNameSet.contains(AiNode->mName.C_Str());
 	}
-	
+
 	return false;
 };
 
- Node* SkeletonMesh::MakeHierarchy(Node* BoneParent,
+Node* SkeletonMesh::MakeHierarchy(Node* BoneParent,
 	const aiNode* const AiNode,
 	const std::unordered_map<std::string,
-	std::pair<uint32, Matrix>>& BoneTableParserInfo )
+	std::pair<uint32, Matrix>>&BoneTableParserInfo)
 {
 	const std::string TargetNodeName = AiNode->mName.C_Str();
 	auto TargetNode = std::make_shared<Node>();
 	auto iter = BoneTableParserInfo.find(TargetNodeName);
 	const bool bParserInfo =
-			std::end(BoneTableParserInfo) != iter;
+		std::end(BoneTableParserInfo) != iter;
 
 	if (bParserInfo)
 	{
@@ -747,101 +785,101 @@ static bool IsBone(
 	{
 		TargetNode->Offset = FMath::Identity();
 	}
-	
+
 	TargetNode->OriginTransform = TargetNode->Transform =
 		AssimpHelper::ConvertMatrix(AiNode->mTransformation);
 	TargetNode->Parent = BoneParent;
-	const Matrix ParentToRoot = BoneParent ? 
+	const Matrix ParentToRoot = BoneParent ?
 		BoneParent->ToRoot : FMath::Identity();
 	TargetNode->ToRoot = TargetNode->OriginTransform * ParentToRoot;
-	TargetNode->Name=TargetNodeName;
+	TargetNode->Name = TargetNodeName;
 	Nodes->insert({ TargetNodeName , TargetNode });
 
 	for (uint32 i = 0; i < AiNode->mNumChildren; ++i)
 	{
-		const auto*const CurChildren=AiNode->mChildren[i];
+		const auto* const CurChildren = AiNode->mChildren[i];
 
 		auto ChildrenResult = MakeHierarchy(
-				TargetNode.get(),
-				CurChildren,
-				BoneTableParserInfo);
+			TargetNode.get(),
+			CurChildren,
+			BoneTableParserInfo);
 
 		TargetNode->Childrens.push_back(ChildrenResult);
 	}
 
-	auto ReturnThis =TargetNode.get();
+	auto ReturnThis = TargetNode.get();
 	return ReturnThis;
 }
 
- //Node* SkeletonMesh::MakeHierarchyForclones(
-	// Node* const Parent,
-	// const Node*const SpProtoNode)
- //{
-	// if (nullptr == SpProtoNode)
-	// {
-	//	 PRINT_LOG(L"Warning!", L"Nodes information deep copy error");
-	//     return nullptr;
-	// }
+//Node* SkeletonMesh::MakeHierarchyForclones(
+   // Node* const Parent,
+   // const Node*const SpProtoNode)
+//{
+   // if (nullptr == SpProtoNode)
+   // {
+   //	 PRINT_LOG(L"Warning!", L"Nodes information deep copy error");
+   //     return nullptr;
+   // }
 
-	// auto CloneNode = std::make_shared<Node>(*SpProtoNode);
-	// CloneNode->Parent = Parent;
-	// CloneNode->Childrens.clear();
-	// auto Self = CloneNode.get();
+   // auto CloneNode = std::make_shared<Node>(*SpProtoNode);
+   // CloneNode->Parent = Parent;
+   // CloneNode->Childrens.clear();
+   // auto Self = CloneNode.get();
 
-	// for (const auto& ProtoChildren : SpProtoNode->Childrens)
-	// {
-	//	 auto*const ChildrenRawPtr=MakeHierarchyForclones(Self, ProtoChildren);
-	//	 if (ChildrenRawPtr)
-	//	 {
-	//		 CloneNode->Childrens.push_back(ChildrenRawPtr);
-	//	 }
-	// }
-	// Nodes.insert({ CloneNode->Name,CloneNode });
+   // for (const auto& ProtoChildren : SpProtoNode->Childrens)
+   // {
+   //	 auto*const ChildrenRawPtr=MakeHierarchyForclones(Self, ProtoChildren);
+   //	 if (ChildrenRawPtr)
+   //	 {
+   //		 CloneNode->Childrens.push_back(ChildrenRawPtr);
+   //	 }
+   // }
+   // Nodes.insert({ CloneNode->Name,CloneNode });
 
-	// return Self;
- //};
+   // return Self;
+//};
 
- void SkeletonMesh::InitTextureForVertexTextureFetch()&
- {
-	 // 텍셀하나당 flaot4 개씩 저장하므로 매트릭스 하나에는 텍셀 4개가 필요하다.
-	 const float TexPitchPrecision = std::sqrtf(BoneSkinningMatries.size() * 4u);
-	 const uint8 PowerOfMax = 9u;
-	 // 2^9 * 2^9 / 4 = 4096개의 행렬을 저장 가능하며 4096개의 본을 가진 캐릭터가 존재하는 게임을 나는 아직 못만듬.
-	 
-	 // 가장가까운 2의 승수를 찾는다.
-	 for (uint8 PowerOf2 = 0u; PowerOf2 < PowerOfMax; ++PowerOf2)
-	 {
-		 VTFPitch = std::powl(2, PowerOf2);
-		 if (VTFPitch >= TexPitchPrecision)
-			 break;
-	 }
-	 
-	 m_pDevice->CreateTexture
-	 (VTFPitch, VTFPitch, 1, 0, D3DFMT_A32B32G32R32F, D3DPOOL_MANAGED,
-		 &BoneAnimMatrixInfo, nullptr);
- }
+void SkeletonMesh::InitTextureForVertexTextureFetch()&
+{
+	// 텍셀하나당 flaot4 개씩 저장하므로 매트릭스 하나에는 텍셀 4개가 필요하다.
+	const float TexPitchPrecision = std::sqrtf(BoneSkinningMatries.size() * 4u);
+	const uint8 PowerOfMax = 9u;
+	// 2^9 * 2^9 / 4 = 4096개의 행렬을 저장 가능하며 4096개의 본을 가진 캐릭터가 존재하는 게임을 나는 아직 못만듬.
 
- void SkeletonMesh::AnimationNotify()&
- {
-	 const float AnimDurationNormalize = CurrentAnimMotionTime / (*AnimInfoTable)[AnimName].Duration;
+	// 가장가까운 2의 승수를 찾는다.
+	for (uint8 PowerOf2 = 0u; PowerOf2 < PowerOfMax; ++PowerOf2)
+	{
+		VTFPitch = std::powl(2, PowerOf2);
+		if (VTFPitch >= TexPitchPrecision)
+			break;
+	}
 
-	 auto EventIter =  CurAnimNotify.Event.lower_bound(AnimDurationNormalize);
+	m_pDevice->CreateTexture
+	(VTFPitch, VTFPitch, 1, 0, D3DFMT_A32B32G32R32F, D3DPOOL_MANAGED,
+		&BoneAnimMatrixInfo, nullptr);
+}
 
-	 bool bTiming = (std::end(CurAnimNotify.Event) != EventIter) &&
-		 AnimDurationNormalize >= EventIter->first;
+void SkeletonMesh::AnimationNotify()&
+{
+	const float AnimDurationNormalize = CurrentAnimMotionTime / (*AnimInfoTable)[AnimName].Duration;
 
-	 if (bTiming)
-	 {
-		 auto EventCall = EventIter->second;
-		 if (EventCall)
-		 {
-			const bool bDelete= EventCall();
+	auto EventIter = CurAnimNotify.Event.lower_bound(AnimDurationNormalize);
+
+	bool bTiming = (std::end(CurAnimNotify.Event) != EventIter) &&
+		AnimDurationNormalize >= EventIter->first;
+
+	if (bTiming)
+	{
+		auto EventCall = EventIter->second;
+		if (EventCall)
+		{
+			const bool bDelete = EventCall();
 			if (bDelete)
 			{
 				CurAnimNotify.Event.erase(EventIter->first);
 			}
-			
-		 }
-	 }
- }
+
+		}
+	}
+}
 
