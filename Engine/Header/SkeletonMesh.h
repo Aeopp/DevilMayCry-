@@ -34,6 +34,7 @@ public:
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
+	bool	IsAnimationEnd();
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
 	void    Update(const float DeltaTime)&;

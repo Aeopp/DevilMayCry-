@@ -70,6 +70,9 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
+
+
+
 class Jump_Basic : public NeroState
 {
 private:
@@ -320,6 +323,54 @@ public:
 
 public:
 	static RunStartFront* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class RunStartLeft : public NeroState
+{
+private:
+	explicit RunStartLeft(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~RunStartLeft();
+
+public:
+	static RunStartLeft* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class RunStartRight : public NeroState
+{
+private:
+	explicit RunStartRight(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~RunStartRight();
+
+public:
+	static RunStartRight* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class RunStart180 : public NeroState
+{
+private:
+	explicit RunStart180(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~RunStart180();
+
+public:
+	static RunStart180* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;

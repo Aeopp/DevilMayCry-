@@ -328,6 +328,10 @@ void SkeletonMesh::BindVTF(ID3DXEffect* Fx)&
 	Fx->SetInt("VTFPitch", VTFPitch);
 }
 
+bool SkeletonMesh::IsAnimationEnd()
+{
+	return bAnimationEnd;
+}
 
 void SkeletonMesh::EnablePrevVTF()&
 {

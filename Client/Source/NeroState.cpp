@@ -3,6 +3,10 @@
 #include "Nero.h"
 #include "NeroFSM.h"
 
+
+#pragma region PARENT
+
+
 NeroState::NeroState(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:FSMState(_pFSM,_nIndex)
 	, m_pNero(_pNero)
@@ -33,6 +37,11 @@ HRESULT NeroState::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
+#pragma endregion
+
+#pragma region IDLE
+
+
 
 Idle::Idle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM,_nIndex,_pNero)
@@ -50,17 +59,49 @@ Idle* Idle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNe
 
 HRESULT Idle::StateEnter()
 {
-	
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::IDLE, true);
 	return S_OK;
 }
 
 HRESULT Idle::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT Idle::StateUpdate(const float _fDeltaTime)
 {
+	NeroState::StateUpdate(_fDeltaTime);
+	if (Input::GetKeyDown(DIK_W))
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNSTART);
+	}
+	else if (Input::GetKeyDown(DIK_S))
+	{
+		//180도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
+		//m_pNero->lock()->ChangeAnimation(Nero::ru)
+	}
+	else if (Input::GetKeyDown(DIK_A))
+	{
+		//왼쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
+	}
+	else if (Input::GetKeyDown(DIK_D))
+	{
+		//오른쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
+	}
+	else if (Input::GetMouseDown(DIM_L))
+	{
+		m_pFSM->ChangeState(NeroFSM::ATT1);
+	}
+	//else if (m_pNero.lock()->IsAnimationEnd())
+	//{
+	//	//애니메이션이 끝나면 다리바꾸는 애니메이션 한번돌리고
+	//	m_pFSM->ChangeState(NeroFSM::IDLE_SWITCH_LEG);
+	//}
 	return S_OK;
 }
 ///////////////////////////////////////////////////////////////////
@@ -83,6 +124,7 @@ Idle_Switch_Leg* Idle_Switch_Leg::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT Idle_Switch_Leg::StateEnter()
 {
+	m_pNero.lock()->ChangeAnimation(Nero::IDLE, false);
 	return S_OK;
 }
 
@@ -93,6 +135,35 @@ HRESULT Idle_Switch_Leg::StateExit()
 
 HRESULT Idle_Switch_Leg::StateUpdate(const float _fDeltaTime)
 {
+	if (Input::GetKeyDown(DIK_W))
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNSTART);
+	}
+	else if (Input::GetKeyDown(DIK_S))
+	{
+		//180도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
+		//m_pNero->lock()->ChangeAnimation(Nero::ru)
+	}
+	else if (Input::GetKeyDown(DIK_A))
+	{
+		//왼쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
+	}
+	else if (Input::GetKeyDown(DIK_D))
+	{
+		//오른쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
+	}
+	else if (Input::GetMouseDown(DIM_L))
+	{
+		m_pFSM->ChangeState(NeroFSM::ATT1);
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+	}
+
 	return S_OK;
 }
 
@@ -112,18 +183,50 @@ Idle_Battle* Idle_Battle::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_
 
 HRESULT Idle_Battle::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::IDLE_BATTLE, true);
 	return S_OK;
 }
 
 HRESULT Idle_Battle::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT Idle_Battle::StateUpdate(const float _fDeltaTime)
 {
+	//런스타트 배틀
+	NeroState::StateUpdate(_fDeltaTime);
+	if (Input::GetKeyDown(DIK_W))
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNSTART);
+	}
+	else if (Input::GetKeyDown(DIK_S))
+	{
+		//180도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
+		//m_pNero->lock()->ChangeAnimation(Nero::ru)
+	}
+	else if (Input::GetKeyDown(DIK_A))
+	{
+		//왼쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
+	}
+	else if (Input::GetKeyDown(DIK_D))
+	{
+		//오른쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
+	}
+	else if (Input::GetMouseDown(DIM_L))
+	{
+		m_pFSM->ChangeState(NeroFSM::ATT1);
+	}
 	return S_OK;
 }
+#pragma endregion
+
+#pragma region JUMP
 
 Jump_Basic::Jump_Basic(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -530,6 +633,148 @@ HRESULT Jump_Stinger_Landing::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+#pragma endregion JUMP
+
+#pragma region RUN
+
+RunStartLeft::RunStartLeft(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+}
+
+RunStartLeft::~RunStartLeft()
+{
+}
+
+RunStartLeft* RunStartLeft::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new RunStartLeft(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT RunStartLeft::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::WALKSTARTLEFT, false);
+
+	return S_OK;
+}
+
+HRESULT RunStartLeft::StateExit()
+{
+	//끝날때 회전
+	NeroState::StateExit();
+	return S_OK;
+}
+
+HRESULT RunStartLeft::StateUpdate(const float _fDeltaTime)
+{
+	if (Input::GetKey(DIK_A))
+	{
+		if (m_pNero.lock()->IsAnimationEnd())
+		{
+			m_pFSM->ChangeState(NeroFSM::RUNLOOP);
+		}
+	}
+	else
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+	}
+	return S_OK;
+}
+
+RunStartRight::RunStartRight(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+}
+
+RunStartRight::~RunStartRight()
+{
+}
+
+RunStartRight* RunStartRight::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new RunStartRight(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT RunStartRight::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::WALKSTARTRIGHT, false);
+
+
+	return S_OK;
+}
+
+HRESULT RunStartRight::StateExit()
+{
+	//끝날때 회전
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT RunStartRight::StateUpdate(const float _fDeltaTime)
+{
+	if (Input::GetKey(DIK_D))
+	{
+		if (m_pNero.lock()->IsAnimationEnd())
+		{
+			m_pFSM->ChangeState(NeroFSM::RUNLOOP);
+		}
+	}
+	else
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+	}
+
+	return S_OK;
+}
+
+RunStart180::RunStart180(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+}
+
+RunStart180::~RunStart180()
+{
+}
+
+RunStart180* RunStart180::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new RunStart180(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT RunStart180::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::WALKSTART180, false);
+
+	return S_OK;
+}
+
+HRESULT RunStart180::StateExit()
+{
+	NeroState::StateExit();
+	return S_OK;
+}
+
+HRESULT RunStart180::StateUpdate(const float _fDeltaTime)
+{
+	if (Input::GetKey(DIK_S))
+	{
+		if (m_pNero.lock()->IsAnimationEnd())
+		{
+			m_pFSM->ChangeState(NeroFSM::RUNLOOP);
+		}
+	}
+	else
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+	}
+	return S_OK;
+}
+
+
 
 RunLoop::RunLoop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -547,16 +792,29 @@ RunLoop* RunLoop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero
 
 HRESULT RunLoop::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::RUNLOOP, true);
+
 	return S_OK;
 }
 
 HRESULT RunLoop::StateExit()
 {
+	NeroState::StateExit();
+
 	return S_OK;
 }
 
 HRESULT RunLoop::StateUpdate(const float _fDeltaTime)
 {
+	if (Input::GetKey(DIK_W) || Input::GetKey(DIK_S) || Input::GetKey(DIK_A) || Input::GetKey(DIK_D))
+	{
+
+	}
+	else
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNSTOP);
+	}
 	return S_OK;
 }
 
@@ -576,16 +834,30 @@ RunStartFront* RunStartFront::Create(FSMBase* const _pFSM, const UINT _nIndex, w
 
 HRESULT RunStartFront::StateEnter()
 {
+	NeroState::StateEnter();
+	//앞으로 달리는 애니메이션으로 세팅
+	m_pNero.lock()->ChangeAnimation(Nero::RUNSTARTFRONT, false);
+
 	return S_OK;
 }
 
 HRESULT RunStartFront::StateExit()
 {
+	NeroState::StateExit();
+
 	return S_OK;
 }
 
 HRESULT RunStartFront::StateUpdate(const float _fDeltaTime)
 {
+	// 시작하는 애니메니메이션이 끝났으면 Loop로 변환
+	if (Input::GetKey(DIK_W) && m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNLOOP);
+	}
+	else if(m_pNero.lock()->IsAnimationEnd())
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+
 	return S_OK;
 }
 
@@ -605,16 +877,23 @@ RunStop* RunStop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero
 
 HRESULT RunStop::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::RUNSTOP, false);
+
 	return S_OK;
 }
 
 HRESULT RunStop::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT RunStop::StateUpdate(const float _fDeltaTime)
 {
+	if (m_pNero.lock()->IsAnimationEnd())
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+
 	return S_OK;
 }
 
@@ -675,6 +954,11 @@ HRESULT RunTurn_L::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+#pragma endregion
+
+#pragma region DASH
+
+
 
 DashLoop::DashLoop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -762,6 +1046,12 @@ HRESULT DashTurn::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+#pragma endregion
+
+#pragma region GUN_WALK
+
+
 
 GunWalkFront::GunWalkFront(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -907,6 +1197,13 @@ HRESULT GunWalkRightBack::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+#pragma endregion
+
+#pragma region WALK
+
+
+
 
 WalkLoop::WalkLoop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -1111,6 +1408,12 @@ HRESULT WalkTurn180::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
+#pragma endregion
+
+#pragma region EVADE
+
+
+
 Evade_L::Evade_L(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
 {
@@ -1168,6 +1471,14 @@ HRESULT Evade_R::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+
+#pragma endregion
+
+#pragma region SHOOT
+
+
+
 
 Idle_To_Shoot::Idle_To_Shoot(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -1284,6 +1595,13 @@ HRESULT Shoot_To_Idle::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+#pragma endregion
+
+#pragma region HIT
+
+
+
 
 HitFront::HitFront(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -1546,6 +1864,13 @@ HRESULT KnockBack_Get_Up::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
+#pragma endregion
+
+#pragma region DIE
+
+
+
+
 Die::Die(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
 {
@@ -1632,6 +1957,13 @@ HRESULT Resurrection_GetUp::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+#pragma endregion
+
+#pragma region STUN
+
+
+
 
 StunStart::StunStart(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -1806,6 +2138,13 @@ HRESULT EarthQuakeEnd::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+#pragma endregion
+
+#pragma region WIRE
+
+
+
 
 Wire_Pull::Wire_Pull(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -2155,6 +2494,12 @@ HRESULT Wire_Pull_Air_Hard_Down::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
+#pragma endregion
+
+#pragma region ATT
+
+
+
 BT_Att1::BT_Att1(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
 {
@@ -2171,16 +2516,38 @@ BT_Att1* BT_Att1::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero
 
 HRESULT BT_Att1::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT1, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att1::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att1::StateUpdate(const float _fDeltaTime)
 {
+	//현재 애니메이션 프레임 위치
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if(Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.35f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT2);
+		}
+		else if (0.4f < fCurrAnimationTime && fCurrAnimationTime <= 0.8f)
+		{
+			// 레드퀸 콤보 땅바닥 찍는거 시작 
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_C1);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
@@ -2200,16 +2567,38 @@ BT_Att2* BT_Att2::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero
 
 HRESULT BT_Att2::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT2, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att2::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att2::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.35f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT3);
+		}
+		else if (0.4f < fCurrAnimationTime && fCurrAnimationTime <= 0.8f)
+		{
+			// 레드퀸 콤보 앞으로 가면서 베는거
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_D1);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2229,16 +2618,35 @@ BT_Att3* BT_Att3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero
 
 HRESULT BT_Att3::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT3, false);
 	return S_OK;
 }
 
 HRESULT BT_Att3::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att3::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.5f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT4);
+		}
+		else if (0.5f < fCurrAnimationTime && 0.8f <= fCurrAnimationTime)
+		{
+			// 레드퀸 콤보B인가 땅바닥 쎄게 찍는거
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
@@ -2258,16 +2666,30 @@ BT_Att4* BT_Att4::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero
 
 HRESULT BT_Att4::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT4, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att4::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att4::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2316,16 +2738,33 @@ BT_Att_ComboC_R_to_L* BT_Att_ComboC_R_to_L::Create(FSMBase* const _pFSM, const U
 
 HRESULT BT_Att_ComboC_R_to_L::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOC_R_TO_L, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_R_to_L::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_R_to_L::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.35f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_C4);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2345,16 +2784,33 @@ BT_Att_ComboC_L_to_R* BT_Att_ComboC_L_to_R::Create(FSMBase* const _pFSM, const U
 
 HRESULT BT_Att_ComboC_L_to_R::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOC_L_TO_R, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_L_to_R::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_L_to_R::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.35f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_C3);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2374,16 +2830,32 @@ BT_Att_ComboC_1* BT_Att_ComboC_1::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboC_1::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOC_1, false);
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_1::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_1::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.4f <= fCurrAnimationTime && fCurrAnimationTime <= 0.5f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_C2);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2403,16 +2875,32 @@ BT_Att_ComboC_2* BT_Att_ComboC_2::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboC_2::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOC_2, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_2::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_2::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.35f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_C_L);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
@@ -2432,16 +2920,32 @@ BT_Att_ComboC_3* BT_Att_ComboC_3::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboC_3::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOC_3, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_3::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_3::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.35f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_C_R);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
@@ -2461,16 +2965,23 @@ BT_Att_ComboC_4* BT_Att_ComboC_4::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboC_4::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOC_4, false);
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_4::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboC_4::StateUpdate(const float _fDeltaTime)
 {
+	if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
@@ -2490,16 +3001,32 @@ BT_Att_ComboD_1* BT_Att_ComboD_1::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboD_1::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOD_1, false);
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_1::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_1::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.15f <= fCurrAnimationTime && fCurrAnimationTime <= 0.3f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_D2);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2519,16 +3046,32 @@ BT_Att_ComboD_2* BT_Att_ComboD_2::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboD_2::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOD_2, false);
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_2::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_2::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.14f <= fCurrAnimationTime && fCurrAnimationTime <= 0.22f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_D3);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2548,16 +3091,33 @@ BT_Att_ComboD_3* BT_Att_ComboD_3::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboD_3::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOD_3, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_3::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_3::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.33f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT_COMBO_D4);
+		}
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+
 	return S_OK;
 }
 
@@ -2577,16 +3137,29 @@ BT_Att_ComboD_4* BT_Att_ComboD_4::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT BT_Att_ComboD_4::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::BT_ATT_COMBOD_4, false);
+
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_4::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT BT_Att_ComboD_4::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+
+	}
+	else if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
@@ -2937,6 +3510,14 @@ HRESULT BT_Parrying::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+#pragma endregion
+
+
+#pragma region SKILL
+
+
+
 
 Skill_E_Start::Skill_E_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -3343,6 +3924,10 @@ HRESULT Skill_Streak_Ex3::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+#pragma endregion
+
+#pragma region GT
+
 
 GT_Equip::GT_Equip(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -3633,3 +4218,7 @@ HRESULT GT_Spark_Basic_Up::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+#pragma endregion
+
+

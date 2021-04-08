@@ -68,8 +68,8 @@ HRESULT Nero::Ready()
 	//세팅할 애니메이션 이름 넘겨주고 나중에는 인덱스도 오버로딩
 	//두번째인자 루프 할지 말지
 	//세번째인자 _Notify 넘겨줌
-	m_pMesh->PlayAnimation("RunLoop", true , _Notify);
-
+	//m_pMesh->PlayAnimation("RunLoop", true , _Notify);
+	//m_pMesh->PlayAnimation(IDLE, true, _Notify);
 	//FSM 준비
 	m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
 
@@ -185,4 +185,19 @@ void Nero::Editor()
 float Nero::Get_PlayingTime()
 {
 	return m_pMesh->PlayingTime();
+}
+
+bool Nero::IsAnimationEnd()
+{
+	return m_pMesh->IsAnimationEnd();
+}
+
+void Nero::ChangeAnimation(const std::string& InitAnimName, const bool bLoop, const AnimNotify& _Notify)
+{
+	m_pMesh->PlayAnimation(InitAnimName, bLoop, _Notify);
+}
+
+void Nero::ChangeAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify)
+{
+	m_pMesh->PlayAnimation(AnimationIndex, bLoop, _Notify);
 }

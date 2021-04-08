@@ -27,6 +27,11 @@ public:
 public:
 	float Get_PlayingTime();
 public:
+	bool  IsAnimationEnd();
+public:
+	void ChangeAnimation(const std::string& InitAnimName, const bool  bLoop, const AnimNotify& _Notify = {});
+	void ChangeAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify = {});
+public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;
 	virtual HRESULT Start() override;
