@@ -63,6 +63,15 @@ public:
 		delete ptr;
 	}
 };
+
+template <typename T>
+class DummyDeleter
+{
+public:
+	void operator()(T* ptr)
+	{
+	}
+};
 #pragma endregion
 
 #pragma region CONVERT STRING

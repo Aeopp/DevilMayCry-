@@ -5,12 +5,14 @@ static uint32 UniqueIDRegist = 0u;
 
 Object::Object() :
 	UniqueID { UniqueIDRegist++}
+	, m_nTag(0)
 {
 
 }
 
 Object::Object(const Object& rOther)
 	: UniqueID{ UniqueIDRegist++ }
+	, m_nTag(rOther.m_nTag)
 {
 }
 

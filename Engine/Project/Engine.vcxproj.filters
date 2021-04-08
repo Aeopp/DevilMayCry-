@@ -130,6 +130,18 @@
     <ClCompile Include="..\Source\Scene.cpp">
       <Filter>03.Utility\02.Scene</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\CollisionCallback.cpp">
+      <Filter>01.System\07.Physics\02.CollisionCallback</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\PhysicsSystem.cpp">
+      <Filter>01.System\07.Physics\00.System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Collider.cpp">
+      <Filter>03.Utility\00.Component\02.Collider\00.Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Physics.cpp">
+      <Filter>01.System\07.Physics\01.Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
@@ -339,6 +351,18 @@
     <ClInclude Include="..\Header\Scene.h">
       <Filter>03.Utility\02.Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\CollisionCallback.h">
+      <Filter>01.System\07.Physics\02.CollisionCallback</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\PhysicsSystem.h">
+      <Filter>01.System\07.Physics\00.System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Collider.h">
+      <Filter>03.Utility\00.Component\02.Collider\00.Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Physics.h">
+      <Filter>01.System\07.Physics\01.Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">
@@ -481,6 +505,15 @@
     </Filter>
     <Filter Include="03.Utility\02.Scene">
       <UniqueIdentifier>{920c7be7-f30e-43f2-a30a-760245585a0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.System\07.Physics\02.CollisionCallback">
+      <UniqueIdentifier>{5dcf83d9-9ac2-458b-85f0-118f36734814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Utility\00.Component\02.Collider">
+      <UniqueIdentifier>{0857bfe1-e1a6-473e-97ac-1a72e6c736a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Utility\00.Component\02.Collider\00.Base">
+      <UniqueIdentifier>{487dec92-39d2-4127-a291-3b9efb68dd2b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

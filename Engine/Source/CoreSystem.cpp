@@ -10,6 +10,7 @@
 #include "ResourceSystem.h"
 #include "Renderer.h"
 #include "IconsFontAwesome5.h"
+#include "PhysicsSystem.h"
 
 
 USING(ENGINE)
@@ -125,6 +126,9 @@ void CoreSystem::Free()
 	m_pSceneSystem.reset();
 	SceneSystem::DeleteInstance();
 
+	m_pPhysicsSystem.reset();
+	PhysicsSystem::DeleteInstance();
+
 	m_pResourceSystem.reset();
 	ResourceSystem::DeleteInstance();
 
@@ -209,6 +213,13 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 		return E_FAIL;
 	}
 
+	m_pPhysicsSystem = PhysicsSystem::GetInstance();
+	if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
+	{
+		PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
+		return E_FAIL;
+	}
+
 	GlobalVariableSetup();
 	ImGuiSetUp();
 
@@ -249,14 +260,12 @@ HRESULT CoreSystem::UpdateEngine()
 		PRINT_LOG(TEXT("Error"), TEXT("Failed to UpdateTimeSystem."));
 		return E_FAIL;
 	}
+
+	m_pPhysicsSystem.lock()->FetchResults();
+
 	if (FAILED(m_pSceneSystem.lock()->UpdateSceneSystem(m_pTimeSystem.lock()->DeltaTime())))
 	{
 		PRINT_LOG(TEXT("Error"), TEXT("Failed to UpdateSceneSystem."));
-		return E_FAIL;
-	}
-	if (FAILED(m_pSceneSystem.lock()->LateUpdateSceneSystem(m_pTimeSystem.lock()->DeltaTime())))
-	{
-		PRINT_LOG(TEXT("Error"),TEXT("Failed to LateUpdateSceneSystem."));
 		return E_FAIL;
 	}
 	if (g_bEditMode)
@@ -274,6 +283,7 @@ HRESULT CoreSystem::UpdateEngine()
 	}
 	g_Logs.clear();
 
+	m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
 
 	if (FAILED(m_pRenderer.lock()->Render()))
 	{
