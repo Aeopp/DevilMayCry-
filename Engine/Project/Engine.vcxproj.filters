@@ -132,21 +132,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\UI\BtlPanel.hlsl">
       <Filter>04.HLSL\UI</Filter>
     </ClInclude>
@@ -339,8 +324,23 @@
     <ClInclude Include="..\Header\Scene.h">
       <Filter>03.Utility\02.Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
+      <Filter>04.HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
+      <Filter>04.HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
+      <Filter>04.HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
+      <Filter>04.HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
-      <Filter>Shader\Effect</Filter>
+      <Filter>04.HLSL\Effect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -487,15 +487,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resource\Shader\DebugSK.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </None>
     <None Include="..\..\Resource\Shader\Debug.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\DebugSK.hlsl">
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\DebugBone.hlsl" />
+    <None Include="..\..\Resource\Shader\DebugBone.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>
