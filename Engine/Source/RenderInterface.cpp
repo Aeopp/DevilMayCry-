@@ -102,16 +102,10 @@ void RenderInterface::RenderAlphaBlendEffect()
 		}
 		else
 		{
-			for (uint32 i = 0; i < Passes; ++i)
-			{
-				Fx->BeginPass(i);
-				{
-					ImplementationInfo _ImplInfo{};
-					_ImplInfo.Fx = Fx;
-					RenderAlphaBlendEffectImplementation(_ImplInfo);
-				}
-				Fx->EndPass();
-			}
+			ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+			RenderAlphaBlendEffectImplementation(_ImplInfo);
+		
 			Fx->End();
 		}
 	};
