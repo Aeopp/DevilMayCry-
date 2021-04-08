@@ -101,14 +101,14 @@ HRESULT Eff_OvertureHand::Ready()
 
 	_HandMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_weapon\\wp00_010_0000.x");
 	_LightningTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\lightning.dds");
-	_GlowTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\tex_capcom_light_glow_0002_alpg.tga");
+	_GlowTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Light\\tex_capcom_light_glow_0002_alpg.tga");
 	_LightningColorTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\lightning_alb.png");
 	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
-	PushEditEntity(_HandMesh.get());
-	PushEditEntity(_LightningTex.get());
-	PushEditEntity(_GlowTex.get());
-	PushEditEntity(_LightningColorTex.get());
-	PushEditEntity(_NoiseTex.get());
+	//PushEditEntity(_HandMesh.get());
+	//PushEditEntity(_LightningTex.get());
+	//PushEditEntity(_GlowTex.get());
+	//PushEditEntity(_LightningColorTex.get());
+	//PushEditEntity(_NoiseTex.get());
 
 	return S_OK;
 }
@@ -144,17 +144,16 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 
 		{
 			float AllScale = Sptransform->GetScale().x;
-			ImGui::SliderFloat("All Scale", &AllScale, 0.001f, 100.f);
+			ImGui::SliderFloat("All Scale", &AllScale, 0.01f, 1.f);
 			Sptransform->SetScale({ AllScale,AllScale,AllScale });
 		}
-		static Vector3 Rotation{ 0,0,0 };
-		if (ImGui::SliderAngle("Light Pitch", &Rotation.x) ||
-			ImGui::SliderAngle("Light Yaw", &Rotation.y) ||
-			ImGui::SliderAngle("Light Roll", &Rotation.z))
-		{
 
-			Renderer::GetInstance()->TestDirectionLight =
-				FMath::Normalize(FMath::MulNormal(Vector3{ 0,0,1 }, FMath::Rotation(Rotation)));
+		static Vector3 Rotation{ 0,0,0 };
+		if (ImGui::SliderAngle("Pitch", &Rotation.x) ||
+			ImGui::SliderAngle("Yaw", &Rotation.y) ||
+			ImGui::SliderAngle("PitchRoll", &Rotation.z))
+		{
+			Sptransform->SetRotation(Rotation);
 		}
 	}
 

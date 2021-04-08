@@ -49,6 +49,9 @@
     <Filter Include="02.GameObject\Effect\Weapon">
       <UniqueIdentifier>{991dfce5-4d09-4c4f-a8fb-51ee90e5e080}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\Effect\Common">
+      <UniqueIdentifier>{9d62ca16-6527-44a0-a433-1dd09ed55225}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -86,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="..\Header\BtlPanel.h">
       <Filter>02.GameObject\UI\BtlPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Eff_Glint.h">
+      <Filter>02.GameObject\Effect\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -128,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\BtlPanel.cpp">
       <Filter>02.GameObject\UI\BtlPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Eff_Glint.cpp">
+      <Filter>02.GameObject\Effect\Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

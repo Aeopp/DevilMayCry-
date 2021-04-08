@@ -127,6 +127,9 @@
     <ClInclude Include="..\..\Resource\Shader\UI\BtlPanel.hlsl">
       <Filter>Shader\UI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+      <Filter>Shader\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shader">
@@ -149,10 +152,6 @@
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
       <Filter>Shader\Effect</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\..\Resource\Shader\DebugBone.hlsl">
-      <Filter>Shader\Effect</Filter>
-    </FxCompile>
+    <None Include="..\..\Resource\Shader\DebugBone.hlsl" />
   </ItemGroup>
 </Project>
