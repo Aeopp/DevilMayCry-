@@ -3,6 +3,7 @@ matrix ScreenMat;    // (-width/2 ~ +width/2, +height/2 ~ -height/2)
 float3 LightDirection = float3(0.f, 0.f, 1.f);
 
 float _AccumulationTexV;
+float _TotalAccumulateTime;
 
 float _HP_Degree = 0.f; // 0 ~ 360 범위
 float2 _HP_StartPt;
@@ -112,6 +113,20 @@ struct VsOut_Clip
     float Clip : TEXCOORD4;
 };
 
+struct VsOut_NoiseClip
+{
+    float4 Position : POSITION;
+    float2 UV : TEXCOORD0;
+    float3 Normal : TEXCOORD1;
+    float3 Tangent : TEXCOORD2;
+    float3 BiNormal : TEXCOORD3;
+    float2 NoiseCoord0 : TEXCOORD4;
+    float2 NoiseCoord1 : TEXCOORD5;
+    float2 NoiseCoord2 : TEXCOORD6;
+    float Clip : TEXCOORD7;
+};
+
+
 VsOut VsMain(VsIn In)
 {
     VsOut Out = (VsIn) 0;
@@ -126,9 +141,9 @@ VsOut VsMain(VsIn In)
     return Out;
 };
 
-VsOut_Clip VsMain_TargetHP(VsIn In)
+VsOut_NoiseClip VsMain_TargetHP(VsIn In)
 {
-    VsOut_Clip Out = (VsOut_Clip) 0;
+    VsOut_NoiseClip Out = (VsOut_NoiseClip) 0;
 
     Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMat);
     Out.Position = mul(float4(Out.Position.xyz, 1.f), Ortho);
@@ -137,6 +152,15 @@ VsOut_Clip VsMain_TargetHP(VsIn In)
     Out.BiNormal = normalize(mul(float4(In.Position.xyz, 0.f), ScreenMat));
     Out.UV = In.UV;
        
+    // noise
+    Out.NoiseCoord0 = Out.UV;
+    Out.NoiseCoord0.y += _TotalAccumulateTime * 0.2f; // scrollspeed;
+    Out.NoiseCoord1 = Out.UV;
+    Out.NoiseCoord1.y += _TotalAccumulateTime * 0.1f; // scrollspeed;
+    Out.NoiseCoord2 = Out.UV;
+    Out.NoiseCoord2.y += _TotalAccumulateTime * 0.3f; // scrollspeed;
+    
+    // clip
     float2 EndPtVec = Out.Position.xy - _HP_StartPt;
     float Result = dot(normalize(EndPtVec), _HP_Normal0);
     float Result2 = dot(normalize(EndPtVec), _HP_Normal1);
@@ -193,6 +217,18 @@ struct PsIn_Clip
     float Clip : TEXCOORD4;
 };
 
+struct PsIn_NoiseClip
+{
+    float2 UV : TEXCOORD0;
+    float3 Normal : TEXCOORD1;
+    float3 Tangent : TEXCOORD2;
+    float3 BiNormal : TEXCOORD3;
+    float2 NoiseCoord0 : TEXCOORD4;
+    float2 NoiseCoord1 : TEXCOORD5;
+    float2 NoiseCoord2 : TEXCOORD6;
+    float Clip : TEXCOORD7;
+};
+
 struct PsOut
 {
     float4 Color : COLOR0;
@@ -233,40 +269,38 @@ PsOut PsMain_TargetCursor(PsIn In)
     
     float Alp = tex2D(TargetCursor, In.UV).r * tex2D(Noise, newUV);
     
-    Out.Color = float4(1.f, 0.8f, 0.5f, Alp);
+    Out.Color = float4(1.f, 0.4f, 0.4f, Alp);
 
     return Out;
 };
 
-PsOut PsMain_TargetHP_0(PsIn_Clip In)
+PsOut PsMain_TargetHP(PsIn_NoiseClip In)
 {
     PsOut Out = (PsOut) 0;
     
-    clip(In.UV.y - 0.7f);
+    clip(In.UV.y - 0.8f);
     clip(In.Clip);
     
-    float2 newUV = In.UV;
-    newUV.y -= _AccumulationTexV;
+    float4 Noise0 = tex2D(Noise, In.NoiseCoord0).rrrr;
+    float4 Noise1 = tex2D(Noise, In.NoiseCoord1).gggg;
+    float4 Noise2 = tex2D(Noise, In.NoiseCoord2).bbbb;
     
-    Out.Color = float4(0.5f, 0.647f, 0.698f, tex2D(TargetHP, newUV).r);
-    
-    float AlpCorrection = 0.6f; // In.UV.y == 0.85일 떄 가장 큰 값
-    AlpCorrection *= (1.f - (abs(In.UV.y - 0.85f) * 6.666f));   // 6.666 -> 0.15의 역수
-    Out.Color.a *= AlpCorrection;
-    
-    return Out;
-};
-
-PsOut PsMain_TargetHP_1(PsIn_Clip In)
-{
-    PsOut Out = (PsOut) 0;
-    
-    clip(In.Clip);
-    
-    float2 newUV = In.UV;
-    newUV.x += _AccumulationTexV;
+    // -1 ~ 1 범위
+    Noise0 = (Noise0 - 0.5f) * 2.f;
+    Noise1 = (Noise1 - 0.5f) * 2.f;
+    Noise2 = (Noise2 - 0.5f) * 2.f;
  
-    Out.Color = float4(0.694f, 0.851f, 0.898f, tex2D(Noise, newUV).g * 0.1f);
+    // distortion
+    Noise0.xy *= float2(0.3f, 0.1f);
+    Noise1.xy *= float2(-0.1f, 0.2f);
+    Noise2.xy *= float2(0.2f, -0.3f);
+    
+    float4 FinalNoise = Noise0 + Noise1 + Noise2;
+    FinalNoise *= 0.5f; //scale;
+    float2 NoiseCoord = FinalNoise.xy + In.UV;
+       
+    Out.Color = float4(0.5f, 0.647f, 0.698f, tex2D(TargetHP, NoiseCoord).r);
+    Out.Color.a *= ((In.UV.y - 0.8f) * 5.f);
     
     return Out;
 };
@@ -406,20 +440,9 @@ technique Default
         zwriteenable = false;
 
         vertexshader = compile vs_3_0 VsMain_TargetHP();
-        pixelshader = compile ps_3_0 PsMain_TargetHP_0();
+        pixelshader = compile ps_3_0 PsMain_TargetHP();
     }
     pass p3
-    {
-        alphablendenable = true;
-        srcblend = srcalpha;
-        destblend = invsrcalpha;
-        zenable = false;
-        zwriteenable = false;
-
-        vertexshader = compile vs_3_0 VsMain_TargetHP();
-        pixelshader = compile ps_3_0 PsMain_TargetHP_1();
-    }
-    pass p4
     {
         alphablendenable = true;
         srcblend = srcalpha;
@@ -430,7 +453,7 @@ technique Default
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_BossGauge0();
     }
-    pass p5
+    pass p4
     {
         alphablendenable = true;
         srcblend = srcalpha;
@@ -441,7 +464,7 @@ technique Default
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_BossGauge1();
     }
-    pass p6
+    pass p5
     {
         alphablendenable = true;
         srcblend = srcalpha;
@@ -452,7 +475,7 @@ technique Default
         vertexshader = compile vs_3_0 VsMain_BossGauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge2();
     }
-    pass p7
+    pass p6
     {
         alphablendenable = true;
         srcblend = srcalpha;
