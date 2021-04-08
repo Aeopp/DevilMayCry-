@@ -128,7 +128,7 @@ HRESULT TestAnimationObject::Ready()
 	_InitInfo.bRootMotionScale = true;
 	_InitInfo.bRootMotionRotation= true;
 	_InitInfo.bRootMotionTransition = true;
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Em0000\\Em0000.fbx" , _InitInfo);
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Em5300\\Em5300.X" , _InitInfo);
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)
@@ -174,11 +174,16 @@ UINT TestAnimationObject::Update(const float _fDeltaTime)
 {
 	// 현재 스케일과 회전은 의미가 없음 DeltaPos 로 트랜스폼에서 통제 . 
 	auto [DeltaScale,DeltaQuat,DeltaPos ] = _SkeletonMesh->Update(_fDeltaTime);
-	 static float  TestDeltaScale = 0.001f;
+	 Vector3 Axis = { 1,0,0 };
+
+	 const float Length = FMath::Length(DeltaPos);
+
+	 //DeltaPos = FMath::RotationVecNormal(DeltaPos, Axis, FMath::ToRadian(90.f)) * Length;
+
 	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
 		SpTransform)
 	{
-		SpTransform->SetPosition(SpTransform->GetPosition() + DeltaPos * SpTransform->GetScale().x * TestDeltaScale);
+		SpTransform->SetPosition(SpTransform->GetPosition() + DeltaPos  * SpTransform->GetScale().x);
 		// SpTransform->SetScale(SpTransform->GetScale() + DeltaScale * SpTransform->GetScale().x);
 	}
 

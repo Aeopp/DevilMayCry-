@@ -28,7 +28,8 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	RootMotionTransitionName{ _rOther.RootMotionTransitionName },
 	bRootMotionScale{ _rOther.bRootMotionScale },
 	bRootMotionRotation{ _rOther.bRootMotionRotation },
-	bRootMotionTransition{ _rOther.bRootMotionTransition }
+	bRootMotionTransition{ _rOther.bRootMotionTransition } ,
+	RootMotionDeltaFactor{ _rOther.RootMotionDeltaFactor }
 {
 	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
@@ -58,6 +59,7 @@ void SkeletonMesh::AnimationEditor()&
 		}
 		if (ImGui::TreeNode("RootMotion"))
 		{
+			ImGui::SliderFloat("RootMotionDeltaFactor", &RootMotionDeltaFactor, 0.000001f, 1.f);
 			if ( ImGui::TreeNode("Delta") ) 
 			{
 				ImGui::BulletText("Delta Scale : %3.3f , %3.3f , %3.3f",
@@ -147,8 +149,7 @@ void SkeletonMesh::AnimationEditor()&
 
 				if ((ImGui::Button("Play")))
 				{
-					PlayAnimation(AnimInfo.Name,
-						true, {});
+					PlayAnimation(AnimInfo.Name,true, {});
 				};
 
 				ImGui::TreePop();
@@ -304,7 +305,12 @@ std::tuple<Vector3,Quaternion,Vector3> SkeletonMesh::AnimationUpdateImplementati
 		AnimationEnd();
 	}
 
-	return { RootMotionLastCalcDeltaScale,RootMotionLastCalcDeltaQuat,RootMotionLastCalcDeltaPos };
+	return { RootMotionLastCalcDeltaScale
+			*RootMotionDeltaFactor,
+			RootMotionLastCalcDeltaQuat
+			* RootMotionDeltaFactor,
+			RootMotionLastCalcDeltaPos
+		   *  RootMotionDeltaFactor };
 }
 
 void SkeletonMesh::AnimationSave(
@@ -317,6 +323,9 @@ void SkeletonMesh::AnimationSave(
 	StringBuffer StrBuf{};
 	PrettyWriter<StringBuffer> Writer(StrBuf);
 	Writer.StartObject();
+
+	Writer.Key("RootMotion_DeltaFactor");
+	Writer.Double(RootMotionDeltaFactor);
 
 	Writer.Key("RootMotion_ScaleName");
 	Writer.String(RootMotionScaleName.c_str());
@@ -378,6 +387,13 @@ void SkeletonMesh::AnimationLoad(
 		return;
 	}
 
+	{
+		const Value& RootMotionRootName = _Document["RootMotion_DeltaFactor"];
+		if (false == RootMotionRootName.Empty())
+		{
+			RootMotionDeltaFactor = RootMotionRootName.GetDouble();
+		}
+	}
 	{
 		const Value& RootMotionRootName = _Document["RootMotion_ScaleName"];
 		if (false == RootMotionRootName.Empty())
@@ -516,20 +532,11 @@ void SkeletonMesh::DisablePrevVTF()&
 		PrevBoneSkinningMatries.clear();
 		PrevBoneSkinningMatries.shrink_to_fit();
 	}
-}
-
-
-
-
-
-
-
-
-
+};
 
 std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaTime)&
 {
-	if (bAnimationEnd || bAnimStop)return { {1,1,1},{0,0,0,1},{0,0,0} };
+	if (bAnimationEnd || bAnimStop)return { {0,0,0},{0,0,0,1},{0,0,0} };
 
 	const float CalcDeltaTime = DeltaTime * DeltaTimeFactor;
 

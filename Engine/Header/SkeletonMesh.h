@@ -127,7 +127,10 @@ public:
 	void    DisableRotationRootMotion();
 	void    DisableTransitionRootMotion();
 
+	
 	float DeltaTimeFactor = 1.f;
+
+	float RootMotionDeltaFactor = 1.f;
 	bool  bRootMotionScale = false;
 	bool  bRootMotionRotation = false;
 	bool  bRootMotionTransition = false;

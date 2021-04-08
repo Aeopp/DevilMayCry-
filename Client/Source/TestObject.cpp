@@ -102,12 +102,12 @@ HRESULT TestObject::Ready()
 
 	// 스태틱 메쉬 로딩
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx");
+		L"..\\..\\Resource\\Mesh\\Static\\Plane.fbx");
 	PushEditEntity(_StaticMesh.get());
 
 	// 트랜스폼 초기화 .. 
 	auto InitTransform = AddComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.001,0.001,0.001 });
+	InitTransform.lock()->SetScale({ 1,1,1});
 	PushEditEntity(InitTransform.lock().get());
 
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
