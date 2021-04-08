@@ -85,6 +85,10 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			Create_ScreenMat(CurID, ScreenMat);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
+			_ImplInfo.Fx->BeginPass(3);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
 			_ImplInfo.Fx->BeginPass(4);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
@@ -94,10 +98,6 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->EndPass();
 
 			_ImplInfo.Fx->BeginPass(6);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-
-			_ImplInfo.Fx->BeginPass(7);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -112,8 +112,8 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		if (_UIDescs[CurID].Using)
 		{
 			_ImplInfo.Fx->SetTexture("TargetHPMap", _EnemyHPTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.1f);
-
+			_ImplInfo.Fx->SetFloat("_TotalAccumulateTime", _TotalAccumulateTime);
+			
 			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
 			_ImplInfo.Fx->SetFloatArray("_HP_StartPt", _TargetHP_StartPtOrtho, 2u);
 			_ImplInfo.Fx->SetFloatArray("_HP_Normal0", _TargetHP_Normal0, 2u);
@@ -123,30 +123,6 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
 			_ImplInfo.Fx->BeginPass(2);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-	}
-
-	auto WeakSubset_Pipe1 = _Pipe1Mesh->GetSubset(0u);
-	if (auto SharedSubset = WeakSubset_Pipe1.lock();
-		SharedSubset)
-	{
-		//
-		CurID = TARGET_HP;
-		if (_UIDescs[CurID].Using)
-		{
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.5f);
-
-			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
-			_ImplInfo.Fx->SetFloatArray("_HP_StartPt", _TargetHP_StartPtOrtho, 2u);
-			_ImplInfo.Fx->SetFloatArray("_HP_Normal0", _TargetHP_Normal0, 2u);
-			_ImplInfo.Fx->SetFloatArray("_HP_Normal1", _TargetHP_Normal1, 2u);
-
-			Create_ScreenMat(CurID, ScreenMat, 1);
-			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-
-			_ImplInfo.Fx->BeginPass(3);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -176,7 +152,6 @@ HRESULT BtlPanel::Ready()
 
 	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
 	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\pipe00.fbx");
-	_Pipe1Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\pipe01.fbx");
 
 	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
 
@@ -208,6 +183,7 @@ HRESULT BtlPanel::Start()
 UINT BtlPanel::Update(const float _fDeltaTime)
 {
 	_AccumulateTime += _fDeltaTime;
+	_TotalAccumulateTime += _fDeltaTime;
 
 	////////////////////////////
 	// юс╫ц
@@ -321,23 +297,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		}
 		break;
 
-	case TARGET_HP:
-		if (1 == _Opt)
-		{
-			_Out._11 = _UIDescs[_ID].Scale.x * 0.9f;
-			_Out._22 = _UIDescs[_ID].Scale.y * 0.9f;
-			_Out._33 = 1.f;
-			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
-			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
-			_Out._43 = 0.02f;
-		}
-		else
-		{
-			goto DEFAULT;
-		}
-		break;
-
-	default: DEFAULT:
+	default:
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.y;
 		_Out._33 = 1.f;

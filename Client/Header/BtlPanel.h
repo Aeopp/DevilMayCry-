@@ -25,7 +25,6 @@ private:
 
 	std::shared_ptr<ENGINE::StaticMesh> _PlaneMesh{};
 	std::shared_ptr<ENGINE::StaticMesh> _Pipe0Mesh{};
-	std::shared_ptr<ENGINE::StaticMesh> _Pipe1Mesh{};
 
 	std::shared_ptr<ENGINE::Texture> _NoiseTex{};
 
@@ -40,6 +39,7 @@ private:
 	std::shared_ptr<ENGINE::Texture> _BossGaugeNRMRTex{};
 
 	float _AccumulateTime = 0.f;
+	float _TotalAccumulateTime = 0.f;
 
 	Vector3 _TargetPos = Vector3(0.f, 0.f, 0.f);
 	float _TargetHP_Degree = 0.f;

@@ -5,14 +5,6 @@ matrix Projection;
 
 float _SliceAmount = 0.f;
 
-matrix _ScaleMatrix =
-{
-    { 1.f, 0.f, 0.f, 0.f },
-    { 0.f, 1.f, 0.f, 0.f },
-    { 0.f, 0.f, 1.f, 0.f },
-    { 0.f, 0.f, 0.f, 1.f }
-};
-
 texture BaseMap;
 sampler Base = sampler_state
 {
@@ -21,6 +13,7 @@ sampler Base = sampler_state
     magfilter = linear;
     mipfilter = linear;
 };
+
 
 struct VsIn
 {
@@ -47,20 +40,6 @@ VsOut VsMain(VsIn In)
     return Out;
 };
 
-VsOut VsMain_Sphere(VsIn In)
-{
-    VsOut Out = (VsOut) 0;
-    
-    matrix NewWorld = mul(_ScaleMatrix, World);
-    matrix WVP = mul(NewWorld, View);
-    WVP = mul(WVP, Projection);
-    
-    Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
-    Out.UV = In.UV;
-    
-    return Out;
-};
-
 
 struct PsIn
 {
@@ -79,16 +58,7 @@ PsOut PsMain(PsIn In)
     float4 BaseSample = tex2D(Base, In.UV);
 
     Out.Color = BaseSample;
-    Out.Color.a *= (1.f - _SliceAmount);
-    
-    return Out;
-};
-
-PsOut PsMain_Sphere(PsIn In)
-{
-    PsOut Out = (PsOut) 0;
-    
-    Out.Color = float4(1.f, 1.f, 1.f, (1.f - _SliceAmount) * 0.05f);
+    Out.Color.a *= (1.f - _SliceAmount) * 0.7f;
     
     return Out;
 };
@@ -106,16 +76,5 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain();
-    }
-    pass p1
-    {
-        alphablendenable = true;
-        srcblend = srcalpha;
-        destblend = invsrcalpha;
-        //zenable = false;
-        zwriteenable = false;
-
-        vertexshader = compile vs_3_0 VsMain_Sphere();
-        pixelshader = compile ps_3_0 PsMain_Sphere();
     }
 };
