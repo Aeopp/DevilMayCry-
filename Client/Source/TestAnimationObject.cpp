@@ -41,6 +41,10 @@ void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo
 	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
 		SpTransform)
 	{
+		const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
+
+		_ImplInfo.Fx->SetMatrix("ScaleOffset", &ScaleOffset); 
+		
 		_SkeletonMesh->BoneDebugRender(SpTransform->GetWorldMatrix() ,_ImplInfo.Fx);
 	}
 }
@@ -121,8 +125,10 @@ HRESULT TestAnimationObject::Ready()
 	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
 	_InitInfo.bLocalVertexLocationsStorage = false;
 	// 루트 모션 지원 해줘 !!
-	_InitInfo.bRootMotion = true;
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Player.fbx" , _InitInfo);
+	_InitInfo.bRootMotionScale = true;
+	_InitInfo.bRootMotionRotation= true;
+	_InitInfo.bRootMotionTransition = true;
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Em0000\\Em0000.fbx" , _InitInfo);
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)
@@ -166,7 +172,15 @@ HRESULT TestAnimationObject::Start()
 
 UINT TestAnimationObject::Update(const float _fDeltaTime)
 {
-	_SkeletonMesh->Update(_fDeltaTime);
+	// 현재 스케일과 회전은 의미가 없음 DeltaPos 로 트랜스폼에서 통제 . 
+	auto [DeltaScale,DeltaQuat,DeltaPos ] = _SkeletonMesh->Update(_fDeltaTime);
+	 static float  TestDeltaScale = 0.001f;
+	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
+		SpTransform)
+	{
+		SpTransform->SetPosition(SpTransform->GetPosition() + DeltaPos * SpTransform->GetScale().x * TestDeltaScale);
+		// SpTransform->SetScale(SpTransform->GetScale() + DeltaScale * SpTransform->GetScale().x);
+	}
 
 	return 0;
 }

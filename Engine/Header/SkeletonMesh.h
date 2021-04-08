@@ -37,7 +37,7 @@ public:
 	bool    IsAnimationEnd();
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
-	void    Update(const float DeltaTime)&;
+	std::tuple<Vector3, Quaternion, Vector3>    Update(const float DeltaTime)&;
 	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
 	Node*   GetRootNode()&;
@@ -48,7 +48,7 @@ public:
 
 	void   PlayAnimation(
 		const std::string & InitAnimName,
-		const bool  bLoop ,
+		const bool  bLoop,
 		const AnimNotify & _Notify = {} ,
 		const float _CurrentAccelerationFactor = 1.0f, 
 		const float _CurrentTransitionTimeFactor = 1.0f);
@@ -64,7 +64,7 @@ public:
 	void	AnimationEnd()&;
 	// 0 ~ 1 정규화 
 	float   PlayingTime();
-	//                       정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
+	//  정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
 	void    SetPlayingTime(float NewTime);
 	std::optional<AnimationInformation> GetAnimInfo(const std::string & AnimName) const&;
 
@@ -72,7 +72,7 @@ public:
 private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
-	void    AnimationUpdateImplementation()&;
+	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
 	void    AnimationSave(const std::filesystem::path & FullPath)&;
 	void    AnimationLoad(const std::filesystem::path & FullPath)&;
 private:
@@ -98,29 +98,62 @@ private:
 	std::string RootMotionScaleName = NormallyRootMotionScaleName;
 	std::string RootMotionRotationName = NormallyRootMotionRotationName;
 	std::string RootMotionTransitionName = NormallyRootMotionTransitionName;
-	
+
+	Vector3 CalcRootMotionDeltaPos(std::optional<float> bTimeBeyondAnimation,
+									const std::string & _TargetAnimName,
+									const float AnimDuraion,
+									const float AnimPrevFrameMotionTime,
+									const float AnimMotionTime)&;
+
+	Vector3 CalcRootMotionDeltaScale(std::optional<float> bTimeBeyondAnimation,
+		const std::string & _TargetAnimName,
+		const float AnimDuraion,
+		const float AnimPrevFrameMotionTime,
+		const float AnimMotionTime)&;
+
+	// 아직 회전은 테스트 하지 않았음.
+	Quaternion CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyondAnimation,
+		const std::string & _TargetAnimName,
+		const float AnimDuraion,
+		const float AnimPrevFrameMotionTime,
+		const float AnimMotionTime)&;
+
 public:
 	// 노드 정보는 클론들끼리 공유하므로 하나의 클론이 설정한 값으로 모든 클론이 작동.
-	void    EnableRootMotion(
-		const std::string& ScalingRootName="",
-		const std::string& RotationRootName="",
-		const std::string& TransitionRootName="");
-	void    DisableRootMotion();
+	void    EnableScaleRootMotion(const std::string & ScalingRootName = "");
+	void    EnableRotationRootMotion(const std::string & RotationRootName = "");
+	void    EnableTransitionRootMotion(const std::string & TransitionRootName = "");
+	void    DisableScaleRootMotion();
+	void    DisableRotationRootMotion();
+	void    DisableTransitionRootMotion();
+
 	float DeltaTimeFactor = 1.f;
-	bool bRootMotion = false;
+	bool  bRootMotionScale = false;
+	bool  bRootMotionRotation = false;
+	bool  bRootMotionTransition = false;
+
 	std::string PrevAnimName{};
 	std::string AnimName{};
-	float  PrevAccelerationFactor = 1.0f;
+	
 	float  CurrentAccelerationFactor = 1.0f;
 	float  CurrentTransitionTimeFactor = 1.0f;
 	float  CurrentAnimMotionTime{ 0.0 };
-	float  PrevAnimMotionTime{ 0.0 };
+	float  CurrentAnimPrevFrameMotionTime{ 0.0f };
+
+	float  PrevAnimMotionTime     { 0.0f };
+	float  PrevAnimPrevFrameMotionTime{ 0.0f };
+	float  PrevAccelerationFactor{ 1.0f };
+
 	float  TransitionRemainTime = -1.0;
 	float  TransitionDuration = 0.0;
 	bool   bLoop = false;
 	bool   bAnimationEnd = true;
 	bool   bAnimStop = false;
 	bool   bAnimSaveButton = false;
+
+	Vector3    RootMotionLastCalcDeltaScale = { 0,0,0 };
+	Quaternion RootMotionLastCalcDeltaQuat = { 0,0,0,1 };
+	Vector3    RootMotionLastCalcDeltaPos = { 0,0,0 };
 
 	AnimNotify           CurAnimNotify{};
 	AnimationInformation CurPlayAnimInfo{};

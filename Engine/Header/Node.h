@@ -35,6 +35,21 @@ public:
 			const AnimationTrack& AnimTrack,
 			const double CurrentAnimationTime);
 
+	static Vector3
+		CurrentAnimationScale(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+	static  Quaternion
+		CurrentAnimationQuaternion(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+	
+	static Vector3
+		CurrentAnimationPosition(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+
+
 	void NodeUpdate(
 		const Matrix& ParentToRoot,
 		const double CurrentAnimationTime,

@@ -93,7 +93,6 @@ static  void  SetupImGuiStyle(bool bStyleDark_, float alpha_)
 
 static void GlobalVariableSetup()
 {
-
 	g_bDebugMode = false;
 	g_bEditMode = false;
 	g_bCollisionVisible = false;
@@ -101,7 +100,7 @@ static void GlobalVariableSetup()
 	g_bDebugRender = false;
 
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
-	D3DXCreateSphere(g_pDevice, 1.0f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
+	D3DXCreateSphere(g_pDevice, 0.00001f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
 }
 
 static void GlobalVariableFree()
