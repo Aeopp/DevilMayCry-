@@ -8,6 +8,7 @@
 
 void Eff_Glint::Free()
 {
+
 }
 
 std::string Eff_Glint::GetName()
@@ -60,21 +61,12 @@ void Eff_Glint::RenderAlphaBlendEffectImplementation(
 	}
 }
 
-void Eff_Glint::RenderReady()
-{
-	auto _WeakTransform = GetComponent<ENGINE::Transform>();
-	if (auto _SpTransform = _WeakTransform.lock();
-		_SpTransform)
-	{
-		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
-	}
-}
-
 HRESULT Eff_Glint::Ready()
 {
+	//
+	_PlayingSpeed = 3.5f;
+
+	//
 	SetRenderEnable(true);
 
 	ENGINE::RenderProperty _InitRenderProp;
@@ -116,6 +108,7 @@ HRESULT Eff_Glint::Start()
 UINT Eff_Glint::Update(const float _fDeltaTime)
 {
 	_AccumulateTime += _PlayingSpeed * _fDeltaTime;
+
 	_SliceAmount = _AccumulateTime > 1.f ? 1.f : _AccumulateTime;
 	_AllScale = 0.001f + 0.045f * _SliceAmount;
 	if (0.01f < _AllScale)
@@ -133,6 +126,8 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 		Sptransform)
 	{
 		Sptransform->SetScale({ _AllScale, _AllScale, _AllScale });
+		
+		//
 		//{
 		//	Vector3 SliderPosition = Sptransform->GetPosition();
 		//	ImGui::SliderFloat3("Position", SliderPosition, -10.f, 10.f);

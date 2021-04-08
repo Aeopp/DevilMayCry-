@@ -8,6 +8,7 @@
 
 void Eff_OvertureHand::Free()
 {
+
 }
 
 std::string Eff_OvertureHand::GetName()
@@ -67,21 +68,12 @@ void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
 	}
 }
 
-void Eff_OvertureHand::RenderReady()
-{
-	auto _WeakTransform = GetComponent<ENGINE::Transform>();
-	if (auto _SpTransform = _WeakTransform.lock();
-		_SpTransform)
-	{
-		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
-	}
-}
-
 HRESULT Eff_OvertureHand::Ready()
 {
+	//
+	_PlayingSpeed = 1.f;
+
+	//
 	SetRenderEnable(true);
 
 	ENGINE::RenderProperty _InitRenderProp;
@@ -104,6 +96,7 @@ HRESULT Eff_OvertureHand::Ready()
 	_GlowTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Light\\tex_capcom_light_glow_0002_alpg.tga");
 	_LightningColorTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\lightning_alb.png");
 	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
+
 	//PushEditEntity(_HandMesh.get());
 	//PushEditEntity(_LightningTex.get());
 	//PushEditEntity(_GlowTex.get());
@@ -136,6 +129,7 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 	if (auto Sptransform = GetComponent<ENGINE::Transform>().lock();
 		Sptransform)
 	{
+		//
 		{
 			Vector3 SliderPosition = Sptransform->GetPosition();
 			ImGui::SliderFloat3("Position", SliderPosition, -10.f, 10.f);
@@ -167,7 +161,7 @@ UINT Eff_OvertureHand::LateUpdate(const float _fDeltaTime)
 
 void Eff_OvertureHand::Editor()
 {
-	GameObject::Editor();
+
 }
 
 void Eff_OvertureHand::OnEnable()

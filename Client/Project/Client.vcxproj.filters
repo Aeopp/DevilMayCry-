@@ -93,6 +93,9 @@
     <ClInclude Include="..\Header\Eff_Glint.h">
       <Filter>02.GameObject\Effect\Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\Effect.h">
+      <Filter>02.GameObject\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -137,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\Eff_Glint.cpp">
       <Filter>02.GameObject\Effect\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Effect.cpp">
+      <Filter>02.GameObject\Effect</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
