@@ -6,15 +6,13 @@ class Eff_Glint final : public Effect
 {
 private:
 	std::shared_ptr<ENGINE::StaticMesh> _PlaneMesh{};
-	std::shared_ptr<ENGINE::StaticMesh> _SphereMesh{};
+	std::shared_ptr<ENGINE::Texture> _GlintTex{};
 
-	std::shared_ptr<ENGINE::Texture> _GlintTex0{};
-	std::shared_ptr<ENGINE::Texture> _GlintTex1{};
-
-	float _SliceAmount = 0.f;
-	float _AllScale = 0.f;
-	UINT _GlintTexIdx = 0u;
-	Matrix _SphereScaleMatrix = Matrix();
+	float _SliceAmount[3] = { 0.f, 0.f, 0.f };
+	float _Scale[3] = { 0.f, 0.f, 0.f };
+	Matrix _WorldMatrix[3] = { Matrix(), Matrix(), Matrix() };
+	float _Interval = 0.f;
+	float _Aspect = 1.f;
 
 private:
 	explicit Eff_Glint() = default;

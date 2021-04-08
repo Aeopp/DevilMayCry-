@@ -121,7 +121,7 @@ void GraphicSystem::Begin()&
 {
 	m_pDevice->Clear(0, nullptr,
 		D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		D3DXCOLOR(0, 0, 0, 255), 1.f, 0);
+		D3DXCOLOR(0, 0, 100, 255), 1.f, 0);
 	m_pDevice->BeginScene();
 }
 
