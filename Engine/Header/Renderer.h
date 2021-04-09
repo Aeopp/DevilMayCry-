@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "GameObject.h"
 #include <map>
+#include "FLight.h"
 #include <memory>
 #include <vector>
 #include "RenderProperty.h"
@@ -64,6 +65,26 @@ private:
 	RenderTarget NRMR{};
 	RenderTarget Depth{};
 	// ShaderTester _ShaderTester{};
+private:
+	LPDIRECT3DTEXTURE9	marble = nullptr;
+	LPDIRECT3DTEXTURE9	wood = nullptr;
+	LPDIRECT3DTEXTURE9	wood_normal = nullptr;
+	LPDIRECT3DTEXTURE9	sky = nullptr;
+	LPD3DXMESH			skull = nullptr;
+	LPD3DXMESH			box = nullptr;
+
+
+	FLight* Moonlight = nullptr;
+	FLight* Pointlight[3] = { nullptr };
+	// 쉐이더 테스트 시작 ....
+	std::shared_ptr<ENGINE::Shader> ShadowMap;
+	std::shared_ptr<ENGINE::Shader> Blur;
+	std::shared_ptr<ENGINE::Shader> GBuffer;
+	std::shared_ptr<ENGINE::Shader> Deferred;
+	std::shared_ptr<ENGINE::Shader> Tonemap;
+	std::shared_ptr<ENGINE::Shader> Screenquad;
+	FLight
+	// 여기서 디퍼드 - > 포워드 - > 쉐도우 -> 스카이 순으로 진행 해야함 언제다할거.....
 };
 END
 
