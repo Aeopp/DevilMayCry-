@@ -11,14 +11,14 @@ struct ENGINE_DLL AnimationInformation
 	std::string Name{};
 	float       Duration = 1.f;
 	float       TickPerSecond = 30.f;
-	float       TransitionTime = 0.25f;
+	float       TransitionTime = 0.01f;
 	void       SetAcceleration(const float NewAcceleration)
 	{
 		Acceleration = NewAcceleration;
 	}
-	float     CalcAcceleration() const 
+	float     CalcAcceleration(const float AccelerationFactor=1.0f) const 
 	{
-		return Acceleration * TickPerSecond;
+		return Acceleration * TickPerSecond * AccelerationFactor;
 	}
 	float& RefOriginAcceleration()
 	{

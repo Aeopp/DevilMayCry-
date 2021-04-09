@@ -54,6 +54,9 @@ void						ClassName::DeleteInstance()														\
 }
 #pragma endregion
 
+#pragma region PHYSICS
+#define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
+#pragma endregion
 
 }
 #endif // !__ENGINE_DEFINE_H__

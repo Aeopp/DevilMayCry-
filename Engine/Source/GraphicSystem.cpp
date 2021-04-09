@@ -112,8 +112,6 @@ HRESULT GraphicSystem::ReadyGraphicSystem(
 		PRINT_LOG(L"D3DFMT_A16B16G16R16F does not support D3DFMT_D24S8", L"D3DFMT_A16B16G16R16F does not support D3DFMT_D24S8");
 		return E_FAIL;
 	}
-
-
 	return S_OK;
 }
 

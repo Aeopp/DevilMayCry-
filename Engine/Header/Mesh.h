@@ -13,6 +13,9 @@ public:
 	struct InitializeInfo
 	{
 		bool bLocalVertexLocationsStorage = false;
+		bool bRootMotionScale = false;
+		bool bRootMotionRotation = false;
+		bool bRootMotionTransition = false;
 	};
 protected:
 	std::vector<std::shared_ptr<Subset>>  m_vecSubset;

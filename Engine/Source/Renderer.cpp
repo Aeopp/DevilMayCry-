@@ -200,6 +200,7 @@ HRESULT Renderer::RenderImplementation()&
 		RenderGBuffer();
 		RenderForwardAlphaBlend();
 		RenderAlphaBlendEffect();
+		RenderUI();
 		RenderDebug();
 		RenderDebugBone();
 	}
@@ -312,7 +313,7 @@ HRESULT Renderer::RenderDebugBone()&
 	{
 		m_pDevice->SetRenderTarget(0u, BackBuffer);
 		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::DebugBone);
-			_TargetGroup != std::end(RenderEntitys))
+				 _TargetGroup != std::end(RenderEntitys))
 		{
 			for (auto& _RenderEntity : _TargetGroup->second)
 			{
@@ -332,6 +333,22 @@ HRESULT Renderer::RenderDebugBone()&
 
 HRESULT Renderer::RenderUI()&
 {
+	m_pDevice->SetRenderTarget(0u, BackBuffer);
+	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::UI);
+		_TargetGroup != std::end(RenderEntitys))
+	{
+		for (auto& _RenderEntity : _TargetGroup->second)
+		{
+			if (_RenderEntity)
+			{
+				if (_RenderEntity->GetRenderProp().bRender)
+				{
+					_RenderEntity->RenderUI();
+				}
+			}
+		}
+	}
+
 	return S_OK;
 }
 

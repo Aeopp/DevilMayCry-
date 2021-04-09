@@ -16,6 +16,8 @@ public:
 	bool         bEdit = false;
 	const uint32 UniqueID;
 	std::string  EditName{};
+
+	UINT32 m_nTag;
 };
 END
 #endif // !__OBJECT_H__

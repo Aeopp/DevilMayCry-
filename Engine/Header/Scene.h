@@ -37,6 +37,9 @@ public:
 public:
 	template <typename TYPE>
 	std::weak_ptr<TYPE> AddGameObject();
+
+	std::weak_ptr<GameObject>				FindGameObjectWithTag(const UINT& _nTag);
+	std::list<std::weak_ptr<GameObject>>	FindGameObjectsWithTag(const UINT& _nTag);
 public:
 	void Destroy(std::weak_ptr<GameObject> const _pGameObject);
 	void SetActive(std::weak_ptr<GameObject> const _pGameObject, const bool _bActive);

@@ -24,10 +24,31 @@ public:
 	Matrix Offset{ FMath::Identity() };
 	std::string Name{};
 	int32 Index{ -1 };
+	int32 RootMotionFlag{ -1 };
 
 	inline bool IsBone() { return Index >=0; };
 
 	std::unordered_map<std::string,AnimationTrack> _AnimationTrack{};
+
+	static std::tuple<Vector3, Quaternion, Vector3>
+		CurrentAnimationTransform(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+
+	static Vector3
+		CurrentAnimationScale(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+	static  Quaternion
+		CurrentAnimationQuaternion(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+	
+	static Vector3
+		CurrentAnimationPosition(
+			const AnimationTrack& AnimTrack,
+			const double CurrentAnimationTime);
+
 
 	void NodeUpdate(
 		const Matrix& ParentToRoot,
@@ -35,7 +56,9 @@ public:
 		const std::string& AnimationName,
 		const std::optional<AnimationBlendInfo>& IsAnimationBlend)&;
 
-	void Editor()&;
+	void Editor(std::string& RefRootMotionScaleName,
+				std::string& RefRootMotionRotationName,
+				std::string& RefRootMotionTransitionName)&;
 };
 END
 

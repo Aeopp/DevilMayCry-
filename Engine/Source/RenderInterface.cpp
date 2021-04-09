@@ -86,7 +86,6 @@ void RenderInterface::RenderAlphaBlendEffect()
 {
 	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
 	
-
 	if (auto SpShader = _ShaderInfo.GetShader(RenderProperty::Order::AlphaBlendEffect);
 		SpShader)
 	{
@@ -102,22 +101,41 @@ void RenderInterface::RenderAlphaBlendEffect()
 		}
 		else
 		{
-			for (uint32 i = 0; i < Passes; ++i)
-			{
-				Fx->BeginPass(i);
-				{
-					ImplementationInfo _ImplInfo{};
-					_ImplInfo.Fx = Fx;
-					RenderAlphaBlendEffectImplementation(_ImplInfo);
-				}
-				Fx->EndPass();
-			}
+			ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+			RenderAlphaBlendEffectImplementation(_ImplInfo);
 			Fx->End();
 		}
 	};
 }
 
 void RenderInterface::RenderUIImplementation(const ImplementationInfo& _ImplInfo) {}
+
+void RenderInterface::RenderUI()
+{
+	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
+
+	if (auto SpShader = _ShaderInfo.GetShader(RenderProperty::Order::UI);
+		SpShader)
+	{
+		auto Fx = SpShader->GetEffect();
+		Fx->SetMatrix("Ortho", &_CurRenderInfo.Ortho);
+
+		UINT Passes{ 0u };
+		if (FAILED(Fx->Begin(&Passes, NULL)))
+		{
+			PRINT_LOG(L"Failed!!", __FUNCTIONW__);
+		}
+		else
+		{
+			ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+			RenderUIImplementation(_ImplInfo);
+
+			Fx->End();
+		}
+	}
+}
 
 void RenderInterface::RenderDebug()
 {
@@ -194,32 +212,26 @@ void RenderInterface::RenderDebugBoneImplementation(const ImplementationInfo& _I
 
 };
 
-
-void RenderInterface::RenderUI()
-{
-
-}
-
-void RenderInterface::ShaderInfo::RegistShader(const RenderProperty::Order& RegistOrder, 
+void RenderInterface::ShaderInfo::RegistShader(const RenderProperty::Order& RegistOrder,
 	const std::filesystem::path& LoadPath, const std::any& InitParams)&
 {
 	_Shaders[RegistOrder] = Resources::Load<ENGINE::Shader>(LoadPath, InitParams);
 }
 
 std::shared_ptr<ENGINE::Shader> RenderInterface::ShaderInfo::GetShader
-		(const RenderProperty::Order& _RegistOrder) const&
+(const RenderProperty::Order& _RegistOrder) const&
 {
-	if (auto iter = _Shaders.find(_RegistOrder) ; 
-			iter!= std::end(_Shaders) )
+	if (auto iter = _Shaders.find(_RegistOrder);
+		iter != std::end(_Shaders))
 	{
 		return iter->second;
 	}
 
-	
-		Log("Failed to get shader Check whether the loading path and loading path are the same.");
 
-	
-	
+	Log("Failed to get shader Check whether the loading path and loading path are the same.");
+
+
+
 
 	return nullptr;
 }

@@ -5,7 +5,7 @@
 #include "SkeletonMesh.h"
 
 class TestAnimationObject : public ENGINE::GameObject ,
-				   public ENGINE::RenderInterface				
+						    public ENGINE::RenderInterface				
 {
 private:
 	std::shared_ptr<ENGINE::SkeletonMesh> _SkeletonMesh{};
