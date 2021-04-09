@@ -9,6 +9,7 @@
 #include "BtlPanel.h"
 #include "Camera.h"
 
+#include "Nero.h"
 #include <iostream>
 using namespace std;
 
@@ -36,7 +37,8 @@ HRESULT TestScene::LoadScene()
 	//AddGameObject<ShaderTester>();
 
 	// AddGameObject<TestObject>();
-	AddGameObject<TestAnimationObject>();
+	//AddGameObject<TestAnimationObject>();
+// 	AddGameObject<Nero>();
 	/*AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();

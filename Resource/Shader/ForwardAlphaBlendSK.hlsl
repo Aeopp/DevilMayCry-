@@ -187,8 +187,8 @@ PsOut PsMain(PsIn In)
 
     const float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
-    Out.Color.rgb  =  Diffuse *Albedo;
-    
+     //Out.Color.rgb  =  Diffuse *Albedo;
+    Out.Color.rgb = Albedo;
     return Out;
 };
 

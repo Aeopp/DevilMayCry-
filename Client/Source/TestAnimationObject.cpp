@@ -17,6 +17,7 @@ std::string TestAnimationObject::GetName()
 
 TestAnimationObject* TestAnimationObject::Create()
 {
+	//¿¡º£º£
 	return new TestAnimationObject{};
 }
 

@@ -1,7 +1,7 @@
 #include "GameObject.h"
 #include "Scene.h"
 #include "Renderer.h"
-
+#include "Transform.h"
 
 USING(ENGINE)
 
@@ -13,7 +13,7 @@ GameObject::GameObject()
 	, m_bDestroy(false)
 	, m_bRenderRegist(false)
 {
-
+	m_pTransform = AddComponent<Transform>();
 }
 
 void GameObject::Free()
