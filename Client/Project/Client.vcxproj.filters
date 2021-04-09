@@ -37,6 +37,21 @@
     <Filter Include="02.GameObject\Effect">
       <UniqueIdentifier>{8e0c6ea8-0509-4c04-b553-c46c6c7ecfa3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\UI">
+      <UniqueIdentifier>{86694f81-3549-4ffa-aa75-f5f0df8b391e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\UI\Font">
+      <UniqueIdentifier>{34d058e5-58fd-45cc-ab01-30d5378d4b93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\UI\BtlPanel">
+      <UniqueIdentifier>{3f0a56b6-7842-4276-ab21-323f42bd0c53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\Effect\Weapon">
+      <UniqueIdentifier>{991dfce5-4d09-4c4f-a8fb-51ee90e5e080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\Effect\Common">
+      <UniqueIdentifier>{9d62ca16-6527-44a0-a433-1dd09ed55225}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -70,6 +85,15 @@
       <Filter>02.GameObject\00.Camera</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\Eff_OvertureHand.h">
+      <Filter>02.GameObject\Effect\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\BtlPanel.h">
+      <Filter>02.GameObject\UI\BtlPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Eff_Glint.h">
+      <Filter>02.GameObject\Effect\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Effect.h">
       <Filter>02.GameObject\Effect</Filter>
     </ClInclude>
   </ItemGroup>
@@ -109,6 +133,15 @@
       <Filter>02.GameObject\00.Camera</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Eff_OvertureHand.cpp">
+      <Filter>02.GameObject\Effect\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\BtlPanel.cpp">
+      <Filter>02.GameObject\UI\BtlPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Eff_Glint.cpp">
+      <Filter>02.GameObject\Effect\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Effect.cpp">
       <Filter>02.GameObject\Effect</Filter>
     </ClCompile>
   </ItemGroup>

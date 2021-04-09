@@ -8,11 +8,13 @@
 
 void Eff_OvertureHand::Free()
 {
+
 }
+
 std::string Eff_OvertureHand::GetName()
 {
 	return "Eff_OvertureHand";
-};
+}
 
 Eff_OvertureHand* Eff_OvertureHand::Create()
 {
@@ -64,23 +66,14 @@ void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
 			_ImplInfo.Fx->EndPass();
 		}
 	}
-};
-
-void Eff_OvertureHand::RenderReady()
-{
-	auto _WeakTransform = GetComponent<ENGINE::Transform>();
-	if (auto _SpTransform = _WeakTransform.lock();
-		_SpTransform)
-	{
-		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
-	}
 }
 
 HRESULT Eff_OvertureHand::Ready()
 {
+	//
+	_PlayingSpeed = 1.f;
+
+	//
 	SetRenderEnable(true);
 
 	ENGINE::RenderProperty _InitRenderProp;
@@ -88,7 +81,7 @@ HRESULT Eff_OvertureHand::Ready()
 	_InitRenderProp.RenderOrders =
 	{
 		ENGINE::RenderProperty::Order::AlphaBlendEffect,
-		ENGINE::RenderProperty::Order::Debug
+		//ENGINE::RenderProperty::Order::Debug
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 
@@ -100,17 +93,18 @@ HRESULT Eff_OvertureHand::Ready()
 
 	_HandMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_weapon\\wp00_010_0000.x");
 	_LightningTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\lightning.dds");
-	_GlowTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\tex_capcom_light_glow_0002_alpg.tga");
+	_GlowTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Light\\tex_capcom_light_glow_0002_alpg.tga");
 	_LightningColorTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\lightning_alb.png");
 	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
-	PushEditEntity(_HandMesh.get());
-	PushEditEntity(_LightningTex.get());
-	PushEditEntity(_GlowTex.get());
-	PushEditEntity(_LightningColorTex.get());
-	PushEditEntity(_NoiseTex.get());
+
+	//PushEditEntity(_HandMesh.get());
+	//PushEditEntity(_LightningTex.get());
+	//PushEditEntity(_GlowTex.get());
+	//PushEditEntity(_LightningColorTex.get());
+	//PushEditEntity(_NoiseTex.get());
 
 	return S_OK;
-};
+}
 
 HRESULT Eff_OvertureHand::Awake()
 {
@@ -128,13 +122,14 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 	if (1.5f < _AccumulateTime)
 	{
 		_RandTexV0 = FMath::Random<float>(0.7f, 0.9f);
-		_RandTexV0 = FMath::Random<float>(0.4f, 0.8f);
+		_RandTexV1 = FMath::Random<float>(0.4f, 0.8f);
 		_AccumulateTime = 0.f;
 	}
 
 	if (auto Sptransform = GetComponent<ENGINE::Transform>().lock();
 		Sptransform)
 	{
+		//
 		{
 			Vector3 SliderPosition = Sptransform->GetPosition();
 			ImGui::SliderFloat3("Position", SliderPosition, -10.f, 10.f);
@@ -143,17 +138,16 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 
 		{
 			float AllScale = Sptransform->GetScale().x;
-			ImGui::SliderFloat("All Scale", &AllScale, 0.001f, 100.f);
+			ImGui::SliderFloat("All Scale", &AllScale, 0.01f, 1.f);
 			Sptransform->SetScale({ AllScale,AllScale,AllScale });
 		}
-		static Vector3 Rotation{ 0,0,0 };
-		if (ImGui::SliderAngle("Light Pitch", &Rotation.x) ||
-			ImGui::SliderAngle("Light Yaw", &Rotation.y) ||
-			ImGui::SliderAngle("Light Roll", &Rotation.z))
-		{
 
-			Renderer::GetInstance()->TestDirectionLight =
-				FMath::Normalize(FMath::MulNormal(Vector3{ 0,0,1 }, FMath::Rotation(Rotation)));
+		static Vector3 Rotation{ 0,0,0 };
+		if (ImGui::SliderAngle("Pitch", &Rotation.x) ||
+			ImGui::SliderAngle("Yaw", &Rotation.y) ||
+			ImGui::SliderAngle("PitchRoll", &Rotation.z))
+		{
+			Sptransform->SetRotation(Rotation);
 		}
 	}
 
@@ -167,7 +161,7 @@ UINT Eff_OvertureHand::LateUpdate(const float _fDeltaTime)
 
 void Eff_OvertureHand::Editor()
 {
-	GameObject::Editor();
+
 }
 
 void Eff_OvertureHand::OnEnable()
