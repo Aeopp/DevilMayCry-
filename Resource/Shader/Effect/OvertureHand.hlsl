@@ -46,13 +46,14 @@ sampler Noise = sampler_state
 struct VsIn
 {
 	float4 Position : POSITION;
+    float3 Normal : NORMAL;
     float2 UV : TEXCOORD1;
 };
 
 struct VsOut
 {
     float4 Position : POSITION;
-    float2 UV : TEXCOORD;
+    float2 UV : TEXCOORD0;
 };
 
 VsOut VsMain(VsIn In)
@@ -63,7 +64,25 @@ VsOut VsMain(VsIn In)
     
     Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     Out.UV = In.UV;
+        
+    return Out;
+};
+
+VsOut VsMain_Lightning(VsIn In)
+{
+    VsOut Out = (VsOut) 0;
+    matrix WVP = mul(World, View);
+    WVP = mul(WVP, Projection);
+        
+    if (_SliceAmount > 0.45f)
+        Out.Position = mul(float4((15.f * In.Normal.xyz) + In.Position.xyz, 1.f), WVP);
+    else
+        Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     
+    //Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
+   
+    Out.UV = In.UV;
+        
     return Out;
 };
 
@@ -111,7 +130,7 @@ PsOut PsMain_Lightning(PsIn In)
     float4 ColorSample = tex2D(Color1, NewUV);
     float4 NoiseSample = tex2D(Noise, NewUV);
     
-    float4 Noise = NoiseSample.gggg;
+    float4 Noise = NoiseSample.rrrr;
     Noise.rgb -= _SliceAmount;
     clip(Noise);
  
@@ -142,7 +161,7 @@ technique Default
         //zenable = false;
         zwriteenable = false;
 
-        vertexshader = compile vs_3_0 VsMain();
+        vertexshader = compile vs_3_0 VsMain_Lightning();
         pixelshader = compile ps_3_0 PsMain_Lightning();
     }
 };

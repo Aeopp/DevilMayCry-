@@ -6,7 +6,6 @@
 #include <filesystem>
 #include "Shader.h"
 #include <map>
-#include "Shader.h"
 
 BEGIN(ENGINE)
 class ENGINE_DLL RenderInterface
