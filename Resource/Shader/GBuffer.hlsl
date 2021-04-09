@@ -71,6 +71,7 @@ struct PsIn
     float2 UV : TEXCOORD0;
     float2 ZW : TEXCOORD1;
 };
+
 struct PsOut
 {
     vector Albm :  COLOR0;  // Albedo , Metalness
@@ -85,6 +86,7 @@ PsOut PsGBuffer(PsIn In)
     float3x3 TBN = float3x3(normalize(In.Tangent),
                             normalize(In.BiNormal),
                             normalize(In.Normal));
+    
     float4 sampleNrmr = tex2D(NRMR0, In.UV); 
     float2 NormalXY   = sampleNrmr.xy * 2.0 - 1.0f;
     const float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));

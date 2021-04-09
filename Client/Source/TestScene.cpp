@@ -15,6 +15,7 @@ using namespace std;
 
 TestScene::TestScene()
 {
+
 }
 
 void TestScene::Free()
@@ -49,9 +50,9 @@ HRESULT TestScene::LoadScene()
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();*/
 
-	AddGameObject<Eff_OvertureHand>();
+	/*AddGameObject<Eff_OvertureHand>();
 	AddGameObject<BtlPanel>();
-	AddGameObject<Eff_Glint>();
+	AddGameObject<Eff_Glint>();*/
 
 	return S_OK;
 }
