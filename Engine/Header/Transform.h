@@ -7,26 +7,26 @@ class ENGINE_DLL Transform final : public Component
 public:
 	enum class SPACE { LOCAL, WORLD };
 private:
-	D3DXVECTOR3		m_vLocalScale;		//부모에 상대적인 크기 값
-	D3DXVECTOR3		m_vWorldScale;		//월드 상의 크기 값 == LocalScale + 부모의 WorldScale
+	D3DXVECTOR3		m_vWorldScale;
 
-	D3DXVECTOR3		m_vLocalRotation;	//부모에 상대적인 회전 값
 	D3DXVECTOR3		m_vWorldRotation;
-	D3DXQUATERNION	m_tLocalQuaternion;	//Yaw : y , Pitch : x , Roll : z
 	D3DXQUATERNION	m_tWorldQuaternion;
 
-	D3DXVECTOR3		m_vLocalPosition;	//부모에 상대적인 위치 값
 	D3DXVECTOR3		m_vWorldPosition;
 
 	D3DXMATRIX		m_matScale;
 	D3DXMATRIX		m_matRotation;
-	D3DXMATRIX		m_matTranslation;
+	D3DXMATRIX		m_matTranlation;
 	D3DXMATRIX		m_matWorld;
 
-	std::weak_ptr<Transform>				m_pParent;
-	//std::list<std::weak_ptr<Transform>>		m_vecChild;
+	D3DXMATRIX		m_matBillboard;
+	//직전 프레임 월드 행렬 정보 또는 물리 연산 결과를 저장하고 있는 렌더용 행렬.
+	D3DXMATRIX		m_matRender;
 
-	bool			m_bUpdate;
+	//Physx에서 Simulation된 결과가 적용되었는지 여부.
+	bool			m_bSimulation;
+	//Transform에 변화가 있었는지 판단하는 변수.
+	bool			m_bUpdated;
 private:
 	explicit Transform(std::weak_ptr<GameObject> const _pGameObject);
 	virtual ~Transform() = default;
@@ -36,28 +36,36 @@ private:
 public:
 	static Transform* Create(std::weak_ptr<GameObject> const _pGameObject);
 public:
-	D3DXVECTOR3		GetScale(const SPACE _eSpace = SPACE::WORLD);
-	void			SetScale(const D3DXVECTOR3& _vScale, const SPACE _eSpace = SPACE::WORLD);
+	void UpdateTransform();
+	void SetSimulationResult(const D3DXQUATERNION& _tQuaternion, const D3DXVECTOR3& _vPosition);
+public:
+	virtual std::string GetName()override;
+public:
+	D3DXVECTOR3		GetScale(const SPACE& _eSpace = SPACE::WORLD);
+	void			SetScale(const D3DXVECTOR3& _vScale, const SPACE& _eSpace = SPACE::WORLD);
 
-	D3DXVECTOR3		GetRotation(const SPACE _eSpace = SPACE::WORLD);
-	void			SetRotation(const D3DXVECTOR3& _vRotation, const SPACE _eSpace = SPACE::WORLD);
+	void			SetRotation(const D3DXVECTOR3& _vRotation, const SPACE& _eSpace = SPACE::WORLD);
 
-	D3DXVECTOR3		GetPosition(const SPACE _eSpace = SPACE::WORLD);
-	void			SetPosition(const D3DXVECTOR3& _vPosition, const SPACE _eSpace = SPACE::WORLD);
+	D3DXQUATERNION	GetQuaternion(const SPACE& _eSpace = SPACE::WORLD);
+	void			SetQuaternion(const D3DXQUATERNION& _tQuaternion, const SPACE& _eSpace = SPACE::WORLD);
+
+	D3DXVECTOR3		GetPosition(const SPACE& _eSpace = SPACE::WORLD);
+	void			SetPosition(const D3DXVECTOR3& _vPosition, const SPACE& _eSpace = SPACE::WORLD);
+
+	D3DXMATRIX		GetBiilBoard();
+	void			SetBillBoard(const D3DXMATRIX& _matBillboard);
+
+	D3DXMATRIX		GetWorldMatrix();
+	void			SetWorldMatrix(const D3DXMATRIX& _matWorld);
 
 	D3DXVECTOR3		GetRight();
 	D3DXVECTOR3		GetUp();
 	D3DXVECTOR3		GetLook();
 
-	D3DXMATRIX		GetWorldMatrix();
-	void			SetWorldMatirx(const D3DXMATRIX& _matWorld);
+	bool IsUpdated();
 
-	std::weak_ptr<Transform>	GetParent();
-	void						SetParent(std::weak_ptr<Transform> _pParent);
-
-	virtual std::string GetName()override;
-private:
-	void	UpdateTransform();
+public:
+	static D3DXQUATERNION EulerToQuaternion(const D3DXVECTOR3 _vEuler);
 };
 END
 #endif // !__TRANSFORM_H__

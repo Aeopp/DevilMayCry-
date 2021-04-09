@@ -1,7 +1,7 @@
 #include "GameObject.h"
 #include "Scene.h"
 #include "Renderer.h"
-
+#include "Transform.h"
 
 USING(ENGINE)
 
@@ -13,12 +13,22 @@ GameObject::GameObject()
 	, m_bDestroy(false)
 	, m_bRenderRegist(false)
 {
-
+	m_pTransform = AddComponent<Transform>();
 }
 
 void GameObject::Free()
 {
 	Object::Free();
+}
+
+std::weak_ptr<GameObject> GameObject::FindGameObjectWithTag(const UINT& _nTag)
+{
+	return m_pScene->FindGameObjectWithTag(_nTag);
+}
+
+std::list<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(const UINT& _nTag)
+{
+	return m_pScene->FindGameObjectsWithTag(_nTag);
 }
 
 void GameObject::Destroy(std::weak_ptr<GameObject> const _pGameObject)
@@ -113,5 +123,25 @@ void GameObject::OnEnable()
 }
 
 void GameObject::OnDisable()
+{
+}
+
+void GameObject::OnCollisionEnter(std::weak_ptr<GameObject> _pOther)
+{
+}
+
+void GameObject::OnCollisionStay(std::weak_ptr<GameObject> _pOther)
+{
+}
+
+void GameObject::OnCollisionExit(std::weak_ptr<GameObject> _pOther)
+{
+}
+
+void GameObject::OnTriggerEnter(std::weak_ptr<GameObject> _pOther)
+{
+}
+
+void GameObject::OnTriggerExit(std::weak_ptr<GameObject> _pOther)
 {
 }

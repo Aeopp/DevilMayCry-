@@ -8,7 +8,7 @@ BEGIN(ENGINE)
 class Scene;
 class Component;
 class Renderer;
-
+class Transform;
 class ENGINE_DLL GameObject abstract : public Object
 								
 {
@@ -27,6 +27,7 @@ private:
 protected:
 	std::vector<Object*> m_pEditObjects{};
 	std::weak_ptr<GameObject>	m_pGameObject;
+	std::weak_ptr<Transform>	m_pTransform;
 protected:
 	explicit GameObject();
 	virtual ~GameObject() = default;
@@ -42,12 +43,22 @@ public:
 	virtual void	OnEnable()							PURE;
 	virtual void	OnDisable()							PURE;
 public:
+	virtual void	OnCollisionEnter(std::weak_ptr<GameObject> _pOther);
+	virtual void	OnCollisionStay(std::weak_ptr<GameObject> _pOther);
+	virtual void	OnCollisionExit(std::weak_ptr<GameObject> _pOther);
+
+	virtual void	OnTriggerEnter(std::weak_ptr<GameObject> _pOther);
+	virtual void	OnTriggerExit(std::weak_ptr<GameObject> _pOther);
+public:
 	template <typename TYPE>
 	std::weak_ptr<TYPE>	AddComponent();
 	template <typename TYPE>
 	std::weak_ptr<TYPE>	GetComponent();
 	template <typename TYPE>
 	std::weak_ptr<TYPE> AddGameObject();
+
+	std::weak_ptr<GameObject>				FindGameObjectWithTag(const UINT & _nTag);
+	std::list<std::weak_ptr<GameObject>>	FindGameObjectsWithTag(const UINT & _nTag);
 public:
 	void	Destroy(std::weak_ptr<GameObject> const _pGameObject);
 	bool    IsRenderEnable();

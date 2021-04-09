@@ -146,6 +146,34 @@ void Scene::TransferStatic(std::weak_ptr<Scene> const _pDestScene)
 	_pDestScene.lock()->m_Pool[POOL_STATIC].splice(m_Pool[POOL_STATIC].end(), m_Pool[POOL_STATIC]);
 }
 
+std::weak_ptr<GameObject> Scene::FindGameObjectWithTag(const UINT& _nTag)
+{	
+	for (UINT i = 0; i < LOOPSTATE::LOOP_END; ++i)
+	{
+		for (auto iter = m_Loop[ACTIVE][i].begin(); iter != m_Loop[ACTIVE][i].end(); ++iter)
+		{
+			if (false == (*iter).expired() && _nTag == (*iter).lock()->m_nTag)
+				return (*iter);
+		}
+	}
+	return std::weak_ptr<GameObject>();
+}
+
+std::list<std::weak_ptr<GameObject>> Scene::FindGameObjectsWithTag(const UINT& _nTag)
+{
+	std::list<std::weak_ptr<GameObject>> listFind;
+
+	for (UINT i = 0; i < LOOPSTATE::LOOP_END; ++i)
+	{
+		for (auto iter = m_Loop[ACTIVE][i].begin(); iter != m_Loop[ACTIVE][i].end(); ++iter)
+		{
+			if (false == (*iter).expired() && _nTag == (*iter).lock()->m_nTag)
+				listFind.push_back((*iter));
+		}
+	}
+	return listFind;
+}
+
 void Scene::Destroy(std::weak_ptr<GameObject> const _pGameObject)
 {
 	if (_pGameObject.expired() || _pGameObject.lock()->m_bDestroy)

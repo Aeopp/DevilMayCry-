@@ -78,7 +78,7 @@ void Camera::Move(const float& _fTimeDelta)
     Matrix      matCameraWorld;
     D3DXMatrixInverse(&matCameraWorld, NULL, &m_matView);
         
-    if (Input::GetKey(DIK_W))
+    if (Input::GetKey(DIK_UP))
     {
         Vector3 vLook;
         memcpy(&vLook, &matCameraWorld.m[2][0], sizeof(Vector3));
@@ -89,7 +89,7 @@ void Camera::Move(const float& _fTimeDelta)
         m_vAt += vLength;
     }
 
-    if (Input::GetKey(DIK_S))
+    if (Input::GetKey(DIK_DOWN))
     {
         Vector3 vLook;
         memcpy(&vLook, &matCameraWorld.m[2][0], sizeof(Vector3));
@@ -100,7 +100,7 @@ void Camera::Move(const float& _fTimeDelta)
 		m_vAt -= vLength;
     }
 
-    if (Input::GetKey(DIK_A))
+    if (Input::GetKey(DIK_LEFT))
     {
         Vector3 vRight;
         memcpy(&vRight, &matCameraWorld.m[0][0], sizeof(Vector3));
@@ -111,7 +111,7 @@ void Camera::Move(const float& _fTimeDelta)
 		m_vAt -= vLength;
     }
 
-	if (Input::GetKey(DIK_D))
+	if (Input::GetKey(DIK_RIGHT))
 	{
 		Vector3 vRight;
 		memcpy(&vRight, &matCameraWorld.m[0][0], sizeof(Vector3));
@@ -122,7 +122,7 @@ void Camera::Move(const float& _fTimeDelta)
 		m_vAt += vLength;
 	}
 
-    if (Input::GetKeyDown(DIK_LSHIFT))
+    if (Input::GetKeyDown(DIK_RSHIFT))
     {
         if (true == m_bClick)
             return;

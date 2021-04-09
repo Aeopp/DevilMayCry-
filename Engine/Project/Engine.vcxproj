@@ -130,15 +130,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ENGINE_EXPORT;IMGUI_ENGINE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../Reference/Header/;./;../Source/;../Header/;../Source/imgui/;../../Reference/Header/imgui/;../../Reference/Header/rapidjson/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\Header\;$(ProjectDir)..\Source\;$(ProjectDir)..\Source\imgui\;$(SolutionDir)Reference\Header\;$(SolutionDir)Reference\Header\imgui\;$(SolutionDir)Reference\Header\rapidjson\;$(SolutionDir)Reference\PhysX\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3dx9.lib;dxguid.lib;dinput8.lib;assimp-vc142-mtd.lib;fmod_vc.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../Reference/Lib/Debug/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;d3dx9.lib;dxguid.lib;dinput8.lib;assimp-vc142-mtd.lib;fmod_vc.lib;fmodL_vc.lib;PhysXExtensions_static_64.lib;PhysX_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCooking_64.lib;PhysXCommon_64.lib;PhysXFoundation_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Reference\PhysX\Lib\Debug\;$(SolutionDir)Reference\Lib\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>cd /d $(SolutionDir)
@@ -153,7 +153,7 @@ call Engine.bat</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ENGINE_EXPORT;IMGUI_ENGINE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../Reference/Header/;./;../Source/;../Header/;../Source/imgui/;../../Reference/Header/imgui/;../../Reference/Header/rapidjson/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\Header\;$(ProjectDir)..\Source\;$(ProjectDir)..\Source\imgui\;$(SolutionDir)Reference\Header\;$(SolutionDir)Reference\Header\imgui\;$(SolutionDir)Reference\Header\rapidjson\;$(SolutionDir)Reference\PhysX\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -163,7 +163,7 @@ call Engine.bat</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d9.lib;d3dx9.lib;dxguid.lib;dinput8.lib;assimp-vc142-mt.lib;fmod_vc.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../Reference/Lib/Release/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Reference\PhysX\Lib\Release;$(SolutionDir)Reference\Lib\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>cd /d $(SolutionDir)
@@ -184,6 +184,8 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\AnimationTrack.h" />
     <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\Collider.h" />
+    <ClInclude Include="..\Header\CollisionCallback.h" />
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
     <ClInclude Include="..\Header\Node.h" />
     <ClInclude Include="..\Header\Component.h" />
@@ -208,6 +210,8 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\MathStruct.hpp" />
     <ClInclude Include="..\Header\Mesh.h" />
     <ClInclude Include="..\Header\Object.h" />
+    <ClInclude Include="..\Header\Physics.h" />
+    <ClInclude Include="..\Header\PhysicsSystem.h" />
     <ClInclude Include="..\Header\Renderer.h" />
     <ClInclude Include="..\Header\RenderInformation.h" />
     <ClInclude Include="..\Header\RenderInterface.h" />
@@ -240,6 +244,8 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\AnimationInformation.cpp" />
     <ClCompile Include="..\Source\AnimationTrack.cpp" />
     <ClCompile Include="..\Source\AnimNotify.cpp" />
+    <ClCompile Include="..\Source\Collider.cpp" />
+    <ClCompile Include="..\Source\CollisionCallback.cpp" />
     <ClCompile Include="..\Source\Node.cpp" />
     <ClCompile Include="..\Source\Component.cpp" />
     <ClCompile Include="..\Source\Core.cpp" />
@@ -259,6 +265,8 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\InputSystem.cpp" />
     <ClCompile Include="..\Source\Mesh.cpp" />
     <ClCompile Include="..\Source\Object.cpp" />
+    <ClCompile Include="..\Source\Physics.cpp" />
+    <ClCompile Include="..\Source\PhysicsSystem.cpp" />
     <ClCompile Include="..\Source\Renderer.cpp" />
     <ClCompile Include="..\Source\RenderInformation.cpp" />
     <ClCompile Include="..\Source\RenderInterface.cpp" />
@@ -283,49 +291,59 @@ call Engine.bat</Command>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Resource\Shader\Debug.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="..\..\Resource\Shader\DebugSK.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Resource\Shader\DebugBone.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\UI\BtlPanel.hlsl">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

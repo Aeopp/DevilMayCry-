@@ -17,6 +17,7 @@ std::string TestAnimationObject::GetName()
 
 TestAnimationObject* TestAnimationObject::Create()
 {
+	//에베베
 	return new TestAnimationObject{};
 }
 
@@ -41,6 +42,10 @@ void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo
 	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
 		SpTransform)
 	{
+		const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
+
+		_ImplInfo.Fx->SetMatrix("ScaleOffset", &ScaleOffset); 
+		
 		_SkeletonMesh->BoneDebugRender(SpTransform->GetWorldMatrix() ,_ImplInfo.Fx);
 	}
 }
@@ -117,7 +122,19 @@ HRESULT TestAnimationObject::Ready()
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 
 	// 스켈레톤 메쉬 로딩 ... 
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\AnimationTester\\AnimationTester.fbx");
+	Mesh::InitializeInfo _InitInfo{};
+	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
+	_InitInfo.bLocalVertexLocationsStorage = false;
+	// 루트 모션 지원 해줘 !!
+	_InitInfo.bRootMotionScale = true;
+	_InitInfo.bRootMotionRotation= true;
+	_InitInfo.bRootMotionTransition = true;
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Em5300\\Em5300.X" , _InitInfo);
+
+	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
+	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)
+	// _SkeletonMesh->EnableRootMotion("스케일루트모션루트이름", "로테이션...", "이동...");
+
 	PushEditEntity(_SkeletonMesh.get());
 	// Prev VTF 켜기 . (모션블러등 이전 스키닝 정보가 필요할 경우
 	_SkeletonMesh->EnablePrevVTF();
@@ -156,7 +173,20 @@ HRESULT TestAnimationObject::Start()
 
 UINT TestAnimationObject::Update(const float _fDeltaTime)
 {
-	_SkeletonMesh->Update(_fDeltaTime);
+	// 현재 스케일과 회전은 의미가 없음 DeltaPos 로 트랜스폼에서 통제 . 
+	auto [DeltaScale,DeltaQuat,DeltaPos ] = _SkeletonMesh->Update(_fDeltaTime);
+	 Vector3 Axis = { 1,0,0 };
+
+	 const float Length = FMath::Length(DeltaPos);
+
+	//DeltaPos = FMath::RotationVecNormal(DeltaPos, Axis, FMath::ToRadian(90.f)) * Length;
+
+	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
+		SpTransform)
+	{
+		SpTransform->SetPosition(SpTransform->GetPosition() + DeltaPos  * SpTransform->GetScale().x);
+		// SpTransform->SetScale(SpTransform->GetScale() + DeltaScale * SpTransform->GetScale().x);
+	}
 
 	return 0;
 }

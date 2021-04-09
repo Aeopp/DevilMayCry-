@@ -43,14 +43,6 @@ HRESULT SceneSystem::UpdateSceneSystem(const float _fDeltaTime)
 	m_pCurrentScene->Awake();
 	m_pCurrentScene->Start();
 	m_pCurrentScene->Update(_fDeltaTime);
-
-	return S_OK;
-}
-
-HRESULT SceneSystem::LateUpdateSceneSystem(const float _fDeltaTime)
-{
-	if (nullptr == m_pCurrentScene)
-		return S_OK;
 	m_pCurrentScene->LateUpdate(_fDeltaTime);
 	m_pCurrentScene->PushToRenderSystem();
 	return S_OK;

@@ -104,7 +104,6 @@ void RenderInterface::RenderAlphaBlendEffect()
 			ImplementationInfo _ImplInfo{};
 			_ImplInfo.Fx = Fx;
 			RenderAlphaBlendEffectImplementation(_ImplInfo);
-
 			Fx->End();
 		}
 	};

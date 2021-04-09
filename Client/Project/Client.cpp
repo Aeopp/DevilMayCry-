@@ -1,7 +1,6 @@
 ﻿// Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
-
 #include "stdafx.h"
 #include "Client.h"
 #include "Application.h"
@@ -25,8 +24,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 {
 	srand((unsigned int)time(NULL));
 
-	g_nWndCX = 1280;
-	g_nWndCY = 720;
+	g_nWndCX = 1920;
+	g_nWndCY = 1080;
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -71,7 +70,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 
 	return int(tMessage.wParam);
 }
-
 
 //
 //  함수: MyRegisterClass()
