@@ -36,14 +36,13 @@ HRESULT TestScene::LoadScene()
 
 	AddGameObject<Camera>();
 
-
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestAnimationObject>();
 	//AddGameObject<Nero>();
 
 	//AddGameObject<Eff_OvertureHand>();
 	AddGameObject<BtlPanel>();
-	AddGameObject<Eff_Glint>;
+	//AddGameObject<Eff_Glint>();
 
 	//AddGameObject<DashImpact>();
 	//AddGameObject<Blood>();

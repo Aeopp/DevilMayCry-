@@ -76,7 +76,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 0.f, 1.f), 3u);
 			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
 
-			_ImplInfo.Fx->SetTexture("BossGaugeATOSMap", _BossGaugeAOTSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("BossGaugeATOSMap", _BossGaugeATOSTex->GetTexture());
 			_ImplInfo.Fx->SetTexture("BossGaugeNRMRMap", _BossGaugeNRMRTex->GetTexture());
 
 			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
@@ -127,6 +127,32 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->EndPass();
 		}
 	}
+
+	auto WeakSubset_HPGlass = _HPGlassMesh->GetSubset(0u);
+	if (auto SharedSubset = WeakSubset_HPGlass.lock();
+		SharedSubset)
+	{
+		//
+		CurID = HP_GLASS;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(-0.2, -0.2f, -1.f), 3u);
+			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
+
+			_ImplInfo.Fx->SetTexture("HPGlassATOSMap", _HPGlassATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("HPGlassNRMRMap", _HPGlassNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("HPGlassMap", _GlassTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("HPGlassBloodMap", _BloodTex->GetTexture());
+			_ImplInfo.Fx->SetFloat("_HPGlassDirt", _HPGlassDirt);
+
+			Create_ScreenMat(CurID, ScreenMat, 1);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(7);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
+	}
 };
 
 void BtlPanel::RenderReady()
@@ -152,6 +178,7 @@ HRESULT BtlPanel::Ready()
 
 	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
 	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\pipe00.fbx");
+	_HPGlassMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\hud_hp_glass.fbx");
 
 	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
 
@@ -162,8 +189,13 @@ HRESULT BtlPanel::Ready()
 	_TargetCursorTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\Cursor_MET.tga");
 	_EnemyHPTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\Enemy_HP_Target_01_IM.tga");
 
-	_BossGaugeAOTSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BossGauge_ATOS.tga");
+	_BossGaugeATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BossGauge_ATOS.tga");
 	_BossGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BossGauge_NRMR.tga");
+
+	_HPGlassATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HUD_Nero_HP_Glass_ATOS.tga");
+	_HPGlassNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HUD_Nero_HP_Glass_NRMR.tga");
+	_GlassTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\light-blue-glass-texture.png");
+	_BloodTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BloodStoneCH16.png");
 
 	Init_UIDescs();
 	
@@ -212,11 +244,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	//std::cout << _BossGauge_CurXPosOrtho << std::endl;
 
 	//
-	//Imgui_Modify_UIPosAndScale(BOSS_GUAGE);
-
-	//Vector3 Vector = _LightDir;
-	//ImGui::SliderFloat3("LightVec", Vector, 0.f, 1.f);
-	//_LightDir = Vector;
+	Imgui_Modify_UIPosAndScale(HP_GLASS);
 
 	return 0;
 }
@@ -252,6 +280,7 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[TARGET_CURSOR] = { true, Vector2(640.f, 360.f), Vector2(0.3f, 0.3f) };
 	_UIDescs[TARGET_HP] = { true, Vector2(640.f, 360.f), Vector2(0.46f, 0.46f) };
 	_UIDescs[BOSS_GUAGE] = { true, Vector2(640.f, 670.f), Vector2(4.7f, 5.f) };
+	_UIDescs[HP_GLASS] = { true, Vector2(250.f, 155.f), Vector2(0.5f, 0.5f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -293,6 +322,20 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._33 = 1.f;
 			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -((_UIDescs[_ID].Pos.y - 40.f) - (g_nWndCY >> 1));
+			_Out._43 = 0.02f;
+		}
+		break;
+
+	case HP_GLASS:
+		if (1 == _Opt)
+		{
+			_Out._11 = _UIDescs[_ID].Scale.x;
+			_Out._22 = 0.00001f; // y z 축 잘못뽑음 ㅠㅠ
+			_Out._33 = _UIDescs[_ID].Scale.y;
+			D3DXMatrixRotationX(&RotMat, D3DXToRadian(-90.f));
+			_Out *= RotMat;
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
 			_Out._43 = 0.02f;
 		}
 		break;
@@ -368,4 +411,13 @@ void BtlPanel::Imgui_Modify_UIPosAndScale(UI_DESC_ID _ID)
 	Vector2 Scale = _UIDescs[_ID].Scale;
 	ImGui::InputFloat2("Scale", Scale);
 	_UIDescs[_ID].Scale = Scale;
+
+	// ID 별로 방향 다름...
+	Vector3 Vector = _LightDir;
+	ImGui::SliderFloat3("LightVec", Vector, -1.f, 1.f);
+	_LightDir = Vector;
+
+	float HPGlassDirt = _HPGlassDirt;
+	ImGui::SliderFloat("Dirt", &HPGlassDirt, 0.f, 1.f);
+	_HPGlassDirt = HPGlassDirt;
 }

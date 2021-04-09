@@ -12,6 +12,8 @@ float2 _HP_Normal1;
 
 float _BossGaugeCurXPosOrtho;
 
+float _HPGlassDirt;
+
 texture NoiseMap;
 sampler Noise = sampler_state
 {
@@ -79,6 +81,42 @@ texture BossGaugeNRMRMap;
 sampler BossGaugeNRMR = sampler_state
 {
     texture = BossGaugeNRMRMap;
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
+texture HPGlassATOSMap;
+sampler HPGlassATOS = sampler_state
+{
+    texture = HPGlassATOSMap;
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
+texture HPGlassNRMRMap;
+sampler HPGlassNRMR = sampler_state
+{
+    texture = HPGlassATOSMap;
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
+texture HPGlassMap;
+sampler HPGlass = sampler_state
+{
+    texture = HPGlassMap;
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = linear;
+};
+
+texture HPGlassBloodMap;
+sampler HPGlassBlood = sampler_state
+{
+    texture = HPGlassBloodMap;
     minfilter = linear;
     magfilter = linear;
     mipfilter = linear;
@@ -407,6 +445,36 @@ PsOut PsMain_BossGauge3(PsIn_Clip In)
     return Out;
 };
 
+PsOut PsMain_Glass(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    float4 ATOSSample = tex2D(HPGlassATOS, In.UV);
+    float4 NRMRSample = tex2D(HPGlassNRMR, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+   
+    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    
+    float Dirt = ATOSSample.g * _HPGlassDirt;
+    
+    Out.Color.rgb = Diffuse * tex2D(HPGlass, In.UV).rgb * (1.f - Dirt);
+    Out.Color.a = 0.05f + (ATOSSample.b);
+    
+    if (0.001f < Dirt)
+        Out.Color += float4(tex2D(HPGlassBlood, In.UV).rgb, Dirt);
+
+    return Out;
+};
+
+
 technique Default
 {
 	pass p0
@@ -485,5 +553,16 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain_BossGauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge3();
+    }
+    pass p7
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+
+        vertexshader = compile vs_3_0 VsMain();
+        pixelshader = compile ps_3_0 PsMain_Glass();
     }
 };

@@ -13,6 +13,7 @@ private:
 		TARGET_CURSOR,
 		TARGET_HP,
 		BOSS_GUAGE,
+		HP_GLASS,
 		DESC_END
 	};
 	struct UI_DESC
@@ -25,6 +26,7 @@ private:
 
 	std::shared_ptr<ENGINE::StaticMesh> _PlaneMesh{};
 	std::shared_ptr<ENGINE::StaticMesh> _Pipe0Mesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _HPGlassMesh{};
 
 	std::shared_ptr<ENGINE::Texture> _NoiseTex{};
 
@@ -35,8 +37,13 @@ private:
 	std::shared_ptr<ENGINE::Texture> _TargetCursorTex{};
 	std::shared_ptr<ENGINE::Texture> _EnemyHPTex{};
 
-	std::shared_ptr<ENGINE::Texture> _BossGaugeAOTSTex{};
+	std::shared_ptr<ENGINE::Texture> _BossGaugeATOSTex{};
 	std::shared_ptr<ENGINE::Texture> _BossGaugeNRMRTex{};
+
+	std::shared_ptr<ENGINE::Texture> _HPGlassATOSTex{};
+	std::shared_ptr<ENGINE::Texture> _HPGlassNRMRTex{};
+	std::shared_ptr<ENGINE::Texture> _GlassTex{};
+	std::shared_ptr<ENGINE::Texture> _BloodTex{};
 
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
@@ -48,9 +55,11 @@ private:
 	Vector2 _TargetHP_Normal1 = Vector2(0.f, 0.f);
 	
 	float _BossGauge_CurXPosOrtho = 0.f;
+	
+	float _HPGlassDirt = 0.f;
 
 	Vector3 _LightDir = Vector3(0.f, 0.f, 1.f);
-
+	
 private:
 	explicit BtlPanel() = default;
 	virtual ~BtlPanel() = default;
