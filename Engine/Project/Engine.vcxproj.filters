@@ -363,6 +363,12 @@
     <ClInclude Include="..\Header\Physics.h">
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\Effect\DashImpact.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">
@@ -526,6 +532,8 @@
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
       <Filter>04.HLSL\Effect</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\DebugBone.hlsl" />
+    <None Include="..\..\Resource\Shader\DebugBone.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -106,7 +106,7 @@ HRESULT TestObject::Ready()
 	PushEditEntity(_StaticMesh.get());
 
 	// 트랜스폼 초기화 .. 
-	auto InitTransform = AddComponent<ENGINE::Transform>();
+	auto InitTransform = GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 1,1,1});
 	PushEditEntity(InitTransform.lock().get());
 

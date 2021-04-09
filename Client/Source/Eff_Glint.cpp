@@ -65,7 +65,7 @@ HRESULT Eff_Glint::Ready()
 	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
 		L"..\\..\\Resource\\Shader\\Effect\\Glint.hlsl", {});
 
-	auto InitTransform = AddComponent<ENGINE::Transform>();
+	auto InitTransform = GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 1.f, 1.f, 1.f });
 
 	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");

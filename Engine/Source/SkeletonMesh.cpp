@@ -24,11 +24,11 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	VTFPitch{ _rOther.VTFPitch },
 	Nodes{ _rOther.Nodes },
 	AnimIndexNameMap{ _rOther.AnimIndexNameMap },
-	RootMotionScaleName{ _rOther.RootMotionScaleName } ,
+	RootMotionScaleName{ _rOther.RootMotionScaleName },
 	RootMotionTransitionName{ _rOther.RootMotionTransitionName },
 	bRootMotionScale{ _rOther.bRootMotionScale },
 	bRootMotionRotation{ _rOther.bRootMotionRotation },
-	bRootMotionTransition{ _rOther.bRootMotionTransition } ,
+	bRootMotionTransition{ _rOther.bRootMotionTransition },
 	RootMotionDeltaFactor{ _rOther.RootMotionDeltaFactor }
 {
 	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
@@ -60,7 +60,7 @@ void SkeletonMesh::AnimationEditor()&
 		if (ImGui::TreeNode("RootMotion"))
 		{
 			ImGui::SliderFloat("RootMotionDeltaFactor", &RootMotionDeltaFactor, 0.000001f, 1.f);
-			if ( ImGui::TreeNode("Delta") ) 
+			if (ImGui::TreeNode("Delta"))
 			{
 				ImGui::BulletText("Delta Scale : %3.3f , %3.3f , %3.3f",
 					RootMotionLastCalcDeltaScale.x, RootMotionLastCalcDeltaScale.y, RootMotionLastCalcDeltaScale.z);
@@ -114,7 +114,7 @@ void SkeletonMesh::AnimationEditor()&
 
 			ImGui::TreePop();
 		}
-		
+
 
 
 		for (auto& AnimInfoIter : *AnimInfoTable)
@@ -149,7 +149,7 @@ void SkeletonMesh::AnimationEditor()&
 
 				if ((ImGui::Button("Play")))
 				{
-					PlayAnimation(AnimInfo.Name,true, {});
+					PlayAnimation(AnimInfo.Name, true, {});
 				};
 
 				ImGui::TreePop();
@@ -168,17 +168,17 @@ void SkeletonMesh::NodeEditor()
 			auto SpNode = RootNodeIter->second;
 			if (SpNode)
 			{
-				
+
 				SpNode->Editor(RootMotionScaleName,
-								RootMotionRotationName,
-								RootMotionTransitionName);
+					RootMotionRotationName,
+					RootMotionTransitionName);
 			}
 		}
 	}
 
 }
 
-std::tuple<Vector3,Quaternion,Vector3> SkeletonMesh::AnimationUpdateImplementation()&
+std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementation()&
 {
 	std::optional<float> bTimeBeyondAnimation{};
 	const float TimeBeyondAnimation = (CurrentAnimMotionTime - CurPlayAnimInfo.Duration);
@@ -186,15 +186,15 @@ std::tuple<Vector3,Quaternion,Vector3> SkeletonMesh::AnimationUpdateImplementati
 	{
 		bTimeBeyondAnimation = TimeBeyondAnimation;
 	}
-	
-    AnimationNotify();
+
+	AnimationNotify();
 	std::optional<AnimationBlendInfo> IsAnimationBlend = std::nullopt;
 
 	if (TransitionRemainTime > 0.0)
 	{
 		if (AnimInfoTable)
 		{
-			auto Iter  = AnimInfoTable->find(PrevAnimName);
+			auto Iter = AnimInfoTable->find(PrevAnimName);
 			if (Iter != std::end(*AnimInfoTable))
 			{
 				if (PrevAnimMotionTime > (*AnimInfoTable)[PrevAnimName].Duration)
@@ -258,7 +258,7 @@ std::tuple<Vector3,Quaternion,Vector3> SkeletonMesh::AnimationUpdateImplementati
 	}
 	else
 	{
-		RootMotionLastCalcDeltaQuat = { 0,0,0 ,1};
+		RootMotionLastCalcDeltaQuat = { 0,0,0 ,1 };
 	}
 
 	if (bRootMotionScale)
@@ -289,13 +289,13 @@ std::tuple<Vector3,Quaternion,Vector3> SkeletonMesh::AnimationUpdateImplementati
 
 
 
-	 // 루트모션 종료.....
+	// 루트모션 종료.....
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
-	const float CurPlayAnimMotionTime = bTimeBeyondAnimation.has_value()  
-									? bTimeBeyondAnimation.value() : CurrentAnimMotionTime;
+	const float CurPlayAnimMotionTime = bTimeBeyondAnimation.has_value()
+		? bTimeBeyondAnimation.value() : CurrentAnimMotionTime;
 
-	Root->NodeUpdate(FMath::Identity(), 
+	Root->NodeUpdate(FMath::Identity(),
 		CurPlayAnimMotionTime, AnimName, IsAnimationBlend);
 	//
 	VTFUpdate();
@@ -306,11 +306,11 @@ std::tuple<Vector3,Quaternion,Vector3> SkeletonMesh::AnimationUpdateImplementati
 	}
 
 	return { RootMotionLastCalcDeltaScale
-			*RootMotionDeltaFactor,
+			* RootMotionDeltaFactor,
 			RootMotionLastCalcDeltaQuat
 			* RootMotionDeltaFactor,
 			RootMotionLastCalcDeltaPos
-		   *  RootMotionDeltaFactor };
+		   * RootMotionDeltaFactor };
 }
 
 void SkeletonMesh::AnimationSave(
@@ -372,7 +372,7 @@ void SkeletonMesh::AnimationLoad(
 	std::filesystem::path AnimPath = FullPath;
 	AnimPath.replace_extension("Animation");
 	std::ifstream Is{ AnimPath };
-	
+
 	if (!Is.is_open())
 		return;
 
@@ -401,7 +401,7 @@ void SkeletonMesh::AnimationLoad(
 			RootMotionScaleName = RootMotionRootName.GetString();
 		}
 	}
-	
+
 	{
 		const Value& RootMotionRootName = _Document["RootMotion_RotationName"];
 		if (false == RootMotionRootName.Empty())
@@ -542,16 +542,16 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaT
 
 	CurrentAnimPrevFrameMotionTime = CurrentAnimMotionTime;
 
-	CurrentAnimMotionTime += 
-		(CalcDeltaTime * 
+	CurrentAnimMotionTime +=
+		(CalcDeltaTime *
 			CurPlayAnimInfo.CalcAcceleration(CurrentAccelerationFactor));
 
 	PrevAnimPrevFrameMotionTime = PrevAnimMotionTime;
 
-	PrevAnimMotionTime += (CalcDeltaTime * 
+	PrevAnimMotionTime += (CalcDeltaTime *
 		PrevPlayAnimInfo.CalcAcceleration(PrevAccelerationFactor));
 
-	TransitionRemainTime -=  ( CalcDeltaTime *  CurrentTransitionTimeFactor);
+	TransitionRemainTime -= (CalcDeltaTime * CurrentTransitionTimeFactor);
 
 	return AnimationUpdateImplementation();
 };
@@ -653,7 +653,7 @@ std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
 void SkeletonMesh::PlayAnimation(
 	const std::string& InitAnimName,
 	const bool  bLoop,
-	const AnimNotify& _Notify , 
+	const AnimNotify& _Notify,
 	const float _CurrentAccelerationFactor,
 	const float _CurrentTransitionTimeFactor)
 {
@@ -682,7 +682,7 @@ void SkeletonMesh::PlayAnimation(
 	CurAnimNotify = _Notify;
 }
 
-void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify , 
+void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify,
 	const float _CurrentAccelerationFactor,
 	const float _CurrentTransitionTimeFactor)
 {
@@ -691,7 +691,7 @@ void SkeletonMesh::PlayAnimation(const uint32 AnimationIndex, const bool bLoop, 
 		if (auto iter = AnimIndexNameMap->find(AnimationIndex);
 			iter != std::end(*AnimIndexNameMap))
 		{
-			PlayAnimation(iter->second, bLoop, _Notify ,
+			PlayAnimation(iter->second, bLoop, _Notify,
 				_CurrentAccelerationFactor, _CurrentTransitionTimeFactor);
 		}
 	}
@@ -1131,10 +1131,10 @@ void SkeletonMesh::AnimationNotify()&
 
 Vector3 SkeletonMesh::CalcRootMotionDeltaPos(
 	std::optional<float> bTimeBeyondAnimation,
-	const std::string& _TargetAnimName , 
+	const std::string& _TargetAnimName,
 	const float AnimDuraion,
 	const float AnimPrevFrameMotionTime,
-	const float AnimMotionTime )&
+	const float AnimMotionTime)&
 {
 	auto* const RootMotionPosNode = GetNode(RootMotionTransitionName);
 	if (RootMotionPosNode)
@@ -1151,7 +1151,7 @@ Vector3 SkeletonMesh::CalcRootMotionDeltaPos(
 				const Vector3 PrevPos = Node::CurrentAnimationPosition(RootAnimTrack, AnimPrevFrameMotionTime);
 				const Vector3 StartPos = Node::CurrentAnimationPosition(RootAnimTrack, 0.0f);
 				const Vector3 CurPos = Node::CurrentAnimationPosition(RootAnimTrack, bTimeBeyondAnimation.value());
-				 return (EndPos - PrevPos) + (CurPos - StartPos);
+				return (EndPos - PrevPos) + (CurPos - StartPos);
 				// 0.9 1.3 일 경우   1.0 - 0.9 0.3 - 0.0.하고 0.3으로 프리 초기화
 			}
 			else
@@ -1213,30 +1213,30 @@ Quaternion SkeletonMesh::CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyon
 			if (bTimeBeyondAnimation)
 			{
 				const Quaternion EndQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimDuraion);
-				const Quaternion PrevQuat= Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
+				const Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
 				const Quaternion StartQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, 0.0f);
-				const Quaternion CurQuat= Node::CurrentAnimationQuaternion(RootAnimTrack, bTimeBeyondAnimation.value());
-				
+				const Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, bTimeBeyondAnimation.value());
+
 				return (EndQuat - PrevQuat) + (CurQuat - StartQuat);
 			}
 			else
 			{
 				const Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimMotionTime);
-				const Quaternion PrevQuat= Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
+				const Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
 
 				return CurQuat - PrevQuat;
 			}
 		}
 	}
 
-	return { 0,0,0 ,1};
+	return { 0,0,0 ,1 };
 }
 
 void SkeletonMesh::EnableScaleRootMotion(const std::string& ScalingRootName)
 {
 	if (Nodes)
 	{
-		for (auto& [NodeName,_Node] : *Nodes)
+		for (auto& [NodeName, _Node] : *Nodes)
 		{
 			if (_Node)
 			{
@@ -1333,7 +1333,7 @@ void SkeletonMesh::DisableTransitionRootMotion()
 		for (auto& [NodeName, _Node] : *Nodes)
 		{
 			if (_Node)
-			{
+			{ 
 				if (_Node->RootMotionFlag == 3)
 				{
 					_Node->RootMotionFlag = -1;
@@ -1343,6 +1343,3 @@ void SkeletonMesh::DisableTransitionRootMotion()
 		bRootMotionTransition = false;
 	}
 }
-
-
-

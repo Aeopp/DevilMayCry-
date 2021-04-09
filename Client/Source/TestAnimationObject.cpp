@@ -10,6 +10,7 @@
 void TestAnimationObject::Free()
 {
 }
+
 std::string TestAnimationObject::GetName()
 {
 	return "TestObject";
@@ -151,7 +152,7 @@ HRESULT TestAnimationObject::Ready()
 	            // 
 
 	// 트랜스폼 초기화하며 Edit 에 정보가 표시되도록 푸시 . 
-	auto InitTransform = AddComponent<ENGINE::Transform>();
+	auto InitTransform = GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.001,0.001,0.001 });
 	PushEditEntity(InitTransform.lock().get());
 

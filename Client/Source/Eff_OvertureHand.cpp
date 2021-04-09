@@ -87,8 +87,8 @@ HRESULT Eff_OvertureHand::Ready()
 
 	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
 		L"..\\..\\Resource\\Shader\\Effect\\OvertureHand.hlsl", {});
-
-	auto InitTransform = AddComponent<ENGINE::Transform>();
+	
+	auto InitTransform =  GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.01f, 0.01f, 0.01f });
 
 	_HandMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_weapon\\wp00_010_0000.x");
