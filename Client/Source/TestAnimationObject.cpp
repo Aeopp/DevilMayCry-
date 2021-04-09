@@ -178,7 +178,7 @@ UINT TestAnimationObject::Update(const float _fDeltaTime)
 
 	 const float Length = FMath::Length(DeltaPos);
 
-	 //DeltaPos = FMath::RotationVecNormal(DeltaPos, Axis, FMath::ToRadian(90.f)) * Length;
+	//DeltaPos = FMath::RotationVecNormal(DeltaPos, Axis, FMath::ToRadian(90.f)) * Length;
 
 	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
 		SpTransform)

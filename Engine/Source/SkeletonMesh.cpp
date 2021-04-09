@@ -218,24 +218,24 @@ std::tuple<Vector3,Quaternion,Vector3> SkeletonMesh::AnimationUpdateImplementati
 	{
 		RootMotionLastCalcDeltaPos = CalcRootMotionDeltaPos(TimeBeyondAnimation,
 			AnimName, CurPlayAnimInfo.Duration, CurrentAnimPrevFrameMotionTime, CurrentAnimMotionTime);
-			
+
 		if (IsAnimationBlend)
 		{
-			const Vector3 PrevAnimBlendDeltaPos = CalcRootMotionDeltaPos({}, 
+			const Vector3 PrevAnimBlendDeltaPos = CalcRootMotionDeltaPos({},
 				PrevAnimName, PrevPlayAnimInfo.Duration, PrevAnimPrevFrameMotionTime, PrevAnimMotionTime);
 
 			const double CurBlendWeight =
 				1.0 - IsAnimationBlend->PrevAnimationWeight;
 
-			RootMotionLastCalcDeltaPos = 
-				RootMotionLastCalcDeltaPos * CurBlendWeight + 
+			RootMotionLastCalcDeltaPos =
+				RootMotionLastCalcDeltaPos * CurBlendWeight +
 				PrevAnimBlendDeltaPos * IsAnimationBlend->PrevAnimationWeight;
 		}
 	}
 	else
 	{
 		RootMotionLastCalcDeltaPos = { 0,0,0 };
-	}
+	};
 
 
 	if (bRootMotionRotation)
@@ -494,12 +494,12 @@ void SkeletonMesh::Editor()
 	}
 
 	Mesh::Editor();
-}
+};
 
 std::string SkeletonMesh::GetName()
 {
 	return "SkeletonMesh";
-}
+};
 
 void SkeletonMesh::BindVTF(ID3DXEffect* Fx)&
 {
