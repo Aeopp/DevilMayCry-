@@ -28,6 +28,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 	Matrix ScreenMat;
 
 	_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
+	_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
 
 	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
 	if (auto SharedSubset = WeakSubset_Plane.lock();
@@ -37,11 +38,9 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = REDORB;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 1.f, 1.f), 3u);
-
-			_ImplInfo.Fx->SetTexture("RedOrbALBMMap", _RedOrbALBMTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("RedOrbATOSMap", _RedOrbATOSTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("RedOrbNRMRMap", _RedOrbNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ALB0Map", _RedOrbALBMTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _RedOrbATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _RedOrbNRMRTex->GetTexture());
 
 			Create_ScreenMat(CurID, ScreenMat);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
@@ -55,7 +54,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = TARGET_CURSOR;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetTexture("TargetCursorMap", _TargetCursorTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _TargetCursorTex->GetTexture());
 			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.3f);
 
 			for (int i = 0; i < 3; ++i)
@@ -73,11 +72,8 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = BOSS_GUAGE;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 0.f, 1.f), 3u);
-			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
-
-			_ImplInfo.Fx->SetTexture("BossGaugeATOSMap", _BossGaugeATOSTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("BossGaugeNRMRMap", _BossGaugeNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _BossGaugeATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _BossGaugeNRMRTex->GetTexture());
 
 			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
 			_ImplInfo.Fx->SetFloat("_BossGaugeCurXPosOrtho", _BossGauge_CurXPosOrtho);
@@ -101,6 +97,22 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
+
+		//
+		CurID = EX_GAUGE;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetTexture("ALB0Map", _EXBackALBMTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _EXBackATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _EXBackNRMRTex->GetTexture());
+
+			Create_ScreenMat(CurID, ScreenMat, 1);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(8);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
 	}
 
 	auto WeakSubset_Pipe0 = _Pipe0Mesh->GetSubset(0u);
@@ -111,7 +123,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = TARGET_HP;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetTexture("TargetHPMap", _EnemyHPTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _EnemyHPTex->GetTexture());
 			_ImplInfo.Fx->SetFloat("_TotalAccumulateTime", _TotalAccumulateTime);
 			
 			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
@@ -136,13 +148,10 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = HP_GLASS;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(-1.f, 1.f, 1.f), 3u);
-			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
-
-			_ImplInfo.Fx->SetTexture("HPGlassATOSMap", _HPGlassATOSTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("HPGlassNRMRMap", _HPGlassNRMRTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("HPGlassMap", _GlassTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("HPGlassBloodMap", _BloodTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _HPGlassATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _HPGlassNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ALB0Map", _GlassTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ALB1Map", _BloodTex->GetTexture());
 			_ImplInfo.Fx->SetFloat("_HPGlassDirt", _HPGlassDirt);
 
 			Create_ScreenMat(CurID, ScreenMat, 1);
@@ -197,6 +206,10 @@ HRESULT BtlPanel::Ready()
 	_GlassTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_IL_A_ALB.tga");
 	_BloodTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BloodStoneCH16.png");
 
+	_EXBackALBMTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\EXBack_ALBM.tga");
+	_EXBackATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\EXBack_ATOS.tga");
+	_EXBackNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\EXBack_NRMR.tga");
+
 	Init_UIDescs();
 	
 	return S_OK;
@@ -244,7 +257,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	//std::cout << _BossGauge_CurXPosOrtho << std::endl;
 
 	//
-	Imgui_Modify_UIPosAndScale(HP_GLASS);
+	Imgui_ModifyUI(EX_GAUGE);
 
 	return 0;
 }
@@ -281,6 +294,7 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[TARGET_HP] = { true, Vector2(640.f, 360.f), Vector2(0.46f, 0.46f) };
 	_UIDescs[BOSS_GUAGE] = { true, Vector2(640.f, 670.f), Vector2(4.7f, 5.f) };
 	_UIDescs[HP_GLASS] = { true, Vector2(250.f, 155.f), Vector2(0.5f, 0.5f) };
+	_UIDescs[EX_GAUGE] = { true, Vector2(130.f, 93.f), Vector2(2.f, 2.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -340,13 +354,27 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		}
 		break;
 
+	case EX_GAUGE:
+		if (1 == _Opt)
+		{
+			_Out._11 = _UIDescs[_ID].Scale.x;
+			_Out._22 = _UIDescs[_ID].Scale.y;
+			_Out._33 = 1.f;
+			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(135.f));
+			_Out *= RotMat;
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+			_Out._43 = 0.02f;
+		}
+		break;
+
 	default:
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.y;
 		_Out._33 = 1.f;
 		_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 		_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
-		_Out._43 = 0.02f;	// 0.01·Î´Â ¾ÈµÊ...
+		_Out._43 = 0.5f;	// Áß¾ÓÂë?
 		break;
 	}
 }
@@ -402,7 +430,7 @@ Vector2 BtlPanel::ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY)
 	return Ret;
 }
 
-void BtlPanel::Imgui_Modify_UIPosAndScale(UI_DESC_ID _ID)
+void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 {
 	Vector2 Position = _UIDescs[_ID].Pos;
 	ImGui::InputFloat2("Position", Position);
@@ -412,7 +440,6 @@ void BtlPanel::Imgui_Modify_UIPosAndScale(UI_DESC_ID _ID)
 	ImGui::InputFloat2("Scale", Scale);
 	_UIDescs[_ID].Scale = Scale;
 
-	// ID º°·Î ¹æÇâ ´Ù¸§...
 	Vector3 Vector = _LightDir;
 	ImGui::SliderFloat3("LightVec", Vector, -1.f, 1.f);
 	_LightDir = Vector;

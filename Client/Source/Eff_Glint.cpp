@@ -35,8 +35,8 @@ void Eff_Glint::RenderAlphaBlendEffectImplementation(
 			{
 				_ImplInfo.Fx->SetMatrix("World", &_WorldMatrix[i]);
 				_ImplInfo.Fx->SetFloat("_SliceAmount", _SliceAmount[i]);
-
 				_ImplInfo.Fx->SetTexture("BaseMap", _GlintTex->GetTexture());
+				
 				_ImplInfo.Fx->BeginPass(0);
 				SharedSubset->Render(_ImplInfo.Fx);
 				_ImplInfo.Fx->EndPass();

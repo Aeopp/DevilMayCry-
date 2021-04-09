@@ -14,6 +14,7 @@ private:
 		TARGET_HP,
 		BOSS_GUAGE,
 		HP_GLASS,
+		EX_GAUGE,
 		DESC_END
 	};
 	struct UI_DESC
@@ -45,6 +46,10 @@ private:
 	std::shared_ptr<ENGINE::Texture> _GlassTex{};
 	std::shared_ptr<ENGINE::Texture> _BloodTex{};
 
+	std::shared_ptr<ENGINE::Texture> _EXBackALBMTex{};
+	std::shared_ptr<ENGINE::Texture> _EXBackATOSTex{};
+	std::shared_ptr<ENGINE::Texture> _EXBackNRMRTex{};
+
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
 
@@ -58,7 +63,7 @@ private:
 	
 	float _HPGlassDirt = 0.f;
 
-	Vector3 _LightDir = Vector3(0.f, 0.f, 1.f);
+	Vector3 _LightDir = Vector3(-1.f, 1.f, 1.f);
 	
 private:
 	explicit BtlPanel() = default;
@@ -71,7 +76,7 @@ private:
 	void	Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt = 0);
 	void	Update_TargetInfo();
 	Vector2	ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY);
-	void	Imgui_Modify_UIPosAndScale(UI_DESC_ID _ID);
+	void	Imgui_ModifyUI(UI_DESC_ID _ID);
 public:
 	static BtlPanel* Create();
 public:

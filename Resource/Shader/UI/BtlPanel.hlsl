@@ -2,8 +2,8 @@ matrix Ortho;
 matrix ScreenMat;    // (-width/2 ~ +width/2, +height/2 ~ -height/2)
 float3 LightDirection = float3(0.f, 0.f, 1.f);
 
-float _AccumulationTexV;
 float _TotalAccumulateTime;
+float _AccumulationTexV;
 
 float _HP_Degree = 0.f; // 0 ~ 360 ¹üÀ§
 float2 _HP_StartPt;
@@ -12,7 +12,7 @@ float2 _HP_Normal1;
 
 float _BossGaugeCurXPosOrtho;
 
-float _HPGlassDirt;
+float _HPGlassDirt = 0.f;
 
 texture NoiseMap;
 sampler Noise = sampler_state
@@ -21,105 +21,49 @@ sampler Noise = sampler_state
     minfilter = linear;
     magfilter = linear;
     mipfilter = linear;
+    sRGBTexture = false;
 };
 
-texture RedOrbALBMMap;
-sampler RedOrbALBM = sampler_state
+texture ALB0Map;
+sampler ALB0 = sampler_state
 {
-    texture = RedOrbALBMMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    texture = ALB0Map;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    sRGBTexture = true;
+    MaxAnisotropy = 4;
 };
 
-texture RedOrbATOSMap;
-sampler RedOrbATOS = sampler_state
+texture ALB1Map;
+sampler ALB1 = sampler_state
 {
-    texture = RedOrbATOSMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    texture = ALB1Map;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    sRGBTexture = true;
+    MaxAnisotropy = 4;
 };
 
-texture RedOrbNRMRMap;
-sampler RedOrbNRMR = sampler_state
+texture NRMR0Map;
+sampler NRMR0 = sampler_state
 {
-    texture = RedOrbNRMRMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    texture = NRMR0Map;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
+    sRGBTexture = false;
 };
 
-texture TargetCursorMap;
-sampler TargetCursor = sampler_state
+texture ATOS0Map;
+sampler ATOS0 = sampler_state
 {
-    texture = TargetCursorMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-};
-
-texture TargetHPMap;
-sampler TargetHP = sampler_state
-{
-    texture = TargetHPMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-};
-
-texture BossGaugeATOSMap;
-sampler BossGaugeATOS = sampler_state
-{
-    texture = BossGaugeATOSMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-};
-
-texture BossGaugeNRMRMap;
-sampler BossGaugeNRMR = sampler_state
-{
-    texture = BossGaugeNRMRMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-};
-
-texture HPGlassATOSMap;
-sampler HPGlassATOS = sampler_state
-{
-    texture = HPGlassATOSMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-};
-
-texture HPGlassNRMRMap;
-sampler HPGlassNRMR = sampler_state
-{
-    texture = HPGlassATOSMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-};
-
-texture HPGlassMap;
-sampler HPGlass = sampler_state
-{
-    texture = HPGlassMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-};
-
-texture HPGlassBloodMap;
-sampler HPGlassBlood = sampler_state
-{
-    texture = HPGlassBloodMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    texture = ATOS0Map;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
+    sRGBTexture = false;
 };
 
 
@@ -272,13 +216,38 @@ struct PsOut
     float4 Color : COLOR0;
 };
 
+PsOut PsMain(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    float4 ALB0Sample = tex2D(ALB0, In.UV);
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+    
+    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+
+    Out.Color = Diffuse * float4(ALB0Sample.rgb, 1.f);
+    Out.Color.a = 1.f;
+    
+    return Out;
+};
+
 PsOut PsMain_RedOrb(PsIn In)
 {
     PsOut Out = (PsOut) 0;
     
-    float4 ALBMSample = tex2D(RedOrbALBM, In.UV);
-    float4 ATOSSample = tex2D(RedOrbATOS, In.UV);
-    float4 NRMRSample = tex2D(RedOrbNRMR, In.UV);
+    float4 ALB0Sample = tex2D(ALB0, In.UV);
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
     
     float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
     float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
@@ -292,7 +261,7 @@ PsOut PsMain_RedOrb(PsIn In)
     float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
     float Ambient = ATOSSample.g * 0.2f;
 
-    Out.Color = (Diffuse + Ambient) * float4(ALBMSample.rgb, 1.f);
+    Out.Color = (Diffuse + Ambient) * float4(ALB0Sample.rgb, 1.f);
     Out.Color.a = ATOSSample.r;
 
     return Out;
@@ -305,7 +274,7 @@ PsOut PsMain_TargetCursor(PsIn In)
     float2 newUV = In.UV;
     newUV.y -= _AccumulationTexV;
     
-    float Alp = tex2D(TargetCursor, In.UV).r * tex2D(Noise, newUV);
+    float Alp = tex2D(ATOS0, In.UV).r * tex2D(Noise, newUV);
     
     Out.Color = float4(1.f, 0.4f, 0.4f, Alp);
 
@@ -337,7 +306,7 @@ PsOut PsMain_TargetHP(PsIn_NoiseClip In)
     FinalNoise *= 0.5f; //scale;
     float2 NoiseCoord = FinalNoise.xy + In.UV;
        
-    Out.Color = float4(0.5f, 0.647f, 0.698f, tex2D(TargetHP, NoiseCoord).r);
+    Out.Color = float4(0.5f, 0.647f, 0.698f, tex2D(ATOS0, NoiseCoord).r);
     Out.Color.a *= ((In.UV.y - 0.8f) * 5.f);
     
     return Out;
@@ -347,8 +316,8 @@ PsOut PsMain_BossGauge0(PsIn In)
 {
     PsOut Out = (PsOut) 0;
     
-    float4 ATOSSample = tex2D(BossGaugeATOS, In.UV);
-    float4 NRMRSample = tex2D(BossGaugeNRMR, In.UV);
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
     
     float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
     float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
@@ -371,8 +340,8 @@ PsOut PsMain_BossGauge1(PsIn In)
 {
     PsOut Out = (PsOut) 0;
     
-    float4 ATOSSample = tex2D(BossGaugeATOS, In.UV);
-    float4 NRMRSample = tex2D(BossGaugeNRMR, In.UV);
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
     
     float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
     float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
@@ -397,8 +366,8 @@ PsOut PsMain_BossGauge2(PsIn_Clip In)
 
     clip(_BossGaugeCurXPosOrtho - In.Clip);
     
-    float4 ATOSSample = tex2D(BossGaugeATOS, In.UV);
-    float4 NRMRSample = tex2D(BossGaugeNRMR, In.UV);
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
     
     float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
     float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
@@ -425,8 +394,8 @@ PsOut PsMain_BossGauge3(PsIn_Clip In)
     
     clip(_BossGaugeCurXPosOrtho - In.Clip);
     
-    float4 ATOSSample = tex2D(BossGaugeATOS, In.UV);
-    float4 NRMRSample = tex2D(BossGaugeNRMR, In.UV);
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
     
     float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
     float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
@@ -449,8 +418,10 @@ PsOut PsMain_Glass(PsIn In)
 {
     PsOut Out = (PsOut) 0;
     
-    float4 ATOSSample = tex2D(HPGlassATOS, In.UV);
-    float4 NRMRSample = tex2D(HPGlassNRMR, In.UV);
+    float4 ALB0Sample = tex2D(ALB0, In.UV); // glass
+    float4 ALB1Sample = tex2D(ALB1, In.UV); // blood
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
     
     float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
     float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
@@ -465,10 +436,36 @@ PsOut PsMain_Glass(PsIn In)
 
     float Dirt = ATOSSample.g * _HPGlassDirt;
 
-    Out.Color = float4(Shade * tex2D(HPGlass, In.UV).rgb, saturate(0.1f + ATOSSample.b));
+    Out.Color = float4(Shade * ALB0Sample.rgb, saturate(0.1f + ATOSSample.b));
 
     if (0.f < Dirt)
-        Out.Color = (Out.Color * (1.f - Dirt)) + float4(tex2D(HPGlassBlood, In.UV).rgb, Dirt);
+        Out.Color = (Out.Color * (1.f - Dirt)) + float4(ALB1Sample.rgb, Dirt);
+
+    return Out;
+};
+
+PsOut PsMain_ExBack(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    float4 ALB0Sample = tex2D(ALB0, In.UV);
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+    
+    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    float Ambient = ATOSSample.b * 0.2f;
+
+    Out.Color = (Diffuse + Ambient) * float4(ALB0Sample.rgb, 1.f);
+    Out.Color.a = ATOSSample.r;
 
     return Out;
 };
@@ -483,6 +480,7 @@ technique Default
 		destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_RedOrb();
@@ -494,6 +492,7 @@ technique Default
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_TargetCursor();
@@ -505,6 +504,7 @@ technique Default
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain_TargetHP();
         pixelshader = compile ps_3_0 PsMain_TargetHP();
@@ -516,6 +516,7 @@ technique Default
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_BossGauge0();
@@ -527,6 +528,7 @@ technique Default
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_BossGauge1();
@@ -538,6 +540,7 @@ technique Default
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain_BossGauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge2();
@@ -549,6 +552,7 @@ technique Default
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain_BossGauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge3();
@@ -560,8 +564,21 @@ technique Default
         destblend = invsrcalpha;
         zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_Glass();
+    }
+    pass p8
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain();
+        pixelshader = compile ps_3_0 PsMain_ExBack();
     }
 };
