@@ -328,9 +328,9 @@ PsOut PsMain_BossGauge0(PsIn In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f; // Diffuse + Ambient
     
-    Out.Color.rgb = Diffuse * float3(0.416f, 0.525f, 0.65f);
+    Out.Color.rgb = Shade * float3(0.416f, 0.525f, 0.65f);
     Out.Color.a = ATOSSample.a;
     
     return Out;
@@ -352,9 +352,9 @@ PsOut PsMain_BossGauge1(PsIn In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f; // Diffuse + Ambient
     
-    Out.Color.rgb = Diffuse * float3(0.282f, 0.391f, 0.588f);
+    Out.Color.rgb = Shade * float3(0.282f, 0.391f, 0.588f);
     Out.Color.a = ATOSSample.g;
     
     return Out;
@@ -378,9 +378,9 @@ PsOut PsMain_BossGauge2(PsIn_Clip In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f; // Diffuse + Ambient
     
-    Out.Color.rgb = Diffuse * float3(0.263f, 0.227f, 0.733f); // À§
+    Out.Color.rgb = Shade * float3(0.263f, 0.227f, 0.733f); // À§
     Out.Color.a = ATOSSample.b;
     
     //Out.Color = Diffuse * float4(0.176f, 0.149f, 0.255f, ATOSSample.b); // ¹Ù´Ú
@@ -406,9 +406,9 @@ PsOut PsMain_BossGauge3(PsIn_Clip In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f; // Diffuse + Ambient
     
-    Out.Color.rgb = Diffuse * float3(0.627f, 0.674f, 0.984f);
+    Out.Color.rgb = Shade * float3(0.627f, 0.674f, 0.984f);
     Out.Color.a = ATOSSample.r;
     
     return Out;
@@ -432,14 +432,14 @@ PsOut PsMain_Glass(PsIn In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
    
-    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.4f;
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f;    // Diffuse + Ambient
 
     float Dirt = ATOSSample.g * _HPGlassDirt;
 
     Out.Color = float4(Shade * ALB0Sample.rgb, saturate(0.1f + ATOSSample.b));
 
     if (0.f < Dirt)
-        Out.Color = (Out.Color * (1.f - Dirt)) + float4(ALB1Sample.rgb, Dirt);
+        Out.Color = (Out.Color * (1.f - Dirt)) + float4(Shade * ALB1Sample.rgb, Dirt);
 
     return Out;
 };
