@@ -48,8 +48,8 @@ HRESULT TestScene::LoadScene()
 	AddGameObject<TestAnimationObject>();*/
 
 	//AddGameObject<Eff_OvertureHand>();
-	//AddGameObject<BtlPanel>();
-	//AddGameObject<Eff_Glint>();
+	AddGameObject<BtlPanel>();
+	AddGameObject<Eff_Glint>();
 
 	return S_OK;
 }
