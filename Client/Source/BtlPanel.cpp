@@ -136,7 +136,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = HP_GLASS;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(-0.2, -0.2f, -1.f), 3u);
+			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(-1.f, 1.f, 1.f), 3u);
 			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
 
 			_ImplInfo.Fx->SetTexture("HPGlassATOSMap", _HPGlassATOSTex->GetTexture());
@@ -194,7 +194,7 @@ HRESULT BtlPanel::Ready()
 
 	_HPGlassATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HUD_Nero_HP_Glass_ATOS.tga");
 	_HPGlassNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HUD_Nero_HP_Glass_NRMR.tga");
-	_GlassTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\light-blue-glass-texture.png");
+	_GlassTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_IL_A_ALB.tga");
 	_BloodTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\BloodStoneCH16.png");
 
 	Init_UIDescs();

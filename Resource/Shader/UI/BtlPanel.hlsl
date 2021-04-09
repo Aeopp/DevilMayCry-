@@ -461,15 +461,14 @@ PsOut PsMain_Glass(PsIn In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
    
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
-    
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.4f;
+
     float Dirt = ATOSSample.g * _HPGlassDirt;
-    
-    Out.Color.rgb = Diffuse * tex2D(HPGlass, In.UV).rgb * (1.f - Dirt);
-    Out.Color.a = 0.05f + (ATOSSample.b);
-    
-    if (0.001f < Dirt)
-        Out.Color += float4(tex2D(HPGlassBlood, In.UV).rgb, Dirt);
+
+    Out.Color = float4(Shade * tex2D(HPGlass, In.UV).rgb, saturate(0.1f + ATOSSample.b));
+
+    if (0.f < Dirt)
+        Out.Color = (Out.Color * (1.f - Dirt)) + float4(tex2D(HPGlassBlood, In.UV).rgb, Dirt);
 
     return Out;
 };
