@@ -20,6 +20,11 @@ public:
 	virtual HRESULT StateEnter()							PURE;
 	virtual HRESULT StateExit()								PURE;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	PURE;
+
+protected:
+	virtual HRESULT KeyInput_Idle(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Run(const int _nIndex = -1);
+	virtual HRESULT PutWeapon();
 };
 
 class Idle : public NeroState

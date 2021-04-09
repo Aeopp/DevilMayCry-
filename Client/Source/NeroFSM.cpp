@@ -57,6 +57,13 @@ HRESULT NeroFSM::ReadyFSM()
 	m_vecState.emplace_back(BT_Att_ComboD_3::Create(this, ATT_COMBO_D3, m_pNero));
 	m_vecState.emplace_back(BT_Att_ComboD_4::Create(this, ATT_COMBO_D4, m_pNero));
 
+	m_vecState.emplace_back(Skill_Streak::Create(this, SKILL_STREAK, m_pNero));
+	m_vecState.emplace_back(Skill_Streak_Ex3::Create(this, SKILL_STREAK_EX3, m_pNero));
+
+	m_vecState.emplace_back(Skill_Float_Ground::Create(this, SKILL_FLOAT_GROUND, m_pNero));
+	m_vecState.emplace_back(Skill_Float_Ground_Ex3::Create(this, SKILL_FLOAT_GROUND_EX3, m_pNero));
+	m_vecState.emplace_back(Skill_Float_Ground_Finish::Create(this, SKILL_FLOAT_GROUND_FINISH, m_pNero));
+
 	return S_OK;						
 }
 

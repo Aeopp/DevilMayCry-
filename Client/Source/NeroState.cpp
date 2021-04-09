@@ -37,6 +37,105 @@ HRESULT NeroState::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
+HRESULT NeroState::KeyInput_Idle(const int _nIndex)
+{
+	UINT CurrIndex = m_pFSM->GetCurrentIndex();
+	if (Input::GetKey(DIK_LSHIFT))
+	{
+		//락온
+		if (Input::GetKey(DIK_W))
+		{
+			if (Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
+			if (Input::GetMouse(DIM_R))
+			{
+				//총알 발사
+			}
+		}
+		else if (Input::GetKey(DIK_S))
+		{
+			//락온한 상태로 뒤로
+			if (Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_FLOAT_GROUND);
+			if (Input::GetMouse(DIM_R))
+			{
+				//총알 발사
+			}
+		}
+		else if (Input::GetKey(DIK_A))
+		{
+			if (Input::GetKey(DIK_SPACE))
+			{
+				//왼쪽 구르기
+			}
+		}
+		else if (Input::GetKey(DIK_D))
+		{
+			if (Input::GetKey(DIK_SPACE))
+			{
+				// 오른쪽 구르기
+			}
+		}
+	}
+
+	else if (Input::GetKeyDown(DIK_W))
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNSTART);
+	}
+	else if (Input::GetKeyDown(DIK_S))
+	{
+		//180도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
+		//m_pNero->lock()->ChangeAnimation(Nero::ru)
+	}
+	else if (Input::GetKeyDown(DIK_A))
+	{
+		//왼쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
+	}
+	else if (Input::GetKeyDown(DIK_D))
+	{
+		//오른쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
+	}
+	else if (Input::GetMouseDown(DIM_L))
+	{
+		m_pFSM->ChangeState(NeroFSM::ATT1);
+	}
+	else if (Input::GetKeyDown(DIK_SPACE))
+	{
+		//점프
+	}
+	return S_OK;
+}
+
+HRESULT NeroState::KeyInput_Run(const int _nIndex)
+{
+	UINT CurrIndex = m_pFSM->GetCurrentIndex();
+
+	if (Input::GetMouseDown(DIM_L))
+	{
+		//달려가면서 공격하는걸로
+		//m_pFSM->ChangeState(NeroFSM::ATT1_Run);
+		
+	}
+	else if (Input::GetKeyDown(DIK_SPACE))
+	{
+		//앞으로 뛰는 점프
+	}
+
+	return S_OK;
+}
+
+HRESULT NeroState::PutWeapon()
+{
+	if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
+	return S_OK;
+}
+
 #pragma endregion
 
 #pragma region IDLE
@@ -73,35 +172,8 @@ HRESULT Idle::StateExit()
 HRESULT Idle::StateUpdate(const float _fDeltaTime)
 {
 	NeroState::StateUpdate(_fDeltaTime);
-	if (Input::GetKeyDown(DIK_W))
-	{
-		m_pFSM->ChangeState(NeroFSM::RUNSTART);
-	}
-	else if (Input::GetKeyDown(DIK_S))
-	{
-		//180도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
-		//m_pNero->lock()->ChangeAnimation(Nero::ru)
-	}
-	else if (Input::GetKeyDown(DIK_A))
-	{
-		//왼쪽으로 90도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
-	}
-	else if (Input::GetKeyDown(DIK_D))
-	{
-		//오른쪽으로 90도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
-	}
-	else if (Input::GetMouseDown(DIM_L))
-	{
-		m_pFSM->ChangeState(NeroFSM::ATT1);
-	}
-	//else if (m_pNero.lock()->IsAnimationEnd())
-	//{
-	//	//애니메이션이 끝나면 다리바꾸는 애니메이션 한번돌리고
-	//	m_pFSM->ChangeState(NeroFSM::IDLE_SWITCH_LEG);
-	//}
+	NeroState::KeyInput_Idle();
+
 	return S_OK;
 }
 ///////////////////////////////////////////////////////////////////
@@ -135,34 +207,8 @@ HRESULT Idle_Switch_Leg::StateExit()
 
 HRESULT Idle_Switch_Leg::StateUpdate(const float _fDeltaTime)
 {
-	if (Input::GetKeyDown(DIK_W))
-	{
-		m_pFSM->ChangeState(NeroFSM::RUNSTART);
-	}
-	else if (Input::GetKeyDown(DIK_S))
-	{
-		//180도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
-		//m_pNero->lock()->ChangeAnimation(Nero::ru)
-	}
-	else if (Input::GetKeyDown(DIK_A))
-	{
-		//왼쪽으로 90도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
-	}
-	else if (Input::GetKeyDown(DIK_D))
-	{
-		//오른쪽으로 90도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
-	}
-	else if (Input::GetMouseDown(DIM_L))
-	{
-		m_pFSM->ChangeState(NeroFSM::ATT1);
-	}
-	else if (m_pNero.lock()->IsAnimationEnd())
-	{
-		m_pFSM->ChangeState(NeroFSM::IDLE);
-	}
+	NeroState::StateUpdate(_fDeltaTime);
+	NeroState::KeyInput_Idle();
 
 	return S_OK;
 }
@@ -198,30 +244,7 @@ HRESULT Idle_Battle::StateUpdate(const float _fDeltaTime)
 {
 	//런스타트 배틀
 	NeroState::StateUpdate(_fDeltaTime);
-	if (Input::GetKeyDown(DIK_W))
-	{
-		m_pFSM->ChangeState(NeroFSM::RUNSTART);
-	}
-	else if (Input::GetKeyDown(DIK_S))
-	{
-		//180도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
-		//m_pNero->lock()->ChangeAnimation(Nero::ru)
-	}
-	else if (Input::GetKeyDown(DIK_A))
-	{
-		//왼쪽으로 90도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
-	}
-	else if (Input::GetKeyDown(DIK_D))
-	{
-		//오른쪽으로 90도 회전
-		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
-	}
-	else if (Input::GetMouseDown(DIM_L))
-	{
-		m_pFSM->ChangeState(NeroFSM::ATT1);
-	}
+	NeroState::KeyInput_Idle();
 	return S_OK;
 }
 #pragma endregion
@@ -851,12 +874,24 @@ HRESULT RunStartFront::StateExit()
 HRESULT RunStartFront::StateUpdate(const float _fDeltaTime)
 {
 	// 시작하는 애니메니메이션이 끝났으면 Loop로 변환
-	if (Input::GetKey(DIK_W) && m_pNero.lock()->IsAnimationEnd())
+	//if (Input::GetKey(DIK_W) && m_pNero.lock()->IsAnimationEnd())
+	//{
+	//	m_pFSM->ChangeState(NeroFSM::RUNLOOP);
+	//}
+	//else if(m_pNero.lock()->IsAnimationEnd())
+	//	m_pFSM->ChangeState(NeroFSM::IDLE);
+
+	if (Input::GetKey(DIK_W))
 	{
-		m_pFSM->ChangeState(NeroFSM::RUNLOOP);
+		if (m_pNero.lock()->IsAnimationEnd())
+		{
+			m_pFSM->ChangeState(NeroFSM::RUNLOOP);
+		}
 	}
-	else if(m_pNero.lock()->IsAnimationEnd())
+	else
+	{
 		m_pFSM->ChangeState(NeroFSM::IDLE);
+	}
 
 	return S_OK;
 }
@@ -3680,16 +3715,24 @@ Skill_Float_Ground* Skill_Float_Ground::Create(FSMBase* const _pFSM, const UINT 
 
 HRESULT Skill_Float_Ground::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::SKILL_FLOAT_GROUND, false);
+
 	return S_OK;
 }
 
 HRESULT Skill_Float_Ground::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT Skill_Float_Ground::StateUpdate(const float _fDeltaTime)
 {
+	if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
@@ -3883,16 +3926,24 @@ Skill_Streak* Skill_Streak::Create(FSMBase* const _pFSM, const UINT _nIndex, wea
 
 HRESULT Skill_Streak::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation(Nero::SKILL_STREAK, false);
+
 	return S_OK;
 }
 
 HRESULT Skill_Streak::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT Skill_Streak::StateUpdate(const float _fDeltaTime)
 {
+	if (m_pNero.lock()->IsAnimationEnd())
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+	}
 	return S_OK;
 }
 
