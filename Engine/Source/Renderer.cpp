@@ -51,8 +51,8 @@ void Renderer::ReadyRenderTargets()
 
 	{
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX;
-		InitInfo.Height = g_nWndCY;
+		InitInfo.Width = g_nWndCX / 2;
+		InitInfo.Height = g_nWndCY/2 ;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A16B16G16R16F;
@@ -65,8 +65,8 @@ void Renderer::ReadyRenderTargets()
 
 	{
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX;
-		InitInfo.Height = g_nWndCY;
+		InitInfo.Width = g_nWndCX /2;
+		InitInfo.Height = g_nWndCY /2;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A8R8G8B8;
@@ -79,8 +79,8 @@ void Renderer::ReadyRenderTargets()
 
 	{
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX;
-		InitInfo.Height = g_nWndCY;
+		InitInfo.Width = g_nWndCX /2;
+		InitInfo.Height = g_nWndCY /2;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A8R8G8B8;
@@ -93,8 +93,8 @@ void Renderer::ReadyRenderTargets()
 
 	{
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX;
-		InitInfo.Height = g_nWndCY;
+		InitInfo.Width = g_nWndCX /2;
+		InitInfo.Height = g_nWndCY /2;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_R32F;
@@ -104,8 +104,7 @@ void Renderer::ReadyRenderTargets()
 			{ InitX,InitY + (YOffset * 3.f) + Interval },
 			RenderTargetDebugRenderSize);
 	}
-	
-	
+
 }
 
 void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
@@ -155,7 +154,7 @@ void Renderer::RenderReady()&
 	Matrix CameraView, CameraProjection;
 	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
 	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
-
+	
 	Matrix Ortho;
 	D3DXMatrixOrthoLH(&Ortho, g_nWndCX,g_nWndCY, 0.0f, 1.f);
 	CurrentRenderInfo.CameraView = CameraView;

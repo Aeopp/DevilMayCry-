@@ -1,7 +1,13 @@
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
+float4x4 PrevWorldViewProjection;
+
+bool bVelocityRecord = false;
+
 float2 UVScale = { 1, 1 };
+
+
 
 texture ALBM0Map;
 sampler ALBM0 = sampler_state
@@ -45,6 +51,7 @@ struct VsOut
     float3 BiNormal : BINORMAL;
     float2 UV : TEXCOORD0;
     float2 ZW : TEXCOORD1;
+    float2 Velocity : TEXCOORD2;
 };
 
 VsOut VsGBuffer(VsIn In)
@@ -60,6 +67,7 @@ VsOut VsGBuffer(VsIn In)
     Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     Out.ZW = Out.Position.zw;
     
+    
     return Out;
 }
 
@@ -70,6 +78,7 @@ struct PsIn
     float3 BiNormal : BINORMAL;
     float2 UV : TEXCOORD0;
     float2 ZW : TEXCOORD1;
+    float2 Velocity : TEXCOORD2;
 };
 
 struct PsOut

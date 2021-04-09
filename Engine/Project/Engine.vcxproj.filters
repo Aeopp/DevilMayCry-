@@ -363,6 +363,7 @@
     <ClInclude Include="..\Header\Physics.h">
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">
@@ -527,5 +528,8 @@
       <Filter>04.HLSL\Effect</Filter>
     </None>
     <None Include="..\..\Resource\Shader\DebugBone.hlsl" />
+    <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

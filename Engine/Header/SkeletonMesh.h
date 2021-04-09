@@ -89,11 +89,11 @@ private:
 	void AnimationNotify()&;
 
 	static inline std::string NormallyRootMotionTransitionName =
-		"root_$AssimpFbx$_Translation";
+		"NULL_TRANSITION";
 	static inline std::string NormallyRootMotionScaleName =
-		"root_$AssimpFbx$_Scaling";
+		"NULL_SCALING";
 	static inline std::string NormallyRootMotionRotationName =
-		"root_$AssimpFbx$_Rotation";
+		"NULL_ROTATION";
 private:
 	std::string RootMotionScaleName = NormallyRootMotionScaleName;
 	std::string RootMotionRotationName = NormallyRootMotionRotationName;
@@ -119,6 +119,7 @@ private:
 		const float AnimMotionTime)&;
 
 public:
+	void    LoadAnimation(const std::filesystem::path & FilePath)&;
 	// 노드 정보는 클론들끼리 공유하므로 하나의 클론이 설정한 값으로 모든 클론이 작동.
 	void    EnableScaleRootMotion(const std::string & ScalingRootName = "");
 	void    EnableRotationRootMotion(const std::string & RotationRootName = "");
@@ -127,9 +128,7 @@ public:
 	void    DisableRotationRootMotion();
 	void    DisableTransitionRootMotion();
 
-
 	float DeltaTimeFactor = 1.f;
-
 	float RootMotionDeltaFactor = 1.f;
 	bool  bRootMotionScale = false;
 	bool  bRootMotionRotation = false;

@@ -1,7 +1,6 @@
 ﻿#include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_impl_win32.h"
-
 #include "CoreSystem.h"
 #include "GraphicSystem.h"
 #include "InputSystem.h"
@@ -11,7 +10,6 @@
 #include "Renderer.h"
 #include "IconsFontAwesome5.h"
 #include "PhysicsSystem.h"
-
 
 USING(ENGINE)
 IMPLEMENT_SINGLETON(CoreSystem)
@@ -270,13 +268,17 @@ HRESULT CoreSystem::UpdateEngine()
 	if (g_bEditMode)
 	{
 		ImGui::Begin("Object Editor");
-		m_pSceneSystem.lock()->EditUpdateSceneSystem();
+		{
+			m_pSceneSystem.lock()->EditUpdateSceneSystem();
+		}
 		ImGui::End();
 
 		ImGui::Begin("Log");
-		for (const auto& CurLog : g_Logs)
 		{
-			ImGui::Text(CurLog.c_str());
+			for (const auto& CurLog : g_Logs)
+			{
+				ImGui::Text(CurLog.c_str());
+			}
 		}
 		ImGui::End();
 	}

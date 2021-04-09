@@ -74,17 +74,21 @@ void TestAnimationObject::RenderForwardAlphaBlendImplementation(
 {
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
 	 _SkeletonMesh->BindVTF(_ImplInfo.Fx);
+
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
-			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-			SharedSubset->Render(_ImplInfo.Fx);
+			if (SharedSubset->bRender)
+			{
+				_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
+				const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
+				SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+				SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+				SharedSubset->Render(_ImplInfo.Fx);
+			}
 		}
 	}
 };
@@ -149,11 +153,12 @@ HRESULT TestAnimationObject::Ready()
 	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
 	_InitInfo.bLocalVertexLocationsStorage = false;
 	// 루트 모션 지원 해줘 !!
-	_InitInfo.bRootMotionScale = true;
-	_InitInfo.bRootMotionRotation= true;
-	_InitInfo.bRootMotionTransition = true;
+	//_InitInfo.bRootMotionScale = false;
+	//_InitInfo.bRootMotionRotation = false;
+	//_InitInfo.bRootMotionTransition = false;
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
-		(L"..\\..\\Resource\\Mesh\\Dynamic\\Em5300\\Em5300.X" , _InitInfo);
+		(L"..\\..\\Resource\\TestDummy\\Em100\\Em100.fbx" , _InitInfo);
+
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)
