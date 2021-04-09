@@ -9,6 +9,8 @@
 #include "BtlPanel.h"
 #include "Camera.h"
 #include "Nero.h"
+#include "Blood.h"
+#include "DashImpact.h"
 #include <iostream>
 
 using namespace std;
@@ -34,24 +36,9 @@ HRESULT TestScene::LoadScene()
 
 	AddGameObject<Camera>();
 
-	//AddGameObject<ShaderTester>();
+	//AddGameObject<DashImpact>();
+	//AddGameObject<Blood>();
 
-	// AddGameObject<TestObject>();
-	AddGameObject<TestAnimationObject>();
-	//AddGameObject<Nero>();
-	/*AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();*/
-
-	AddGameObject<Eff_OvertureHand>();
-	AddGameObject<BtlPanel>();
-	AddGameObject<Eff_Glint>();
 
 	return S_OK;
 }

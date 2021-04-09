@@ -52,6 +52,12 @@
     <Filter Include="02.GameObject\Effect\Common">
       <UniqueIdentifier>{9d62ca16-6527-44a0-a433-1dd09ed55225}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\Effect\Blood">
+      <UniqueIdentifier>{2826fa2d-ca31-4d8d-9f40-8e2fc04fbd84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\Effect\DashImpact">
+      <UniqueIdentifier>{b7667868-436c-417f-b44f-5022f169be9a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -100,6 +106,12 @@
     </ClInclude>
     <ClInclude Include="..\Header\Effect.h">
       <Filter>02.GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Blood.h">
+      <Filter>02.GameObject\Effect\Blood</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\DashImpact.h">
+      <Filter>02.GameObject\Effect\DashImpact</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +165,12 @@
     </ClCompile>
     <ClCompile Include="..\Source\Effect.cpp">
       <Filter>02.GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Blood.cpp">
+      <Filter>02.GameObject\Effect\Blood</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\DashImpact.cpp">
+      <Filter>02.GameObject\Effect\DashImpact</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

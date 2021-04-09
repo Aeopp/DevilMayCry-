@@ -158,8 +158,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Application.h" />
+    <ClInclude Include="..\Header\Blood.h" />
     <ClInclude Include="..\Header\BtlPanel.h" />
     <ClInclude Include="..\Header\Camera.h" />
+    <ClInclude Include="..\Header\DashImpact.h" />
     <ClInclude Include="..\Header\Effect.h" />
     <ClInclude Include="..\Header\Eff_Glint.h" />
     <ClInclude Include="..\Header\FSMBase.h" />
@@ -179,8 +181,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Application.cpp" />
+    <ClCompile Include="..\Source\Blood.cpp" />
     <ClCompile Include="..\Source\BtlPanel.cpp" />
     <ClCompile Include="..\Source\Camera.cpp" />
+    <ClCompile Include="..\Source\DashImpact.cpp" />
     <ClCompile Include="..\Source\Effect.cpp" />
     <ClCompile Include="..\Source\Eff_Glint.cpp" />
     <ClCompile Include="..\Source\FSMBase.cpp" />
