@@ -98,5 +98,10 @@ typedef struct tagTextureDesc
 	uint32	eMappingMode;
 	uint32	eMappingType;
 }TEXTUREDESC, * LPTEXTUREDESC;
+
+typedef struct _tagPxUserData
+{
+	std::weak_ptr<class Collider> pCollider;
+}PXUSERDATA, *LPPXUSERDATA;
 END
 #endif // !__ENGINE_STRUCT_H__

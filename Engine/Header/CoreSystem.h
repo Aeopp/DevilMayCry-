@@ -11,6 +11,7 @@ class TimeSystem;
 class SceneSystem;
 class ResourceSystem;
 class Renderer;
+class PhysicsSystem;
 
 class CoreSystem final : public Object
 {
@@ -22,6 +23,8 @@ private:
 	std::weak_ptr<SceneSystem>			m_pSceneSystem;
 	std::weak_ptr<ResourceSystem>		m_pResourceSystem;
 	std::weak_ptr<Renderer>				m_pRenderer;
+	std::weak_ptr<PhysicsSystem>		m_pPhysicsSystem;
+
 private:
 	explicit CoreSystem();
 	virtual ~CoreSystem() = default;
