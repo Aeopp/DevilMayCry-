@@ -13,6 +13,7 @@
 // #include "ShaderTester.h"
 #include "RenderTarget.h"
 #include "Shader.h"
+#include "Quad.h"
 
 BEGIN(ENGINE)
 class ENGINE_DLL Renderer final : public Object
@@ -69,7 +70,12 @@ private:
 
 	bool TestShaderInit();
 	void TestShaderRelease();
-	void TestShaderRender();
+	void TestShaderRender(const float elapsedtime);
+
+	void RenderShadowMaps();
+
+	Quad _Quad;
+	
 
 	LPDIRECT3DTEXTURE9	marble = nullptr;
 	LPDIRECT3DTEXTURE9	wood = nullptr;
@@ -87,7 +93,14 @@ private:
 	std::shared_ptr<ENGINE::Shader> Deferred;
 	std::shared_ptr<ENGINE::Shader> Tonemap;
 	std::shared_ptr<ENGINE::Shader> Screenquad;
-	
+
+	float DXScreenQuadVertices[24] = {
+		-1, -1, 0, 1,	0, 1,
+		-1, 1, 0,   1,	0, 0,
+		1, -1, 0, 1,	1, 1,
+		1, 1, 0,   1,		1, 0
+	};
+
 	// 여기서 디퍼드 - > 포워드 - > 쉐도우 -> 스카이 순으로 진행 해야함 언제다할거.....
 };
 END

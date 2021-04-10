@@ -292,7 +292,7 @@ call Engine.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
-      <FileType>Document</FileType>
+      <FileType>HLSL</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
@@ -349,12 +349,20 @@ call Engine.bat</Command>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl">
       <FileType>Document</FileType>
-    </ClInclude>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\Blur.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\Resource\Shader\ShadowMap.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

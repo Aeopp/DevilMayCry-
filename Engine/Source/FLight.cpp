@@ -92,9 +92,11 @@ void FLight::CalculateViewProjection(D3DXMATRIX& out)
 	}
 	else if (type == Point) {
 		D3DXMATRIX proj;
-		D3DXVECTOR3 eye = { position.x , position.y , position.z };;
+		D3DXVECTOR3 eye = { 
+			position.x , position.y , position.z };;
 
-		D3DXMatrixPerspectiveFovLH(&proj, D3DX_PI / 2, 1, projparams.z, projparams.w);
+		D3DXMatrixPerspectiveFovLH(&proj, 
+			D3DX_PI / 2, 1, projparams.z, projparams.w);
 		const Vector3 At = eye + DXCubeForward[currentface];
 
 		D3DXMatrixLookAtLH(&out, &eye, &At, &DXCubeUp[currentface]);
@@ -242,7 +244,9 @@ void FLight::RenderShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight
 	}
 	else if (type == Point) {
 		for (currentface = 0; currentface < 6; ++currentface) {
-			cubeshadowmap->GetCubeMapSurface((D3DCUBEMAP_FACES)currentface, 0, &surface);
+
+			cubeshadowmap->GetCubeMapSurface(
+				(D3DCUBEMAP_FACES)currentface, 0, &surface);
 
 			viewport.X = viewport.Y = 0;
 			viewport.Width = viewport.Height = shadowmapsize;

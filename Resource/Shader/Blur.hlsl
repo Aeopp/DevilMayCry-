@@ -76,7 +76,7 @@ void PsBoxBlur5x5(
     color /= 25.0f;
 }
 
-technique Blur3x3
+technique BoxBlur3x3
 {
     pass p0
     {
@@ -87,7 +87,7 @@ technique Blur3x3
     } 
 };
 
-technique Blur5x5
+technique BoxBlur5x5
 {
     pass p0
     {

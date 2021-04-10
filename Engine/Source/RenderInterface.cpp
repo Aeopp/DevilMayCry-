@@ -19,13 +19,13 @@ void RenderInterface::RenderForwardAlphaBlendImplementation(const Implementation
 void RenderInterface::RenderForwardAlphaBlend()
 {
 	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;
-	
+
 	if (auto SpShader = _ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend) ;
 		SpShader)
 	{
 		auto Fx = SpShader->GetEffect();
 		Fx->SetMatrix("World", &_UpdateInfo.World);
-		Fx->SetMatrix("View", &_CurRenderInfo.CameraView);
+		Fx->SetMatrix("View",&_CurRenderInfo.CameraView);
 		Fx->SetMatrix("Projection", &_CurRenderInfo.CameraProjection);
 		/// <summary>
 		UINT Passes{ 0u };
@@ -227,11 +227,7 @@ std::shared_ptr<ENGINE::Shader> RenderInterface::ShaderInfo::GetShader
 		return iter->second;
 	}
 
-
 	Log("Failed to get shader Check whether the loading path and loading path are the same.");
-
-
-
 
 	return nullptr;
 }

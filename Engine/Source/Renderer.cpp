@@ -6,7 +6,8 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include "Resources.h"
-
+#include "TimeSystem.h"
+#include "Vertexs.h"
 
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
@@ -20,6 +21,7 @@ void Renderer::Free()
 	ALBM.Release();
 	NRMR.Release();
 	Depth.Release();
+	_Quad.Release();
 	// _ShaderTester.Clear();
 };
 
@@ -69,7 +71,9 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	SafeAddRef(m_pDevice);
 	ReadyRenderTargets();
 	CameraFrustum.Initialize(m_pDevice);
-	RTDebug = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
+	RTDebug = Resources::Load<ENGINE::Shader>(
+		L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
+	_Quad.Initialize(m_pDevice);
 	// _ShaderTester.Initialize();
 
 
@@ -176,14 +180,19 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 HRESULT Renderer::Render()&
 {
 	RenderReady();
-	GraphicSystem::GetInstance()->Begin();
-	RenderImplementation();
-	// _ShaderTester.Render();
+	// 기본 렌더...
+	//GraphicSystem::GetInstance()->Begin();
+	//RenderImplementation();
+	//// _ShaderTester.Render();
 
-	RenderTargetDebugRender();
-	ImguiRender();
-	GraphicSystem::GetInstance()->End();
-	RenderEnd();
+	//RenderTargetDebugRender();
+	//ImguiRender();
+	//GraphicSystem::GetInstance()->End();
+	//RenderEnd();
+	// 기본 렌더 ...
+
+
+	TestShaderRender(TimeSystem::GetInstance()->DeltaTime());
 
 	return S_OK;
 }
@@ -485,8 +494,10 @@ void Renderer::TestShaderRelease()
 
 }
 
-void Renderer::TestShaderRender()
+void Renderer::TestShaderRender(const float elapsedtime)
 {
+	static float time = 0.0f;
+
 	Vector4 moondir = { -0.25f,0.65f, -1,0 };
 	
 	// 달빛을 카메라 공간으로 변환 . 
@@ -494,6 +505,141 @@ void Renderer::TestShaderRender()
 		&CurrentRenderInfo.ViewInverse);
 	Vector3 moondir3 = Vector3{ moondir.x , moondir.y, moondir.z };
 	D3DXVec3Normalize(&moondir3, &moondir3);
+	moondir3.y = 0.65f;
+	moondir = { moondir3 .x,moondir3 .y,moondir3 .z ,0.0f};
 
-	
+	Pointlight[0]->GetPosition().x = std::cosf(time * 0.5f) * 2.f;
+
+	Pointlight[0]->GetPosition().z = std::sinf(time * 0.5f) *
+		std::cosf(time * 0.5f) * 2.f;
+
+	Pointlight[1]->GetPosition().x = std::cosf(1.5f * time) * 2.f;
+	Pointlight[1]->GetPosition().z = std::sinf(1.f * time) * 2.f;
+
+	Pointlight[2]->GetPosition().x = 
+		std::cosf(0.75f * time) * 1.5f;
+	Pointlight[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;
+
+	if (SUCCEEDED(m_pDevice->BeginScene()))
+	{
+		D3DVIEWPORT9 oldviewport;
+		D3DVIEWPORT9 viewport;
+		LPDIRECT3DSURFACE9 backbuffer = nullptr;
+
+		m_pDevice->GetRenderTarget(0, &backbuffer);
+		m_pDevice->GetViewport(&oldviewport);
+
+		m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+		{
+			
+		}
+	}
+}
+
+void Renderer::RenderShadowMaps()
+{
+	Moonlight->RenderShadowMap(
+		m_pDevice, [&](FLight* light)
+		{
+			Matrix viewproj;
+			//                  Near ~ Far
+			const Vector4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
+			// 광원기준 뷰투영 계산 . 
+			light->CalculateViewProjection(viewproj);
+
+			 auto * const Fx = ShadowMap->GetEffect();  
+
+			if (FAILED(Fx->SetTechnique("Variance")))
+			{
+				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
+			}
+			if (FAILED(Fx->SetVector("ClipPlanes",
+				&clipplanes)))
+			{
+				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
+			}
+
+			Fx->SetBool("IsPerspective", FALSE);
+
+			m_pDevice->Clear(0, NULL,
+				D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+				0, 1.0f, 0);
+
+	  		RenderScene(ShadowMap, viewproj);
+		});
+
+	Moonlight->BlurShadowMap(
+		m_pDevice, [&](FLight* light)
+		{
+			D3DXVECTOR4 pixelSize
+			(1.0f / light->GetShadowMapSize(),
+				1.0f / light->GetShadowMapSize(),
+				0, 0);
+
+			// 4.0f 계수로 블러의 강도를 통제한다. 
+			D3DXVECTOR4 texelsize = 4.0f * pixelSize;
+
+			m_pDevice->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+			// 전체화면 블러이므로 ZEnable 의미가 없음 . 
+			m_pDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+
+			auto* const Fx = Blur->GetEffect();
+
+			Fx->SetTechnique("BoxBlur3x3");
+			Fx->SetVector("PixelSize", &pixelSize);
+			Fx->SetVector("TexelSize", &texelsize);
+			Fx->Begin(NULL, 0);
+			Fx->BeginPass(0);
+
+			{
+				//_Quad.Render(m_pDevice, 
+				//	light->GetShadowMapSize()/
+				//g_nWndCX,
+				//	light->GetShadowMapSize()  
+				///g_nWndCY ,
+				//	Fx);
+
+				m_pDevice->DrawPrimitiveUP(
+					D3DPT_TRIANGLESTRIP,
+					2, 
+					DXScreenQuadVertices, 6 * sizeof(float));
+			}
+			Fx->EndPass();
+			Fx->End();
+
+			m_pDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+		});
+
+	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
+	auto *const Fx = ShadowMap->GetEffect();
+	Fx->SetBool("IsPerspective", TRUE);
+
+	for (int i = 0; i < 3; ++i)
+	{
+		Pointlight[i]->RenderShadowMap(
+			m_pDevice, [&](FLight* Light)
+			{
+				Matrix ViewProj;
+				Vector4
+					ClipPlanes(Light->GetNearPlane(),
+						Light->GetFarPlane(), 0, 0);
+
+				Light->CalculateViewProjection(ViewProj);
+
+				Fx->SetTechnique("Variance");
+
+				Fx->SetVector("LightPosition",
+					&Light->GetPosition());
+				Fx->SetVector("ClipPlanes", &ClipPlanes);
+
+				m_pDevice->Clear(0, NULL,
+					D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+					0, 1.0f, 0);
+
+				RenderScene(Fx, ViewProj);
+			});
+	};
+
+	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 }

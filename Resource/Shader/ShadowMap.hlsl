@@ -1,4 +1,3 @@
-
 float4 World;
 float4 ViewProjection;
 
@@ -32,6 +31,7 @@ void PsVariance(
     
     Color = float4(D, D * D, 0, 1);
 };
+
 
 technique Variance
 {

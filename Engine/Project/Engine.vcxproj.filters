@@ -364,7 +364,6 @@
     <ClInclude Include="..\Header\Physics.h">
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
     <ClInclude Include="..\Header\FLight.h" />
   </ItemGroup>
   <ItemGroup>
@@ -533,5 +532,8 @@
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
+    <None Include="..\..\Resource\Shader\ShadowMap.hlsl" />
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
+    <None Include="..\..\Resource\Shader\Blur.hlsl" />
   </ItemGroup>
 </Project>
