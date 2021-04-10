@@ -38,11 +38,16 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 
 void Renderer::ReadyRenderTargets()
 {
-	static const Vector2 RenderTargetDebugRenderSize{ 90.f,90.f };
+	static const Vector2 RenderTargetDebugRenderSize{ 80.f,80.f };
+
 	 const  float InitX =
 		g_nWndCX / -2.f + (RenderTargetDebugRenderSize.x);
 	 const  float InitY =
 		 g_nWndCY / +2.f - (RenderTargetDebugRenderSize.y);
+
+	 const float YOffset = -RenderTargetDebugRenderSize.y *2.f ;
+	 const float XOffset = RenderTargetDebugRenderSize.x * 2.f;
+	 const float Interval = 5.f;
 
 	{
 		RenderTarget::Info InitInfo;
@@ -68,7 +73,7 @@ void Renderer::ReadyRenderTargets()
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
 		ALBM.Initialize(InitInfo);
 		ALBM.DebugBufferInitialize(
-			{ InitX,InitY*3.f },
+			{ InitX,InitY + (YOffset  *1.f ) + Interval },
 			RenderTargetDebugRenderSize);
 	}
 
@@ -82,7 +87,7 @@ void Renderer::ReadyRenderTargets()
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
 		NRMR.Initialize(InitInfo);
 		NRMR.DebugBufferInitialize(
-			{ InitX,InitY * 5.f }, 
+			{ InitX,InitY + (YOffset * 2.f) + Interval },
 			RenderTargetDebugRenderSize);
 	}
 
@@ -96,7 +101,7 @@ void Renderer::ReadyRenderTargets()
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
 		Depth.Initialize(InitInfo);
 		Depth.DebugBufferInitialize(
-			{ InitX,InitY * 7.f }, 
+			{ InitX,InitY + (YOffset * 3.f) + Interval },
 			RenderTargetDebugRenderSize);
 	}
 	
@@ -216,9 +221,7 @@ HRESULT Renderer::RenderGBuffer()&
 	m_pDevice->SetRenderTarget(1u, NRMR.GetSurface());
 	m_pDevice->SetRenderTarget(2u, Depth.GetSurface());
 
-	m_pDevice->Clear(0u,
-		NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		0, 1.0f, 0);
+	m_pDevice->Clear(0u,NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,0, 1.0f, 0);
 
 	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::GBuffer);
 		_TargetGroup != std::end(RenderEntitys))

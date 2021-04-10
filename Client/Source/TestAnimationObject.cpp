@@ -23,6 +23,23 @@ TestAnimationObject* TestAnimationObject::Create()
 }
 
 
+void TestAnimationObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
+{
+	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+	{
+		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+			SharedSubset->Render(_ImplInfo.Fx);
+		}
+	};
+}
+
 void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
@@ -98,6 +115,7 @@ HRESULT TestAnimationObject::Ready()
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
 	_InitRenderProp.RenderOrders =
 	{
+		RenderProperty::Order::GBuffer,
 		RenderProperty::Order::ForwardAlphaBlend,
 		RenderProperty::Order::Debug ,
 		RenderProperty::Order::DebugBone
@@ -105,11 +123,14 @@ HRESULT TestAnimationObject::Ready()
 	RenderInterface::Initialize(_InitRenderProp);
 	/// 
 
-
 	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
 	_ShaderInfo.RegistShader(
 		RenderProperty::Order::ForwardAlphaBlend,
 		L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl", {});
+	_ShaderInfo.RegistShader(
+		RenderProperty::Order::GBuffer,
+		L"..\\..\\Resource\\Shader\\GBufferSK.hlsl", {});
+
 	_ShaderInfo.RegistShader(
 		RenderProperty::Order::Debug,
 		L"..\\..\\Resource\\Shader\\DebugSK.hlsl", {});
@@ -118,6 +139,7 @@ HRESULT TestAnimationObject::Ready()
 		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
 
 	// ..... 
+	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::GBuffer).get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
@@ -130,7 +152,8 @@ HRESULT TestAnimationObject::Ready()
 	_InitInfo.bRootMotionScale = true;
 	_InitInfo.bRootMotionRotation= true;
 	_InitInfo.bRootMotionTransition = true;
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Em5300\\Em5300.X" , _InitInfo);
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
+		(L"..\\..\\Resource\\Mesh\\Dynamic\\Em5300\\Em5300.X" , _InitInfo);
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)
