@@ -1348,6 +1348,16 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 	}
 };
 
+void SkeletonMesh::LoadAnimationFromDirectory(const std::filesystem::path& Directory)&
+{
+	std::filesystem::directory_iterator itr(Directory);
+	while (itr != std::filesystem::end(itr)) {
+		const std::filesystem::directory_entry& entry = *itr;
+		LoadAnimation(entry.path());
+		itr++;
+	}
+};
+
 void SkeletonMesh::EnableScaleRootMotion(const std::string& ScalingRootName)
 {
 	if (Nodes)

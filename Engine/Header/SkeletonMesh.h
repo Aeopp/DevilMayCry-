@@ -44,6 +44,9 @@ public:
 	Node* GetNode(const std::string & NodeName)&;
 	//      본 스키닝 매트릭스에서 ToRoot 매트릭스를 계산 
 	//      (현재 스키닝 업데이트를 하지 않는다면 반환값은 마지막 스키닝 했을시의 정보)
+	//      해당 반환값이 존재 하지 않는다면 유효한 노드가 없는 것.
+	//      해당 반환값은 해당 노드(뼈)의 애니메이션 된 행렬
+	//      반환값 * World 하면 해당 오브젝트의 해당 뼈의 행렬을 구함.
 	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
 
 	void   PlayAnimation(
@@ -119,7 +122,11 @@ private:
 		const float AnimMotionTime)&;
 
 public:
+	// fbx 파일로부터 애니메이션만 로딩 . 애니메이션 이름은 fbx 파일 이름에서 확장자를 제거 한 것
 	void    LoadAnimation(const std::filesystem::path & FilePath)&;
+	// 위의 함수의 폴더 버전 . 사양은 똑같음 . 
+	void    LoadAnimationFromDirectory(const std::filesystem::path & Directory)&;
+
 	// 노드 정보는 클론들끼리 공유하므로 하나의 클론이 설정한 값으로 모든 클론이 작동.
 	void    EnableScaleRootMotion(const std::string & ScalingRootName = "");
 	void    EnableRotationRootMotion(const std::string & RotationRootName = "");
