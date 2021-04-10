@@ -37,8 +37,8 @@ HRESULT TestScene::LoadScene()
 	//AddGameObject<ShaderTester>();
 
 	// AddGameObject<TestObject>();
-	AddGameObject<TestAnimationObject>();
-	//AddGameObject<Nero>();
+	//AddGameObject<TestAnimationObject>();
+	AddGameObject<Nero>();
 	/*AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();
@@ -49,9 +49,9 @@ HRESULT TestScene::LoadScene()
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();*/
 
-	AddGameObject<Eff_OvertureHand>();
-	AddGameObject<BtlPanel>();
-	AddGameObject<Eff_Glint>();
+	//AddGameObject<Eff_OvertureHand>();
+	//AddGameObject<BtlPanel>();
+	//AddGameObject<Eff_Glint>();
 
 	return S_OK;
 }

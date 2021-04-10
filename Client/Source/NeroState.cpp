@@ -2581,7 +2581,7 @@ HRESULT BT_Att1::StateUpdate(const float _fDeltaTime)
 	}
 	else if (m_pNero.lock()->IsAnimationEnd())
 	{
-		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+		m_pFSM->ChangeState(NeroFSM::IDLE);
 	}
 	return S_OK;
 }
@@ -2631,7 +2631,7 @@ HRESULT BT_Att2::StateUpdate(const float _fDeltaTime)
 	}
 	else if (m_pNero.lock()->IsAnimationEnd())
 	{
-		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+		m_pFSM->ChangeState(NeroFSM::IDLE);
 	}
 
 	return S_OK;
@@ -2680,7 +2680,7 @@ HRESULT BT_Att3::StateUpdate(const float _fDeltaTime)
 	}
 	else if (m_pNero.lock()->IsAnimationEnd())
 	{
-		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
+		m_pFSM->ChangeState(NeroFSM::IDLE);
 	}
 	return S_OK;
 }
@@ -2720,7 +2720,8 @@ HRESULT BT_Att4::StateUpdate(const float _fDeltaTime)
 	{
 
 	}
-	else if (m_pNero.lock()->IsAnimationEnd())
+	//else if (m_pNero.lock()->IsAnimationEnd())
+	else if (0.90 <= fCurrAnimationTime)
 	{
 		m_pFSM->ChangeState(NeroFSM::IDLE_BATTLE);
 	}

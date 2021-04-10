@@ -95,7 +95,9 @@ UINT Nero::Update(const float _fDeltaTime)
 	if (nullptr != m_pFSM)
 		m_pFSM->UpdateFSM(_fDeltaTime);
 
-	m_pMesh->Update(_fDeltaTime);
+	auto [Scale,Rot,Pos] =m_pMesh->Update(_fDeltaTime);
+
+	m_pTransform.lock()->SetPosition(m_pTransform.lock()->GetPosition() + Pos);
 
 	return 0;
 }
