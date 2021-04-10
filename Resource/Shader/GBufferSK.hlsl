@@ -3,6 +3,7 @@ float4x4 View;
 float4x4 Projection;
 float2 UVScale = { 1, 1 };
 
+
 int nMaxBonesRefPerVtx = 4;
 int VTFPitch;
 texture VTF;

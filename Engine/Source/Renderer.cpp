@@ -24,6 +24,42 @@ void Renderer::Free()
 };
 
 
+
+
+HRESULT DXGenTangentFrame(LPDIRECT3DDEVICE9 device, LPD3DXMESH mesh, LPD3DXMESH* newmesh)
+{
+	HRESULT hr;
+	LPD3DXMESH clonedmesh = NULL;
+
+	D3DVERTEXELEMENT9 decl[] = {
+		{ 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+		{ 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
+		{ 0, 24, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
+		{ 0, 32, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT, 0 },
+		{ 0, 44, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL, 0 },
+		D3DDECL_END()
+	};
+
+	// it is safer to clone
+	hr = mesh->CloneMesh(D3DXMESH_MANAGED, decl, device, &clonedmesh);
+
+	if (FAILED(hr))
+		return hr;
+
+	if (*newmesh == mesh) {
+		mesh->Release();
+		*newmesh = NULL;
+	}
+
+	hr = D3DXComputeTangentFrameEx(clonedmesh, D3DDECLUSAGE_TEXCOORD, 0,
+		D3DDECLUSAGE_TANGENT, 0, D3DDECLUSAGE_BINORMAL, 0, D3DDECLUSAGE_NORMAL, 0,
+		0, NULL, 0.01f, 0.25f, 0.01f, newmesh, NULL);
+
+	clonedmesh->Release();
+	return hr;
+}
+
+
 HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice) 
 {
 	m_pDevice = _pDevice;
@@ -32,6 +68,67 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	CameraFrustum.Initialize(m_pDevice);
 	RTDebug = Resources::Load<ENGINE::Shader>(L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
 	// _ShaderTester.Initialize();
+
+
+
+
+
+	// Shader Test ... 
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/box.x", D3DXMESH_MANAGED, m_pDevice, NULL, NULL, NULL, NULL, &box)))
+		return false;
+
+	if (FAILED(DXGenTangentFrame(m_pDevice, box, &box)))
+		return false;
+
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/skullocc3.x", D3DXMESH_MANAGED, m_pDevice, NULL, NULL, NULL, NULL, &skull)))
+		return false;
+
+	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice,"../../Media/Textures/marble.dds", &marble)))
+		return false;
+
+	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/wood2.jpg", &wood)))
+		return false;
+
+	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/wood2_normal.tga", &wood_normal)))
+		return false;
+
+	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/static_sky.jpg", &sky)))
+		return false;
+
+	ShadowMap = Resources::Load<Shader>
+			(L"..\\..\\Resource\\Shader\\ShadowMap.hlsl");
+	Blur = Resources::Load<Shader>
+			(L"..\\..\\Resource\\Shader\\Blur.hlsl");
+
+
+
+	// 달빛
+	Moonlight = new FLight(FLight::Type::Directional,
+		{ 0,0,0,0 }, (const D3DXCOLOR&)FMath::Color::sRGBToLinear(250, 250, 250));
+
+	// 빨간색 포인트 라이트. 
+	Pointlight[0] = new FLight(FLight::Type::Point, { 1.5f,0.5f, 0.0f ,1 },
+		{ 1,0,0,1 });
+
+	Pointlight[1] = new FLight(FLight::Type::Point, { -0.7f , 0.5f , 1.2f , 1.f },
+		{ 0,1,0,1 });
+
+	Pointlight[2] = new FLight(FLight::Type::Point, { 0.0f,0.5f,0.0f,1 },
+		{ 0,0,1,1 });
+
+
+	// 그림자맵 512 로 생성
+	Moonlight->CreateShadowMap(m_pDevice, 512);
+	Moonlight->SetProjectionParameters(7.1f, 7.1f, -5.f, +5.f);
+
+	Pointlight[0]->CreateShadowMap(m_pDevice, 256);
+	Pointlight[1]->CreateShadowMap(m_pDevice, 256);
+	Pointlight[2]->CreateShadowMap(m_pDevice, 256);
+
+	Pointlight[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
+	Pointlight[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
+	Pointlight[2]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
+
 
 	return S_OK;
 }
@@ -52,7 +149,7 @@ void Renderer::ReadyRenderTargets()
 	{
 		RenderTarget::Info InitInfo;
 		InitInfo.Width = g_nWndCX;
-		InitInfo.Height = g_nWndCY;
+		InitInfo.Height = g_nWndCY ;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A16B16G16R16F;
@@ -65,8 +162,8 @@ void Renderer::ReadyRenderTargets()
 
 	{
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX;
-		InitInfo.Height = g_nWndCY;
+		InitInfo.Width = g_nWndCX ;
+		InitInfo.Height = g_nWndCY ;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A8R8G8B8;
@@ -79,7 +176,7 @@ void Renderer::ReadyRenderTargets()
 
 	{
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX;
+		InitInfo.Width = g_nWndCX; 
 		InitInfo.Height = g_nWndCY;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
@@ -93,7 +190,7 @@ void Renderer::ReadyRenderTargets()
 
 	{
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX;
+		InitInfo.Width = g_nWndCX; 
 		InitInfo.Height = g_nWndCY;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
@@ -104,8 +201,7 @@ void Renderer::ReadyRenderTargets()
 			{ InitX,InitY + (YOffset * 3.f) + Interval },
 			RenderTargetDebugRenderSize);
 	}
-	
-	
+
 }
 
 void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
@@ -133,7 +229,6 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 
 HRESULT Renderer::Render()&
 {
-	
 	RenderReady();
 	GraphicSystem::GetInstance()->Begin();
 	RenderImplementation();
@@ -150,18 +245,20 @@ HRESULT Renderer::Render()&
 void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
-
 	
 	Matrix CameraView, CameraProjection;
 	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
 	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
-
+	
 	Matrix Ortho;
 	D3DXMatrixOrthoLH(&Ortho, g_nWndCX,g_nWndCY, 0.0f, 1.f);
 	CurrentRenderInfo.CameraView = CameraView;
 	CurrentRenderInfo.CameraProjection = CameraProjection;
 	CurrentRenderInfo.ViewInverse = FMath::Inverse(CameraView);
+	CurrentRenderInfo.CameraLocation =
+	{ CurrentRenderInfo.ViewInverse._41  , CurrentRenderInfo.ViewInverse._42,CurrentRenderInfo.ViewInverse._43,1.f };
 	CurrentRenderInfo.Ortho = Ortho;
+	
 	Culling();
 }
 // 등록코드수정 

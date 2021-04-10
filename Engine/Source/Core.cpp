@@ -20,7 +20,7 @@ ENGINE_DLL bool					g_bRenderTargetVisible;
 ENGINE_DLL bool					g_bDebugRender;
 ENGINE_DLL ID3DXMesh*		    g_pSphereMesh;
 
-ENGINE_DLL std::vector<std::string> g_Logs{};
+ENGINE_DLL std::vector<std::string> g_Logs;
 
 void ENGINE_DLL Log(const std::string& PushLog)
 {

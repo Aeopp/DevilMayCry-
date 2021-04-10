@@ -187,6 +187,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Collider.h" />
     <ClInclude Include="..\Header\CollisionCallback.h" />
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
+    <ClInclude Include="..\Header\Light.h" />
     <ClInclude Include="..\Header\Node.h" />
     <ClInclude Include="..\Header\Component.h" />
     <ClInclude Include="..\Header\Core.h" />
@@ -246,6 +247,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\AnimNotify.cpp" />
     <ClCompile Include="..\Source\Collider.cpp" />
     <ClCompile Include="..\Source\CollisionCallback.cpp" />
+    <ClCompile Include="..\Source\Light.cpp" />
     <ClCompile Include="..\Source\Node.cpp" />
     <ClCompile Include="..\Source\Component.cpp" />
     <ClCompile Include="..\Source\Core.cpp" />
@@ -350,6 +352,11 @@ call Engine.bat</Command>
     <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
