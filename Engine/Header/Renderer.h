@@ -55,6 +55,8 @@ private:
 	HRESULT RenderDebugBone()&;
 	HRESULT RenderUI()&;
 	HRESULT ImguiRender()&;
+	
+	HRESULT RenderShadowScene();
 private:
 	void RenderTargetDebugRender()&;
 private:

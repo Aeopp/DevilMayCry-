@@ -47,7 +47,12 @@ void RenderInterface::RenderForwardAlphaBlendImplementation(const Implementation
 //		}
 //	};
 //};
-void RenderInterface::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo) {};
+void RenderInterface::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo) {}
+
+void RenderInterface::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
+{
+
+};
 //void RenderInterface::RenderGBuffer()
 //{
 //	const auto& _CurRenderInfo = Renderer::GetInstance()->CurrentRenderInfo;

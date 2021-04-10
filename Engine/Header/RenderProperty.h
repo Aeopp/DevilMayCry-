@@ -16,6 +16,9 @@ public :
 		ForwardAlphaBlend,
 		ForwardAlphaBlendSK,
 
+		Shadow,
+		ShadowSK,
+
 		AlphaBlendEffect,
 		UI,
 		

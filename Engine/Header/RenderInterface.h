@@ -45,6 +45,9 @@ public:
 	// virtual void    RenderGBuffer();
 	virtual void    RenderGBufferImplementation(
 		const ImplementationInfo& _ImplInfo);
+
+	virtual void RenderShadowImplementation(
+				const ImplementationInfo& _ImplInfo);
 	
 	// virtual void	RenderAlphaBlendEffect();
 	virtual void    RenderAlphaBlendEffectImplementation(

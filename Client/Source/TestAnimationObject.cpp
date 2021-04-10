@@ -81,6 +81,15 @@ void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo
 	}
 }
 
+void TestAnimationObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
+{
+	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
+		SpTransform)
+	{
+		
+	}
+}
+
 
 void TestAnimationObject::RenderForwardAlphaBlendImplementation(
 	const ImplementationInfo& _ImplInfo)
@@ -139,6 +148,7 @@ HRESULT TestAnimationObject::Ready()
 	{
 		RenderProperty::Order::GBufferSK,
 		RenderProperty::Order::ForwardAlphaBlendSK,
+		RenderProperty::Order::ShadowSK,
 		RenderProperty::Order::DebugSK,
 		RenderProperty::Order::DebugBone
 	};
@@ -175,7 +185,7 @@ HRESULT TestAnimationObject::Ready()
 	//_InitInfo.bRootMotionRotation = false;
 	//_InitInfo.bRootMotionTransition = false;
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
-		(L"..\\..\\Resource\\TestDummy\\Em100\\Em100.fbx" , _InitInfo);
+		(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante.fbx" , _InitInfo);
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)

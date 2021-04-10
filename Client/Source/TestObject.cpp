@@ -67,6 +67,11 @@ void TestObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 	}
 };
 
+void TestObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
+{
+
+};
+
 void TestObject::RenderReady()
 {
 	auto _WeakTransform = GetComponent<ENGINE::Transform>();
@@ -94,6 +99,7 @@ HRESULT TestObject::Ready()
 	_InitRenderProp.RenderOrders = 
 	{ 
 		RenderProperty::Order::ForwardAlphaBlend,
+		RenderProperty::Order::ShadowSK,
 		RenderProperty::Order::GBuffer,
 		RenderProperty::Order::Debug 
 	};

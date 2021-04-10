@@ -5,6 +5,11 @@ texture RenderScene;
 sampler RenderSceneSample = sampler_state
 {
     texture = RenderScene;
+    minfilter = linear;
+    magfilter = linear;
+    mipfilter = none;
+    addressu = clamp; 
+    addressv = clamp; 
 };
 
  // ZEnable = false;

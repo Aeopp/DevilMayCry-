@@ -219,7 +219,8 @@ HRESULT Renderer::Render()&
 	RenderReady();
 	// 기본 렌더...
 	GraphicSystem::GetInstance()->Begin();
-	RenderImplementation();
+	// RenderImplementation();
+	TestShaderRender(TimeSystem::GetInstance()->DeltaTime());
 	// _ShaderTester.Render();
 	RenderTargetDebugRender();
 	ImguiRender();
@@ -227,7 +228,6 @@ HRESULT Renderer::Render()&
 	RenderEnd();
 	// 기본 렌더 ...
 
-	// TestShaderRender(TimeSystem::GetInstance()->DeltaTime());
 
 	return S_OK;
 }
@@ -565,6 +565,55 @@ HRESULT Renderer::ImguiRender()&
 	return S_OK;
 }
 
+HRESULT Renderer::RenderShadowScene()
+{
+	auto GBufferRenderImplementation = [this](
+		const RenderProperty::Order _Order,
+		ID3DXEffect* const Fx
+		)
+	{
+		if (auto _TargetGroup = RenderEntitys.find(_Order);
+			_TargetGroup != std::end(RenderEntitys))
+		{
+			RenderInterface::ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+
+			Fx->SetMatrix("View", &CurrentRenderInfo.CameraView);
+			Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+
+			uint32 Passes = 0u;
+			Fx->Begin(&Passes, NULL);
+
+			for (uint32 i = 0; i < Passes; ++i)
+			{
+				Fx->BeginPass(i);
+				_ImplInfo.PassIndex = i;
+
+				for (auto& _RenderEntity : _TargetGroup->second)
+				{
+					if (_RenderEntity)
+					{
+						if (_RenderEntity->GetRenderProp().bRender)
+						{
+							_RenderEntity->RenderGBufferImplementation(_ImplInfo);
+						}
+					}
+				}
+
+				Fx->EndPass();
+			}
+
+			Fx->End();
+		};
+	};
+
+
+	GBufferRenderImplementation(RenderProperty::Order::GBuffer, GBuffer->GetEffect());
+	GBufferRenderImplementation(RenderProperty::Order::GBufferSK, GBufferSK->GetEffect());
+
+	return S_OK;
+}
+
 void Renderer::RenderTargetDebugRender()&
 {
 	if (RTDebug && g_bRenderTargetVisible)
@@ -665,34 +714,34 @@ void Renderer::TestShaderRender(const float elapsedtime)
 		std::cosf(0.75f * time) * 1.5f;
 	Pointlight[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;
 
-	if (SUCCEEDED(m_pDevice->BeginScene()))
-	{
-		D3DVIEWPORT9 oldviewport;
-		D3DVIEWPORT9 viewport;
-		LPDIRECT3DSURFACE9 backbuffer = nullptr;
 
-		m_pDevice->GetRenderTarget(0, &backbuffer);
-		m_pDevice->GetViewport(&oldviewport);
+	D3DVIEWPORT9 oldviewport;
+	D3DVIEWPORT9 viewport;
+	LPDIRECT3DSURFACE9 backbuffer = nullptr;
 
-		m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-		{
-			
-		}
-	}
-}
+	m_pDevice->GetRenderTarget(0, &backbuffer);
+	m_pDevice->GetViewport(&oldviewport);
+
+	m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+	RenderShadowMaps();
+	RenderGBuffer();
+};
+
 
 void Renderer::RenderShadowMaps()
 {
 	Moonlight->RenderShadowMap(
-		m_pDevice, [&](FLight* light)
+		m_pDevice, [&](FLight* Light)
 		{
-			Matrix viewproj;
+			Matrix ViewProjection;
 			//                  Near ~ Far
-			const Vector4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
+			const Vector4 clipplanes(
+				Light->GetNearPlane(), Light->GetFarPlane(), 0, 0);
 			// 광원기준 뷰투영 계산 . 
-			light->CalculateViewProjection(viewproj);
+			Light->CalculateViewProjection(ViewProjection);
 
-			 auto * const Fx = ShadowMap->GetEffect();  
+			auto * const Fx = ShadowMap->GetEffect();  
 
 			if (FAILED(Fx->SetTechnique("Variance")))
 			{
@@ -709,20 +758,19 @@ void Renderer::RenderShadowMaps()
 			m_pDevice->Clear(0, NULL,
 				D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
 				0, 1.0f, 0);
-
-	  		// RenderScene(ShadowMap, viewproj);
+	  		RenderScene(ShadowMap, viewproj);
 		});
 
 	Moonlight->BlurShadowMap(
-		m_pDevice, [&](FLight* light)
+		m_pDevice, [&](FLight* Light)
 		{
-			D3DXVECTOR4 pixelSize
-			(1.0f / light->GetShadowMapSize(),
-				1.0f / light->GetShadowMapSize(),
-				0, 0);
+			const D3DXVECTOR4 PixelSize
+				(1.0f / Light->GetShadowMapSize(),
+		         1.0f / Light->GetShadowMapSize(),
+			     0, 0);
 
 			// 4.0f 계수로 블러의 강도를 통제한다. 
-			D3DXVECTOR4 texelsize = 4.0f * pixelSize;
+			const D3DXVECTOR4 TexelSize = 4.0f * PixelSize;
 
 			m_pDevice->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 			// 전체화면 블러이므로 ZEnable 의미가 없음 . 
@@ -731,23 +779,21 @@ void Renderer::RenderShadowMaps()
 			auto* const Fx = Blur->GetEffect();
 
 			Fx->SetTechnique("BoxBlur3x3");
-			Fx->SetVector("PixelSize", &pixelSize);
-			Fx->SetVector("TexelSize", &texelsize);
+			Fx->SetVector("PixelSize", &PixelSize);
+			Fx->SetVector("TexelSize", &TexelSize);
 			Fx->Begin(NULL, 0);
 			Fx->BeginPass(0);
 
 			{
-				//_Quad.Render(m_pDevice, 
-				//	light->GetShadowMapSize()/
-				//g_nWndCX,
-				//	light->GetShadowMapSize()  
-				///g_nWndCY ,
-				//	Fx);
+				_Quad.Render(m_pDevice, 
+					1.f,
+					1.f,
+					Fx);
 
-				m_pDevice->DrawPrimitiveUP(
+				/*m_pDevice->DrawPrimitiveUP(
 					D3DPT_TRIANGLESTRIP,
 					2, 
-					DXScreenQuadVertices, 6 * sizeof(float));
+					DXScreenQuadVertices, 6 * sizeof(float));*/
 			}
 			Fx->EndPass();
 			Fx->End();
