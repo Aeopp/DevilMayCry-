@@ -3,11 +3,13 @@
 #include "Renderer.h"
 #include "GraphicSystem.h"
 #include "FMath.hpp"
-#include <d3d9.h>
-#include <d3dx9.h>
+#include "Color.h"
 #include "Resources.h"
 #include "TimeSystem.h"
 #include "Vertexs.h"
+#include <filesystem>
+#include <d3d9.h>
+#include <d3dx9.h>
 
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
@@ -16,17 +18,8 @@ Renderer::Renderer(){}
 
 void Renderer::Free()
 {
-	CameraFrustum.Release();
-	SceneTarget.Release();
-	ALBM.Release();
-	NRMR.Release();
-	Depth.Release();
-	_Quad.Release();
-	// _ShaderTester.Clear();
+	TestShaderRelease();
 };
-
-
-
 
 HRESULT DXGenTangentFrame(LPDIRECT3DDEVICE9 device, LPD3DXMESH mesh, LPD3DXMESH* newmesh)
 {
@@ -65,59 +58,72 @@ HRESULT DXGenTangentFrame(LPDIRECT3DDEVICE9 device, LPD3DXMESH mesh, LPD3DXMESH*
 }
 
 
-HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice) 
+HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 {
 	m_pDevice = _pDevice;
 	SafeAddRef(m_pDevice);
 	ReadyRenderTargets();
-	CameraFrustum.Initialize(m_pDevice);
-	
-	_Quad.Initialize(m_pDevice);
-	ReadyShader();
-	// _ShaderTester.Initialize();
-
-
-	// 테스트 쉐이더 ... 
+	CameraFrustum = std::make_shared<Frustum>();
+	CameraFrustum->Initialize(m_pDevice);
+	_Quad = std::make_shared<Quad>();
+	_Quad->Initialize(m_pDevice);
+	ReadyShader("..\\..\\Resource\\Shader");
+	ReadyLights();
 	TestShaderInit();
 
 	return S_OK;
-}
+};
 
-void Renderer::ReadyShader()
+void Renderer::ReadyShader(const std::filesystem::path& TargetPath)
 {
-	ForwardAlphaBlend = Resources::Load<Shader>(
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl"
-		);
-
-	ForwardAlphaBlendSK = Resources::Load<Shader>(
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl"
-		);
-
-	GBuffer = Resources::Load<Shader>(
-		L"..\\..\\Resource\\Shader\\GBuffer.hlsl"
-		);
-
-	GBufferSK = Resources::Load<Shader>(
-		L"..\\..\\Resource\\Shader\\GBufferSK.hlsl"
-		);
-
-	Debug = Resources::Load<Shader>(
-		L"..\\..\\Resource\\Shader\\Debug.hlsl"
-		);
-
-	DebugSK = Resources::Load<Shader>(
-		L"..\\..\\Resource\\Shader\\DebugSK.hlsl"
-		);
-
-	DebugBone = Resources::Load<Shader>(
-		L"..\\..\\Resource\\Shader\\DebugBone.hlsl"
-		);
-
-	RTDebug = Resources::Load<ENGINE::Shader>(
-		L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
-
+	std::filesystem::directory_iterator itr(TargetPath);
+	while (itr != std::filesystem::end(itr)) {
+		const std::filesystem::directory_entry& entry = *itr;
+		const std::string& ShaderKey = TargetPath.stem().string();
+		Shaders[ShaderKey] = Resources::Load<Shader>(entry.path());
+		itr++;
+	}
 	// AlphaBlendEffect = ? ? ;
 	// UI = ??  ;
+}
+
+void Renderer::ReadyLights()
+{
+	// 달빛
+	Moonlight = std::make_shared<FLight>(FLight(FLight::Type::Directional,
+		{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
+	PointLights.resize(3u);
+
+	PointLights[0] = std::make_shared<FLight>(
+		FLight(
+			FLight::Type::Point, { 1.5f,0.5f, 0.0f ,1 },
+			{ 1,0,0,1 }));
+
+	PointLights[1] = std::make_shared<FLight>(
+		FLight(
+			FLight::Type::Point, { -0.7f , 0.5f , 1.2f , 1.f },
+			{ 0,1,0,1 }));
+
+	PointLights[2] = std::make_shared<FLight>(
+		FLight(
+			FLight::Type::Point,
+			{ 0.0f,0.5f,0.0f,1 },
+			{ 0,0,1,1 }));
+
+	// 그림자맵 512 로 생성
+	Moonlight->CreateShadowMap(m_pDevice, 512);
+	Moonlight->SetProjectionParameters(7.1f, 7.1f, -5.f, +5.f);
+
+	PointLights[0]->CreateShadowMap(m_pDevice, 256);
+	PointLights[1]->CreateShadowMap(m_pDevice, 256);
+	PointLights[2]->CreateShadowMap(m_pDevice, 256);
+
+	PointLights[0]->SetProjectionParameters
+	(0, 0, 0.1f, 10.0f);
+	PointLights[1]->SetProjectionParameters
+	(0, 0, 0.1f, 10.0f);
+	PointLights[2]->SetProjectionParameters
+	(0, 0, 0.1f, 10.0f);
 }
 
 void Renderer::ReadyRenderTargets()
@@ -134,6 +140,8 @@ void Renderer::ReadyRenderTargets()
 	 const float Interval = 5.f;
 
 	{
+		auto& SceneTarget = RenderTargets["SceneTarget"] = std::make_shared<RenderTarget>();
+
 		RenderTarget::Info InitInfo;
 		InitInfo.Width = g_nWndCX;
 		InitInfo.Height = g_nWndCY ;
@@ -141,13 +149,15 @@ void Renderer::ReadyRenderTargets()
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A16B16G16R16F;
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
-		SceneTarget.Initialize(InitInfo);
-		SceneTarget.DebugBufferInitialize(
+		SceneTarget->Initialize(InitInfo);
+		SceneTarget->DebugBufferInitialize(
 			{ InitX,InitY },
 			RenderTargetDebugRenderSize);
 	}
 
 	{
+		auto& ALBM = RenderTargets["ALBM"] = std::make_shared<RenderTarget>();
+
 		RenderTarget::Info InitInfo;
 		InitInfo.Width = g_nWndCX ;
 		InitInfo.Height = g_nWndCY ;
@@ -155,13 +165,16 @@ void Renderer::ReadyRenderTargets()
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A8R8G8B8;
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
-		ALBM.Initialize(InitInfo);
-		ALBM.DebugBufferInitialize(
+		ALBM->Initialize(InitInfo);
+		ALBM->DebugBufferInitialize(
 			{ InitX,InitY + (YOffset  *1.f ) + Interval },
 			RenderTargetDebugRenderSize);
 	}
 
 	{
+		auto& NRMR = RenderTargets["NRMR"] = std::make_shared<RenderTarget>();
+
+
 		RenderTarget::Info InitInfo;
 		InitInfo.Width = g_nWndCX; 
 		InitInfo.Height = g_nWndCY;
@@ -169,13 +182,15 @@ void Renderer::ReadyRenderTargets()
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A8R8G8B8;
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
-		NRMR.Initialize(InitInfo);
-		NRMR.DebugBufferInitialize(
+		NRMR->Initialize(InitInfo);
+		NRMR->DebugBufferInitialize(
 			{ InitX,InitY + (YOffset * 2.f) + Interval },
 			RenderTargetDebugRenderSize);
 	}
 
 	{
+		auto& Depth = RenderTargets["Depth"] = std::make_shared<RenderTarget>();
+
 		RenderTarget::Info InitInfo;
 		InitInfo.Width = g_nWndCX; 
 		InitInfo.Height = g_nWndCY;
@@ -183,8 +198,8 @@ void Renderer::ReadyRenderTargets()
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_R32F;
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
-		Depth.Initialize(InitInfo);
-		Depth.DebugBufferInitialize(
+		Depth->Initialize(InitInfo);
+		Depth->DebugBufferInitialize(
 			{ InitX,InitY + (YOffset * 3.f) + Interval },
 			RenderTargetDebugRenderSize);
 	}
@@ -217,19 +232,34 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 HRESULT Renderer::Render()&
 {
 	RenderReady();
-	// 기본 렌더...
 	GraphicSystem::GetInstance()->Begin();
-	// RenderImplementation();
-	TestShaderRender(TimeSystem::GetInstance()->DeltaTime());
-	// _ShaderTester.Render();
+	RenderImplementation();
 	RenderTargetDebugRender();
 	ImguiRender();
 	GraphicSystem::GetInstance()->End();
 	RenderEnd();
-	// 기본 렌더 ...
-
 
 	return S_OK;
+}
+
+void Renderer::Editor()&
+{
+	if (ImGui::Begin("Render Editor"))
+	{
+		if (ImGui::TreeNode("Lights"))
+		{
+			uint32 Idx = 0u;
+			for (auto& _Light : PointLights)
+			{
+				_Light->Edit(Idx);
+				++Idx;
+			}
+			ImGui::TreePop();
+		}
+	
+	ImGui::End();
+	}
+	
 }
 
 void Renderer::RenderReady()&
@@ -242,9 +272,14 @@ void Renderer::RenderReady()&
 	
 	Matrix Ortho;
 	D3DXMatrixOrthoLH(&Ortho, g_nWndCX,g_nWndCY, 0.0f, 1.f);
-	CurrentRenderInfo.CameraView = CameraView;
-	CurrentRenderInfo.CameraProjection = CameraProjection;
-	CurrentRenderInfo.ViewInverse = FMath::Inverse(CameraView);
+	CurrentRenderInfo.View = CameraView;
+	CurrentRenderInfo.ViewInverse = FMath::Inverse(CurrentRenderInfo.View);
+	CurrentRenderInfo.Projection= CameraProjection;
+	CurrentRenderInfo.ProjectionInverse =
+		FMath::Inverse(CurrentRenderInfo.Projection);
+	CurrentRenderInfo.ViewProjection = 
+		CameraView * CameraProjection;
+	CurrentRenderInfo.ViewProjectionInverse = FMath::Inverse(CurrentRenderInfo.ViewProjection);
 	CurrentRenderInfo.CameraLocation =
 	{ CurrentRenderInfo.ViewInverse._41  , CurrentRenderInfo.ViewInverse._42,CurrentRenderInfo.ViewInverse._43,1.f };
 	CurrentRenderInfo.Ortho = Ortho;
@@ -270,7 +305,7 @@ void Renderer::Culling()&
 
 void Renderer::FrustumCulling()&
 {
-	CameraFrustum.Make(CurrentRenderInfo.ViewInverse, CurrentRenderInfo.CameraProjection);
+	CameraFrustum->Make(CurrentRenderInfo.ViewInverse, CurrentRenderInfo.Projection);
 	// 절두체에서 검사해서 Entity 그룹에서 지우기 ....
 }
 
@@ -287,9 +322,35 @@ void Renderer::RenderEntityClear()&
 HRESULT Renderer::RenderImplementation()&
 {
 	m_pDevice->GetRenderTarget(0u, &BackBuffer);
-	m_pDevice->GetViewport(&OldViewport);
+	m_pDevice->GetViewport(&BackBufViewport);
 	{
+		static float time = 0.0f;
+
+		Vector4 moondir = { -0.25f,0.65f, -1,0 };
+
+		// 달빛을 카메라 공간으로 변환 . 
+		D3DXVec4Transform(&moondir, &moondir,
+			&CurrentRenderInfo.ViewInverse);
+		Vector3 moondir3 = Vector3{ moondir.x , moondir.y, moondir.z };
+		D3DXVec3Normalize(&moondir3, &moondir3);
+		moondir3.y = 0.65f;
+		moondir = { moondir3.x,moondir3.y,moondir3.z ,0.0f };
+
+		PointLights[0]->GetPosition().x = std::cosf(time * 0.5f) * 2.f;
+
+		PointLights[0]->GetPosition().z = std::sinf(time * 0.5f) *
+			std::cosf(time * 0.5f) * 2.f;
+
+		PointLights[1]->GetPosition().x = std::cosf(1.5f * time) * 2.f;
+		PointLights[1]->GetPosition().z = std::sinf(1.f * time) * 2.f;
+
+		PointLights[2]->GetPosition().x =
+			std::cosf(0.75f * time) * 1.5f;
+		PointLights[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;
+
+		RenderShadows();
 		RenderGBuffer();
+		RenderDeferredShading();
 		RenderForwardAlphaBlend();
 		RenderAlphaBlendEffect();
 		RenderUI();
@@ -304,9 +365,9 @@ HRESULT Renderer::RenderImplementation()&
 
 HRESULT Renderer::RenderGBuffer()&
 {
-	m_pDevice->SetRenderTarget(0u, ALBM.GetSurface());
-	m_pDevice->SetRenderTarget(1u, NRMR.GetSurface());
-	m_pDevice->SetRenderTarget(2u, Depth.GetSurface());
+	m_pDevice->SetRenderTarget(0u, RenderTargets["ALBM"]->GetSurface());
+	m_pDevice->SetRenderTarget(1u, RenderTargets["NRMR"]->GetSurface());
+	m_pDevice->SetRenderTarget(2u, RenderTargets["Depth"]->GetSurface());
 
 	m_pDevice->Clear(0u, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
@@ -321,8 +382,8 @@ HRESULT Renderer::RenderGBuffer()&
 				RenderInterface::ImplementationInfo _ImplInfo{};
 				_ImplInfo.Fx = Fx;
 
-				Fx->SetMatrix("View", &CurrentRenderInfo.CameraView);
-				Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+				Fx->SetMatrix("View", &CurrentRenderInfo.View);
+				Fx->SetMatrix("Projection", &CurrentRenderInfo.Projection);
 
 				uint32 Passes = 0u;
 				Fx->Begin(&Passes, NULL);
@@ -350,12 +411,69 @@ HRESULT Renderer::RenderGBuffer()&
 			};
 	};
 
-	GBufferRenderImplementation(RenderProperty::Order::GBuffer,GBuffer->GetEffect () );
-	GBufferRenderImplementation(RenderProperty::Order::GBufferSK, GBufferSK->GetEffect());
+	
+	GBufferRenderImplementation(RenderProperty::Order::GBuffer, Shaders["GBuffer"]->GetEffect());
+	GBufferRenderImplementation(RenderProperty::Order::GBufferSK, Shaders["GBufferSK"]->GetEffect() );
 
 	m_pDevice->SetRenderTarget(0u, nullptr);
 	m_pDevice->SetRenderTarget(1u, nullptr);
 	m_pDevice->SetRenderTarget(2u, nullptr);
+
+	return S_OK;
+}
+
+HRESULT Renderer::RenderDeferredShading()&
+{
+	m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	m_pDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+
+	const float PixelSizeX = 1.0f / static_cast<float> (BackBufViewport.Width);
+	const float PixelSizeY = -1.0f / static_cast<float> (BackBufViewport.Height);
+
+	m_pDevice->SetRenderTarget(0u, RenderTargets["SceneTarget"]->GetSurface());
+	m_pDevice->Clear(0,NULL,D3DCLEAR_TARGET, 0, 1.0f, 0);
+
+	auto* const Fx = Shaders["DeferredShading"]->GetEffect();
+	Fx->SetTechnique("DeferredShading");
+
+	Fx->SetTexture("ALBM", 
+		RenderTargets["ALBM"]->GetTexture());
+	Fx->SetTexture("NRMR", RenderTargets["NRMR"]->GetTexture());
+	Fx->SetTexture("Depth", RenderTargets["Depth"]->GetTexture());
+
+	Fx->SetMatrix("ViewProjectionInverse", 
+		&CurrentRenderInfo.ViewProjectionInverse);
+	const Vector4 PixelSize = { PixelSizeX  ,PixelSizeY , 0.0f ,0.0f  };
+	Fx->SetVector("PixelSize", &PixelSize);
+	Fx->SetVector("EyePosition", &CurrentRenderInfo.CameraLocation);
+	Fx->SetMatrix("ViewProjectionInverse", &CurrentRenderInfo.ViewProjectionInverse);
+
+	Fx->Begin(NULL, 0);
+	Fx->BeginPass(0);
+	{
+		Matrix LightViewProjection;
+		Vector4 Clipplanes(0, 0, 0, 0);
+
+		Moonlight->CalculateViewProjection(LightViewProjection);
+
+		Fx->SetMatrix("LightViewProjection", &LightViewProjection);
+		Fx->SetVector("LightColor", (D3DXVECTOR4*)&Moonlight->GetColor());
+		Fx->SetVector("LightPosition", &Moonlight->GetPosition());
+		Fx->SetFloat("SpecularPower", 200.0f);
+		Fx->SetTexture("Shadow", Moonlight->GetShadowMap());
+		Fx->CommitChanges();
+
+		_Quad->Render(m_pDevice, 1.f, 1.f, Fx);
+	}
+
+	// 포인트 라이트 
+	m_pDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+
+	for (int i = 0; i < 3; ++i)
+	{
+		Clipplanes.x = PointLights[i]->GetNearPlane();
+
+	}
 
 	return S_OK;
 }
@@ -369,8 +487,8 @@ HRESULT Renderer::RenderForwardAlphaBlend()&
 		if (auto _TargetGroup = RenderEntitys.find(_Order);
 			_TargetGroup != std::end(RenderEntitys))
 		{
-			Fx->SetMatrix("View", &CurrentRenderInfo.CameraView);
-			Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+			Fx->SetMatrix("View", &CurrentRenderInfo.View);
+			Fx->SetMatrix("Projection", &CurrentRenderInfo.Projection);
 
 			RenderInterface::ImplementationInfo _ImplInfo{};
 			_ImplInfo.Fx = Fx;
@@ -398,8 +516,8 @@ HRESULT Renderer::RenderForwardAlphaBlend()&
 		}
 	};
 	
-	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlend, ForwardAlphaBlend->GetEffect());
-	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlendSK, ForwardAlphaBlendSK->GetEffect () );
+	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlend, Shaders["ForwardAlphaBlend"]->GetEffect());
+	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlendSK, Shaders["ForwardAlphaBlendSK"]->GetEffect());
 
 	return S_OK;
 }
@@ -440,8 +558,8 @@ HRESULT Renderer::RenderDebug()&
 				_TargetGroup != std::end(RenderEntitys))
 			{
 				Fx->SetMatrix("View",
-					&CurrentRenderInfo.CameraView);
-				Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+					&CurrentRenderInfo.View);
+				Fx->SetMatrix("Projection", &CurrentRenderInfo.Projection);
 
 				RenderInterface::ImplementationInfo _ImplInfo{};
 				_ImplInfo.Fx = Fx;
@@ -473,9 +591,9 @@ HRESULT Renderer::RenderDebug()&
 			}
 		};
 
-
-		DebugRenderImplementation(RenderProperty::Order::Debug, Debug->GetEffect () );
-		DebugRenderImplementation(RenderProperty::Order::DebugBone,DebugSK->GetEffect () );
+	
+		DebugRenderImplementation(RenderProperty::Order::Debug, Shaders["Debug"]->GetEffect());
+		DebugRenderImplementation(RenderProperty::Order::DebugBone, Shaders["DebugSK"]->GetEffect());
 	}
 
 	return S_OK;
@@ -489,12 +607,11 @@ HRESULT Renderer::RenderDebugBone()&
 			_TargetGroup != std::end(RenderEntitys))
 		{
 			m_pDevice->SetRenderTarget(0u, BackBuffer);
-
-			auto* const Fx = DebugBone->GetEffect();
+			auto* const Fx = Shaders["DebugBone"]->GetEffect();
 
 			Fx->SetMatrix("View",
-				&CurrentRenderInfo.CameraView);
-			Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+				&CurrentRenderInfo.View);
+			Fx->SetMatrix("Projection", &CurrentRenderInfo.Projection);
 			const Matrix ScaleOffset = FMath::Scale({ 0.01 ,0.01,0.01 });
 			Fx->SetMatrix("ScaleOffset", &ScaleOffset);
 
@@ -515,8 +632,7 @@ HRESULT Renderer::RenderDebugBone()&
 					{
 						if (_RenderEntity->GetRenderProp().bRender)
 						{
-							_RenderEntity->
-								RenderDebugBoneImplementation(_ImplInfo);
+							_RenderEntity->RenderDebugBoneImplementation(_ImplInfo);
 						}
 					}
 				}
@@ -565,12 +681,11 @@ HRESULT Renderer::ImguiRender()&
 	return S_OK;
 }
 
-HRESULT Renderer::RenderShadowScene()
+HRESULT Renderer::RenderShadowScene(FLight*const Light)
 {
-	auto GBufferRenderImplementation = [this](
+	auto ShadowSceneRenderImplementation = [this,&Light](
 		const RenderProperty::Order _Order,
-		ID3DXEffect* const Fx
-		)
+		ID3DXEffect* const Fx)
 	{
 		if (auto _TargetGroup = RenderEntitys.find(_Order);
 			_TargetGroup != std::end(RenderEntitys))
@@ -578,8 +693,34 @@ HRESULT Renderer::RenderShadowScene()
 			RenderInterface::ImplementationInfo _ImplInfo{};
 			_ImplInfo.Fx = Fx;
 
-			Fx->SetMatrix("View", &CurrentRenderInfo.CameraView);
-			Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+			Matrix ViewProjection;
+			Light->CalculateViewProjection(ViewProjection);
+			
+			const Vector4 ClipPlanes(
+				Light->GetNearPlane(),
+				Light->GetFarPlane(),
+				0, 0);
+
+			if (FAILED(Fx->SetTechnique("Variance")))
+			{
+				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
+			}
+			if (FAILED(Fx->SetVector("LightPosition", &Light->GetPosition())))
+			{
+				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
+			}
+			if (FAILED(Fx->SetMatrix("ViewProjection", &ViewProjection)))
+			{
+				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
+			}
+			if (FAILED(Fx->SetVector("ClipPlanes", &ClipPlanes)))
+			{
+				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
+			}
+			if (FAILED(Fx->SetBool("IsPerspective", Light->IsPerspective())))
+			{
+				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
+			}
 
 			uint32 Passes = 0u;
 			Fx->Begin(&Passes, NULL);
@@ -595,7 +736,7 @@ HRESULT Renderer::RenderShadowScene()
 					{
 						if (_RenderEntity->GetRenderProp().bRender)
 						{
-							_RenderEntity->RenderGBufferImplementation(_ImplInfo);
+							_RenderEntity->RenderShadowImplementation(_ImplInfo);
 						}
 					}
 				}
@@ -607,22 +748,27 @@ HRESULT Renderer::RenderShadowScene()
 		};
 	};
 
-
-	GBufferRenderImplementation(RenderProperty::Order::GBuffer, GBuffer->GetEffect());
-	GBufferRenderImplementation(RenderProperty::Order::GBufferSK, GBufferSK->GetEffect());
+	m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+	ShadowSceneRenderImplementation(RenderProperty::Order::Shadow, Shaders["Shadow"]->GetEffect());
+	ShadowSceneRenderImplementation(RenderProperty::Order::ShadowSK, Shaders["ShadowSK"]->GetEffect());
 
 	return S_OK;
 }
 
 void Renderer::RenderTargetDebugRender()&
 {
-	if (RTDebug && g_bRenderTargetVisible)
+	if ( g_bRenderTargetVisible)
 	{
-		auto* const RTFx = RTDebug->GetEffect();
-		SceneTarget.DebugRender(RTFx);
-		ALBM.DebugRender(RTFx);
-		NRMR.DebugRender(RTFx);
-		Depth.DebugRender(RTFx);
+		auto RTDebugIter = Shaders.find("RTDebug");
+		if (RTDebugIter != std::end(Shaders))
+		{
+			auto RTDebug = RTDebugIter->second;
+			auto* const RTFx = RTDebug->GetEffect();
+			for (auto& [RTName, RT] : RenderTargets)
+			{
+				RT->DebugRender(RTFx);
+			};
+		}
 	}
 }
 
@@ -650,119 +796,37 @@ bool Renderer::TestShaderInit()
 	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/static_sky.jpg", &sky)))
 		return false;
 
-	ShadowMap = Resources::Load<Shader>
-		(L"..\\..\\Resource\\Shader\\ShadowMap.hlsl");
-	Blur = Resources::Load<Shader>
-		(L"..\\..\\Resource\\Shader\\Blur.hlsl");
-
-	// 달빛
-	Moonlight = new FLight(FLight::Type::Directional,
-		{ 0,0,0,0 }, (const D3DXCOLOR&)FMath::Color::sRGBToLinear(250, 250, 250));
-
-	// 빨간색 포인트 라이트. 
-	Pointlight[0] = new FLight(FLight::Type::Point, { 1.5f,0.5f, 0.0f ,1 },
-		{ 1,0,0,1 });
-
-	Pointlight[1] = new FLight(FLight::Type::Point, { -0.7f , 0.5f , 1.2f , 1.f },
-		{ 0,1,0,1 });
-
-	Pointlight[2] = new FLight(FLight::Type::Point, { 0.0f,0.5f,0.0f,1 },
-		{ 0,0,1,1 });
-
-	// 그림자맵 512 로 생성
-	Moonlight->CreateShadowMap(m_pDevice, 512);
-	Moonlight->SetProjectionParameters(7.1f, 7.1f, -5.f, +5.f);
-
-	Pointlight[0]->CreateShadowMap(m_pDevice, 256);
-	Pointlight[1]->CreateShadowMap(m_pDevice, 256);
-	Pointlight[2]->CreateShadowMap(m_pDevice, 256);
-
-	Pointlight[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
-	Pointlight[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
-	Pointlight[2]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
-
 }
 
 void Renderer::TestShaderRelease()
 {
-
-}
-
-void Renderer::TestShaderRender(const float elapsedtime)
-{
-	static float time = 0.0f;
-
-	Vector4 moondir = { -0.25f,0.65f, -1,0 };
-	
-	// 달빛을 카메라 공간으로 변환 . 
-	D3DXVec4Transform(&moondir, &moondir,
-		&CurrentRenderInfo.ViewInverse);
-	Vector3 moondir3 = Vector3{ moondir.x , moondir.y, moondir.z };
-	D3DXVec3Normalize(&moondir3, &moondir3);
-	moondir3.y = 0.65f;
-	moondir = { moondir3 .x,moondir3 .y,moondir3 .z ,0.0f};
-
-	Pointlight[0]->GetPosition().x = std::cosf(time * 0.5f) * 2.f;
-
-	Pointlight[0]->GetPosition().z = std::sinf(time * 0.5f) *
-		std::cosf(time * 0.5f) * 2.f;
-
-	Pointlight[1]->GetPosition().x = std::cosf(1.5f * time) * 2.f;
-	Pointlight[1]->GetPosition().z = std::sinf(1.f * time) * 2.f;
-
-	Pointlight[2]->GetPosition().x = 
-		std::cosf(0.75f * time) * 1.5f;
-	Pointlight[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;
-
-
-	D3DVIEWPORT9 oldviewport;
-	D3DVIEWPORT9 viewport;
-	LPDIRECT3DSURFACE9 backbuffer = nullptr;
-
-	m_pDevice->GetRenderTarget(0, &backbuffer);
-	m_pDevice->GetViewport(&oldviewport);
-
-	m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-
-	RenderShadowMaps();
-	RenderGBuffer();
+	if (wood_normal)
+		wood_normal->Release();
+	if (sky)
+		sky->Release();
+	if (wood)
+		wood->Release();
+	if (marble)
+		marble->Release();
+	if (skull)
+		skull->Release();
+	if (box)
+		box->Release();
 };
 
 
-void Renderer::RenderShadowMaps()
+HRESULT Renderer::RenderShadows()
 {
+	m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
 	Moonlight->RenderShadowMap(
-		m_pDevice, [&](FLight* Light)
+		m_pDevice,[this](FLight* Light)
 		{
-			Matrix ViewProjection;
-			//                  Near ~ Far
-			const Vector4 clipplanes(
-				Light->GetNearPlane(), Light->GetFarPlane(), 0, 0);
-			// 광원기준 뷰투영 계산 . 
-			Light->CalculateViewProjection(ViewProjection);
-
-			auto * const Fx = ShadowMap->GetEffect();  
-
-			if (FAILED(Fx->SetTechnique("Variance")))
-			{
-				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
-			}
-			if (FAILED(Fx->SetVector("ClipPlanes",
-				&clipplanes)))
-			{
-				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
-			}
-
-			Fx->SetBool("IsPerspective", FALSE);
-
-			m_pDevice->Clear(0, NULL,
-				D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-				0, 1.0f, 0);
-	  		RenderScene(ShadowMap, viewproj);
+			RenderShadowScene(Light);
 		});
 
 	Moonlight->BlurShadowMap(
-		m_pDevice, [&](FLight* Light)
+		m_pDevice, [this](FLight* Light)
 		{
 			const D3DXVECTOR4 PixelSize
 				(1.0f / Light->GetShadowMapSize(),
@@ -776,7 +840,7 @@ void Renderer::RenderShadowMaps()
 			// 전체화면 블러이므로 ZEnable 의미가 없음 . 
 			m_pDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 
-			auto* const Fx = Blur->GetEffect();
+			auto* const Fx = Shaders["Blur"]->GetEffect();
 
 			Fx->SetTechnique("BoxBlur3x3");
 			Fx->SetVector("PixelSize", &PixelSize);
@@ -785,11 +849,10 @@ void Renderer::RenderShadowMaps()
 			Fx->BeginPass(0);
 
 			{
-				_Quad.Render(m_pDevice, 
+				_Quad->Render(m_pDevice, 
 					1.f,
 					1.f,
 					Fx);
-
 				/*m_pDevice->DrawPrimitiveUP(
 					D3DPT_TRIANGLESTRIP,
 					2, 
@@ -801,36 +864,19 @@ void Renderer::RenderShadowMaps()
 			m_pDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 		});
 
+
+
 	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-
-	auto *const Fx = ShadowMap->GetEffect();
-	Fx->SetBool("IsPerspective", TRUE);
-
 	for (int i = 0; i < 3; ++i)
 	{
-		Pointlight[i]->RenderShadowMap(
-			m_pDevice, [&](FLight* Light)
+		PointLights[i]->RenderShadowMap(
+			m_pDevice, [this](FLight* Light)
 			{
-				Matrix ViewProj;
-				Vector4
-					ClipPlanes(Light->GetNearPlane(),
-						Light->GetFarPlane(), 0, 0);
-
-				Light->CalculateViewProjection(ViewProj);
-
-				Fx->SetTechnique("Variance");
-
-				Fx->SetVector("LightPosition",
-					&Light->GetPosition());
-				Fx->SetVector("ClipPlanes", &ClipPlanes);
-
-				m_pDevice->Clear(0, NULL,
-					D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-					0, 1.0f, 0);
-
-				// RenderScene(Fx, ViewProj);
+				RenderShadowScene(Light);
 			});
 	};
 
 	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+
+	return S_OK;
 }

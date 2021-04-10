@@ -12,6 +12,7 @@ BEGIN(ENGINE)
 	public:
 		void Initialize(IDirect3DDevice9* const Device)&;
 		void Release()&;
+		~Frustum()noexcept { Release(); };
 	public:
 		void Make(const Matrix& CameraWorld, const Matrix& Projection)&;
 		bool IsIn(const Vector3& Point)&;

@@ -18,6 +18,7 @@ ENGINE_DLL bool                 g_bEditMode;
 ENGINE_DLL bool                 g_bCollisionVisible;
 ENGINE_DLL bool					g_bRenderTargetVisible;
 ENGINE_DLL bool					g_bDebugRender;
+ENGINE_DLL bool                 g_bRenderEdit;
 ENGINE_DLL ID3DXMesh*		    g_pSphereMesh;
 
 ENGINE_DLL std::vector<std::string> g_Logs;
@@ -26,7 +27,7 @@ void ENGINE_DLL Log(const std::string& PushLog)
 {
 	if (g_bEditMode)
 	{
-		g_Logs.push_back(PushLog);
+		// g_Logs.push_back(PushLog);
 	}
 }
 

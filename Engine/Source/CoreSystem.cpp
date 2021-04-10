@@ -97,6 +97,7 @@ static void GlobalVariableSetup()
 	g_bCollisionVisible = false;
 	g_bRenderTargetVisible = false;
 	g_bDebugRender = false;
+	g_bRenderEdit = false;
 
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
 	D3DXCreateSphere(g_pDevice, 0.00001f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
@@ -137,6 +138,9 @@ void CoreSystem::Free()
 
 	m_pTimeSystem.reset();
 	TimeSystem::DeleteInstance();
+
+	m_pRenderer.reset();
+	Renderer::DeleteInstance();
 
 	ImGui_ImplDX9_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -234,6 +238,7 @@ static void GlobalVariableEditor()
 			ImGui::Checkbox("CollisionVisible", &g_bCollisionVisible);
 			ImGui::Checkbox("Render", &g_bDebugRender);
 			ImGui::Checkbox("RenderTargetVisible", &g_bRenderTargetVisible);
+			ImGui::Checkbox("RenderEdit",&g_bRenderEdit);
 		}
 	}
 	ImGui::End();
@@ -265,24 +270,8 @@ HRESULT CoreSystem::UpdateEngine()
 		PRINT_LOG(TEXT("Error"), TEXT("Failed to UpdateSceneSystem."));
 		return E_FAIL;
 	}
-	if (g_bEditMode)
-	{
-		ImGui::Begin("Object Editor");
-		{
-			m_pSceneSystem.lock()->EditUpdateSceneSystem();
-		}
-		ImGui::End();
 
-		ImGui::Begin("Log");
-		{
-			for (const auto& CurLog : g_Logs)
-			{
-				ImGui::Text(CurLog.c_str());
-			}
-		}
-		ImGui::End();
-	}
-	g_Logs.clear();
+	Editor();
 
 	m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
 
@@ -294,5 +283,38 @@ HRESULT CoreSystem::UpdateEngine()
 
 	
 	return S_OK;
+}
+
+void CoreSystem::Editor()
+{
+	if (g_bEditMode)
+	{
+		ImGui::Begin("Object Editor");
+		{
+			m_pSceneSystem.lock()->EditUpdateSceneSystem();
+		}
+		ImGui::End();
+
+		if (g_bRenderEdit)
+		{
+			m_pRenderer.lock()->Editor();
+		}
+		
+
+		ImGui::Begin("Log");
+		{
+			for (const auto& CurLog : g_Logs)
+			{
+				ImGui::Text(CurLog.c_str());
+			}
+		}
+		ImGui::End();
+	}
+
+	if (!g_Logs.empty())
+	{
+		g_Logs.clear();
+		g_Logs.shrink_to_fit();
+	}
 }
 

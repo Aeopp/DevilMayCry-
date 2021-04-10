@@ -19,54 +19,57 @@ public:
 		Spot,
 	};
 private:
-	D3DXVECTOR4				position;	// or direction
-	D3DXVECTOR4				projparams;
-	D3DXVECTOR3				spotdirection;
-	D3DXVECTOR2				spotparams;	// cos(inner), cos(outer)
+	D3DXVECTOR4				Position;	// or direction
+	D3DXVECTOR4				Projparams;
+	D3DXVECTOR3				Spotdirection;
+	D3DXVECTOR2				Spotparams;	// cos(inner), cos(outer)
 
-	D3DXCOLOR				color;
-	LPDIRECT3DCUBETEXTURE9	cubeshadowmap;
-	LPDIRECT3DCUBETEXTURE9	blurredcubeshadowmap;
-	LPDIRECT3DTEXTURE9		shadowmap;
-	LPDIRECT3DTEXTURE9		blurredshadowmap;
-	Type				    type;
-	int						currentface;
-	uint16_t				shadowmapsize;
-	bool					blurred;
+	D3DXCOLOR				Color;
+	LPDIRECT3DCUBETEXTURE9	Cubeshadowmap;
+	LPDIRECT3DCUBETEXTURE9	Blurredcubeshadowmap;
+	LPDIRECT3DTEXTURE9		Shadowmap;
+	LPDIRECT3DTEXTURE9		Blurredshadowmap;
+	Type				    _Type;
+	int						Currentface;
+	uint16_t				ShadowMapSize;
+	bool					Blurred;
 
 public:
-	FLight(Type type, const D3DXVECTOR4& position, const D3DXCOLOR& color);
+	FLight(Type _Type, 
+		const D3DXVECTOR4& position, const D3DXCOLOR& color);
 	~FLight();
 
-	void CalculateViewProjection(D3DXMATRIX& out);
-	void CalculateScissorRect(RECT& out, const D3DXMATRIX& view, const D3DXMATRIX& proj, float radius, int32_t width, int32_t height);
+	void Edit(const uint32 Idx);
 
-	void CreateShadowMap(LPDIRECT3DDEVICE9 device, uint16_t size);
-	void RenderShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight*)> callback);
+	void CalculateViewProjection(D3DXMATRIX& Out);
+	void CalculateScissorRect(RECT& Out, const D3DXMATRIX& View, const D3DXMATRIX& Projection, float Radius, int32_t Width, int32_t Height);
+
+	void CreateShadowMap(LPDIRECT3DDEVICE9 _Device, const uint16_t Size);
+	void RenderShadowMap(LPDIRECT3DDEVICE9 _Device, std::function<void(FLight*)> CallBack);
 
 	// 다른 라이팅ㅇ으로부터 쉐오둥 블러 . 
-	void BlurShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight*)> callback);
+	void BlurShadowMap(LPDIRECT3DDEVICE9 _Device, std::function<void(FLight*)> CallBack);
 
 	// 사이즈 투영 near far 
-	void SetProjectionParameters(float xsize, float ysize, float znear, float zfar);
+	void SetProjectionParameters(const float XSize, const float YSize, const float ZNear, const float ZFar);
 	// 방향 inner outer cos 단위.
-	void SetSpotParameters(const D3DXVECTOR3& dir, float inner, float outer);
+	void SetSpotParameters(const D3DXVECTOR3& Direction , const float Inner, const float Outer);
 
-	inline void SetPosition(const D3DXVECTOR4& newpos) { position = newpos; }
+	inline void SetPosition(const D3DXVECTOR4& Newpos) { Position = Newpos; }
 
-	inline float GetNearPlane() const { return projparams.z; }
-	inline float GetFarPlane() const { return projparams.w; }
-	inline uint16_t GetShadowMapSize() const { return shadowmapsize; }
-	inline const D3DXVECTOR2& GetSpotParameters() const { return spotparams; }
+	inline float GetNearPlane() const { return Projparams.z; }
+	inline float GetFarPlane() const { return Projparams.w; }
+	inline uint16_t GetShadowMapSize() const { return ShadowMapSize; }
+	inline const D3DXVECTOR2& GetSpotParameters() const { return Spotparams; }
 
-	inline D3DXVECTOR4& GetPosition() { return position; }
-	inline D3DXVECTOR3& GetSpotDirection() { return spotdirection; }
-	inline D3DXCOLOR& GetColor() { return color; }
+	inline D3DXVECTOR4& GetPosition()     { return Position; }
+	inline D3DXVECTOR3& GetSpotDirection() { return Spotdirection; }
+	inline D3DXCOLOR& GetColor() { return Color; }
 
-	inline LPDIRECT3DTEXTURE9 GetShadowMap() { return (blurred ? blurredshadowmap : shadowmap); }
-	inline LPDIRECT3DCUBETEXTURE9 GetCubeShadowMap() { return (blurred ? blurredcubeshadowmap : cubeshadowmap); }
+	inline bool IsPerspective()const& {return _Type!=Directional;};
+	inline LPDIRECT3DTEXTURE9 GetShadowMap() { return (Blurred ? Blurredshadowmap : Shadowmap); }
+	inline LPDIRECT3DCUBETEXTURE9 GetCubeShadowMap() { return (Blurred ? Blurredcubeshadowmap : Cubeshadowmap); }
 };
-
 END
 
 #endif // !_FLIGHT_H_

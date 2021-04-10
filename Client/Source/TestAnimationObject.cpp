@@ -83,11 +83,24 @@ void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo
 
 void TestAnimationObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
 {
-	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
-		SpTransform)
+	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+
+	if (NumSubset > 0)
 	{
-		
+		const auto& RenderInfo = GetRenderUpdateInfo();
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	}
+
+	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+	{
+		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			SharedSubset->Render(_ImplInfo.Fx);
+		}
+	};
 }
 
 
@@ -186,6 +199,13 @@ HRESULT TestAnimationObject::Ready()
 	//_InitInfo.bRootMotionTransition = false;
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
 		(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante.fbx" , _InitInfo);
+	_SkeletonMesh->LoadAnimationFromDirectory
+		(L"..\\..\\Resource\\Mesh\\Dynamic\\_AnimationFBX_C4D");
+
+	//  애니메이션을 원하는 만큼 로딩하고 애니메이션 데이터를 제이슨 테이블에 있는 데이터로 덮어 씌운다. 파일이 존재하지 않는다면 덮어씌우지 않는다.
+	//  애니메이션 데이터 로딩이 끝난뒤에 호출해줘야 한다. 
+	_SkeletonMesh->AnimationDataLoadFromJsonTable(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante.Animation");
+
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)

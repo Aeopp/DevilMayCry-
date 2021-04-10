@@ -1,4 +1,5 @@
 #include "FLight.h"
+#include "imgui.h"
 
 USING(ENGINE)
 
@@ -23,36 +24,37 @@ D3DXVECTOR3 DXCubeUp[6] = {
 
 
 
-FLight::FLight(const FLight::Type type, const D3DXVECTOR4& position, const D3DXCOLOR& color)
+FLight::FLight(const FLight::Type type, const D3DXVECTOR4& position, 
+	const D3DXCOLOR& color)
 {
-	this->type = type;
-	this->position = position;
-	this->color = color;
+	this->_Type = type;
+	this->Position = position;
+	this->Color = color;
 
-	projparams = D3DXVECTOR4(0, 0, 0, 0);
-	spotdirection = D3DXVECTOR3(0, 0, 0);
-	spotparams = D3DXVECTOR2(0, 0);
+	Projparams = D3DXVECTOR4(0, 0, 0, 0);
+	Spotdirection = D3DXVECTOR3(0, 0, 0);
+	Spotparams = D3DXVECTOR2(0, 0);
 
-	cubeshadowmap = nullptr;
-	blurredcubeshadowmap = nullptr;
-	shadowmap = nullptr;
-	blurredshadowmap = nullptr;
-	currentface = 0;
-	shadowmapsize = 0;
-	blurred = false;
+	Cubeshadowmap = nullptr;
+	Blurredcubeshadowmap = nullptr;
+	Shadowmap = nullptr;
+	Blurredshadowmap = nullptr;
+	Currentface = 0;
+	ShadowMapSize = 0;
+	Blurred = false;
 
 	switch (type) {
 	case Point:
-		this->position.w = 1;
+		this->Position.w = 1;
 		break;
 
 	case Directional:
-		this->position.w = 0;
+		this->Position.w = 0;
 		break;
 
 	case Spot:
 		// haha :)
-		this->position.w = 0.75f;
+		this->Position.w = 0.75f;
 		break;
 
 	default:
@@ -62,54 +64,72 @@ FLight::FLight(const FLight::Type type, const D3DXVECTOR4& position, const D3DXC
 
 FLight::~FLight()
 {
-	if (cubeshadowmap != nullptr)
-		cubeshadowmap->Release();
+	if (Cubeshadowmap != nullptr)
+		Cubeshadowmap->Release();
 
-	if (blurredcubeshadowmap != nullptr)
-		blurredcubeshadowmap->Release();
+	if (Blurredcubeshadowmap != nullptr)
+		Blurredcubeshadowmap->Release();
 
-	if (shadowmap != nullptr)
-		shadowmap->Release();
+	if (Shadowmap != nullptr)
+		Shadowmap->Release();
 
-	if (blurredshadowmap != nullptr)
-		blurredshadowmap->Release();
+	if (Blurredshadowmap != nullptr)
+		Blurredshadowmap->Release();
+};
+
+void FLight::Edit(const uint32 Idx)
+{
+	if (_Type == Directional)
+	{
+		ImGui::Text("ShadowMap %d", Idx);
+		ImGui::Image(reinterpret_cast<void**>(Shadowmap), { 256,256});
+		ImGui::Text("BlurShadowMap %d", Idx);
+		ImGui::Image(reinterpret_cast<void**>(Blurredshadowmap), { 256,256 });
+	}
+	else if (_Type == Point)
+	{
+		ImGui::Text("CubeShadowMap %d", Idx);
+		ImGui::Image(reinterpret_cast<void**>(Cubeshadowmap), { 256,256});
+		ImGui::Text("CubeBlurShadowMap %d", Idx);
+		ImGui::Image(reinterpret_cast<void**>(Blurredcubeshadowmap), { 256,256});
+	}
 }
 
 void FLight::CalculateViewProjection(D3DXMATRIX& out)
 {
-	if (type == Directional) {
+	if (_Type == Directional) {
 		D3DXMATRIX proj;
-		D3DXVECTOR3 eye = { position.x , position.y , position.z };
+		D3DXVECTOR3 eye = { Position.x , Position.y , Position.z };
 		D3DXVECTOR3 look(0, 0, 0);
 		D3DXVECTOR3 up(0, 1, 0);
 
-		if (fabs(position.y) > 0.999f)
+		if (fabs(Position.y) > 0.999f)
 			up = D3DXVECTOR3(1, 0, 0);
 
 		D3DXMatrixLookAtLH(&out, &eye, &look, &up);
-		D3DXMatrixOrthoLH(&proj, projparams.x, projparams.y, projparams.z, projparams.w);
+		D3DXMatrixOrthoLH(&proj, Projparams.x, Projparams.y, Projparams.z, Projparams.w);
 		D3DXMatrixMultiply(&out, &out, &proj);
 	}
-	else if (type == Point) {
+	else if (_Type == Point) {
 		D3DXMATRIX proj;
 		D3DXVECTOR3 eye = { 
-			position.x , position.y , position.z };;
+			Position.x , Position.y , Position.z };;
 
 		D3DXMatrixPerspectiveFovLH(&proj, 
-			D3DX_PI / 2, 1, projparams.z, projparams.w);
-		const Vector3 At = eye + DXCubeForward[currentface];
+			D3DX_PI / 2.f, 1.f, Projparams.z, Projparams.w);
+		const Vector3 At = eye + DXCubeForward[Currentface];
 
-		D3DXMatrixLookAtLH(&out, &eye, &At, &DXCubeUp[currentface]);
+		D3DXMatrixLookAtLH(&out, &eye, &At, &DXCubeUp[Currentface]);
 		D3DXMatrixMultiply(&out, &out, &proj);
 	}
-	else if (type == Spot) {
+	else if (_Type == Spot) {
 		// TODO:
 	}
 }
 
 void FLight::CalculateScissorRect(RECT& out, const D3DXMATRIX& view, const D3DXMATRIX& proj, float radius, int32_t width, int32_t height)
 {
-	if (type != Point)
+	if (_Type != Point)
 		return;
 
 	D3DXVECTOR4 Q;
@@ -121,7 +141,7 @@ void FLight::CalculateScissorRect(RECT& out, const D3DXMATRIX& view, const D3DXM
 	out.top = 0;
 	out.bottom = height;
 
-	D3DXVec3TransformCoord(&L, (D3DXVECTOR3*)&position, &view);
+	D3DXVec3TransformCoord(&L, (D3DXVECTOR3*)&Position, &view);
 
 	float D = 4 * (radius * radius * L.x * L.x - (L.x * L.x + L.z * L.z) * (radius * radius - L.z * L.z));
 
@@ -204,70 +224,71 @@ void FLight::CalculateScissorRect(RECT& out, const D3DXMATRIX& view, const D3DXM
 
 void FLight::CreateShadowMap(LPDIRECT3DDEVICE9 device, uint16_t size)
 {
-	shadowmapsize = size;
+	ShadowMapSize = size;
 
-	if (type == Directional) {
-		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &shadowmap, NULL);
-		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &blurredshadowmap, NULL);
+	if (_Type == Directional) {
+		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Shadowmap, NULL);
+		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Blurredshadowmap, NULL);
 	}
-	else if (type == Point) {
-		device->CreateCubeTexture(size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &cubeshadowmap, NULL);
-		device->CreateCubeTexture(size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &blurredcubeshadowmap, NULL);
+	else if (_Type == Point) {
+		device->CreateCubeTexture(size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Cubeshadowmap, NULL);
+		device->CreateCubeTexture(size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Blurredcubeshadowmap, NULL);
 	}
 }
 
-void FLight::RenderShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight*)> callback)
+void FLight::RenderShadowMap(
+	LPDIRECT3DDEVICE9 _Device, 
+	std::function<void(FLight*)> CallBack)
 {
-	D3DVIEWPORT9 oldviewport;
-	D3DVIEWPORT9 viewport;
+	D3DVIEWPORT9 OldViewPort;
+	D3DVIEWPORT9 Viewport;
 
-	LPDIRECT3DSURFACE9 oldsurface = NULL;
-	LPDIRECT3DSURFACE9 surface = NULL;
+	LPDIRECT3DSURFACE9 OldSurface = NULL;
+	LPDIRECT3DSURFACE9 Surface = NULL;
 
-	device->GetRenderTarget(0, &oldsurface);
-	device->GetViewport(&oldviewport);
+	_Device->GetRenderTarget(0, &OldSurface);
+	_Device->GetViewport(&OldViewPort);
 
-	if (type == Directional) {
-		shadowmap->GetSurfaceLevel(0, &surface);
+	if (_Type == Directional) {
+		Shadowmap->GetSurfaceLevel(0, &Surface);
 
-		viewport.X = viewport.Y = 0;
-		viewport.Width = viewport.Height = shadowmapsize;
-		viewport.MinZ = 0;
-		viewport.MaxZ = 1;
+		Viewport.X = Viewport.Y = 0;
+		Viewport.Width = Viewport.Height = ShadowMapSize;
+		Viewport.MinZ = 0;
+		Viewport.MaxZ = 1;
 
-		device->SetRenderTarget(0, surface);
-		device->SetViewport(&viewport);
+		_Device->SetRenderTarget(0, Surface);
+		_Device->SetViewport(&Viewport);
 		{
-			callback(this);
+			CallBack(this);
 		}
-		surface->Release();
+		Surface->Release();
 	}
-	else if (type == Point) {
-		for (currentface = 0; currentface < 6; ++currentface) {
+	else if (_Type == Point) {
+		for (Currentface= 0; Currentface < 6; ++Currentface) {
 
-			cubeshadowmap->GetCubeMapSurface(
-				(D3DCUBEMAP_FACES)currentface, 0, &surface);
+			Cubeshadowmap->GetCubeMapSurface(
+				(D3DCUBEMAP_FACES)Currentface, 0, &Surface);
 
-			viewport.X = viewport.Y = 0;
-			viewport.Width = viewport.Height = shadowmapsize;
-			viewport.MinZ = 0;
-			viewport.MaxZ = 1;
+			Viewport.X = Viewport.Y = 0;
+			Viewport.Width = Viewport.Height = ShadowMapSize;
+			Viewport.MinZ = 0;
+			Viewport.MaxZ = 1;
 
-			device->SetRenderTarget(0, surface);
-			device->SetViewport(&viewport);
+			_Device->SetRenderTarget(0, Surface);
+			_Device->SetViewport(&Viewport);
 			{
-				callback(this);
+				CallBack(this);
 			}
-			surface->Release();
+			Surface->Release();
 		}
 	}
 
-	blurred = false;
+	Blurred = false;
 
-	device->SetRenderTarget(0, oldsurface);
-	device->SetViewport(&oldviewport);
-
-	oldsurface->Release();
+	_Device->SetRenderTarget(0, OldSurface);
+	_Device->SetViewport(&OldViewPort);
+	OldSurface->Release();
 }
 
 void FLight::BlurShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight*)> callback)
@@ -281,12 +302,12 @@ void FLight::BlurShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight*)
 	device->GetRenderTarget(0, &oldsurface);
 	device->GetViewport(&oldviewport);
 
-	if (type == Directional) {
-		blurredshadowmap->GetSurfaceLevel(0, &surface);
+	if (_Type == Directional) {
+		Blurredshadowmap->GetSurfaceLevel(0, &surface);
 		// µð·º¼Å³ã ¶óÀÌÆ®.
 
 		viewport.X = viewport.Y = 0;
-		viewport.Width = viewport.Height = shadowmapsize;
+		viewport.Width = viewport.Height = ShadowMapSize;
 		viewport.MinZ = 0;
 		viewport.MaxZ = 1;
 
@@ -298,17 +319,39 @@ void FLight::BlurShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight*)
 
 		device->SetRenderTarget(0, surface);
 		device->SetViewport(&viewport);
-		device->SetTexture(0, shadowmap);
+		device->SetTexture(0, Shadowmap);
 		{
 			callback(this);
 		}
 		surface->Release();
 	}
-	else {
-		// TODO:
+	else if(_Type == Point){
+		for (Currentface = 0; Currentface < 6; ++Currentface) {
+			/*Blurredcubeshadowmap->GetCubeMapSurface
+				((D3DCUBEMAP_FACES)Currentface, 0, &surface);
+			
+			viewport.X = viewport.Y = 0;
+			viewport.Width = viewport.Height = ShadowMapSize;
+			viewport.MinZ = 0;
+			viewport.MaxZ = 1;
+
+			device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+			device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+			device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+
+			device->SetRenderTarget(0, surface);
+			device->SetViewport(&viewport);
+			device->SetTexture(0, Cubeshadowmap);
+			
+			callback(this);
+
+			surface->Release();*/
+		}
 	}
 
-	blurred = true;
+	Blurred = true;
 
 	device->SetRenderTarget(0, oldsurface);
 	device->SetViewport(&oldviewport);
@@ -318,18 +361,18 @@ void FLight::BlurShadowMap(LPDIRECT3DDEVICE9 device, std::function<void(FLight*)
 
 void FLight::SetProjectionParameters(float xsize, float ysize, float znear, float zfar)
 {
-	projparams.x = xsize;
-	projparams.y = ysize;
-	projparams.z = znear;
-	projparams.w = zfar;
+	Projparams.x = xsize;
+	Projparams.y = ysize;
+	Projparams.z = znear;
+	Projparams.w = zfar;
 }
 
 
 
 void FLight::SetSpotParameters(const D3DXVECTOR3& dir, float inner, float outer)
 {
-	spotdirection = dir;
-	spotparams.x = cosf(inner);
-	spotparams.y = cosf(outer);
+	Spotdirection = dir;
+	Spotparams.x = cosf(inner);
+	Spotparams.y = cosf(outer);
 }
 

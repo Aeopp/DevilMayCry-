@@ -183,6 +183,7 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 	std::optional<float> bTimeBeyondAnimation;
 	const float TimeBeyondAnimation = 
 		(CurrentAnimMotionTime - CurPlayAnimInfo.Duration);
+
 	if (TimeBeyondAnimation > 0.0f)
 	{
 		bTimeBeyondAnimation = TimeBeyondAnimation;
@@ -217,8 +218,8 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 	if (bRootMotionTransition)
 	{
-		RootMotionLastCalcDeltaPos = CalcRootMotionDeltaPos(
-			bTimeBeyondAnimation,
+		RootMotionLastCalcDeltaPos = 
+			CalcRootMotionDeltaPos(bTimeBeyondAnimation,
 			AnimName, CurPlayAnimInfo.Duration, CurrentAnimPrevFrameMotionTime, CurrentAnimMotionTime);
 
 		if (IsAnimationBlend)
@@ -288,9 +289,6 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 
 #pragma endregion ROOT_MOTION
-
-
-
 	// 루트모션 종료.....
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
@@ -374,9 +372,9 @@ void SkeletonMesh::AnimationSave(
 	AnimPath.replace_extension("Animation");
 	std::ofstream Of{ AnimPath };
 	Of << StrBuf.GetString();
-}
+};
 
-void SkeletonMesh::AnimationLoad(
+void SkeletonMesh::AnimationDataLoadFromJsonTable(
 	const std::filesystem::path& FullPath)&
 {
 	using namespace rapidjson;
@@ -409,9 +407,6 @@ void SkeletonMesh::AnimationLoad(
 			for (auto iter = AnimTableArray.Begin();
 				iter != AnimTableArray.end(); ++iter)
 			{
-
-				AnimInfoTable->find(AnimName);
-
 				if (iter->HasMember("Name"))
 				{
 					if (false == AnimInfoTable->contains(AnimName))
@@ -508,6 +503,19 @@ void SkeletonMesh::Editor()
 	{
 		AnimationEditor();
 		NodeEditor();
+
+		/*if (Nodes)
+		{
+			for (auto& [NodeName, _Node] : *Nodes)
+			{
+				ImGui::Text(NodeName.c_str());
+				if (_Node)
+				{
+					ImGui::Text("Pos : %3.3f , %3.3f , %3.3f", _Node->Transform._41, _Node->Transform._42, _Node->Transform._43);
+				}
+				ImGui::Separator();
+			}
+		}*/
 	}
 
 	Mesh::Editor();
@@ -553,7 +561,8 @@ void SkeletonMesh::DisablePrevVTF()&
 
 std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaTime)&
 {
-	if (bAnimationEnd || bAnimStop)return { {0,0,0},{0,0,0,1},{0,0,0} };
+	if (bAnimationEnd || bAnimStop)return 
+			{ {0,0,0},{0,0,0,1},{0,0,0} };
 
 	const float CalcDeltaTime = DeltaTime * DeltaTimeFactor;
 
@@ -979,8 +988,8 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 
 	if (bHasAnimation)
 	{
-		AnimationLoad(_Path);
-
+		
+		AnimationDataLoadFromJsonTable(_Path);
 		//// 여기서  값 다 따로 하기 !! 
 		//if (_InitInfo.bRootMotionScale)
 		//{
@@ -1010,6 +1019,7 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 		//}
 	};
 
+	
 	return S_OK;
 }
 
@@ -1271,7 +1281,7 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 		aiProcess_SplitLargeMeshes |
 		aiProcess_JoinIdenticalVertices
 	);
-
+	if (AiScene == nullptr)return;
 
 	bHasAnimation = AiScene->HasAnimations();
 

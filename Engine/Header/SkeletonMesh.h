@@ -15,6 +15,7 @@
 #include "AnimNotify.h"
 
 class aiNode;
+
 BEGIN(ENGINE)
 class ENGINE_DLL SkeletonMesh final : public StaticMesh
 {
@@ -37,7 +38,8 @@ public:
 	bool    IsAnimationEnd();
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
-	std::tuple<Vector3, Quaternion, Vector3>    Update(const float DeltaTime)&;
+	std::tuple<Vector3, Quaternion, Vector3>   
+		Update(const float DeltaTime)&;
 	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
 	Node* GetRootNode()&;
@@ -47,7 +49,8 @@ public:
 	//      해당 반환값이 존재 하지 않는다면 유효한 노드가 없는 것.
 	//      해당 반환값은 해당 노드(뼈)의 애니메이션 된 행렬
 	//      반환값 * World 하면 해당 오브젝트의 해당 뼈의 행렬을 구함.
-	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
+	std::optional<Matrix> GetNodeToRoot
+					(const std::string & NodeName)&;
 
 	void   PlayAnimation(
 		const std::string & InitAnimName,
@@ -76,8 +79,7 @@ private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
 	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
-	void    AnimationSave(const std::filesystem::path & FullPath)&;
-	void    AnimationLoad(const std::filesystem::path & FullPath)&;
+	void AnimationSave(const std::filesystem::path & FullPath)&;
 private:
 	virtual HRESULT LoadMeshImplementation(
 		const aiScene * AiScene,
@@ -122,6 +124,8 @@ private:
 		const float AnimMotionTime)&;
 
 public:
+	void    AnimationDataLoadFromJsonTable(const std::filesystem::path& FullPath)&;
+
 	// fbx 파일로부터 애니메이션만 로딩 . 애니메이션 이름은 fbx 파일 이름에서 확장자를 제거 한 것
 	void    LoadAnimation(const std::filesystem::path & FilePath)&;
 	// 위의 함수의 폴더 버전 . 사양은 똑같음 . 
@@ -173,6 +177,7 @@ public:
 	std::vector<Matrix> BoneSkinningMatries{};
 	std::vector<Matrix> PrevBoneSkinningMatries{};
 	bool bHasAnimation = false;
+
 	std::string RootNodeName{};
 	std::shared_ptr<std::map<uint32, std::string>>				AnimIndexNameMap{};
 	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};

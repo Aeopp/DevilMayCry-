@@ -69,7 +69,46 @@ void TestObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 
 void TestObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
 {
+	const uint64 NumSubset = _StaticMesh->GetNumSubset();
 
+	if (NumSubset > 0)
+	{
+		const auto& RenderInfo = GetRenderUpdateInfo();
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+	}
+
+	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+	{
+		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			SharedSubset->Render(_ImplInfo.Fx);
+		}
+	};
+};
+
+void TestObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
+{
+	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+
+	if (NumSubset > 0)
+	{
+		const auto& RenderInfo = GetRenderUpdateInfo();
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+	}
+
+	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+	{
+		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+			SharedSubset->Render(_ImplInfo.Fx);
+		}
+	};
 };
 
 void TestObject::RenderReady()
@@ -99,9 +138,9 @@ HRESULT TestObject::Ready()
 	_InitRenderProp.RenderOrders = 
 	{ 
 		RenderProperty::Order::ForwardAlphaBlend,
-		RenderProperty::Order::ShadowSK,
+		RenderProperty::Order::Shadow,
 		RenderProperty::Order::GBuffer,
-		RenderProperty::Order::Debug 
+		RenderProperty::Order::Debug,
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 	// 
@@ -120,7 +159,7 @@ HRESULT TestObject::Ready()
 
 	// 스태틱 메쉬 로딩
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"..\\..\\Resource\\Mesh\\Static\\Plane.fbx");
+		L"..\\..\\Resource\\Mesh\\Static\\Grid.fbx");
 	PushEditEntity(_StaticMesh.get());
 
 	// 트랜스폼 초기화 .. 

@@ -34,7 +34,8 @@ public:
 	HRESULT ReadyEngine(
 		const bool bWindowed,const bool bMultiSample);
 	HRESULT UpdateEngine();
-public :
+private:
+	void Editor();
 
 };
 END

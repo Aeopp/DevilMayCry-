@@ -15,6 +15,8 @@ struct ENGINE_DLL Quad
 				LPD3DXEFFECT const Fx)&;
 	void Release()&;
 
+	~Quad()noexcept { Release();  };
+
 	LPDIRECT3DVERTEXBUFFER9 VtxBuf{ nullptr };
 	LPDIRECT3DINDEXBUFFER9 IdxBuf{ nullptr };
 	LPDIRECT3DVERTEXDECLARATION9 VtxDecl{ nullptr };

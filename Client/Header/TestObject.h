@@ -22,6 +22,8 @@ public:
 	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderShadowImplementation(const
 	   ImplementationInfo& _ImplInfo)override;
+	virtual void    RenderGBufferImplementation(const
+		ImplementationInfo& _ImplInfo)override;
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

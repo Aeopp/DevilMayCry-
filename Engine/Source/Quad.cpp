@@ -67,7 +67,7 @@ void Quad::Render(
 		_Device ->SetVertexDeclaration(VtxDecl);
 		_Device ->SetIndices(IdxBuf);
 		_Device ->DrawIndexedPrimitive
-		(D3DPT_TRIANGLELIST, 0, 0, 4u, 0u, 2u);
+			(D3DPT_TRIANGLELIST, 0, 0, 4u, 0u, 2u);
 	}
 }
 
