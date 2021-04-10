@@ -26,16 +26,23 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 	const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+	const auto& RenderInfo = GetRenderUpdateInfo();
+
+	if (NumSubset > 0)
+	{
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+	}
+
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
 			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+			
 			SharedSubset->Render(_ImplInfo.Fx);
 		}
 	}
@@ -44,6 +51,11 @@ void TestObject::RenderForwardAlphaBlendImplementation(
 void TestObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+	const auto& RenderInfo = GetRenderUpdateInfo();
+	if (NumSubset > 0)
+	{
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+	}
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
@@ -82,14 +94,14 @@ HRESULT TestObject::Ready()
 	_InitRenderProp.RenderOrders = 
 	{ 
 		RenderProperty::Order::ForwardAlphaBlend,
+		RenderProperty::Order::GBuffer,
 		RenderProperty::Order::Debug 
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 	// 
 
-
 	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
-	_ShaderInfo.RegistShader(
+	/*_ShaderInfo.RegistShader(
 		RenderProperty::Order::ForwardAlphaBlend,
 		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl",{});
 	_ShaderInfo.RegistShader(
@@ -97,7 +109,7 @@ HRESULT TestObject::Ready()
 		L"..\\..\\Resource\\Shader\\Debug.hlsl", {});
 
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
+	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());*/
 	// 
 
 	// 스태틱 메쉬 로딩
@@ -111,7 +123,6 @@ HRESULT TestObject::Ready()
 	PushEditEntity(InitTransform.lock().get());
 
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
-	// PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
 
 	return S_OK;
 };

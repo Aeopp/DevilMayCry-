@@ -71,9 +71,9 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	SafeAddRef(m_pDevice);
 	ReadyRenderTargets();
 	CameraFrustum.Initialize(m_pDevice);
-	RTDebug = Resources::Load<ENGINE::Shader>(
-		L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
+	
 	_Quad.Initialize(m_pDevice);
+	ReadyShader();
 	// _ShaderTester.Initialize();
 
 
@@ -81,6 +81,43 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	TestShaderInit();
 
 	return S_OK;
+}
+
+void Renderer::ReadyShader()
+{
+	ForwardAlphaBlend = Resources::Load<Shader>(
+		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl"
+		);
+
+	ForwardAlphaBlendSK = Resources::Load<Shader>(
+		L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl"
+		);
+
+	GBuffer = Resources::Load<Shader>(
+		L"..\\..\\Resource\\Shader\\GBuffer.hlsl"
+		);
+
+	GBufferSK = Resources::Load<Shader>(
+		L"..\\..\\Resource\\Shader\\GBufferSK.hlsl"
+		);
+
+	Debug = Resources::Load<Shader>(
+		L"..\\..\\Resource\\Shader\\Debug.hlsl"
+		);
+
+	DebugSK = Resources::Load<Shader>(
+		L"..\\..\\Resource\\Shader\\DebugSK.hlsl"
+		);
+
+	DebugBone = Resources::Load<Shader>(
+		L"..\\..\\Resource\\Shader\\DebugBone.hlsl"
+		);
+
+	RTDebug = Resources::Load<ENGINE::Shader>(
+		L"..\\..\\Resource\\Shader\\ScreenQuad.hlsl");
+
+	// AlphaBlendEffect = ? ? ;
+	// UI = ??  ;
 }
 
 void Renderer::ReadyRenderTargets()
@@ -181,18 +218,16 @@ HRESULT Renderer::Render()&
 {
 	RenderReady();
 	// ±âº» ·»´õ...
-	//GraphicSystem::GetInstance()->Begin();
-	//RenderImplementation();
-	//// _ShaderTester.Render();
-
-	//RenderTargetDebugRender();
-	//ImguiRender();
-	//GraphicSystem::GetInstance()->End();
-	//RenderEnd();
+	GraphicSystem::GetInstance()->Begin();
+	RenderImplementation();
+	// _ShaderTester.Render();
+	RenderTargetDebugRender();
+	ImguiRender();
+	GraphicSystem::GetInstance()->End();
+	RenderEnd();
 	// ±âº» ·»´õ ...
 
-
-	TestShaderRender(TimeSystem::GetInstance()->DeltaTime());
+	// TestShaderRender(TimeSystem::GetInstance()->DeltaTime());
 
 	return S_OK;
 }
@@ -273,23 +308,52 @@ HRESULT Renderer::RenderGBuffer()&
 	m_pDevice->SetRenderTarget(1u, NRMR.GetSurface());
 	m_pDevice->SetRenderTarget(2u, Depth.GetSurface());
 
-	m_pDevice->Clear(0u,NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,0, 1.0f, 0);
+	m_pDevice->Clear(0u, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
-	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::GBuffer);
-		_TargetGroup != std::end(RenderEntitys))
+	auto GBufferRenderImplementation = [this](
+		const RenderProperty::Order _Order,
+		ID3DXEffect*const Fx
+		) 
 	{
-		for (auto& _RenderEntity : _TargetGroup->second)
-		{
-			if (_RenderEntity)
+			if (auto _TargetGroup = RenderEntitys.find(_Order);
+				_TargetGroup != std::end(RenderEntitys))
 			{
-				if (_RenderEntity->GetRenderProp().bRender)
-				{
-					_RenderEntity->RenderGBuffer();
-				}
-			}
-		}
-	}
+				RenderInterface::ImplementationInfo _ImplInfo{};
+				_ImplInfo.Fx = Fx;
 
+				Fx->SetMatrix("View", &CurrentRenderInfo.CameraView);
+				Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+
+				uint32 Passes = 0u;
+				Fx->Begin(&Passes, NULL);
+
+				for (uint32 i = 0; i < Passes; ++i)
+				{
+					Fx->BeginPass(i);
+					_ImplInfo.PassIndex = i;
+
+					for (auto& _RenderEntity : _TargetGroup->second)
+					{
+						if (_RenderEntity)
+						{
+							if (_RenderEntity->GetRenderProp().bRender)
+							{
+								_RenderEntity->RenderGBufferImplementation(_ImplInfo);
+							}
+						}
+					}
+
+					Fx->EndPass();
+				}
+
+				Fx->End();
+			};
+	};
+
+	GBufferRenderImplementation(RenderProperty::Order::GBuffer,GBuffer->GetEffect () );
+	GBufferRenderImplementation(RenderProperty::Order::GBufferSK, GBufferSK->GetEffect());
+
+	m_pDevice->SetRenderTarget(0u, nullptr);
 	m_pDevice->SetRenderTarget(1u, nullptr);
 	m_pDevice->SetRenderTarget(2u, nullptr);
 
@@ -299,41 +363,67 @@ HRESULT Renderer::RenderGBuffer()&
 HRESULT Renderer::RenderForwardAlphaBlend()&
 {
 	m_pDevice->SetRenderTarget(0u, BackBuffer);
-	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::ForwardAlphaBlend);
-		_TargetGroup !=    std::end(RenderEntitys))
+
+	auto ForwardAlphaBlendImplementation = [this](const RenderProperty::Order& _Order , ID3DXEffect*const Fx) 
 	{
-		for (auto& _RenderEntity: _TargetGroup->second)
+		if (auto _TargetGroup = RenderEntitys.find(_Order);
+			_TargetGroup != std::end(RenderEntitys))
 		{
-			if (_RenderEntity)
+			Fx->SetMatrix("View", &CurrentRenderInfo.CameraView);
+			Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+
+			RenderInterface::ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+
+			uint32 Passes = 0u;
+			Fx->Begin(&Passes, NULL);
+
+			for (uint32 i = 0; i < Passes; ++i)
 			{
-				if (_RenderEntity->GetRenderProp().bRender)
+				_ImplInfo.PassIndex = i;
+				Fx->BeginPass(i);
+				for (auto& _RenderEntity : _TargetGroup->second)
 				{
-					_RenderEntity->RenderForwardAlphaBlend();
+					if (_RenderEntity)
+					{
+						if (_RenderEntity->GetRenderProp().bRender)
+						{
+							_RenderEntity->RenderForwardAlphaBlendImplementation(_ImplInfo);
+						}
+					}
 				}
+				Fx->EndPass();
 			}
+			Fx->End();
 		}
-	}
+	};
+	
+	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlend, ForwardAlphaBlend->GetEffect());
+	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlendSK, ForwardAlphaBlendSK->GetEffect () );
 
 	return S_OK;
 }
 
 HRESULT Renderer::RenderAlphaBlendEffect()&
 {
-	m_pDevice->SetRenderTarget(0u, BackBuffer);
-	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::AlphaBlendEffect);
-		_TargetGroup != std::end(RenderEntitys))
-	{
-		for (auto& _RenderEntity : _TargetGroup->second)
-		{
-			if (_RenderEntity)
-			{
-				if (_RenderEntity->GetRenderProp().bRender)
-				{
-					_RenderEntity->RenderAlphaBlendEffect();
-				}
-			}
-		}
-	}
+	//if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::AlphaBlendEffect);
+	//	_TargetGroup != std::end(RenderEntitys))
+	//{
+	//	m_pDevice->SetRenderTarget(0u, BackBuffer);
+
+	//	for (auto& _RenderEntity : _TargetGroup->second)
+	//	{
+	//		if (_RenderEntity)
+	//		{
+	//			if (_RenderEntity->GetRenderProp().bRender)
+	//			{
+	//				_RenderEntity->RenderAlphaBlendEffect();
+	//			}
+	//		}
+	//	}
+	//}
+
+	//return S_OK;
 
 	return S_OK;
 }
@@ -343,20 +433,49 @@ HRESULT Renderer::RenderDebug()&
 	if (g_bDebugRender)
 	{
 		m_pDevice->SetRenderTarget(0u, BackBuffer);
-		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::Debug);
-			_TargetGroup != std::end(RenderEntitys))
+
+		auto DebugRenderImplementation = [this](const RenderProperty::Order & _Order , ID3DXEffect*const Fx) 
 		{
-			for (auto& _RenderEntity : _TargetGroup->second)
+			if (auto _TargetGroup = RenderEntitys.find(_Order);
+				_TargetGroup != std::end(RenderEntitys))
 			{
-				if (_RenderEntity)
+				Fx->SetMatrix("View",
+					&CurrentRenderInfo.CameraView);
+				Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+
+				RenderInterface::ImplementationInfo _ImplInfo{};
+				_ImplInfo.Fx = Fx;
+
+				uint32 Passes = 0u;
+				Fx->Begin(&Passes, NULL);
+
+				for (uint32 i = 0; i < Passes; ++i)
 				{
-					if (_RenderEntity->GetRenderProp().bRender)
+					_ImplInfo.PassIndex = i;
+					Fx->BeginPass(i);
+
+					for (auto& _RenderEntity : _TargetGroup->second)
 					{
-						_RenderEntity->RenderDebug();
+						if (_RenderEntity)
+						{
+							if (_RenderEntity->GetRenderProp().bRender)
+							{
+								_RenderEntity->
+									RenderDebugImplementation(_ImplInfo);
+							}
+						}
 					}
+
+					Fx->EndPass();
 				}
+
+				Fx->End();
 			}
-		}
+		};
+
+
+		DebugRenderImplementation(RenderProperty::Order::Debug, Debug->GetEffect () );
+		DebugRenderImplementation(RenderProperty::Order::DebugBone,DebugSK->GetEffect () );
 	}
 
 	return S_OK;
@@ -366,20 +485,46 @@ HRESULT Renderer::RenderDebugBone()&
 {
 	if (g_bDebugRender)
 	{
-		m_pDevice->SetRenderTarget(0u, BackBuffer);
 		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::DebugBone);
-				 _TargetGroup != std::end(RenderEntitys))
+			_TargetGroup != std::end(RenderEntitys))
 		{
-			for (auto& _RenderEntity : _TargetGroup->second)
+			m_pDevice->SetRenderTarget(0u, BackBuffer);
+
+			auto* const Fx = DebugBone->GetEffect();
+
+			Fx->SetMatrix("View",
+				&CurrentRenderInfo.CameraView);
+			Fx->SetMatrix("Projection", &CurrentRenderInfo.CameraProjection);
+			const Matrix ScaleOffset = FMath::Scale({ 0.01 ,0.01,0.01 });
+			Fx->SetMatrix("ScaleOffset", &ScaleOffset);
+
+			RenderInterface::ImplementationInfo _ImplInfo{};
+			_ImplInfo.Fx = Fx;
+
+			uint32 Passes = 0u;
+			Fx->Begin(&Passes, NULL);
+
+			for (uint32 i = 0; i < Passes; ++i)
 			{
-				if (_RenderEntity)
+				_ImplInfo.PassIndex = i;
+				Fx->BeginPass(i);
+
+				for (auto& _RenderEntity : _TargetGroup->second)
 				{
-					if (_RenderEntity->GetRenderProp().bRender)
+					if (_RenderEntity)
 					{
-						_RenderEntity->RenderDebugBone();
+						if (_RenderEntity->GetRenderProp().bRender)
+						{
+							_RenderEntity->
+								RenderDebugBoneImplementation(_ImplInfo);
+						}
 					}
 				}
+
+				Fx->EndPass();
 			}
+
+			Fx->End();
 		}
 	}
 
@@ -388,7 +533,7 @@ HRESULT Renderer::RenderDebugBone()&
 
 HRESULT Renderer::RenderUI()&
 {
-	m_pDevice->SetRenderTarget(0u, BackBuffer);
+	/*m_pDevice->SetRenderTarget(0u, BackBuffer);
 	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::UI);
 		_TargetGroup != std::end(RenderEntitys))
 	{
@@ -402,7 +547,7 @@ HRESULT Renderer::RenderUI()&
 				}
 			}
 		}
-	}
+	}*/
 
 	return S_OK;
 }
@@ -565,7 +710,7 @@ void Renderer::RenderShadowMaps()
 				D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
 				0, 1.0f, 0);
 
-	  		RenderScene(ShadowMap, viewproj);
+	  		// RenderScene(ShadowMap, viewproj);
 		});
 
 	Moonlight->BlurShadowMap(
@@ -637,7 +782,7 @@ void Renderer::RenderShadowMaps()
 					D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
 					0, 1.0f, 0);
 
-				RenderScene(Fx, ViewProj);
+				// RenderScene(Fx, ViewProj);
 			});
 	};
 

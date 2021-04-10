@@ -24,9 +24,16 @@ TestAnimationObject* TestAnimationObject::Create()
 
 
 void TestAnimationObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
-{
+{	
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+
+	if (NumSubset > 0)
+	{
+		const auto& RenderInfo = GetRenderUpdateInfo();
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	}
+	
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
@@ -42,8 +49,15 @@ void TestAnimationObject::RenderGBufferImplementation(const ImplementationInfo& 
 
 void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 {
+	const auto& RenderInfo = GetRenderUpdateInfo();
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-	_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	
+	if (NumSubset > 0)
+	{
+		const auto& RenderInfo = GetRenderUpdateInfo();
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	}
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
 		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
@@ -61,9 +75,8 @@ void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo
 		SpTransform)
 	{
 		const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
-
-		_ImplInfo.Fx->SetMatrix("ScaleOffset", &ScaleOffset); 
-		
+		const auto& RenderInfo = GetRenderUpdateInfo();
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
 		_SkeletonMesh->BoneDebugRender(SpTransform->GetWorldMatrix() ,_ImplInfo.Fx);
 	}
 }
@@ -73,7 +86,13 @@ void TestAnimationObject::RenderForwardAlphaBlendImplementation(
 	const ImplementationInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-	 _SkeletonMesh->BindVTF(_ImplInfo.Fx);
+
+	if (NumSubset > 0)
+	{
+		const auto& RenderInfo = GetRenderUpdateInfo();
+		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+	}
 
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
 	{
@@ -83,7 +102,6 @@ void TestAnimationObject::RenderForwardAlphaBlendImplementation(
 		{
 			if (SharedSubset->bRender)
 			{
-				_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 				const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 				SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
 				SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
@@ -119,34 +137,34 @@ HRESULT TestAnimationObject::Ready()
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
 	_InitRenderProp.RenderOrders =
 	{
-		RenderProperty::Order::GBuffer,
-		RenderProperty::Order::ForwardAlphaBlend,
-		RenderProperty::Order::Debug ,
+		RenderProperty::Order::GBufferSK,
+		RenderProperty::Order::ForwardAlphaBlendSK,
+		RenderProperty::Order::DebugSK,
 		RenderProperty::Order::DebugBone
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 	/// 
 
-	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::ForwardAlphaBlend,
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl", {});
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::GBuffer,
-		L"..\\..\\Resource\\Shader\\GBufferSK.hlsl", {});
+	//// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
+	//_ShaderInfo.RegistShader(
+	//	RenderProperty::Order::ForwardAlphaBlend,
+	//	L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl", {});
+	//_ShaderInfo.RegistShader(
+	//	RenderProperty::Order::GBuffer,
+	//	L"..\\..\\Resource\\Shader\\GBufferSK.hlsl", {});
 
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::Debug,
-		L"..\\..\\Resource\\Shader\\DebugSK.hlsl", {});
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::DebugBone,
-		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
+	//_ShaderInfo.RegistShader(
+	//	RenderProperty::Order::Debug,
+	//	L"..\\..\\Resource\\Shader\\DebugSK.hlsl", {});
+	//_ShaderInfo.RegistShader(
+	//	RenderProperty::Order::DebugBone,
+	//	L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
 
-	// ..... 
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::GBuffer).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
+	//// ..... 
+	//PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::GBuffer).get());
+	//PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
+	//PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
+	//PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 
 	// 스켈레톤 메쉬 로딩 ... 
 	Mesh::InitializeInfo _InitInfo{};
@@ -158,7 +176,6 @@ HRESULT TestAnimationObject::Ready()
 	//_InitInfo.bRootMotionTransition = false;
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
 		(L"..\\..\\Resource\\TestDummy\\Em100\\Em100.fbx" , _InitInfo);
-
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)

@@ -584,6 +584,7 @@ void SkeletonMesh::BoneDebugRender(
 
 	Log("Bone Debug Render : Uninitialized nodes !");
 
+	Fx->SetMatrix("World", &OwnerTransformWorld);
 	for (auto& [NodeName, _Node] : *Nodes)
 	{
 		if (auto OToRoot = GetNodeToRoot(NodeName);

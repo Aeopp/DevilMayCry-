@@ -25,6 +25,7 @@ private :
 	virtual void Free()	override ;
 public :
 	HRESULT ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice);
+	void	ReadyShader();
 	void    ReadyRenderTargets();
 private : 
 	Frustum CameraFrustum{};
@@ -67,6 +68,16 @@ private:
 	RenderTarget Depth{};
 	// ShaderTester _ShaderTester{};
 private:
+	std::shared_ptr<ENGINE::Shader> ForwardAlphaBlend{};
+	std::shared_ptr<ENGINE::Shader> GBuffer{};
+	std::shared_ptr<ENGINE::Shader> Debug{};
+	std::shared_ptr<ENGINE::Shader> ForwardAlphaBlendSK{};
+	std::shared_ptr<ENGINE::Shader> GBufferSK{};
+	std::shared_ptr<ENGINE::Shader> DebugSK{};
+
+	std::shared_ptr<ENGINE::Shader> DebugBone{};
+	std::shared_ptr<ENGINE::Shader> AlphaBlendEffect{};
+	std::shared_ptr<ENGINE::Shader> UI{};
 
 	bool TestShaderInit();
 	void TestShaderRelease();
@@ -89,7 +100,6 @@ private:
 	// 쉐이더 테스트 시작 ....
 	std::shared_ptr<ENGINE::Shader> ShadowMap;
 	std::shared_ptr<ENGINE::Shader> Blur;
-	std::shared_ptr<ENGINE::Shader> GBuffer;
 	std::shared_ptr<ENGINE::Shader> Deferred;
 	std::shared_ptr<ENGINE::Shader> Tonemap;
 	std::shared_ptr<ENGINE::Shader> Screenquad;

@@ -11,11 +11,17 @@ public :
 	enum class Order : uint8
 	{
 		GBuffer = 0u,
+		GBufferSK,
+
 		ForwardAlphaBlend,
+		ForwardAlphaBlendSK,
+
 		AlphaBlendEffect,
 		UI,
 		
 		Debug,
+		DebugSK,
+
 		DebugBone,
 	};
 	bool bRender = true;

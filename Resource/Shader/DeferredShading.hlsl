@@ -33,6 +33,6 @@ sampler ALBMSampler = sampler_state
 };
 
 
-    sRGBWriteEnable = false;
-    cullmode = cw;
+    //sRGBWriteEnable = false;
+    //cullmode = cw;
  

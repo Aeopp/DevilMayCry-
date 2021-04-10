@@ -9,7 +9,7 @@ sampler RenderSceneSample = sampler_state
 
  // ZEnable = false;
 void VsMain(
-    in out float2 Position : POSITION,
+    in out float4 Position : POSITION,
     in out float2 TexCoord : TEXCOORD0)
 {
     Position.xy -= PixelSize.xy;
@@ -34,7 +34,8 @@ void PsBoxBlur3x3(
     Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 1.5f));
 
     Color /= 9.0f;
-}
+};
+
 
 void PsBoxBlur5x5(
   in float2 TexCoord : TEXCOORD0,
@@ -73,8 +74,9 @@ void PsBoxBlur5x5(
     Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 2.5f));
     Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, 2.5f));
 
-    color /= 25.0f;
-}
+    Color /= 25.0f;
+};
+
 
 technique BoxBlur3x3
 {

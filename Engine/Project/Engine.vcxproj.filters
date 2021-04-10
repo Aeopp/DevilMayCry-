@@ -143,6 +143,7 @@
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\FLight.cpp" />
+    <ClCompile Include="..\Source\Quad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
@@ -365,6 +366,7 @@
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\FLight.h" />
+    <ClInclude Include="..\Header\Quad.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">

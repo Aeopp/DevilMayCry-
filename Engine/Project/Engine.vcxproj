@@ -228,6 +228,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Scene.hpp" />
     <ClInclude Include="..\Header\SceneManager.h" />
     <ClInclude Include="..\Header\SceneSystem.h" />
+    <ClInclude Include="..\Header\Quad.h" />
     <ClInclude Include="..\Header\Shader.h" />
     <ClInclude Include="..\Header\ShaderTester.h" />
     <ClInclude Include="..\Header\SkeletonMesh.h" />
@@ -280,6 +281,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Scene.cpp" />
     <ClCompile Include="..\Source\SceneManager.cpp" />
     <ClCompile Include="..\Source\SceneSystem.cpp" />
+    <ClCompile Include="..\Source\Quad.cpp" />
     <ClCompile Include="..\Source\Shader.cpp" />
     <ClCompile Include="..\Source\ShaderTester.cpp" />
     <ClCompile Include="..\Source\SkeletonMesh.cpp" />
