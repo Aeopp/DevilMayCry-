@@ -1,4 +1,5 @@
 matrix Ortho;
+matrix Perspective;  // 메시, xy 회전이 필요한 경우 
 matrix ScreenMat;    // (-width/2 ~ +width/2, +height/2 ~ -height/2)
 float3 LightDirection = float3(0.f, 0.f, 1.f);
 
@@ -115,6 +116,22 @@ VsOut VsMain(VsIn In)
 
     Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMat);
     Out.Position = mul(float4(Out.Position.xyz, 1.f), Ortho);
+    Out.Normal = normalize(mul(float4(In.Normal.xyz, 0.f), ScreenMat));
+    Out.Tangent = normalize(mul(float4(In.BiNormal.xyz, 0.f), ScreenMat));
+    Out.BiNormal = normalize(mul(float4(In.Position.xyz, 0.f), ScreenMat));
+    Out.UV = In.UV;
+    
+    return Out;
+};
+
+VsOut VsMain_Perspective(VsIn In)
+{
+    VsOut Out = (VsIn) 0;
+
+    Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMat);
+    Out.Position = mul(float4(Out.Position.xyz, 1.f), Perspective);
+    Out.Position.xyz /= Out.Position.w;
+    
     Out.Normal = normalize(mul(float4(In.Normal.xyz, 0.f), ScreenMat));
     Out.Tangent = normalize(mul(float4(In.BiNormal.xyz, 0.f), ScreenMat));
     Out.BiNormal = normalize(mul(float4(In.Position.xyz, 0.f), ScreenMat));
@@ -580,5 +597,17 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_ExBack();
+    }
+    pass p9
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain_Perspective();
+        pixelshader = compile ps_3_0 PsMain();
     }
 };
