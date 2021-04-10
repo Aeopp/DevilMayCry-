@@ -1348,7 +1348,8 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 	}
 };
 
-void SkeletonMesh::LoadAnimationFromDirectory(const std::filesystem::path& Directory)&
+void SkeletonMesh::LoadAnimationFromDirectory(
+	const std::filesystem::path& Directory)&
 {
 	std::filesystem::directory_iterator itr(Directory);
 	while (itr != std::filesystem::end(itr)) {

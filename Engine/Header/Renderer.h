@@ -74,8 +74,8 @@ private:
 	LPD3DXMESH			box = nullptr;
 
 
-	FLight* Moonlight = nullptr;
-	FLight* Pointlight[3] = { nullptr };
+	/*FLight* Moonlight = nullptr;
+	FLight* Pointlight[3] = { nullptr };*/
 	// 쉐이더 테스트 시작 ....
 	std::shared_ptr<ENGINE::Shader> ShadowMap;
 	std::shared_ptr<ENGINE::Shader> Blur;
@@ -83,7 +83,7 @@ private:
 	std::shared_ptr<ENGINE::Shader> Deferred;
 	std::shared_ptr<ENGINE::Shader> Tonemap;
 	std::shared_ptr<ENGINE::Shader> Screenquad;
-	FLight
+	
 	// 여기서 디퍼드 - > 포워드 - > 쉐도우 -> 스카이 순으로 진행 해야함 언제다할거.....
 };
 END

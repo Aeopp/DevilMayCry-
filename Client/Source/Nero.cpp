@@ -60,7 +60,6 @@ HRESULT Nero::Ready()
 	
 	//몇초에 이벤트를 발생 시킬지
 
-
 	_Notify.Event[0.5] = [this]() {  Log("0.5 Sec Call");  return true; };
 	_Notify.Event[0.9] = [this]() {  Log("0.9 Sec Call");  return false; };
 
