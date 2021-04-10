@@ -10,7 +10,7 @@
 #include "Frustum.h"
 #include "RenderInformation.h"
 #include "RenderInterface.h"
-#include "ShaderTester.h"
+// #include "ShaderTester.h"
 #include "RenderTarget.h"
 #include "Shader.h"
 
@@ -66,6 +66,11 @@ private:
 	RenderTarget Depth{};
 	// ShaderTester _ShaderTester{};
 private:
+
+	bool TestShaderInit();
+	void TestShaderRelease();
+	void TestShaderRender();
+
 	LPDIRECT3DTEXTURE9	marble = nullptr;
 	LPDIRECT3DTEXTURE9	wood = nullptr;
 	LPDIRECT3DTEXTURE9	wood_normal = nullptr;
@@ -73,9 +78,8 @@ private:
 	LPD3DXMESH			skull = nullptr;
 	LPD3DXMESH			box = nullptr;
 
-
-	/*FLight* Moonlight = nullptr;
-	FLight* Pointlight[3] = { nullptr };*/
+	FLight* Moonlight = nullptr;
+	FLight* Pointlight[3] = { nullptr };
 	// 쉐이더 테스트 시작 ....
 	std::shared_ptr<ENGINE::Shader> ShadowMap;
 	std::shared_ptr<ENGINE::Shader> Blur;

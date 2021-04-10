@@ -180,8 +180,9 @@ void SkeletonMesh::NodeEditor()
 
 std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementation()&
 {
-	std::optional<float> bTimeBeyondAnimation{};
-	const float TimeBeyondAnimation = (CurrentAnimMotionTime - CurPlayAnimInfo.Duration);
+	std::optional<float> bTimeBeyondAnimation;
+	const float TimeBeyondAnimation = 
+		(CurrentAnimMotionTime - CurPlayAnimInfo.Duration);
 	if (TimeBeyondAnimation > 0.0f)
 	{
 		bTimeBeyondAnimation = TimeBeyondAnimation;
@@ -216,7 +217,8 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 	if (bRootMotionTransition)
 	{
-		RootMotionLastCalcDeltaPos = CalcRootMotionDeltaPos(TimeBeyondAnimation,
+		RootMotionLastCalcDeltaPos = CalcRootMotionDeltaPos(
+			bTimeBeyondAnimation,
 			AnimName, CurPlayAnimInfo.Duration, CurrentAnimPrevFrameMotionTime, CurrentAnimMotionTime);
 
 		if (IsAnimationBlend)
@@ -240,7 +242,7 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 	if (bRootMotionRotation)
 	{
-		RootMotionLastCalcDeltaQuat = CalcRootMotionDeltaQuat(TimeBeyondAnimation,
+		RootMotionLastCalcDeltaQuat = CalcRootMotionDeltaQuat(bTimeBeyondAnimation,
 			AnimName, CurPlayAnimInfo.Duration, CurrentAnimPrevFrameMotionTime, CurrentAnimMotionTime);
 
 		if (IsAnimationBlend)
@@ -263,7 +265,7 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 	if (bRootMotionScale)
 	{
-		RootMotionLastCalcDeltaScale = CalcRootMotionDeltaScale(TimeBeyondAnimation,
+		RootMotionLastCalcDeltaScale = CalcRootMotionDeltaScale(bTimeBeyondAnimation,
 			AnimName, CurPlayAnimInfo.Duration, CurrentAnimPrevFrameMotionTime, CurrentAnimMotionTime);
 
 		if (IsAnimationBlend)
@@ -292,7 +294,8 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 	// 루트모션 종료.....
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
-	const float CurPlayAnimMotionTime = bTimeBeyondAnimation.has_value()
+	const float CurPlayAnimMotionTime = 
+		bTimeBeyondAnimation.has_value()
 		? bTimeBeyondAnimation.value() : CurrentAnimMotionTime;
 
 	Root->NodeUpdate(FMath::Identity(),

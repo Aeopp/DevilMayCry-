@@ -186,6 +186,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
     <ClInclude Include="..\Header\Collider.h" />
     <ClInclude Include="..\Header\CollisionCallback.h" />
+    <ClInclude Include="..\Header\FLight.h" />
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
     <ClInclude Include="..\Header\Node.h" />
     <ClInclude Include="..\Header\Component.h" />
@@ -246,6 +247,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\AnimNotify.cpp" />
     <ClCompile Include="..\Source\Collider.cpp" />
     <ClCompile Include="..\Source\CollisionCallback.cpp" />
+    <ClCompile Include="..\Source\FLight.cpp" />
     <ClCompile Include="..\Source\Node.cpp" />
     <ClCompile Include="..\Source\Component.cpp" />
     <ClCompile Include="..\Source\Core.cpp" />

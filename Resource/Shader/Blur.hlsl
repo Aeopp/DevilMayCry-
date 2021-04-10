@@ -21,6 +21,8 @@ void PsBoxBlur3x3(
 {
     Color = 0;
 
+    // ÀÎÁ¢ ÇÈ¼¿ 9Ä­ ºí·¯ .
+    // ¸óÅ× Ä«¸¦·Î . 
     Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, -0.5f));
     Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, -0.5f));
     Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, -0.5f));
@@ -40,6 +42,38 @@ void PsBoxBlur5x5(
 {
     Color = 0;
     
+    // 25 Ä­ ºí·¯
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, -1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, -1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, -1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, -1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, -1.5f));
+
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, -0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, -0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, -0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, -0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, -0.5f));
+
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, 0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 0.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, 0.5f));
+
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, 1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 1.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, 1.5f));
+
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, 2.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 2.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 2.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 2.5f));
+    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, 2.5f));
+
+    color /= 25.0f;
 }
 
 technique Blur3x3
