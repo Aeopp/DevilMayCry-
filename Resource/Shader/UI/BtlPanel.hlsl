@@ -11,6 +11,7 @@ float2 _HP_StartPt;
 float2 _HP_Normal0;
 float2 _HP_Normal1;
 
+float _HPGaugeCurXPosOrtho;
 float _BossGaugeCurXPosOrtho;
 
 float _HPGlassDirt = 0.f;
@@ -182,7 +183,7 @@ VsOut_NoiseClip VsMain_TargetHP(VsIn In)
      return Out;
 };
 
-VsOut_Clip VsMain_BossGauge(VsIn In)
+VsOut_Clip VsMain_Gauge(VsIn In)
 {
     VsOut_Clip Out = (VsOut_Clip) 0;
 
@@ -233,12 +234,39 @@ struct PsOut
     float4 Color : COLOR0;
 };
 
-PsOut PsMain(PsIn In)
+
+PsOut PsMain_Plane(PsIn In)
 {
     PsOut Out = (PsOut) 0;
     
     float4 ALB0Sample = tex2D(ALB0, In.UV);
     float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+    
+    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    float Ambient = ATOSSample.b * 0.1f;
+
+    Out.Color = (Diffuse + Ambient) * float4(ALB0Sample.rgb, 1.f);
+    Out.Color.a = ATOSSample.r;
+
+    return Out;
+};
+
+PsOut PsMain_Mesh(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    float4 ALB0Sample = tex2D(ALB0, In.UV);
+    //float4 ATOSSample = tex2D(ATOS0, In.UV);
     float4 NRMRSample = tex2D(NRMR0, In.UV);
     
     float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
@@ -255,32 +283,6 @@ PsOut PsMain(PsIn In)
     Out.Color = Diffuse * float4(ALB0Sample.rgb, 1.f);
     Out.Color.a = 1.f;
     
-    return Out;
-};
-
-PsOut PsMain_RedOrb(PsIn In)
-{
-    PsOut Out = (PsOut) 0;
-    
-    float4 ALB0Sample = tex2D(ALB0, In.UV);
-    float4 ATOSSample = tex2D(ATOS0, In.UV);
-    float4 NRMRSample = tex2D(NRMR0, In.UV);
-    
-    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
-    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
-   
-    float3x3 TBN = float3x3(normalize(In.Tangent),
-                            normalize(In.BiNormal),
-                            normalize(In.Normal));
-
-    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
-    
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
-    float Ambient = ATOSSample.g * 0.2f;
-
-    Out.Color = (Diffuse + Ambient) * float4(ALB0Sample.rgb, 1.f);
-    Out.Color.a = ATOSSample.r;
-
     return Out;
 };
 
@@ -461,9 +463,11 @@ PsOut PsMain_Glass(PsIn In)
     return Out;
 };
 
-PsOut PsMain_ExBack(PsIn In)
+PsOut PsMain_HPGauge(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
+    
+    clip(_HPGaugeCurXPosOrtho - In.Clip);
     
     float4 ALB0Sample = tex2D(ALB0, In.UV);
     float4 ATOSSample = tex2D(ATOS0, In.UV);
@@ -478,12 +482,11 @@ PsOut PsMain_ExBack(PsIn In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
-    float Ambient = ATOSSample.b * 0.2f;
-
-    Out.Color = (Diffuse + Ambient) * float4(ALB0Sample.rgb, 1.f);
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f; // Diffuse + Ambient
+    
+    Out.Color.rgb = Shade * ALB0Sample.rgb * float3(0.114f, 0.847f, 0.537f);
     Out.Color.a = ATOSSample.r;
-
+    
     return Out;
 };
 
@@ -500,7 +503,7 @@ technique Default
         sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
-        pixelshader = compile ps_3_0 PsMain_RedOrb();
+        pixelshader = compile ps_3_0 PsMain_Plane();
     }
     pass p1
     {
@@ -559,7 +562,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_BossGauge();
+        vertexshader = compile vs_3_0 VsMain_Gauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge2();
     }
     pass p6
@@ -571,7 +574,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_BossGauge();
+        vertexshader = compile vs_3_0 VsMain_Gauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge3();
     }
     pass p7
@@ -595,8 +598,8 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain();
-        pixelshader = compile ps_3_0 PsMain_ExBack();
+        vertexshader = compile vs_3_0 VsMain_Perspective();
+        pixelshader = compile ps_3_0 PsMain_Mesh();
     }
     pass p9
     {
@@ -607,7 +610,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Perspective();
-        pixelshader = compile ps_3_0 PsMain();
+        vertexshader = compile vs_3_0 VsMain_Gauge();
+        pixelshader = compile ps_3_0 PsMain_HPGauge();
     }
 };

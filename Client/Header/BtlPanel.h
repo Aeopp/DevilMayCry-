@@ -16,6 +16,7 @@ private:
 		HP_GLASS,
 		EX_GAUGE_BACK,
 		EX_GAUGE,
+		HP_GAUGE,
 		DESC_END
 	};
 	struct UI_DESC
@@ -58,6 +59,13 @@ private:
 	std::shared_ptr<ENGINE::Texture> _ExALBM1Tex{};
 	std::shared_ptr<ENGINE::Texture> _ExNRMR1Tex{};
 
+	std::shared_ptr<ENGINE::Texture> _HPGaugeBaseALBMTex{};
+	std::shared_ptr<ENGINE::Texture> _HPGaugeBaseATOSTex{};
+	std::shared_ptr<ENGINE::Texture> _HPGaugeBaseNRMRTex{};
+	std::shared_ptr<ENGINE::Texture> _HPGaugeALBMTex{};
+	std::shared_ptr<ENGINE::Texture> _HPGaugeATOSTex{};
+	std::shared_ptr<ENGINE::Texture> _HPGaugeNRMRTex{};
+
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
 
@@ -67,13 +75,16 @@ private:
 	Vector2 _TargetHP_Normal0 = Vector2(0.f, 0.f);
 	Vector2 _TargetHP_Normal1 = Vector2(0.f, 0.f);
 	
+	int _HPGaugeCount = 6;
+	float _HPGaugeWidth = 50.f;
+	float _HPGauge_CurXPosOrtho = 0.f;
 	float _BossGauge_CurXPosOrtho = 0.f;
 	
 	float _HPGlassDirt = 0.f;
 
 	Matrix _PerspectiveProjMatrix = Matrix();
 
-	Vector3 _LightDir = Vector3(-1.f, 1.f, 1.f);
+	Vector3 _LightDir = Vector3(0.f, 1.f, 1.f);
 
 	Vector3 _Rot = Vector3(0.f, 0.f, 0.f);	// 디버그용 회전벡터(Degree). 회전값이 들어간게 예외케이스라 생각해서 UI_DESC에 없음
 	

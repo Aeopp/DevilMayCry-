@@ -31,6 +31,50 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 	_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
 	_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
 
+	//
+	CurID = EX_GAUGE_BACK;
+	if (_UIDescs[CurID].Using)
+	{
+		auto WeakSubset = _PlaneMesh->GetSubset(0u);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			_ImplInfo.Fx->SetTexture("ALB0Map", _ExBackALBMTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _ExBackATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _ExBackNRMRTex->GetTexture());
+
+			Create_ScreenMat(CurID, ScreenMat);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(0);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
+	}
+
+	//
+	CurID = HP_GLASS;
+	if (_UIDescs[CurID].Using)
+	{
+		auto WeakSubset = _HPGlassMesh->GetSubset(0u);
+		if (auto SharedSubset = WeakSubset.lock();
+			SharedSubset)
+		{
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _HPGlassATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _HPGlassNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ALB0Map", _GlassTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ALB1Map", _BloodTex->GetTexture());
+			_ImplInfo.Fx->SetFloat("_HPGlassDirt", _HPGlassDirt);
+
+			Create_ScreenMat(CurID, ScreenMat);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(7);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
+	}
+
 	auto WeakSubset = _PlaneMesh->GetSubset(0u);
 	if (auto SharedSubset = WeakSubset.lock();
 		SharedSubset)
@@ -100,19 +144,37 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		}
 
 		//
-		CurID = EX_GAUGE_BACK;
+		CurID = HP_GAUGE;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetTexture("ALB0Map", _ExBackALBMTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("ATOS0Map", _ExBackATOSTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("NRMR0Map", _ExBackNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ALB0Map", _HPGaugeBaseALBMTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _HPGaugeBaseATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _HPGaugeBaseNRMRTex->GetTexture());
 
-			Create_ScreenMat(CurID, ScreenMat);
-			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+			for (int i = 0; i < _HPGaugeCount; ++i)
+			{
+				Create_ScreenMat(CurID, ScreenMat, i);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
-			_ImplInfo.Fx->BeginPass(8);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
+				_ImplInfo.Fx->BeginPass(0);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+
+			_ImplInfo.Fx->SetTexture("ALB0Map", _HPGaugeALBMTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _HPGaugeATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _HPGaugeNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetFloat("_HPGaugeCurXPosOrtho", _HPGauge_CurXPosOrtho);
+
+			for (int i = 0; i < _HPGaugeCount; ++i)
+			{
+				Create_ScreenMat(CurID, ScreenMat, i);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(9);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
 		}
 	}
 
@@ -124,7 +186,6 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _EnemyHPTex->GetTexture());
 			_ImplInfo.Fx->SetFloat("_TotalAccumulateTime", _TotalAccumulateTime);
 			
@@ -137,29 +198,6 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
 			_ImplInfo.Fx->BeginPass(2);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-	}
-
-	//
-	CurID = HP_GLASS;
-	if (_UIDescs[CurID].Using)
-	{
-		auto WeakSubset = _HPGlassMesh->GetSubset(0u);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			_ImplInfo.Fx->SetTexture("ATOS0Map", _HPGlassATOSTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("NRMR0Map", _HPGlassNRMRTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("ALB0Map", _GlassTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("ALB1Map", _BloodTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_HPGlassDirt", _HPGlassDirt);
-
-			Create_ScreenMat(CurID, ScreenMat);
-			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-
-			_ImplInfo.Fx->BeginPass(7);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -181,7 +219,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			Create_ScreenMat(CurID, ScreenMat, 2);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-			_ImplInfo.Fx->BeginPass(9);
+			_ImplInfo.Fx->BeginPass(8);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -190,7 +228,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			Create_ScreenMat(CurID, ScreenMat, 1);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-			_ImplInfo.Fx->BeginPass(9);
+			_ImplInfo.Fx->BeginPass(8);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -199,11 +237,11 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			Create_ScreenMat(CurID, ScreenMat, 0);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-			_ImplInfo.Fx->BeginPass(9);
+			_ImplInfo.Fx->BeginPass(8);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
-		}		
-		
+		}
+
 		_ImplInfo.Fx->SetTexture("ALB0Map", _ExALBM0Tex->GetTexture());
 		_ImplInfo.Fx->SetTexture("NRMR0Map", _ExNRMR0Tex->GetTexture());
 
@@ -216,7 +254,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			Create_ScreenMat(CurID, ScreenMat, 2);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-			_ImplInfo.Fx->BeginPass(9);
+			_ImplInfo.Fx->BeginPass(8);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -225,7 +263,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			Create_ScreenMat(CurID, ScreenMat, 1);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-			_ImplInfo.Fx->BeginPass(9);
+			_ImplInfo.Fx->BeginPass(8);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -234,7 +272,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			Create_ScreenMat(CurID, ScreenMat, 0);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-			_ImplInfo.Fx->BeginPass(9);
+			_ImplInfo.Fx->BeginPass(8);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -294,6 +332,13 @@ HRESULT BtlPanel::Ready()
 	_ExALBM1Tex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\wp00_001_ALBM.tga");
 	_ExNRMR1Tex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\wp00_001_NRMR.tga");
 
+	_HPGaugeBaseALBMTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_GaugeBase_ALBM.tga");
+	_HPGaugeBaseATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_GaugeBase_ATOS.tga");
+	_HPGaugeBaseNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_GaugeBase_NRMR.tga");
+	_HPGaugeALBMTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_Gauge_ALBM.tga");
+	_HPGaugeATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_Gauge_ATOS.tga");
+	_HPGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_Gauge_NRMR.tga");
+
 	D3DXMatrixPerspectiveFovLH(&_PerspectiveProjMatrix, D3DXToRadian(2.5f), (float)g_nWndCX / g_nWndCY, 0.1f, 1.f);
 		 
 	Init_UIDescs();
@@ -336,14 +381,21 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	Update_TargetInfo();
 
 	//
-	float _BossGaugeOrthoOffsetToCenter = 0.344f; // 직접 수작업으로 찾아야 하나 ㅠㅠ
+	float BossGaugeOrthoOffsetToCenter = 0.344f; // 직접 수작업으로 찾아야 하나 ㅠㅠ
 	// + 적 체력 받아와서 degree 같은 애들 갱신하자
-	// 일단 임시
-	_BossGauge_CurXPosOrtho = -_BossGaugeOrthoOffsetToCenter + ((360.f - _TargetHP_Degree) / 360.f * 2.f * _BossGaugeOrthoOffsetToCenter);
+	// 일단 임시. 보스게이지가 한가운데 있어서 밑 로직 가능
+	_BossGauge_CurXPosOrtho = -BossGaugeOrthoOffsetToCenter + ((360.f - _TargetHP_Degree) / 360.f * 2.f * BossGaugeOrthoOffsetToCenter);
 	//std::cout << _BossGauge_CurXPosOrtho << std::endl;
 
 	//
-	//Imgui_ModifyUI(EX_GAUGE);
+	float HPGaugeOrthoWidth = 0.078125f;
+	float HPGaugeOrthoStartX = ScreenPosToOrtho(_UIDescs[HP_GAUGE].Pos.x, 0.f).x - HPGaugeOrthoWidth * 0.5f;
+
+	_HPGauge_CurXPosOrtho = HPGaugeOrthoStartX + (360.f - _TargetHP_Degree) / 360.f * HPGaugeOrthoWidth * static_cast<float>(_HPGaugeCount);
+	std::cout << _HPGauge_CurXPosOrtho << std::endl;
+
+	//
+	Imgui_ModifyUI(HP_GLASS);
 
 	return 0;
 }
@@ -379,9 +431,10 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[TARGET_CURSOR] = { true, Vector3(640.f, 360.f, 0.02f), Vector3(0.3f, 0.3f, 1.f) };
 	_UIDescs[TARGET_HP] = { true, Vector3(640.f, 360.f, 0.5f), Vector3(0.46f, 0.46f, 1.f) };
 	_UIDescs[BOSS_GUAGE] = { true, Vector3(640.f, 670.f, 0.5f), Vector3(4.7f, 5.f, 1.f) };
-	_UIDescs[HP_GLASS] = { true, Vector3(240.f, 155.f, 0.2f), Vector3(0.5f, 0.5f, 1.f) };
+	_UIDescs[HP_GLASS] = { true, Vector3(240.f, 155.f, 0.4f), Vector3(0.5f, 0.5f, 1.f) };
 	_UIDescs[EX_GAUGE_BACK] = { true, Vector3(80.f, 110.f, 0.5f), Vector3(1.8f, 1.8f, 1.f) };
 	_UIDescs[EX_GAUGE] = { true, Vector3(-7.55f, 3.15f, 15.f), Vector3(0.01f, 0.01f, 0.01f) };
+	_UIDescs[HP_GAUGE] = { true, Vector3(210.f, 50.f, 0.02f), Vector3(0.5f, 0.5f, 1.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -472,12 +525,12 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._33 = _UIDescs[_ID].Scale.z;
 			D3DXMatrixRotationX(&RotMat, D3DXToRadian(21.f));
 			_Out *= RotMat;
-			D3DXMatrixRotationY(&RotMat, D3DXToRadian(-91.f));
+			D3DXMatrixRotationY(&RotMat, D3DXToRadian(-89.f));
 			_Out *= RotMat;
-			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(17.f));
+			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(15.5f));
 			_Out *= RotMat;
-			_Out._41 = -9.075f; //_UIDescs[_ID].Pos.x;
-			_Out._42 = 4.1f; //_UIDescs[_ID].Pos.y;
+			_Out._41 = -9.07f; //_UIDescs[_ID].Pos.x;
+			_Out._42 = 4.14f; //_UIDescs[_ID].Pos.y;
 			_Out._43 = 16.f; //_UIDescs[_ID].Pos.z;
 		}
 		else // 0
@@ -495,6 +548,15 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._42 = 3.15f; //_UIDescs[_ID].Pos.y;
 			_Out._43 = 15.f; //_UIDescs[_ID].Pos.z;
 		}
+		break;
+
+	case HP_GAUGE:
+		_Out._11 = _UIDescs[_ID].Scale.x;
+		_Out._22 = _UIDescs[_ID].Scale.y;
+		_Out._33 = _UIDescs[_ID].Scale.z;
+		_Out._41 = (_UIDescs[_ID].Pos.x + _Opt * _HPGaugeWidth) - (g_nWndCX >> 1);
+		_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+		_Out._43 = _UIDescs[_ID].Pos.z;
 		break;
 
 	default:
@@ -579,4 +641,8 @@ void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 	float HPGlassDirt = _HPGlassDirt;
 	ImGui::SliderFloat("GlassDirt", &HPGlassDirt, 0.f, 1.f);
 	_HPGlassDirt = HPGlassDirt;
+
+	int HPGaugeCount = _HPGaugeCount;
+	ImGui::SliderInt("HPGaugeCount", &HPGaugeCount, 1, 8);
+	_HPGaugeCount = HPGaugeCount;
 }
