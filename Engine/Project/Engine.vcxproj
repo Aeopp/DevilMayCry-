@@ -184,6 +184,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\AnimationTrack.h" />
     <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\basiccamera.h" />
     <ClInclude Include="..\Header\Collider.h" />
     <ClInclude Include="..\Header\CollisionCallback.h" />
     <ClInclude Include="..\Header\Color.h" />
@@ -241,12 +242,14 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\TimeSystem.h" />
     <ClInclude Include="..\Header\Transform.h" />
     <ClInclude Include="..\Header\Vertexs.h" />
+    <ClInclude Include="..\Header\_3Dmath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AnimationBlendInfo.cpp" />
     <ClCompile Include="..\Source\AnimationInformation.cpp" />
     <ClCompile Include="..\Source\AnimationTrack.cpp" />
     <ClCompile Include="..\Source\AnimNotify.cpp" />
+    <ClCompile Include="..\Source\basiccamera.cpp" />
     <ClCompile Include="..\Source\Collider.cpp" />
     <ClCompile Include="..\Source\CollisionCallback.cpp" />
     <ClCompile Include="..\Source\Color.cpp" />
@@ -293,6 +296,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Timer.cpp" />
     <ClCompile Include="..\Source\TimeSystem.cpp" />
     <ClCompile Include="..\Source\Transform.cpp" />
+    <ClCompile Include="..\Source\_3Dmath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
@@ -377,6 +381,16 @@ call Engine.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Resource\Shader\RTDebug.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\ToneMap.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\gbuffer_ds.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

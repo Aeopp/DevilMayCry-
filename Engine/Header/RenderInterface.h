@@ -28,6 +28,7 @@ public:
 	};
 	struct ENGINE_DLL ImplementationInfo
 	{
+		IDirect3DDevice9* _Device{};
 		ID3DXEffect* Fx{};
 		uint32 PassIndex{ 0u };
 	};

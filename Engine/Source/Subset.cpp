@@ -98,15 +98,31 @@ void Subset::BindProperty(const UINT TexType,const uint64 TexIdx,const std::stri
 	{
 		if (FAILED(Fx->SetTexture(ShaderParamName.c_str(), Tex->GetTexture())))
 		{
-			Log("Shader Texture Bind Failed !!");
-
+		}
+		else
+		{
+			return;
 		}
 	}
-	else
-	{
-		Log("Shader Texture Bind Failed !!");
 
+    Log("Shader Texture Bind Failed !!");
+}
+
+void Subset::BindProperty(const UINT TexType, const uint64 TexIdx, const UINT RegisterIdx, IDirect3DDevice9* const _Device)&
+{
+	if (auto Tex = m_tMaterial.GetTexture(TexType, TexIdx);
+		Tex)
+	{
+		if (FAILED(_Device->SetTexture(RegisterIdx, Tex->GetTexture())))
+		{
+		}
+		else
+		{
+			return;
+		}
 	}
+
+	Log("Shader Texture Bind Failed !!");
 }
 
 const VERTEXBUFFERDESC& Subset::GetVertexBufferDesc()

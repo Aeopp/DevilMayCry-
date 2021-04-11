@@ -40,8 +40,10 @@ void TestAnimationObject::RenderGBufferImplementation(const ImplementationInfo& 
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, 0u, _ImplInfo._Device);
+			SharedSubset->BindProperty(TextureType::NORMALS, 0u, 1u, _ImplInfo._Device);
+			// SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+			// SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
 			SharedSubset->Render(_ImplInfo.Fx);
 		}
 	};
@@ -88,7 +90,7 @@ void TestAnimationObject::RenderShadowImplementation(const ImplementationInfo& _
 	if (NumSubset > 0)
 	{
 		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+		_ImplInfo.Fx->SetMatrix("matWorld", &RenderInfo.World);
 		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
 	}
 

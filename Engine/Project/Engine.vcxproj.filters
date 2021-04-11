@@ -145,6 +145,8 @@
     <ClCompile Include="..\Source\FLight.cpp" />
     <ClCompile Include="..\Source\Quad.cpp" />
     <ClCompile Include="..\Source\Color.cpp" />
+    <ClCompile Include="..\Source\basiccamera.cpp" />
+    <ClCompile Include="..\Source\_3Dmath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
@@ -369,6 +371,8 @@
     <ClInclude Include="..\Header\FLight.h" />
     <ClInclude Include="..\Header\Quad.h" />
     <ClInclude Include="..\Header\Color.h" />
+    <ClInclude Include="..\Header\basiccamera.h" />
+    <ClInclude Include="..\Header\_3Dmath.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">
@@ -532,14 +536,32 @@
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
       <Filter>04.HLSL\Effect</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\DebugBone.hlsl" />
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\Shadow.hlsl" />
-    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
-    <None Include="..\..\Resource\Shader\Blur.hlsl" />
-    <None Include="..\..\Resource\Shader\ShadowSK.hlsl" />
-    <None Include="..\..\Resource\Shader\RTDebug.hlsl" />
+    <None Include="..\..\Resource\Shader\Blur.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\DebugBone.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\RTDebug.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\Shadow.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\ShadowSK.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\ToneMap.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\gbuffer_ds.hlsl">
+      <Filter>04.HLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -27,7 +27,11 @@ public:
 public:
 	void Initialize(LPDIRECT3DVERTEXBUFFER9 const _pVB, LPDIRECT3DINDEXBUFFER9 const _pIB, const VERTEXBUFFERDESC & _tVBDesc, const MATERIAL & _tMaterial);
 	void Render(ID3DXEffect *const Fx);
+	// 텍스쳐를 이펙트에 바인딩
 	void BindProperty(const UINT TexType, const uint64 TexIdx, const std::string & ShaderParamName , ID3DXEffect* const Fx)&;
+	// 텍스쳐를 장치 레지스터에 바인딩 . 
+	void BindProperty(const UINT TexType, const uint64 TexIdx,
+		const UINT RegisterIdx, IDirect3DDevice9* const _Device)&;
 public:
 	const LPDIRECT3DVERTEXBUFFER9	GetVertexBuffer();
 	const LPDIRECT3DINDEXBUFFER9	GetIndexBuffer();

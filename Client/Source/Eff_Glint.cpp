@@ -131,7 +131,7 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 					Rot = D3DXToRadian(-35.f);
 				D3DXMatrixRotationZ(&TempMat, Rot);
 				_WorldMatrix[i] *= TempMat;
-				TempMat = Renderer::GetInstance()->CurrentRenderInfo.CameraView;
+				TempMat = Renderer::GetInstance()->CurrentRenderInfo.View;
 				D3DXMatrixIdentity(&BillMat);
 				memcpy(&BillMat.m[0][0], &TempMat.m[0][0], sizeof(Vector3));
 				memcpy(&BillMat.m[1][0], &TempMat.m[1][0], sizeof(Vector3));

@@ -12,7 +12,7 @@ struct ENGINE_DLL Quad
 				/*사이즈는 클라이언트 창 사이즈에 대한 비율 .. */
 				const float SizeXRatio,
 				const float SizeYRatio,
-				LPD3DXEFFECT const Fx)&;
+				LPD3DXEFFECT const Fx=nullptr)&;
 	void Release()&;
 
 	~Quad()noexcept { Release();  };

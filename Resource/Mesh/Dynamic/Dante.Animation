@@ -1,19 +1,19 @@
 {
     "AnimationData": {
-        "RootMotion_DeltaFactor": 0.06300000101327896,
+        "RootMotion_DeltaFactor": 0.3799999952316284,
         "RootMotion_ScaleName": "root",
-        "RootMotion_RotationName": "NULL_ROTATION",
+        "RootMotion_RotationName": "root",
         "RootMotion_TransitionName": "root",
         "AnimInfoTable": [
             {
                 "Name": "Air_Dive_Slash_Finish",
-                "Acceleration": 0.37599998712539675,
-                "TransitionTime": 0.32199999690055849
+                "Acceleration": 0.4059999883174896,
+                "TransitionTime": 0.39399999380111697
             },
             {
                 "Name": "Air_Dive_Slash_Start",
-                "Acceleration": 0.23800000548362733,
-                "TransitionTime": 0.460999995470047
+                "Acceleration": 0.3140000104904175,
+                "TransitionTime": 0.2709999978542328
             },
             {
                 "Name": "Caliber_End",
@@ -662,8 +662,8 @@
             },
             {
                 "Name": "RunTurn_L",
-                "Acceleration": 0.38600000739097597,
-                "TransitionTime": 0.22499999403953553
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
             },
             {
                 "Name": "Shuffle",

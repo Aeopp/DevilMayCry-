@@ -1,38 +1,12 @@
-float4x4 World;
-float4x4 View;
-float4x4 Projection;
-float4x4 PrevWorldViewProjection;
+uniform sampler2D ALBM : register(s0);
+uniform sampler2D NRMR : register(s1);
 
-bool bVelocityRecord = false;
+uniform matrix World;
+uniform matrix ViewProjection;
+uniform matrix PrevWorldViewProjection;
 
-float2 UVScale = { 1, 1 };
-
-
-
-texture ALBM0Map;
-sampler ALBM0 = sampler_state
-{
-    texture = ALBM0Map;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-    addressu = wrap;
-    addressv = wrap;
-    // 이후에 쉐이딩 수행할시 감마보정...
-    sRGBTexture = false;
-};
-
-texture NRMR0Map;
-sampler NRMR0 = sampler_state
-{
-    texture = NRMR0Map;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
-    addressu = wrap;
-    addressv = wrap;
-    sRGBTexture = false;
-};
+uniform bool bVelocityRecord = false;
+uniform float2 UVScale = { 1, 1 };
 
 struct VsIn
 {
@@ -57,7 +31,6 @@ struct VsOut
 VsOut VsGBuffer(VsIn In)
 {
     VsOut Out = (VsOut) 0;
-    float4x4 ViewProjection = mul(View, Projection);
     
     float4x4 WVP = mul(World, ViewProjection);
     Out.UV = In.UV * UVScale;
@@ -96,14 +69,14 @@ PsOut PsGBuffer(PsIn In)
                             normalize(In.BiNormal),
                             normalize(In.Normal));
     
-    float4 sampleNrmr = tex2D(NRMR0, In.UV); 
+    float4 sampleNrmr = tex2D(ALBM, In.UV);
     float2 NormalXY   = sampleNrmr.xy * 2.0 - 1.0f;
     const float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
     
     float3 PackNormal=normalize(mul(
-    normalize(float3(NormalXY, NormalZ)), TBN));
+                normalize(float3(NormalXY, NormalZ)), TBN));
     
-    Out.Albm = tex2D(ALBM0, In.UV);
+    Out.Albm = tex2D(ALBM, In.UV);
     Out.Nrmr = float4(PackNormal.xyz *0.5f+0.5f,sampleNrmr.w);
     /*원근나누기*/
     Out.Depth = float4(In.ZW.x / In.ZW.y,0 ,0 ,0 );
@@ -115,12 +88,6 @@ technique GBuffer
 {
     pass
     {
-        alphablendenable = false;
-        zenable = true;
-        zwriteenable = true;
-        sRGBWRITEENABLE = false;
-        cullmode = ccw;
-        fillmode = solid;
         vertexshader = compile vs_3_0 VsGBuffer();
         pixelshader = compile ps_3_0 PsGBuffer();
     }

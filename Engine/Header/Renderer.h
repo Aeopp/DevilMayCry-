@@ -13,6 +13,7 @@
 #include "RenderTarget.h"
 #include "Shader.h"
 #include "Quad.h"
+#include "basiccamera.h"
 
 BEGIN(ENGINE)
 class ENGINE_DLL Renderer final : public Object
@@ -50,10 +51,10 @@ private:
 	void RenderEntityClear()&;
 private:
 	HRESULT RenderImplementation()&;
-	HRESULT RenderGBuffer()&;
+	// HRESULT RenderGBuffer()&;
 	HRESULT RenderDeferredShading()&;
 	HRESULT RenderForwardAlphaBlend()&;
-	HRESULT RenderShadows();
+	// HRESULT RenderShadows();
 	HRESULT RenderAlphaBlendEffect()&;
 	HRESULT RenderDebug()&;
 	HRESULT RenderDebugBone()&;
@@ -78,13 +79,36 @@ private:
 	bool TestShaderInit();
 	void TestShaderRelease();
 	
+	void RenderShadowMaps();
+	void RenderGBuffer(const Math::Matrix & viewproj);
+	void DeferredShading(const Math::Matrix & view, 
+		const Math::Matrix & proj, 
+		const Math::Matrix & viewprojinv, 
+		const Math::Vector4 & eye);
+
+	void RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX & viewproj);
 	LPDIRECT3DTEXTURE9	marble = nullptr;
 	LPDIRECT3DTEXTURE9	wood = nullptr;
 	LPDIRECT3DTEXTURE9	wood_normal = nullptr;
 	LPDIRECT3DTEXTURE9	sky = nullptr;
 	LPD3DXMESH			skull = nullptr;
 	LPD3DXMESH			box = nullptr;
-	
+	BasicCamera camera;
+
+	float DXScreenQuadVerticesFFP[24] = {
+		// NOTE: viewport must be added
+		-0.5f, -0.5f, 0, 1,		0, 1,
+		-0.5f, -0.5f, 0, 1,		0, 0,
+		-0.5f, -0.5f, 0, 1,		1, 1
+		- 0.5f, -0.5f, 0, 1,		1, 0,
+	};
+
+	float DXScreenQuadVertices[24] = {
+	-1, -1, 0, 1,	0, 1,
+	-1, 1, 0, 1,	0, 0,
+	1, -1, 0, 1,	1, 1,
+	1, 1, 0, 1,		1, 0
+	};
 };
 END
 

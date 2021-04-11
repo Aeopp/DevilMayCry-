@@ -1,106 +1,90 @@
-float2 PixelSize;
-float2 TexelSize;
 
-texture RenderScene;
-sampler RenderSceneSample = sampler_state
+uniform sampler2D renderedscene : register(s0);
+
+uniform float2 pixelSize;
+uniform float2 texelSize;
+
+void vs_main(
+	in out float4 pos : POSITION,
+	in out float2 tex : TEXCOORD0)
 {
-    texture = RenderScene;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = none;
-    addressu = clamp; 
-    addressv = clamp; 
-};
+    pos.xy -= pixelSize.xy;
+}
 
- // ZEnable = false;
-void VsMain(
-    in out float4 Position : POSITION,
-    in out float2 TexCoord : TEXCOORD0)
+void ps_boxblur3x3(
+	in float2 tex : TEXCOORD0,
+	out float4 color : COLOR0)
 {
-    Position.xy -= PixelSize.xy;
-};
+    color = 0;
 
-void PsBoxBlur3x3(
-   in float2 TexCoord : TEXCOORD0,
-    out float4 Color : COLOR0)
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, -0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, -0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, -0.5f));
+
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, 0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, 0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, 0.5f));
+
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, 1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, 1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, 1.5f));
+
+    color /= 9.0f;
+}
+
+void ps_boxblur5x5(
+	in float2 tex : TEXCOORD0,
+	out float4 color : COLOR0)
 {
-    Color = 0;
+    color = 0;
 
-    // ÀÎÁ¢ ÇÈ¼¿ 9Ä­ ºí·¯ .
-    // ¸óÅ× Ä«¸¦·Î . 
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, -0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, -0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, -0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-1.5f, -1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, -1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, -1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, -1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(2.5f, -1.5f));
 
-    Color /= 9.0f;
-};
+    color += tex2D(renderedscene, tex + texelSize * float2(-1.5f, -0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, -0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, -0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, -0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(2.5f, -0.5f));
 
+    color += tex2D(renderedscene, tex + texelSize * float2(-1.5f, 0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, 0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, 0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, 0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(2.5f, 0.5f));
 
-void PsBoxBlur5x5(
-  in float2 TexCoord : TEXCOORD0,
-  out float4 Color : COLOR0)
-{
-    Color = 0;
-    
-    // 25 Ä­ ºí·¯
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, -1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, -1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, -1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, -1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, -1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-1.5f, 1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, 1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, 1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, 1.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(2.5f, 1.5f));
 
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, -0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, -0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, -0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, -0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, -0.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-1.5f, 2.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(-0.5f, 2.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(0.5f, 2.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(1.5f, 2.5f));
+    color += tex2D(renderedscene, tex + texelSize * float2(2.5f, 2.5f));
 
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, 0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 0.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, 0.5f));
+    color /= 25.0f;
+}
 
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, 1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 1.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, 1.5f));
-
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-1.5f, 2.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(-0.5f, 2.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(0.5f, 2.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(1.5f, 2.5f));
-    Color += tex2D(RenderSceneSample, TexCoord + TexelSize * float2(2.5f, 2.5f));
-
-    Color /= 25.0f;
-};
-
-
-technique BoxBlur3x3
+technique boxblur3x3
 {
     pass p0
     {
-        ZEnable = false;
-
-        vertexshader = compile vs_3_0 VsMain();
-        pixelshader = compile ps_3_0 PsBoxBlur3x3();  
-    } 
-};
-
-technique BoxBlur5x5
-{
-    pass p0
-    {
-        ZEnable = false;
-        vertexshader = compile vs_3_0 VsMain();
-        pixelshader = compile ps_3_0 PsBoxBlur5x5();
+        vertexshader = compile vs_3_0 vs_main();
+        pixelshader = compile ps_3_0 ps_boxblur3x3();
     }
-};
+}
 
+technique boxblur5x5
+{
+    pass p0
+    {
+        vertexshader = compile vs_3_0 vs_main();
+        pixelshader = compile ps_3_0 ps_boxblur5x5();
+    }
+}

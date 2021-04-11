@@ -74,7 +74,7 @@ void TestObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
 	if (NumSubset > 0)
 	{
 		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+		_ImplInfo.Fx->SetMatrix("matWorld", &RenderInfo.World);
 	}
 
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
@@ -104,8 +104,10 @@ void TestObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, 0u, _ImplInfo._Device);
+			SharedSubset->BindProperty(TextureType::NORMALS, 0u, 1u, _ImplInfo._Device);
+			// SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+			// SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
 			SharedSubset->Render(_ImplInfo.Fx);
 		}
 	};

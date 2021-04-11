@@ -1,69 +1,40 @@
-texture RenderTargetTexture;
-matrix Ortho;
-matrix ScreenMatrix;
 
-sampler RT = sampler_state
+uniform sampler2D sampler0 : register(s0);
+uniform float4 rectColor = { 1, 1, 1, 1 };
+
+void vs_main(
+	in out float4 pos : POSITION,
+	in out float2 tex : TEXCOORD0)
 {
-    texture = RenderTargetTexture;
-
-    minfilter = point;
-    magfilter = point;
-    mipfilter = point;
-};
-
-
-struct VS_IN
-{
-    vector Position : POSITION;
-    float2 UV : TEXCOORD0;
-};
-
-struct VS_OUT
-{
-    vector Position : POSITION;
-    float2 UV : TEXCOORD0;
-};
-
-// ¡§¡° Ω¶¿Ã¥ı
-VS_OUT VS_MAIN(VS_IN In)
-{
-    VS_OUT Out = (VS_OUT) 0;
-    Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMatrix);
-    Out.Position = mul(float4(Out.Position.xyz, 1.f), Ortho);
-    Out.UV = In.UV;
-    
-    return Out;
 }
 
-struct PS_IN
+void ps_screenquad(
+	in float2 tex : TEXCOORD0,
+	out float4 color : COLOR0)
 {
-    float2 UV : TEXCOORD0;
-};
-
-struct PS_OUT
-{
-    vector COLOR : COLOR0;
-};
-
-PS_OUT PS_MAIN(PS_IN In)
-{
-    PS_OUT Out = (PS_OUT) 0;
-    Out.COLOR = tex2D(RT, In.UV);
-    
-    return Out;
+    color = tex2D(sampler0, tex);
 }
 
-technique Default_Device
+void ps_rect(
+	out float4 color : COLOR0)
 {
-    pass
+    color = rectColor;
+}
+
+technique screenquad
+{
+    pass p0
     {
-        alphablendenable = false;
-        zenable = false;
-        zwriteenable = false;
-        cullmode = none;
-        fillmode = solid;
-        stencilenable = false;
-        vertexshader = compile vs_3_0 VS_MAIN();
-        pixelshader = compile ps_3_0 PS_MAIN();
+        vertexshader = compile vs_3_0 vs_main();
+        pixelshader = compile ps_3_0 ps_screenquad();
+    }
+}
+
+technique rect
+{
+    pass p0
+    {
+        vertexshader = compile vs_3_0 vs_main();
+        pixelshader = compile ps_3_0 ps_rect();
     }
 }

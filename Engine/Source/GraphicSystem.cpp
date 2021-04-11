@@ -20,7 +20,6 @@ HRESULT GraphicSystem::ReadyGraphicSystem(
 	const bool bMultiSample)
 {
 	g_pSDK =m_pSDK = Direct3DCreate9(D3D_SDK_VERSION);
-
 	g_bWindowed = bWindowed;
 
 	if (nullptr == m_pSDK)
@@ -41,9 +40,15 @@ HRESULT GraphicSystem::ReadyGraphicSystem(
 
 	DWORD dwVertexProcessing = 0;
 	if ((D3DDEVCAPS_HWTRANSFORMANDLIGHT & tD3DCaps.DevCaps))
+	{
 		dwVertexProcessing = D3DCREATE_HARDWARE_VERTEXPROCESSING;
+	}	
 	else
+	{
 		dwVertexProcessing = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		PRINT_LOG(L"Warning!", L"SOFTWARE_VERTEXPROCESSING!");
+	}
+		
 
 	dwVertexProcessing |= D3DCREATE_MULTITHREADED;
 
@@ -81,9 +86,9 @@ HRESULT GraphicSystem::ReadyGraphicSystem(
 	tD3DPP.Windowed = g_bWindowed;
 	tD3DPP.EnableAutoDepthStencil = TRUE;
 	tD3DPP.AutoDepthStencilFormat = D3DFMT_D24S8;
-
+	tD3DPP.Flags = 0;
 	tD3DPP.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-	tD3DPP.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+	tD3DPP.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 
 	if (FAILED(m_pSDK->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,
 		g_hWnd, dwVertexProcessing, &tD3DPP, &m_pDevice)))
@@ -117,9 +122,9 @@ HRESULT GraphicSystem::ReadyGraphicSystem(
 
 void GraphicSystem::Begin()&
 {
-	m_pDevice->Clear(0, nullptr,
+	/*m_pDevice->Clear(0, nullptr,
 		D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		D3DXCOLOR(0, 0, 100, 255), 1.f, 0);
+		D3DXCOLOR(0, 0, 100, 255), 1.f, 0);*/
 	m_pDevice->BeginScene();
 }
 

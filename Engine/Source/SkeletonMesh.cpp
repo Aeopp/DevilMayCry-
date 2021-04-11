@@ -331,14 +331,23 @@ void SkeletonMesh::AnimationSave(
 		Writer.Key("RootMotion_DeltaFactor");
 		Writer.Double(RootMotionDeltaFactor);
 
-		Writer.Key("RootMotion_ScaleName");
-		Writer.String(RootMotionScaleName.c_str());
+		if (bRootMotionScale)
+		{
+			Writer.Key("RootMotion_ScaleName");
+			Writer.String(RootMotionScaleName.c_str());
+		}
 
-		Writer.Key("RootMotion_RotationName");
-		Writer.String(RootMotionRotationName.c_str());
+		if (bRootMotionRotation)
+		{
+			Writer.Key("RootMotion_RotationName");
+			Writer.String(RootMotionRotationName.c_str());
+		}
 
-		Writer.Key("RootMotion_TransitionName");
-		Writer.String(RootMotionTransitionName.c_str());
+		if (bRootMotionTransition)
+		{
+			Writer.Key("RootMotion_TransitionName");
+			Writer.String(RootMotionTransitionName.c_str());
+		}
 
 		Writer.Key("AnimInfoTable");
 		Writer.StartArray();
@@ -409,17 +418,20 @@ void SkeletonMesh::AnimationDataLoadFromJsonTable(
 			{
 				if (iter->HasMember("Name"))
 				{
-					if (false == AnimInfoTable->contains(AnimName))
-					{
-						Log("No model animation name and no data table name occur. Check if the animation has been renamed");
-						// PRINT_LOG(L"Warning!!",L".")
-					}
-
 					const std::string AnimName =
 						iter->FindMember("Name")->value.GetString();
 
-					(*AnimInfoTable)[AnimName].SetAcceleration(iter->FindMember("Acceleration")->value.GetFloat());
-					(*AnimInfoTable)[AnimName].TransitionTime = iter->FindMember("TransitionTime")->value.GetFloat();
+					if (false == AnimInfoTable->contains(AnimName))
+					{
+						Log("No model animation name and no data table name occur. Check if the animation has been renamed");
+						continue;
+						// PRINT_LOG(L"Warning!!",L".")
+					}
+
+					(*AnimInfoTable)[AnimName].SetAcceleration(
+						iter->FindMember("Acceleration")->value.GetFloat());
+					(*AnimInfoTable)[AnimName].TransitionTime = 
+						iter->FindMember("TransitionTime")->value.GetFloat();
 				}
 			}
 		}

@@ -60,8 +60,12 @@ void Quad::Render(
 	const float SizeYRatio ,
 	LPD3DXEFFECT const Fx)&
 {
-	Fx->SetFloat("SizeXRatio", SizeXRatio);
-	Fx->SetFloat("SizeYRatio", SizeYRatio);
+	if (Fx)
+	{
+		Fx->SetFloat("SizeXRatio", SizeXRatio);
+		Fx->SetFloat("SizeYRatio", SizeYRatio);
+	}
+	
 	{
 		_Device ->SetStreamSource(0, VtxBuf, 0u, Stride);
 		_Device ->SetVertexDeclaration(VtxDecl);

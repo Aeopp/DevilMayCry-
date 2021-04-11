@@ -1,113 +1,57 @@
-#define QUAD_PI 12.566370614359172
 
-matrix LightViewProjection;
-matrix ViewProjectionInverse;
+#define QUAD_PI		12.566370614359172
 
-float4 LightPosition;
-float3 LightColor = { 1, 1, 1 };
-float LightFlux = 10.0f;
-float LightIlluminance = 1.5f;
-float LightRadius = 5.0f;
-float SpecularPower = 80.0f;
+uniform sampler2D albedo : register(s0);
+uniform sampler2D normals : register(s1);
+uniform sampler2D depth : register(s2);
+uniform sampler2D shadowMap : register(s3);
+uniform samplerCUBE cubeShadowMap : register(s4);
 
-float4 EyePosition;
-float2 PixelSize;
-float2 ClipPlanes;
+uniform matrix matViewProjInv;
+uniform matrix lightViewProj;
 
-texture ALBM;
-texture NRMR;
-texture Depth;
-texture Shadow;
-textureCUBE CubeShadow;
+uniform float4 lightPos;
+uniform float3 lightColor = { 1, 1, 1 };
+uniform float lightFlux = 10.0f; // lumen
+uniform float lightIlluminance = 1.5f; // lux
+uniform float lightRadius = 5.0f; // meter
+uniform float specularPower = 80.0f;
 
-samplerCUBE CubeShadowSample = sampler_state
+uniform float4 eyePos;
+uniform float2 pixelSize;
+uniform float2 clipPlanes;
+
+void vs_main(
+	in out float4 pos : POSITION,
+	in out float2 tex : TEXCOORD0)
 {
-    texture = CubeShadow;
-
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = none;
-    addressu = clamp;
-    addressv = clamp;
-};
-
-sampler ShadowSample = sampler_state
-{
-    texture = Shadow;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = none;
-    addressu = clamp;
-    addressv = clamp;
-    SRGBTEXTURE = false;
-};
-
-sampler ALBMSample = sampler_state
-{
-    texture = ALBM;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = none;
-    addressu = clamp;
-    addressv = clamp;
-    SRGBTEXTURE = true;
-};
-
-
-sampler NRMRSample = sampler_state
-{
-    texture = NRMR;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = none;
-    addressu = clamp;
-    addressv = clamp;
-    SRGBTEXTURE = false;
-}; 
-
-
-sampler DepthSample = sampler_state
-{
-    texture = Depth;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = none;
-    addressu = clamp;
-    addressv = clamp;
-    SRGBTEXTURE = false;
-};
-
-void VsMain(
-    in out float4 Position : POSITION,
-    in out
-float2 TexCoord : TEXCOORD0)
-{
-    Position.xy -= PixelSize.xy;
+    pos.xy -= pixelSize.xy;
 }
 
-float ShadowVariance(float2 Moments, float D)
+float ShadowVariance(float2 moments, float d)
 {
-    float Mean = Moments.x;
-    float Variance = max(Moments.y - Moments.x * Moments.x, 1e-5f);
-    float Md = Mean - D;
-    float Chebychev = Variance / (Variance + Md * Md);
+    float mean = moments.x;
+    float variance = max(moments.y - moments.x * moments.x, 1e-5f);
+    float md = mean - d;
+    float chebychev = variance / (variance + md * md);
 
-    Chebychev = smoothstep(0.1f, 1.0f, Chebychev);
-    
-    return max(((D <= Mean) ? 1.0f : 0.0f), Chebychev);
-};
+    chebychev = smoothstep(0.1f, 1.0f, chebychev);
+
+	// NEVER forget that d > mean in Chebychev's inequality!!!
+    return max(((d <= mean) ? 1.0f : 0.0f), chebychev);
+}
 
 float3 Luminance_Blinn_Directional(float3 albedo, float3 wpos, float3 wnorm)
 {
-	// 태양의 각도 지름은 [0.526, 0.545].
+	// the sun has an angular diameter between [0.526, 0.545] degrees
     const float sinAngularRadius = 0.0046251;
     const float cosAngularRadius = 0.9999893;
 
-    float3 v = normalize(EyePosition.xyz - wpos);
+    float3 v = normalize(eyePos.xyz - wpos);
     float3 n = normalize(wnorm);
 
-	// 디스크에 가장 가까운 지점 . 
-    float3 D = normalize(LightPosition.xyz);
+	// closest point to disk (approximation)
+    float3 D = normalize(lightPos.xyz);
     float3 R = reflect(-v, n);
 
     float DdotR = dot(D, R);
@@ -117,36 +61,36 @@ float3 Luminance_Blinn_Directional(float3 albedo, float3 wpos, float3 wnorm)
     float3 S = R - DdotR * D;
     float3 L = ((DdotR < d) ? normalize(d * D + normalize(S) * r) : R);
 
-	//BRDF (참고 : 값 및 노출과 일치해야 함)
+	// BRDF (NOTE: should match values and exposure)
     float3 h = normalize(L + v);
 
     float ndotl = saturate(dot(n, L));
     float ndoth = saturate(dot(n, h));
 
     float3 f_diffuse = albedo;
-    float f_specular = pow(ndoth, SpecularPower);
+    float f_specular = pow(ndoth, specularPower);
 
     float costheta = saturate(dot(n, D));
-    float illuminance = LightIlluminance * costheta;
+    float illuminance = lightIlluminance * costheta;
 
 	// calculate shadow (assumes ortho projection)
-    float4 lspos = mul(float4(wpos, 1), LightViewProjection);
+    float4 lspos = mul(float4(wpos, 1), lightViewProj);
 	
     d = lspos.z;
 
     float2 ptex = (lspos.xy / lspos.w) * float2(0.5f, -0.5f) + 0.5f;
-    float2 moments = tex2D(ShadowSample, ptex).rg;
-    float  shadow = ShadowVariance(moments, d);
+    float2 moments = tex2D(shadowMap, ptex).rg;
+    float shadow = ShadowVariance(moments, d);
 
-    return (f_diffuse + f_specular) * LightColor* illuminance * shadow;
+    return (f_diffuse + f_specular) * lightColor * illuminance * shadow;
 }
 
 float3 Luminance_Blinn_Point(float3 albedo, float3 wpos, float3 wnorm)
 {
-    float3 ldir = LightPosition.xyz - wpos;
+    float3 ldir = lightPos.xyz - wpos;
 
     float3 l = normalize(ldir);
-    float3 v = normalize(EyePosition.xyz - wpos);
+    float3 v = normalize(eyePos.xyz - wpos);
     float3 h = normalize(l + v);
     float3 n = normalize(wnorm);
 
@@ -155,43 +99,43 @@ float3 Luminance_Blinn_Point(float3 albedo, float3 wpos, float3 wnorm)
     float ndoth = saturate(dot(n, h));
 
     float3 f_diffuse = albedo;
-    float f_specular = pow(ndoth, SpecularPower);
+    float f_specular = pow(ndoth, specularPower);
 
 	// calculate shadow
-    float2 moments = texCUBE(CubeShadowSample, -l).xy;
+    float2 moments = texCUBE(cubeShadowMap, -l).xy;
 
     float z = length(ldir);
-    float d = (z - ClipPlanes.x) / (ClipPlanes.y - ClipPlanes.x);
+    float d = (z - clipPlanes.x) / (clipPlanes.y - clipPlanes.x);
     float shadow = ShadowVariance(moments, d);
 
-    float illuminance = (LightFlux/ (QUAD_PI * dist2)) * ndotl;
-    float attenuation = max(0, 1 - sqrt(dist2) / LightRadius);
+    float illuminance = (lightFlux / (QUAD_PI * dist2)) * ndotl;
+    float attenuation = max(0, 1 - sqrt(dist2) / lightRadius);
 
-    return (f_diffuse + f_specular) * LightColor* illuminance * attenuation * shadow;
+    return (f_diffuse + f_specular) * lightColor * illuminance * attenuation * shadow;
 }
 
 void ps_deferred(
 	in float2 tex : TEXCOORD0,
 	out float4 color : COLOR0)
 {
-    float4 base = tex2D(ALBMSample, tex);
-    float3 wnorm = tex2D(NRMRSample, tex).rgb * 2.0f - 1.0f;
-    float d = tex2D(DepthSample, tex).r;
+    float4 base = tex2D(albedo, tex);
+    float3 wnorm = tex2D(normals, tex).rgb * 2.0f - 1.0f;
+    float d = tex2D(depth, tex).r;
     float4 wpos = float4(tex.x * 2 - 1, 1 - 2 * tex.y, d, 1);
 
     if (d > 0.0f)
     {
-        wpos = mul(wpos,ViewProjectionInverse);
+        wpos = mul(wpos, matViewProjInv);
         wpos /= wpos.w;
 
-        if (LightPosition.w < 0.5f)
+        if (lightPos.w < 0.5f)
         {
-			// 방향 
+			// directional light
             color.rgb = Luminance_Blinn_Directional(base.rgb, wpos.xyz, wnorm);
         }
         else
         {
-			// 포인트 라이트
+			// point light
             color.rgb = Luminance_Blinn_Point(base.rgb, wpos.xyz, wnorm);
         }
 
@@ -203,16 +147,11 @@ void ps_deferred(
     }
 }
 
-technique DeferredShading
+technique deferred
 {
     pass p0
     {
-        ZWriteEnable = false;
-        ZEnable = false;
-        ALPHABLENDENABLE = true;
-        SRCBLEND = ONE;
-        DESTBLEND = ONE;
-        vertexshader = compile vs_3_0 VsMain();
-        pixelshader = compile ps_3_0 PsDeferred();
+        vertexshader = compile vs_3_0 vs_main();
+        pixelshader = compile ps_3_0 ps_deferred();
     }
 }
