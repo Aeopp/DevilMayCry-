@@ -17,6 +17,7 @@ private:
 		EX_GAUGE_BACK,
 		EX_GAUGE,
 		HP_GAUGE,
+		TDT_GAUGE,
 		DESC_END
 	};
 	struct UI_DESC
@@ -65,6 +66,9 @@ private:
 	std::shared_ptr<ENGINE::Texture> _HPGaugeALBMTex{};
 	std::shared_ptr<ENGINE::Texture> _HPGaugeATOSTex{};
 	std::shared_ptr<ENGINE::Texture> _HPGaugeNRMRTex{};
+
+	std::shared_ptr<ENGINE::Texture> _TDTGaugeATOSTex{};
+	std::shared_ptr<ENGINE::Texture> _TDTGaugeNRMRTex{};
 
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;

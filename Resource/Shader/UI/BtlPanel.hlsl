@@ -4,6 +4,7 @@ matrix ScreenMat;    // (-width/2 ~ +width/2, +height/2 ~ -height/2)
 float3 LightDirection = float3(0.f, 0.f, 1.f);
 
 float _TotalAccumulateTime;
+float _AccumulationTexU;
 float _AccumulationTexV;
 
 float _HP_Degree = 0.f; // 0 ~ 360 ¹üÀ§
@@ -469,7 +470,10 @@ PsOut PsMain_HPGauge(PsIn_Clip In)
     
     clip(_HPGaugeCurXPosOrtho - In.Clip);
     
-    float4 ALB0Sample = tex2D(ALB0, In.UV);
+    float2 newUV = In.UV;
+    newUV.x += _AccumulationTexU;
+    
+    float4 ALB0Sample = tex2D(ALB0, newUV);
     float4 ATOSSample = tex2D(ATOS0, In.UV);
     float4 NRMRSample = tex2D(NRMR0, In.UV);
     
@@ -482,10 +486,64 @@ PsOut PsMain_HPGauge(PsIn_Clip In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f; // Diffuse + Ambient
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f;
     
-    Out.Color.rgb = Shade * ALB0Sample.rgb * float3(0.114f, 0.847f, 0.537f);
+    Out.Color.rgb = Shade * (0.9f * ALB0Sample.rgb * float3(0.027f, 0.78f, 0.478f));
     Out.Color.a = ATOSSample.r;
+    
+    return Out;
+};
+
+PsOut PsMain_TDTGauge0(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+   
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f;
+    
+    float2 newUV = In.UV;
+    newUV.y += _AccumulationTexV;
+ 
+    Out.Color.rgb = Shade * (float3(0.149f, 0.145f, 0.208f) + float3(NRMRSample.aaa));
+    Out.Color.a = (ATOSSample.r + ATOSSample.b) * tex2D(ATOS0, newUV).a;
+    
+    return Out;
+};
+
+PsOut PsMain_TDTGauge1(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+   
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f;
+    
+    float2 newUV = In.UV;
+    newUV.x += _AccumulationTexU;
+
+    Out.Color.rgb = Shade * (0.9f * float3(0.478f, 0.074f, 0.028f) + 0.1f * tex2D(ATOS0, newUV).aaa);
+    Out.Color.a = ATOSSample.b;
     
     return Out;
 };
@@ -612,5 +670,29 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain_Gauge();
         pixelshader = compile ps_3_0 PsMain_HPGauge();
+    }
+    pass p10
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain();
+        pixelshader = compile ps_3_0 PsMain_TDTGauge0();
+    }
+    pass p11
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain();
+        pixelshader = compile ps_3_0 PsMain_TDTGauge1();
     }
 };

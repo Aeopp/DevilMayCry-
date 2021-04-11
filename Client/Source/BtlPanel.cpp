@@ -164,6 +164,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->SetTexture("ALB0Map", _HPGaugeALBMTex->GetTexture());
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _HPGaugeATOSTex->GetTexture());
 			_ImplInfo.Fx->SetTexture("NRMR0Map", _HPGaugeNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.2f);
 			_ImplInfo.Fx->SetFloat("_HPGaugeCurXPosOrtho", _HPGauge_CurXPosOrtho);
 
 			for (int i = 0; i < _HPGaugeCount; ++i)
@@ -175,6 +176,27 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				SharedSubset->Render(_ImplInfo.Fx);
 				_ImplInfo.Fx->EndPass();
 			}
+		}
+
+		//
+		CurID = TDT_GAUGE;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _TDTGaugeATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _TDTGaugeNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.2f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.1f);
+
+			Create_ScreenMat(CurID, ScreenMat);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(10);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			_ImplInfo.Fx->BeginPass(11);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
 		}
 	}
 
@@ -339,6 +361,9 @@ HRESULT BtlPanel::Ready()
 	_HPGaugeATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_Gauge_ATOS.tga");
 	_HPGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_Gauge_NRMR.tga");
 
+	_TDTGaugeATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\TDT_GaugeOut_ATOS.tga");
+	_TDTGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\TDT_GaugeOut_NRMR.tga");
+
 	D3DXMatrixPerspectiveFovLH(&_PerspectiveProjMatrix, D3DXToRadian(2.5f), (float)g_nWndCX / g_nWndCY, 0.1f, 1.f);
 		 
 	Init_UIDescs();
@@ -385,17 +410,14 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	// + 적 체력 받아와서 degree 같은 애들 갱신하자
 	// 일단 임시. 보스게이지가 한가운데 있어서 밑 로직 가능
 	_BossGauge_CurXPosOrtho = -BossGaugeOrthoOffsetToCenter + ((360.f - _TargetHP_Degree) / 360.f * 2.f * BossGaugeOrthoOffsetToCenter);
-	//std::cout << _BossGauge_CurXPosOrtho << std::endl;
 
 	//
 	float HPGaugeOrthoWidth = 0.078125f;
 	float HPGaugeOrthoStartX = ScreenPosToOrtho(_UIDescs[HP_GAUGE].Pos.x, 0.f).x - HPGaugeOrthoWidth * 0.5f;
-
 	_HPGauge_CurXPosOrtho = HPGaugeOrthoStartX + (360.f - _TargetHP_Degree) / 360.f * HPGaugeOrthoWidth * static_cast<float>(_HPGaugeCount);
-	std::cout << _HPGauge_CurXPosOrtho << std::endl;
 
 	//
-	Imgui_ModifyUI(HP_GLASS);
+	Imgui_ModifyUI(EX_GAUGE_BACK);
 
 	return 0;
 }
@@ -432,9 +454,10 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[TARGET_HP] = { true, Vector3(640.f, 360.f, 0.5f), Vector3(0.46f, 0.46f, 1.f) };
 	_UIDescs[BOSS_GUAGE] = { true, Vector3(640.f, 670.f, 0.5f), Vector3(4.7f, 5.f, 1.f) };
 	_UIDescs[HP_GLASS] = { true, Vector3(240.f, 155.f, 0.4f), Vector3(0.5f, 0.5f, 1.f) };
-	_UIDescs[EX_GAUGE_BACK] = { true, Vector3(80.f, 110.f, 0.5f), Vector3(1.8f, 1.8f, 1.f) };
+	_UIDescs[EX_GAUGE_BACK] = { true, Vector3(95.f, 95.f, 0.5f), Vector3(2.f, 2.f, 1.f) };
 	_UIDescs[EX_GAUGE] = { true, Vector3(-7.55f, 3.15f, 15.f), Vector3(0.01f, 0.01f, 0.01f) };
 	_UIDescs[HP_GAUGE] = { true, Vector3(210.f, 50.f, 0.02f), Vector3(0.5f, 0.5f, 1.f) };
+	_UIDescs[TDT_GAUGE] = { true, Vector3(305.f, 75.f, 0.5f), Vector3(3.5f, 3.5f, 1.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -495,7 +518,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.y;
 		_Out._33 = _UIDescs[_ID].Scale.z;
-		D3DXMatrixRotationZ(&RotMat, D3DXToRadian(-45.f));
+		D3DXMatrixRotationZ(&RotMat, D3DXToRadian(-50.f));
 		_Out *= RotMat;
 		_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 		_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
@@ -643,6 +666,6 @@ void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 	_HPGlassDirt = HPGlassDirt;
 
 	int HPGaugeCount = _HPGaugeCount;
-	ImGui::SliderInt("HPGaugeCount", &HPGaugeCount, 1, 8);
+	ImGui::SliderInt("HPGaugeCount", &HPGaugeCount, 1, 10);
 	_HPGaugeCount = HPGaugeCount;
 }
