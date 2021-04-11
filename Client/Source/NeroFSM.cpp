@@ -30,8 +30,8 @@ HRESULT NeroFSM::ReadyFSM()
 	ReserveContainer(STATE_END);
 
 	m_vecState.emplace_back(Idle::Create(this, IDLE, m_pNero));
+	m_vecState.emplace_back(Idle_Start::Create(this, IDLE_START, m_pNero));
 	m_vecState.emplace_back(Idle_Battle::Create(this, IDLE_BATTLE, m_pNero));
-	m_vecState.emplace_back(Idle_Switch_Leg::Create(this, IDLE_SWITCH_LEG, m_pNero));
 	m_vecState.emplace_back(BT_Att1::Create(this, ATT1, m_pNero));
 	m_vecState.emplace_back(BT_Att2::Create(this, ATT2, m_pNero));
 	m_vecState.emplace_back(BT_Att3::Create(this, ATT3, m_pNero));
@@ -58,12 +58,22 @@ HRESULT NeroFSM::ReadyFSM()
 	m_vecState.emplace_back(BT_Att_ComboD_4::Create(this, ATT_COMBO_D4, m_pNero));
 
 	m_vecState.emplace_back(Skill_Streak::Create(this, SKILL_STREAK, m_pNero));
+	m_vecState.emplace_back(Skill_Streak_Loop::Create(this, SKILL_STREAK_LOOP, m_pNero));
+	m_vecState.emplace_back(Skill_Streak_End::Create(this, SKILL_STREAK_END, m_pNero));
 	m_vecState.emplace_back(Skill_Streak_Ex3::Create(this, SKILL_STREAK_EX3, m_pNero));
+	m_vecState.emplace_back(Skill_Streak_Ex3_Rush::Create(this, SKILL_STREAK_EX3_RUSH, m_pNero));
+	m_vecState.emplace_back(Skill_Streak_Ex3_Roll_Loop::Create(this, SKILL_STREAK_EX3_ROLL_LOOP, m_pNero));
+	m_vecState.emplace_back(Skill_Streak_Ex3_Roll_End::Create(this, SKILL_STREAK_EX3_ROLL_END, m_pNero));
 
 	m_vecState.emplace_back(Skill_Float_Ground::Create(this, SKILL_FLOAT_GROUND, m_pNero));
 	m_vecState.emplace_back(Skill_Float_Ground_Ex3::Create(this, SKILL_FLOAT_GROUND_EX3, m_pNero));
 	m_vecState.emplace_back(Skill_Float_Ground_Finish::Create(this, SKILL_FLOAT_GROUND_FINISH, m_pNero));
 
+	m_vecState.emplace_back(Skill_Shuffle::Create(this, SKILL_SHUFFLE, m_pNero));
+
+	m_vecState.emplace_back(Overture_Shoot::Create(this, OVERTURE_SHOOT, m_pNero));
+	m_vecState.emplace_back(Overture_Shoot_Down::Create(this, OVERTURE_SHOOT_DOWN, m_pNero));
+	m_vecState.emplace_back(Overture_Shoot_Up::Create(this, OVERTURE_SHOOT_UP, m_pNero));
 	return S_OK;						
 }
 

@@ -77,7 +77,7 @@ private:
 	void	NodeEditor();
 	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
 	void    AnimationSave(const std::filesystem::path & FullPath)&;
-	void    AnimationLoad(const std::filesystem::path & FullPath)&;
+	
 private:
 	virtual HRESULT LoadMeshImplementation(
 		const aiScene * AiScene,
@@ -122,6 +122,8 @@ private:
 		const float AnimMotionTime)&;
 
 public:
+	void    AnimationDataLoadFromJsonTable(const std::filesystem::path& FullPath)&;
+
 	// fbx 파일로부터 애니메이션만 로딩 . 애니메이션 이름은 fbx 파일 이름에서 확장자를 제거 한 것
 	void    LoadAnimation(const std::filesystem::path & FilePath)&;
 	// 위의 함수의 폴더 버전 . 사양은 똑같음 . 

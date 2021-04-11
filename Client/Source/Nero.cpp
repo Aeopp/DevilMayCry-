@@ -4,6 +4,9 @@
 #include "Subset.h"
 #include "NeroFSM.h"
 Nero::Nero()
+	:m_iCurAnimationIndex(ANI_END)
+	,m_iPreAnimationIndex(ANI_END)
+	,m_iCurWeaponIndex(RQ)
 {
 }
 void Nero::Free()
@@ -48,20 +51,22 @@ HRESULT Nero::Ready()
 		RenderProperty::Order::DebugBone,
 		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
 
-	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Player\\Player.fbx");
-	m_pTransform.lock()->SetScale({ 0.001f,0.001f,0.001f });
+	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.fbx");
+	m_pMesh->LoadAnimationFromDirectory(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Animation");
+	m_pMesh->AnimationDataLoadFromJsonTable(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.Animation");
+	m_pTransform.lock()->SetScale({ 0.03f,0.03f,0.03f });
 	PushEditEntity(m_pMesh.get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 	PushEditEntity(m_pTransform.lock().get());
 
-	ENGINE::AnimNotify _Notify{};
-	
-	//몇초에 이벤트를 발생 시킬지
+	//ENGINE::AnimNotify _Notify{};
+	//
+	////몇초에 이벤트를 발생 시킬지
 
-	_Notify.Event[0.5] = [this]() {  Log("0.5 Sec Call");  return true; };
-	_Notify.Event[0.9] = [this]() {  Log("0.9 Sec Call");  return false; };
+	//_Notify.Event[0.5] = [this]() {  Log("0.5 Sec Call");  return true; };
+	//_Notify.Event[0.9] = [this]() {  Log("0.9 Sec Call");  return false; };
 
 	//내 클라에서의 SetAnimation
 	//세팅할 애니메이션 이름 넘겨주고 나중에는 인덱스도 오버로딩
@@ -71,8 +76,10 @@ HRESULT Nero::Ready()
 	//m_pMesh->PlayAnimation(IDLE, true, _Notify);
 	//FSM 준비
 	m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
-
 	
+
+	m_iCurAnimationIndex = ANI_END;
+	m_iPreAnimationIndex = ANI_END;
 	return S_OK;
 }
 
@@ -80,7 +87,6 @@ HRESULT Nero::Ready()
 HRESULT Nero::Awake()
 {
 	m_pFSM->ChangeState(NeroFSM::IDLE);
-	m_pMesh->PlayingTime();
 	return S_OK;
 }
 
@@ -91,12 +97,17 @@ HRESULT Nero::Start()
 
 UINT Nero::Update(const float _fDeltaTime)
 {
-	if (nullptr != m_pFSM)
+	//GameObject::Update(_fDeltaTime);
+	if (Input::GetKeyDown(DIK_0))
+		m_bDebugButton = !m_bDebugButton;
+	if (Input::GetKeyDown(DIK_LCONTROL))
+		m_iCurWeaponIndex = m_iCurWeaponIndex == RQ ? Cbs : RQ;
+	if (nullptr != m_pFSM && m_bDebugButton)
 		m_pFSM->UpdateFSM(_fDeltaTime);
 
 	auto [Scale,Rot,Pos] =m_pMesh->Update(_fDeltaTime);
 
-	m_pTransform.lock()->SetPosition(m_pTransform.lock()->GetPosition() + Pos);
+	m_pTransform.lock()->SetPosition(m_pTransform.lock()->GetPosition() + Pos * m_pTransform.lock()->GetScale().x);
 
 	return 0;
 }
@@ -193,12 +204,9 @@ bool Nero::IsAnimationEnd()
 	return m_pMesh->IsAnimationEnd();
 }
 
-void Nero::ChangeAnimation(const std::string& InitAnimName, const bool bLoop, const AnimNotify& _Notify)
+void Nero::ChangeAnimation(const std::string& InitAnimName, const bool bLoop, const UINT AnimationIndex, const AnimNotify& _Notify)
 {
+	m_iPreAnimationIndex = m_iCurAnimationIndex;
+	m_iCurAnimationIndex = AnimationIndex;
 	m_pMesh->PlayAnimation(InitAnimName, bLoop, _Notify);
-}
-
-void Nero::ChangeAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify)
-{
-	m_pMesh->PlayAnimation(AnimationIndex, bLoop, _Notify);
 }

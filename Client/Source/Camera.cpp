@@ -122,7 +122,7 @@ void Camera::Move(const float& _fTimeDelta)
 		m_vAt += vLength;
 	}
 
-    if (Input::GetKeyDown(DIK_RSHIFT))
+    if (Input::GetKeyDown(DIK_RCONTROL))
     {
         if (true == m_bClick)
             return;
