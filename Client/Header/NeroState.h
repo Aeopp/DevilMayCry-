@@ -24,6 +24,7 @@ public:
 protected:
 	virtual HRESULT KeyInput_Idle(const int _nIndex = -1);
 	virtual HRESULT KeyInput_Run(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Cbs_Idle(const int _nIndex = -1);
 	virtual HRESULT PutWeapon();
 };
 
@@ -2210,6 +2211,22 @@ public:
 
 public:
 	static Middle_Cbs_ThunderBullet* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboA1 : public NeroState
+{
+private:
+	explicit Pole_ComboA1(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboA1();
+
+public:
+	static Pole_ComboA1* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;

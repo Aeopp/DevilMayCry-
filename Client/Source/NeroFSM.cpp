@@ -71,9 +71,53 @@ HRESULT NeroFSM::ReadyFSM()
 
 	m_vecState.emplace_back(Skill_Shuffle::Create(this, SKILL_SHUFFLE, m_pNero));
 
+#pragma region GT
+
 	m_vecState.emplace_back(Overture_Shoot::Create(this, OVERTURE_SHOOT, m_pNero));
 	m_vecState.emplace_back(Overture_Shoot_Down::Create(this, OVERTURE_SHOOT_DOWN, m_pNero));
 	m_vecState.emplace_back(Overture_Shoot_Up::Create(this, OVERTURE_SHOOT_UP, m_pNero));
+
+#pragma endregion
+
+#pragma region Cbs
+
+	m_vecState.emplace_back(Cbs_Idle::Create(this, CBS_IDLE, m_pNero));
+	m_vecState.emplace_back(Cbs_ComboA1::Create(this, CBS_COMBOA1, m_pNero));
+	m_vecState.emplace_back(Cbs_ComboA2::Create(this, CBS_COMBOA2, m_pNero));
+	m_vecState.emplace_back(Cbs_ComboA3::Create(this, CBS_COMBOA3, m_pNero));
+	m_vecState.emplace_back(Cbs_ComboA4::Create(this, CBS_COMBOA4, m_pNero));
+	m_vecState.emplace_back(Cbs_ComboA5::Create(this, CBS_COMBOA5, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_IceAge_Start::Create(this, CBS_ICEAGE_START, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_IceAge_Loop::Create(this, CBS_ICEAGE_LOOP, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_IceAge_End::Create(this, CBS_ICEAGE_END, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_Revolver_Start::Create(this, CBS_REVOLVER_START, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_Revolver_Loop::Create(this, CBS_REVOLVER_LOOP, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_Revolver_End::Create(this, CBS_REVOLVER_END, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_Swing::Create(this, CBS_SWING, m_pNero));
+	
+	m_vecState.emplace_back(Middle_Cbs_BiAttack::Create(this, MIDDLE_CBS_BI_ATTACK, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_BlitzAttack::Create(this, MIDDLE_CBS_BLITZATTACK, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Satellite::Create(this, MIDDLE_CBS_SATELLITE, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Satellite_Air::Create(this, MIDDLE_CBS_SATELLITE_AIR, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Strike::Create(this, MIDDLE_CBS_STRIKE, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Strike_Air_Down::Create(this, MIDDLE_CBS_STRIKE_DOWN, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Strike_Up::Create(this, MIDDLE_CBS_STRIKE_UP, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Strike_Air::Create(this, MIDDLE_CBS_STRIKE_AIR, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Strike_Air_Down::Create(this, MIDDLE_CBS_STRIKE_AIR_DOWN, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_Strike_Air_Up::Create(this, MIDDLE_CBS_STRIKE_AIR_UP, m_pNero));
+	m_vecState.emplace_back(Middle_Cbs_ThunderBullet::Create(this, MIDDLE_CBS_THUNDERBULLET, m_pNero));
+
+	m_vecState.emplace_back(Pole_ComboA1::Create(this, POLE_COMBOA1, m_pNero));
+	m_vecState.emplace_back(Pole_ComboA2::Create(this, POLE_COMBOA2, m_pNero));
+	m_vecState.emplace_back(Pole_ComboA3::Create(this, POLE_COMBOA3, m_pNero));
+	m_vecState.emplace_back(Pole_ComboB1::Create(this, POLE_COMBOB1, m_pNero));
+	m_vecState.emplace_back(Pole_ComboB2::Create(this, POLE_COMBOB2, m_pNero));
+	m_vecState.emplace_back(Pole_ComboB3::Create(this, POLE_COMBOB3, m_pNero));
+	m_vecState.emplace_back(Pole_ComboB4::Create(this, POLE_COMBOB4, m_pNero));
+	m_vecState.emplace_back(Pole_WhirlWind_Start::Create(this, POLE_WHIRLWIND_START, m_pNero));
+	m_vecState.emplace_back(Pole_WhirlWind_Loop::Create(this, POLE_WHIRLWIND_LOOP, m_pNero));
+	m_vecState.emplace_back(Pole_WhirlWind_End::Create(this, POLE_WHIRLWIND_END, m_pNero));
+#pragma endregion
 	return S_OK;						
 }
 

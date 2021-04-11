@@ -120,6 +120,11 @@ HRESULT NeroState::KeyInput_Idle(const int _nIndex)
 	{
 		//점프
 	}
+	else if (Input::GetKeyDown(DIK_LCONTROL))
+	{
+		m_pNero.lock()->ChangeWeapon(Nero::Cbs);
+		m_pFSM->ChangeState(NeroFSM::CBS_IDLE);
+	}
 	return S_OK;
 }
 
@@ -138,6 +143,99 @@ HRESULT NeroState::KeyInput_Run(const int _nIndex)
 		//앞으로 뛰는 점프
 	}
 
+	return S_OK;
+}
+
+HRESULT NeroState::KeyInput_Cbs_Idle(const int _nIndex)
+{
+	//삼절곤 키입력
+	UINT CurrIndex = m_pFSM->GetCurrentIndex();
+
+	if (Input::GetKey(DIK_LSHIFT))
+	{
+		//락온
+		if (Input::GetKey(DIK_W))
+		{
+			if (Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
+			else if (Input::GetMouse(DIM_R))
+			{
+				//총알 발사
+			}
+			else if (Input::GetMouse(DIM_M))
+			{
+				m_pFSM->ChangeState(NeroFSM::OVERTURE_SHOOT_UP);
+			}
+		}
+		else if (Input::GetKey(DIK_S))
+		{
+			//락온한 상태로 뒤로
+			if (Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_FLOAT_GROUND);
+			else if (Input::GetKey(DIK_W) && Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_SHUFFLE);
+			else if (Input::GetMouse(DIM_R))
+			{
+				//총알 발사
+			}
+			else if (Input::GetMouse(DIM_M))
+			{
+				m_pFSM->ChangeState(NeroFSM::OVERTURE_SHOOT_DOWN);
+			}
+		}
+		else if (Input::GetKey(DIK_A))
+		{
+			if (Input::GetKey(DIK_SPACE))
+			{
+				//왼쪽 구르기
+			}
+		}
+		else if (Input::GetKey(DIK_D))
+		{
+			if (Input::GetKey(DIK_SPACE))
+			{
+				// 오른쪽 구르기
+			}
+		}
+	}
+
+	else if (Input::GetKey(DIK_W))
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNSTART);
+	}
+	else if (Input::GetKey(DIK_S))
+	{
+		//180도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
+	}
+	else if (Input::GetKey(DIK_A))
+	{
+		//왼쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
+	}
+	else if (Input::GetKey(DIK_D))
+	{
+		//오른쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
+	}
+	else if (Input::GetMouseDown(DIM_L))
+	{
+		m_pFSM->ChangeState(NeroFSM::CBS_COMBOA1);
+	}
+	else if (Input::GetMouseDown(DIM_M))
+	{
+		m_pFSM->ChangeState(NeroFSM::POLE_COMBOA1);
+	}
+	else if (Input::GetKeyDown(DIK_SPACE))
+	{
+		//점프
+	}
+	else if (Input::GetKeyDown(DIK_LCONTROL))
+	{
+		//삼절곤에서 검으로 변환
+		m_pNero.lock()->ChangeWeapon(Nero::RQ);
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+	}
 	return S_OK;
 }
 
@@ -4179,6 +4277,8 @@ HRESULT Cbs_Idle::StateExit()
 
 HRESULT Cbs_Idle::StateUpdate(const float _fDeltaTime)
 {
+	NeroState::StateUpdate(_fDeltaTime);
+	NeroState::KeyInput_Cbs_Idle();
 	return S_OK;
 }
 
@@ -4198,16 +4298,24 @@ Cbs_ComboA1* Cbs_ComboA1::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_
 
 HRESULT Cbs_ComboA1::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_ComboA1", false, Nero::ANI_CBS_COMBOA1);
+
 	return S_OK;
 }
 
 HRESULT Cbs_ComboA1::StateExit()
 {
+	NeroState::StateExit();
+
 	return S_OK;
 }
 
 HRESULT Cbs_ComboA1::StateUpdate(const float _fDeltaTime)
 {
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+
+
 	return S_OK;
 }
 
@@ -4227,11 +4335,17 @@ Cbs_ComboA2* Cbs_ComboA2::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_
 
 HRESULT Cbs_ComboA2::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_ComboA2", false, Nero::ANI_CBS_COMBOA2);
+
+
 	return S_OK;
 }
 
 HRESULT Cbs_ComboA2::StateExit()
 {
+	NeroState::StateExit();
+
 	return S_OK;
 }
 
@@ -4256,11 +4370,16 @@ Cbs_ComboA3* Cbs_ComboA3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_
 
 HRESULT Cbs_ComboA3::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_ComboA3", false, Nero::ANI_CBS_COMBOA3);
+
+
 	return S_OK;
 }
 
 HRESULT Cbs_ComboA3::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4285,11 +4404,16 @@ Cbs_ComboA4* Cbs_ComboA4::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_
 
 HRESULT Cbs_ComboA4::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_ComboA4", false, Nero::ANI_CBS_COMBOA4);
+
+
 	return S_OK;
 }
 
 HRESULT Cbs_ComboA4::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4314,11 +4438,16 @@ Cbs_ComboA5* Cbs_ComboA5::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_
 
 HRESULT Cbs_ComboA5::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_ComboA5", false, Nero::ANI_CBS_COMBOA5);
+
+
 	return S_OK;
 }
 
 HRESULT Cbs_ComboA5::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4343,11 +4472,17 @@ Cbs_SKill_Crystal* Cbs_SKill_Crystal::Create(FSMBase* const _pFSM, const UINT _n
 
 HRESULT Cbs_SKill_Crystal::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_Crystal", false, Nero::ANI_CBS_SKILL_CRYSTAL);
+
+
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_Crystal::StateExit()
 {
+	NeroState::StateExit();
+
 	return S_OK;
 }
 
@@ -4372,11 +4507,15 @@ Cbs_SKill_IceAge_Start* Cbs_SKill_IceAge_Start::Create(FSMBase* const _pFSM, con
 
 HRESULT Cbs_SKill_IceAge_Start::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_IceAge_Start", false, Nero::ANI_CBS_SKILL_ICEAGE_START);
+
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_IceAge_Start::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4401,11 +4540,15 @@ Cbs_SKill_IceAge_Loop* Cbs_SKill_IceAge_Loop::Create(FSMBase* const _pFSM, const
 
 HRESULT Cbs_SKill_IceAge_Loop::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_IceAge_Loop", false, Nero::ANI_CBS_SKILL_ICEAGE_LOOP);
+
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_IceAge_Loop::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4430,11 +4573,14 @@ Cbs_SKill_IceAge_End* Cbs_SKill_IceAge_End::Create(FSMBase* const _pFSM, const U
 
 HRESULT Cbs_SKill_IceAge_End::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_IceAge_End", false, Nero::ANI_CBS_SKILL_ICEAGE_END);
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_IceAge_End::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4459,11 +4605,14 @@ Cbs_SKill_Revolver_Start* Cbs_SKill_Revolver_Start::Create(FSMBase* const _pFSM,
 
 HRESULT Cbs_SKill_Revolver_Start::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_Revolver_Start", false, Nero::ANI_CBS_SKILL_REVOLVER_START);
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_Revolver_Start::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4488,11 +4637,14 @@ Cbs_SKill_Revolver_Loop* Cbs_SKill_Revolver_Loop::Create(FSMBase* const _pFSM, c
 
 HRESULT Cbs_SKill_Revolver_Loop::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_Revolver_Loop", false, Nero::ANI_CBS_SKILL_REVOLVER_LOOP);
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_Revolver_Loop::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4517,11 +4669,14 @@ Cbs_SKill_Revolver_End* Cbs_SKill_Revolver_End::Create(FSMBase* const _pFSM, con
 
 HRESULT Cbs_SKill_Revolver_End::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_Revolver_End", false, Nero::ANI_CBS_SKILL_REVOLVER_END);
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_Revolver_End::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4546,11 +4701,15 @@ Cbs_SKill_Swing* Cbs_SKill_Swing::Create(FSMBase* const _pFSM, const UINT _nInde
 
 HRESULT Cbs_SKill_Swing::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Cbs_SKill_Swing", false, Nero::ANI_CBS_SKILL_SWING);
+
 	return S_OK;
 }
 
 HRESULT Cbs_SKill_Swing::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4576,11 +4735,15 @@ Middle_Cbs_BiAttack* Middle_Cbs_BiAttack::Create(FSMBase* const _pFSM, const UIN
 
 HRESULT Middle_Cbs_BiAttack::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_BiAttack", false, Nero::ANI_MIDDLE_CBS_BIATTACK);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_BiAttack::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4605,11 +4768,15 @@ Middle_Cbs_BlitzAttack* Middle_Cbs_BlitzAttack::Create(FSMBase* const _pFSM, con
 
 HRESULT Middle_Cbs_BlitzAttack::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_BlitzAttack", false, Nero::ANI_MIDDLE_CBS_BLITZATTACK);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_BlitzAttack::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4634,11 +4801,15 @@ Middle_Cbs_Satellite* Middle_Cbs_Satellite::Create(FSMBase* const _pFSM, const U
 
 HRESULT Middle_Cbs_Satellite::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Satellite", false, Nero::ANI_MIDDLE_CBS_SATELLITE);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Satellite::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4663,11 +4834,14 @@ Middle_Cbs_Satellite_Air* Middle_Cbs_Satellite_Air::Create(FSMBase* const _pFSM,
 
 HRESULT Middle_Cbs_Satellite_Air::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Satellite_Air", false, Nero::ANI_MIDDLE_CBS_SATELLITE_AIR);
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Satellite_Air::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4692,11 +4866,15 @@ Middle_Cbs_Strike* Middle_Cbs_Strike::Create(FSMBase* const _pFSM, const UINT _n
 
 HRESULT Middle_Cbs_Strike::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Strike", false, Nero::ANI_MIDDLE_CBS_STRIKE);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Strike::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4721,11 +4899,15 @@ Middle_Cbs_Strike_Air* Middle_Cbs_Strike_Air::Create(FSMBase* const _pFSM, const
 
 HRESULT Middle_Cbs_Strike_Air::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Strike_Air", false, Nero::ANI_MIDDLE_CBS_STRIKE_AIR);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Strike_Air::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4750,11 +4932,15 @@ Middle_Cbs_Strike_Air_Down* Middle_Cbs_Strike_Air_Down::Create(FSMBase* const _p
 
 HRESULT Middle_Cbs_Strike_Air_Down::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Strike_Air_Down", false, Nero::ANI_MIDDLE_CBS_STRIKE_AIR_DOWN);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Strike_Air_Down::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4779,11 +4965,17 @@ Middle_Cbs_Strike_Air_Up* Middle_Cbs_Strike_Air_Up::Create(FSMBase* const _pFSM,
 
 HRESULT Middle_Cbs_Strike_Air_Up::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Strike_Air_Up", false, Nero::ANI_MIDDLE_CBS_STRIKE_AIR_UP);
+
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Strike_Air_Up::StateExit()
 {
+	NeroState::StateExit();
+
 	return S_OK;
 }
 
@@ -4808,11 +5000,15 @@ Middle_Cbs_Strike_Down* Middle_Cbs_Strike_Down::Create(FSMBase* const _pFSM, con
 
 HRESULT Middle_Cbs_Strike_Down::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Strike_Down", false, Nero::ANI_MIDDLE_CBS_STRIKE_DOWN);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Strike_Down::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4837,11 +5033,15 @@ Middle_Cbs_Strike_Up* Middle_Cbs_Strike_Up::Create(FSMBase* const _pFSM, const U
 
 HRESULT Middle_Cbs_Strike_Up::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_Strike_Up", false, Nero::ANI_MIDDLE_CBS_STRIKE_UP);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_Strike_Up::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4866,15 +5066,52 @@ Middle_Cbs_ThunderBullet* Middle_Cbs_ThunderBullet::Create(FSMBase* const _pFSM,
 
 HRESULT Middle_Cbs_ThunderBullet::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Middle_Cbs_ThunderBullet", false, Nero::ANI_MIDDLE_CBS_THUNDERBULLET);
+
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_ThunderBullet::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT Middle_Cbs_ThunderBullet::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Pole_ComboA1::Pole_ComboA1(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+}
+
+Pole_ComboA1::~Pole_ComboA1()
+{
+}
+
+Pole_ComboA1* Pole_ComboA1::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Pole_ComboA1(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Pole_ComboA1::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_ComboA1", false, Nero::ANI_POLE_COMBOA1);
+
+	return S_OK;
+}
+
+HRESULT Pole_ComboA1::StateExit()
+{
+	NeroState::StateExit();
+	return S_OK;
+}
+
+HRESULT Pole_ComboA1::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
@@ -4895,11 +5132,15 @@ Pole_ComboA2* Pole_ComboA2::Create(FSMBase* const _pFSM, const UINT _nIndex, wea
 
 HRESULT Pole_ComboA2::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_ComboA2", false, Nero::ANI_POLE_COMBOA2);
+
 	return S_OK;
 }
 
 HRESULT Pole_ComboA2::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4924,11 +5165,15 @@ Pole_ComboA3* Pole_ComboA3::Create(FSMBase* const _pFSM, const UINT _nIndex, wea
 
 HRESULT Pole_ComboA3::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_ComboA3", false, Nero::ANI_POLE_COMBOA3);
+
 	return S_OK;
 }
 
 HRESULT Pole_ComboA3::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4953,11 +5198,15 @@ Pole_ComboB1* Pole_ComboB1::Create(FSMBase* const _pFSM, const UINT _nIndex, wea
 
 HRESULT Pole_ComboB1::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_ComboB1", false, Nero::ANI_POLE_COMBOB1);
+
 	return S_OK;
 }
 
 HRESULT Pole_ComboB1::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -4983,11 +5232,15 @@ Pole_ComboB2* Pole_ComboB2::Create(FSMBase* const _pFSM, const UINT _nIndex, wea
 
 HRESULT Pole_ComboB2::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_ComboB2", false, Nero::ANI_POLE_COMBOB2);
+
 	return S_OK;
 }
 
 HRESULT Pole_ComboB2::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -5012,11 +5265,15 @@ Pole_ComboB3* Pole_ComboB3::Create(FSMBase* const _pFSM, const UINT _nIndex, wea
 
 HRESULT Pole_ComboB3::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_ComboB3", false, Nero::ANI_POLE_COMBOB3);
+
 	return S_OK;
 }
 
 HRESULT Pole_ComboB3::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -5041,11 +5298,15 @@ Pole_ComboB4* Pole_ComboB4::Create(FSMBase* const _pFSM, const UINT _nIndex, wea
 
 HRESULT Pole_ComboB4::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_ComboB4", false, Nero::ANI_POLE_COMBOB4);
+
 	return S_OK;
 }
 
 HRESULT Pole_ComboB4::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -5070,11 +5331,15 @@ Pole_WhirlWind_Start* Pole_WhirlWind_Start::Create(FSMBase* const _pFSM, const U
 
 HRESULT Pole_WhirlWind_Start::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_WhirlWind_Start", false, Nero::ANI_POLE_WHIRLWIND_START);
+
 	return S_OK;
 }
 
 HRESULT Pole_WhirlWind_Start::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -5099,11 +5364,15 @@ Pole_WhirlWind_Loop* Pole_WhirlWind_Loop::Create(FSMBase* const _pFSM, const UIN
 
 HRESULT Pole_WhirlWind_Loop::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_WhirlWind_Loop", false, Nero::ANI_POLE_WHIRLWIND_LOOP);
+
 	return S_OK;
 }
 
 HRESULT Pole_WhirlWind_Loop::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -5128,11 +5397,15 @@ Pole_WhirlWind_End* Pole_WhirlWind_End::Create(FSMBase* const _pFSM, const UINT 
 
 HRESULT Pole_WhirlWind_End::StateEnter()
 {
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Pole_WhirlWind_End", false, Nero::ANI_POLE_WHIRLWIND_END);
+
 	return S_OK;
 }
 
 HRESULT Pole_WhirlWind_End::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -5140,3 +5413,5 @@ HRESULT Pole_WhirlWind_End::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
+
+
