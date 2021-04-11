@@ -12,6 +12,7 @@ sampler Base = sampler_state
     minfilter = linear;
     magfilter = linear;
     mipfilter = linear;
+    sRGBTexture = true;
 };
 
 
@@ -71,8 +72,9 @@ technique Default
         alphablendenable = true;
         srcblend = srcalpha;
         destblend = invsrcalpha;
-        //zenable = false;
+        zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain();

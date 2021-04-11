@@ -35,8 +35,8 @@ void Eff_Glint::RenderAlphaBlendEffectImplementation(
 			{
 				_ImplInfo.Fx->SetMatrix("World", &_WorldMatrix[i]);
 				_ImplInfo.Fx->SetFloat("_SliceAmount", _SliceAmount[i]);
-
 				_ImplInfo.Fx->SetTexture("BaseMap", _GlintTex->GetTexture());
+				
 				_ImplInfo.Fx->BeginPass(0);
 				SharedSubset->Render(_ImplInfo.Fx);
 				_ImplInfo.Fx->EndPass();
@@ -122,13 +122,26 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 				Matrix TempMat, BillMat;
 				D3DXMatrixIdentity(&_WorldMatrix[i]);
 				float Scale = Sptransform->GetScale().x * _Scale[i] * 0.1f;
-				D3DXMatrixScaling(&TempMat, Scale, Scale * _Aspect, 1.f);
-				_WorldMatrix[i] *= TempMat;
 				float Rot = 0.f;
+				Vector3 Pos = Sptransform->GetPosition();
 				if (1u == i)
+				{
 					Rot = D3DXToRadian(35.f);
+					D3DXMatrixScaling(&TempMat, Scale * 1.8f, Scale * _Aspect, 1.f);
+					Pos += Vector3(0.01f, 0.01f, 0.01f);
+				}
 				else if (2u == i)
+				{
 					Rot = D3DXToRadian(-35.f);
+					D3DXMatrixScaling(&TempMat, Scale * 0.5f, Scale * _Aspect, 1.f);
+					Pos -= Vector3(0.01f, 0.01f, 0.01f);
+				}
+				else // 0
+				{
+					Rot = 0.f;
+					D3DXMatrixScaling(&TempMat, Scale, Scale * _Aspect, 1.f);
+				}
+				_WorldMatrix[i] *= TempMat;
 				D3DXMatrixRotationZ(&TempMat, Rot);
 				_WorldMatrix[i] *= TempMat;
 				TempMat = Renderer::GetInstance()->CurrentRenderInfo.CameraView;
@@ -138,7 +151,6 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 				memcpy(&BillMat.m[2][0], &TempMat.m[2][0], sizeof(Vector3));
 				D3DXMatrixInverse(&BillMat, 0, &BillMat);
 				_WorldMatrix[i] *= BillMat;
-				Vector3 Pos = Sptransform->GetPosition();
 				D3DXMatrixTranslation(&TempMat, Pos.x, Pos.y, Pos.z);
 				_WorldMatrix[i] *= TempMat;
 			}

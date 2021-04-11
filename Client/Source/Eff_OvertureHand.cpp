@@ -32,9 +32,9 @@ void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
 	{
 		//_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 
-		_ImplInfo.Fx->SetTexture("Color0Map", _GlowTex->GetTexture());
-		_ImplInfo.Fx->SetTexture("Color1Map", _LightningColorTex->GetTexture());
-		_ImplInfo.Fx->SetTexture("AlpMap", _LightningTex->GetTexture());
+		_ImplInfo.Fx->SetTexture("ALB0Map", _GlowTex->GetTexture());
+		_ImplInfo.Fx->SetTexture("ALB1Map", _LightningColorTex->GetTexture());
+		_ImplInfo.Fx->SetTexture("AlphaMap", _LightningTex->GetTexture());
 		_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
 
 		if (0.3f < _AccumulateTime)
@@ -121,7 +121,7 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 	_AccumulateTime += _PlayingSpeed * _fDeltaTime;
 	if (1.5f < _AccumulateTime)
 	{
-		_RandTexV0 = FMath::Random<float>(0.7f, 0.9f);
+		_RandTexV0 = FMath::Random<float>(0.75f, 0.9f);
 		_RandTexV1 = FMath::Random<float>(0.4f, 0.8f);
 		_AccumulateTime = 0.f;
 	}

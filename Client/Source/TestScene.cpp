@@ -37,7 +37,16 @@ HRESULT TestScene::LoadScene()
 
 	AddGameObject<Em100>();
 	AddGameObject<TestObject>();
+	//AddGameObject<TestObject>();
+	//AddGameObject<TestAnimationObject>();
+	//AddGameObject<Nero>();
 
+	//AddGameObject<Eff_OvertureHand>();
+	//AddGameObject<BtlPanel>();
+	//AddGameObject<Eff_Glint>();
+
+	//AddGameObject<DashImpact>();
+	//AddGameObject<Blood>();
 
 	return S_OK;
 }

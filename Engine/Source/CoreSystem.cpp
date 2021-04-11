@@ -212,12 +212,12 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 		return E_FAIL;
 	}
 
-	m_pPhysicsSystem = PhysicsSystem::GetInstance();
-	if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
-	{
-		PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
-		return E_FAIL;
-	}
+	//m_pPhysicsSystem = PhysicsSystem::GetInstance();
+	//if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
+	//{
+	//	PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
+	//	return E_FAIL;
+	//}
 
 	GlobalVariableSetup();
 	ImGuiSetUp();
