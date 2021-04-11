@@ -58,6 +58,12 @@
     <Filter Include="02.GameObject\Effect\DashImpact">
       <UniqueIdentifier>{b7667868-436c-417f-b44f-5022f169be9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\02. Monster">
+      <UniqueIdentifier>{a3517ad2-d76e-4542-8f79-0e908dd136ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02. Monster\00.Em100">
+      <UniqueIdentifier>{37362b12-a76f-4d83-be8b-b416dcef8771}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -112,6 +118,12 @@
     </ClInclude>
     <ClInclude Include="..\Header\DashImpact.h">
       <Filter>02.GameObject\Effect\DashImpact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Monster.h">
+      <Filter>02.GameObject\02. Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Em100.h">
+      <Filter>02.GameObject\02. Monster\00.Em100</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +183,12 @@
     </ClCompile>
     <ClCompile Include="..\Source\DashImpact.cpp">
       <Filter>02.GameObject\Effect\DashImpact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Em100.cpp">
+      <Filter>02.GameObject\02. Monster\00.Em100</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Monster.cpp">
+      <Filter>02.GameObject\02. Monster</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

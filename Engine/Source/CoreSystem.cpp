@@ -260,7 +260,7 @@ HRESULT CoreSystem::UpdateEngine()
 		return E_FAIL;
 	}
 
-	m_pPhysicsSystem.lock()->FetchResults();
+	//m_pPhysicsSystem.lock()->FetchResults();
 
 	if (FAILED(m_pSceneSystem.lock()->UpdateSceneSystem(m_pTimeSystem.lock()->DeltaTime())))
 	{
@@ -274,15 +274,15 @@ HRESULT CoreSystem::UpdateEngine()
 		ImGui::End();
 
 		ImGui::Begin("Log");
-		for (const auto& CurLog : g_Logs)
-		{
-			ImGui::Text(CurLog.c_str());
-		}
+		//for (const auto& CurLog : g_Logs)
+		//{
+		//	ImGui::Text(CurLog.c_str());
+		//}
 		ImGui::End();
 	}
-	g_Logs.clear();
+	//g_Logs.clear();
 
-	m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
+	//m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
 
 	if (FAILED(m_pRenderer.lock()->Render()))
 	{

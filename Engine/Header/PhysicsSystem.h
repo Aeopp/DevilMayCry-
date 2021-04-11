@@ -39,6 +39,9 @@ public:
 	physx::PxMaterial*	GetDefaultMaterial();
 	void AddActor(physx::PxActor& _rActor);
 	void RemoveActor(physx::PxActor& _rActor);
+
+public:
+	bool IsSimulate();
 };
 END
 #endif // !__PHYSICS_SYSTEM_H__

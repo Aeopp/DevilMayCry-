@@ -98,7 +98,7 @@ Transform* Transform::Create(std::weak_ptr<GameObject> const _pGameObject)
 void Transform::UpdateTransform()
 {
 	if (false == m_bSimulation)
-		m_matRender = m_matWorld;
+		m_matRender = GetWorldMatrix();
 	else
 		m_bSimulation = false;
 
@@ -201,6 +201,11 @@ void Transform::SetWorldMatrix(const D3DXMATRIX& _matWorld)
 	SetPosition(vTrans);
 }
 
+D3DXMATRIX Transform::GetRenderMatrix()
+{
+	return m_matRender;
+}
+
 D3DXVECTOR3 Transform::GetRight()
 {
 	D3DXVECTOR3 vRight(0.f, 0.f, 0.f);
@@ -230,6 +235,21 @@ bool Transform::IsUpdated()
 	return m_bUpdated;
 }
 
+void Transform::Translate(const D3DXVECTOR3 _vTranslate)
+{
+	m_vWorldPosition += _vTranslate;
+	D3DXMatrixTranslation(&m_matTranlation, m_vWorldPosition.x, m_vWorldPosition.y, m_vWorldPosition.z);
+	m_bUpdated = true;
+}
+
+void Transform::Rotate(const D3DXVECTOR3 _vRotate)
+{
+	m_vWorldRotation += _vRotate;
+	D3DXQuaternionRotationYawPitchRoll(&m_tWorldQuaternion, D3DXToRadian(m_vWorldRotation.y), D3DXToRadian(m_vWorldRotation.x), D3DXToRadian(m_vWorldRotation.z));
+	D3DXMatrixRotationQuaternion(&m_matRotation, &m_tWorldQuaternion);
+	m_bUpdated = true;
+}
+
 D3DXQUATERNION Transform::EulerToQuaternion(const D3DXVECTOR3 _vEuler)
 {
 	D3DXQUATERNION tQuat;
@@ -237,4 +257,85 @@ D3DXQUATERNION Transform::EulerToQuaternion(const D3DXVECTOR3 _vEuler)
 	D3DXQuaternionRotationYawPitchRoll(&tQuat, D3DXToRadian(_vEuler.y), D3DXToRadian(_vEuler.x), D3DXToRadian(_vEuler.z));
 
 	return tQuat;
+}
+
+void Normalize(float& _fValue)
+{
+	while (_fValue > 360.f)
+	{
+		_fValue -= 360.f;
+	}
+	while (_fValue < 0.f)
+	{
+		_fValue += 360.f;
+	}
+}
+
+D3DXVECTOR3 Transform::QuaternionToEuler(const D3DXQUATERNION _vQuat)
+{
+	float sqw = _vQuat.w * _vQuat.w;
+
+	float sqx = _vQuat.x * _vQuat.x;
+
+	float sqy = _vQuat.y * _vQuat.y;
+
+	float sqz = _vQuat.z * _vQuat.z;
+
+	float unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+
+	float test = _vQuat.x * _vQuat.w - _vQuat.y * _vQuat.z;
+
+	Vector3 v;
+
+
+
+	if (test > 0.4995f * unit) 
+	{ 
+		// singularity at north pole
+		v.y = 2.f * atan2(_vQuat.y, _vQuat.x);
+		v.x = D3DX_PI / 2.f;
+		v.z = 0;
+
+	}
+	else if (test < -0.4995f * unit) 
+	{ 
+		// singularity at south pole
+		v.y = -2.f * atan2(_vQuat.y, _vQuat.x);
+		v.x = -D3DX_PI / 2.f;
+		v.z = 0;
+	}
+	else
+	{
+		D3DXQUATERNION q(_vQuat.w, _vQuat.z, _vQuat.x, _vQuat.y);
+
+		v.y = (float)atan2(2.f * q.x * q.w + 2.f * q.y * q.z, 1 - 2.f * (q.z * q.z + q.w * q.w));     // Yaw
+
+		v.x = (float)asin(2.f * (q.x * q.z - q.w * q.y));                             // Pitch
+
+		v.z = (float)atan2(2.f * q.x * q.y + 2.f * q.z * q.w, 1 - 2.f * (q.y * q.y + q.z * q.z));      // Roll
+	}
+
+	v.x = D3DXToDegree(v.x);
+	v.y = D3DXToDegree(v.y);
+	v.z = D3DXToDegree(v.z);
+
+	Normalize(v.x);
+	Normalize(v.y);
+	Normalize(v.z);
+
+
+	return v;
+}
+
+float Transform::NormalizeAngle(float _fAngle)
+{
+	while (_fAngle > 360.f)
+	{
+		_fAngle -= 360.f;
+	}
+	while (_fAngle < 0.f)
+	{
+		_fAngle += 360.f;
+	}
+	return _fAngle;
 }

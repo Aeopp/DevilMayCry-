@@ -29,7 +29,7 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	bRootMotionScale{ _rOther.bRootMotionScale },
 	bRootMotionRotation{ _rOther.bRootMotionRotation },
 	bRootMotionTransition{ _rOther.bRootMotionTransition },
-	RootMotionDeltaFactor{ _rOther.RootMotionDeltaFactor }
+	RootMotionDeltaFactor{ _rOther.RootMotionDeltaFactor } 
 {
 	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
@@ -324,38 +324,47 @@ void SkeletonMesh::AnimationSave(
 	PrettyWriter<StringBuffer> Writer(StrBuf);
 	Writer.StartObject();
 
-	Writer.Key("RootMotion_DeltaFactor");
-	Writer.Double(RootMotionDeltaFactor);
-
-	Writer.Key("RootMotion_ScaleName");
-	Writer.String(RootMotionScaleName.c_str());
-
-	Writer.Key("RootMotion_RotationName");
-	Writer.String(RootMotionRotationName.c_str());
-
-	Writer.Key("RootMotion_TransitionName");
-	Writer.String(RootMotionTransitionName.c_str());
-
 	Writer.Key("AnimationData");
-	Writer.StartArray();
+	Writer.StartObject();
 	{
-		for (const auto& [AnimName, AnimInfo] : *AnimInfoTable)
+		Writer.Key("RootMotion_DeltaFactor");
+		Writer.Double(RootMotionDeltaFactor);
+
+		Writer.Key("RootMotion_ScaleName");
+		Writer.String(RootMotionScaleName.c_str());
+
+		Writer.Key("RootMotion_RotationName");
+		Writer.String(RootMotionRotationName.c_str());
+
+		Writer.Key("RootMotion_TransitionName");
+		Writer.String(RootMotionTransitionName.c_str());
+
+		Writer.Key("AnimInfoTable");
+		Writer.StartArray();
 		{
-			Writer.StartObject();
+			for (const auto& [AnimName, AnimInfo] : *AnimInfoTable)
 			{
-				Writer.Key("Name");
-				Writer.String(AnimName.c_str());
+				Writer.StartObject();
+				{
+					Writer.Key("Name");
+					Writer.String(AnimName.c_str());
 
-				Writer.Key("Acceleration");
-				Writer.Double(AnimInfo.GetOriginAcceleration());
+					Writer.Key("Acceleration");
+					Writer.Double(AnimInfo.GetOriginAcceleration());
 
-				Writer.Key("TransitionTime");
-				Writer.Double(AnimInfo.TransitionTime);
+					Writer.Key("TransitionTime");
+					Writer.Double(AnimInfo.TransitionTime);
+				}
+				Writer.EndObject();
 			}
-			Writer.EndObject();
 		}
+		Writer.EndArray();
 	}
-	Writer.EndArray();
+	Writer.EndObject();
+
+
+
+
 	Writer.EndObject();
 
 	std::filesystem::path AnimPath = FullPath;
@@ -387,59 +396,64 @@ void SkeletonMesh::AnimationLoad(
 		return;
 	}
 
-	{
-		const Value& RootMotionRootName = _Document["RootMotion_DeltaFactor"];
-		if (false == RootMotionRootName.Empty())
-		{
-			RootMotionDeltaFactor = RootMotionRootName.GetDouble();
-		}
-	}
-	{
-		const Value& RootMotionRootName = _Document["RootMotion_ScaleName"];
-		if (false == RootMotionRootName.Empty())
-		{
-			RootMotionScaleName = RootMotionRootName.GetString();
-		}
-	}
-
-	{
-		const Value& RootMotionRootName = _Document["RootMotion_RotationName"];
-		if (false == RootMotionRootName.Empty())
-		{
-			RootMotionRotationName = RootMotionRootName.GetString();
-		}
-	}
-
-	{
-		const Value& RootMotionRootName = _Document["RootMotion_TransitionName"];
-		if (false == RootMotionRootName.Empty())
-		{
-			RootMotionTransitionName = RootMotionRootName.GetString();
-		}
-	}
-
 	const Value& AnimJsonTable = _Document["AnimationData"];
-	const auto& AnimTableArray = AnimJsonTable.GetArray();
-	for (auto iter = AnimTableArray.Begin();
-		iter != AnimTableArray.end(); ++iter)
+	if (AnimJsonTable.IsObject())
 	{
-
-		AnimInfoTable->find(AnimName);
-
-		if (iter->HasMember("Name"))
+		if (AnimJsonTable.HasMember("AnimInfoTable"))
 		{
-			if (false == AnimInfoTable->contains(AnimName))
+			auto AnimTableArray = AnimJsonTable.FindMember("AnimInfoTable")->value.GetArray();
+
+			for (auto iter = AnimTableArray.Begin();
+				iter != AnimTableArray.end(); ++iter)
 			{
-				Log("No model animation name and no data table name occur. Check if the animation has been renamed");
-				// PRINT_LOG(L"Warning!!",L".")
+
+				AnimInfoTable->find(AnimName);
+
+				if (iter->HasMember("Name"))
+				{
+					if (false == AnimInfoTable->contains(AnimName))
+					{
+						Log("No model animation name and no data table name occur. Check if the animation has been renamed");
+						// PRINT_LOG(L"Warning!!",L".")
+					}
+
+					const std::string AnimName =
+						iter->FindMember("Name")->value.GetString();
+
+					(*AnimInfoTable)[AnimName].SetAcceleration(iter->FindMember("Acceleration")->value.GetFloat());
+					(*AnimInfoTable)[AnimName].TransitionTime = iter->FindMember("TransitionTime")->value.GetFloat();
+				}
+			}
+		}
+
+
+
+		{
+			if (AnimJsonTable.HasMember("RootMotion_DeltaFactor"))
+			{
+				RootMotionDeltaFactor = AnimJsonTable.FindMember("RootMotion_DeltaFactor")->value.GetDouble();
 			}
 
-			const std::string AnimName =
-				iter->FindMember("Name")->value.GetString();
+			if (AnimJsonTable.HasMember("RootMotion_ScaleName"))
+			{
+				RootMotionScaleName= AnimJsonTable.FindMember("RootMotion_ScaleName")->value.GetString();
+				EnableScaleRootMotion(RootMotionScaleName);
+			}
 
-			(*AnimInfoTable)[AnimName].SetAcceleration(iter->FindMember("Acceleration")->value.GetFloat());
-			(*AnimInfoTable)[AnimName].TransitionTime = iter->FindMember("TransitionTime")->value.GetFloat();
-		}
+			if (AnimJsonTable.HasMember("RootMotion_RotationName"))
+			{
+				RootMotionRotationName= AnimJsonTable.FindMember("RootMotion_RotationName")->value.GetString();
+				EnableRotationRootMotion(RootMotionRotationName);
+			}
+
+			if (AnimJsonTable.HasMember("RootMotion_TransitionName"))
+			{
+				RootMotionTransitionName= AnimJsonTable.FindMember("RootMotion_TransitionName")->value.GetString();
+				EnableTransitionRootMotion(RootMotionTransitionName);
+			}
+		};
+
+
 	}
 }
 
@@ -673,12 +687,11 @@ void SkeletonMesh::PlayAnimation(
 	CurrentAnimMotionTime = 0.0;
 	PrevAccelerationFactor = CurrentAccelerationFactor;
 	CurrentAccelerationFactor = _CurrentAccelerationFactor;
-	CurrentTransitionTimeFactor = _CurrentTransitionTimeFactor;
 	PrevAnimName = AnimName;
 	AnimName = InitAnimName;
 	PrevPlayAnimInfo = CurPlayAnimInfo;
 	CurPlayAnimInfo = iter->second;
-	TransitionDuration = TransitionRemainTime = CurPlayAnimInfo.TransitionTime;
+	TransitionDuration = TransitionRemainTime = CurPlayAnimInfo.TransitionTime * _CurrentTransitionTimeFactor;
 	CurAnimNotify = _Notify;
 }
 
@@ -888,8 +901,7 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 	{
 		AnimIndexNameMap = std::make_shared<std::map<uint32, std::string>>();
 
-		AnimInfoTable = std::make_shared
-			<std::map<std::string, AnimationInformation>>();
+		AnimInfoTable = std::make_shared<std::map<std::string, AnimationInformation>>();
 
 		for (uint32 AnimIdx = 0u; AnimIdx < AiScene->mNumAnimations; ++AnimIdx)
 		{
@@ -965,33 +977,33 @@ HRESULT SkeletonMesh::LoadMeshImplementation(
 	{
 		AnimationLoad(_Path);
 
-		// 여기서  값 다 따로 하기 !! 
-		if (_InitInfo.bRootMotionScale)
-		{
-			EnableScaleRootMotion(RootMotionScaleName);
-		}
-		else
-		{
-			DisableScaleRootMotion();
-		}
+		//// 여기서  값 다 따로 하기 !! 
+		//if (_InitInfo.bRootMotionScale)
+		//{
+		//	//EnableScaleRootMotion(RootMotionScaleName);
+		//}
+		//else
+		//{
+		//	DisableScaleRootMotion();
+		//}
 
-		if (_InitInfo.bRootMotionRotation)
-		{
-			EnableRotationRootMotion(RootMotionRotationName);
-		}
-		else
-		{
-			DisableRotationRootMotion();
-		}
+		//if (_InitInfo.bRootMotionRotation)
+		//{
+		//	//EnableRotationRootMotion(RootMotionRotationName);
+		//}
+		//else
+		//{
+		//	DisableRotationRootMotion();
+		//}
 
-		if (_InitInfo.bRootMotionTransition)
-		{
-			EnableTransitionRootMotion(RootMotionTransitionName);
-		}
-		else
-		{
-			DisableTransitionRootMotion();
-		}
+		//if (_InitInfo.bRootMotionTransition)
+		//{
+		//	//EnableTransitionRootMotion(RootMotionTransitionName);
+		//}
+		//else
+		//{
+		//	DisableTransitionRootMotion();
+		//}
 	};
 
 	return S_OK;
@@ -1145,7 +1157,7 @@ Vector3 SkeletonMesh::CalcRootMotionDeltaPos(
 		{
 			const auto& RootAnimTrack = iter->second;
 
-			if (bTimeBeyondAnimation)
+			if (bTimeBeyondAnimation > 0.f)
 			{
 				const Vector3 EndPos = Node::CurrentAnimationPosition(RootAnimTrack, AnimDuraion);
 				const Vector3 PrevPos = Node::CurrentAnimationPosition(RootAnimTrack, AnimPrevFrameMotionTime);
@@ -1232,6 +1244,110 @@ Quaternion SkeletonMesh::CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyon
 	return { 0,0,0 ,1 };
 }
 
+void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
+{
+	auto AiImporter = Assimp::Importer{};
+
+	const aiScene* const AiScene = AiImporter.ReadFile(
+		FilePath.string(),
+		aiProcess_MakeLeftHanded |
+		aiProcess_FlipUVs |
+		aiProcess_FlipWindingOrder |
+		aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace |
+		aiProcess_ValidateDataStructure |
+		aiProcess_ImproveCacheLocality |
+		aiProcess_RemoveRedundantMaterials |
+		aiProcess_GenUVCoords |
+		aiProcess_TransformUVCoords |
+		aiProcess_FindInstances |
+		aiProcess_GenSmoothNormals |
+		aiProcess_SortByPType |
+		aiProcess_OptimizeMeshes |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_JoinIdenticalVertices
+	);
+
+
+	bHasAnimation = AiScene->HasAnimations();
+
+	if (bHasAnimation)
+	{
+		if (!AnimIndexNameMap)
+		{
+			AnimIndexNameMap = std::make_shared<std::map<uint32, std::string>>();
+		}
+
+		if (!AnimInfoTable)
+		{
+			AnimInfoTable = std::make_shared<std::map<std::string, AnimationInformation>>();
+		};
+
+		for (uint32 AnimIdx = 0u; AnimIdx < AiScene->mNumAnimations; ++AnimIdx)
+		{
+			aiAnimation* _AiAnimation = AiScene->mAnimations[AnimIdx];
+
+			AnimationInformation CurAnimInfo{};
+			CurAnimInfo.TickPerSecond = _AiAnimation->mTicksPerSecond;
+			CurAnimInfo.SetAcceleration(1.0f);
+			CurAnimInfo.Name = FilePath.filename().stem().string();
+			CurAnimInfo.Duration = _AiAnimation->mDuration;
+
+			(*AnimIndexNameMap)[AnimIndexNameMap->size() + AnimIdx] = CurAnimInfo.Name;
+
+			for (uint32 ChannelIdx = 0u;ChannelIdx < _AiAnimation->mNumChannels; ++ChannelIdx)
+			{
+				const auto& CurChannelkey = _AiAnimation->mChannels[ChannelIdx];
+				const std::string NodeName = CurChannelkey->mNodeName.C_Str();
+				auto iter = Nodes->find(NodeName);
+				auto SpNode = iter->second;
+				auto& CurAnimTrack = SpNode->_AnimationTrack[CurAnimInfo.Name];
+				auto& RefScaleTrack = CurAnimTrack.ScaleTimeLine;
+				auto& RefQuatTrack = CurAnimTrack.QuatTimeLine;
+				auto& RefPosTrack = CurAnimTrack.PosTimeLine;
+
+				for (uint32 ScaleKeyIdx = 0u;
+					ScaleKeyIdx < CurChannelkey->mNumScalingKeys;
+					++ScaleKeyIdx)
+				{
+					const auto& CurScaleKey = CurChannelkey->mScalingKeys[ScaleKeyIdx];
+
+					RefScaleTrack.insert({ CurScaleKey.mTime,
+						AssimpHelper::ConvertVec3(CurScaleKey.mValue) });
+				}
+
+				for (uint32 QuatKeyIdx = 0u;
+					QuatKeyIdx < CurChannelkey->mNumRotationKeys;
+					++QuatKeyIdx)
+				{
+					const auto& CurQuatKey = CurChannelkey->mRotationKeys[QuatKeyIdx];
+					auto Quat = AssimpHelper::ConvertQuat(CurQuatKey.mValue);
+					D3DXQuaternionNormalize(&Quat, &Quat);
+
+					RefQuatTrack.insert({
+						CurQuatKey.mTime,
+						Quat
+						});
+				}
+
+				for (uint32 PosKeyIdx = 0u;
+					PosKeyIdx < CurChannelkey->mNumPositionKeys;
+					++PosKeyIdx)
+				{
+					const auto& CurPosKey = CurChannelkey->mPositionKeys[PosKeyIdx];
+
+					RefPosTrack.insert({
+						CurPosKey.mTime,
+						AssimpHelper::ConvertVec3(CurPosKey.mValue)
+						});
+				}
+			}
+
+			AnimInfoTable->insert({ CurAnimInfo.Name , CurAnimInfo });
+		}
+	}
+};
+
 void SkeletonMesh::EnableScaleRootMotion(const std::string& ScalingRootName)
 {
 	if (Nodes)
@@ -1244,10 +1360,11 @@ void SkeletonMesh::EnableScaleRootMotion(const std::string& ScalingRootName)
 				{
 					RootMotionScaleName = NodeName;
 					_Node->RootMotionFlag = 1;
+					bRootMotionScale = true;
 				}
 			}
 		}
-		bRootMotionScale = true;
+	
 	}
 }
 
@@ -1263,10 +1380,12 @@ void SkeletonMesh::EnableRotationRootMotion(const std::string& RotationRootName)
 				{
 					RootMotionRotationName = NodeName;
 					_Node->RootMotionFlag = 2;
+					bRootMotionRotation = true;
+
 				}
 			}
 		}
-		bRootMotionRotation = true;
+	
 	}
 }
 
@@ -1282,12 +1401,13 @@ void SkeletonMesh::EnableTransitionRootMotion(const std::string& TransitionRootN
 				{
 					RootMotionTransitionName = NodeName;
 					_Node->RootMotionFlag = 3;
+					bRootMotionTransition = true;
 				}
 			}
 		}
-		bRootMotionTransition = true;
+		
 	}
-}
+};
 
 void SkeletonMesh::DisableScaleRootMotion()
 {
@@ -1300,12 +1420,12 @@ void SkeletonMesh::DisableScaleRootMotion()
 				if (_Node->RootMotionFlag == 1)
 				{
 					_Node->RootMotionFlag = -1;
+				
 				}
 			}
 		}
-		bRootMotionScale = false;
 	}
-
+	bRootMotionScale = false;
 }
 
 void SkeletonMesh::DisableRotationRootMotion()
@@ -1322,8 +1442,9 @@ void SkeletonMesh::DisableRotationRootMotion()
 				}
 			}
 		}
-		bRootMotionRotation = false;
+		
 	}
+	bRootMotionRotation = false;
 }
 
 void SkeletonMesh::DisableTransitionRootMotion()
@@ -1333,13 +1454,14 @@ void SkeletonMesh::DisableTransitionRootMotion()
 		for (auto& [NodeName, _Node] : *Nodes)
 		{
 			if (_Node)
-			{ 
+			{
 				if (_Node->RootMotionFlag == 3)
 				{
 					_Node->RootMotionFlag = -1;
 				}
 			}
 		}
-		bRootMotionTransition = false;
 	}
+
+	bRootMotionTransition = false;
 }

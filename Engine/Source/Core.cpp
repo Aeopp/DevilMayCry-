@@ -24,10 +24,10 @@ ENGINE_DLL std::vector<std::string> g_Logs{};
 
 void ENGINE_DLL Log(const std::string& PushLog)
 {
-	if (g_bEditMode)
-	{
-		g_Logs.push_back(PushLog);
-	}
+	//if (g_bEditMode)
+	//{
+	//	g_Logs.push_back(PushLog);
+	//}
 }
 
 std::weak_ptr<CoreSystem> Engine::m_pCoreSystem = CoreSystem::GetInstance();

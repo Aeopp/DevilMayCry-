@@ -96,6 +96,7 @@ HRESULT TestAnimationObject::Ready()
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
+
 	_InitRenderProp.RenderOrders =
 	{
 		RenderProperty::Order::ForwardAlphaBlend,
@@ -104,6 +105,7 @@ HRESULT TestAnimationObject::Ready()
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 	/// 
+
 
 
 	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
@@ -127,10 +129,10 @@ HRESULT TestAnimationObject::Ready()
 	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
 	_InitInfo.bLocalVertexLocationsStorage = false;
 	// 루트 모션 지원 해줘 !!
-	_InitInfo.bRootMotionScale = true;
-	_InitInfo.bRootMotionRotation= true;
-	_InitInfo.bRootMotionTransition = true;
-	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Em5300\\Em5300.X" , _InitInfo);
+	_InitInfo.bRootMotionScale = false;
+	_InitInfo.bRootMotionRotation= false;
+	_InitInfo.bRootMotionTransition = false;
+	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Monster\\Em100\\Em100.fbx" , _InitInfo);
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)

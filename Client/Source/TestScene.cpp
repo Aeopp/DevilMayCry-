@@ -9,8 +9,7 @@
 #include "BtlPanel.h"
 #include "Camera.h"
 #include "Nero.h"
-#include "Blood.h"
-#include "DashImpact.h"
+#include "Em100.h"
 #include <iostream>
 
 using namespace std;
@@ -36,8 +35,8 @@ HRESULT TestScene::LoadScene()
 
 	AddGameObject<Camera>();
 
-	//AddGameObject<DashImpact>();
-	//AddGameObject<Blood>();
+	AddGameObject<Em100>();
+	AddGameObject<TestObject>();
 
 
 	return S_OK;
