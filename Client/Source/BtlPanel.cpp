@@ -343,7 +343,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	//std::cout << _BossGauge_CurXPosOrtho << std::endl;
 
 	//
-	//Imgui_ModifyUI(EX_GAUGE_BACK);
+	//Imgui_ModifyUI(EX_GAUGE);
 
 	return 0;
 }
@@ -457,7 +457,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._33 = _UIDescs[_ID].Scale.z;
 			D3DXMatrixRotationX(&RotMat, D3DXToRadian(35.f));
 			_Out *= RotMat;
-			D3DXMatrixRotationY(&RotMat, D3DXToRadian(-100.f));
+			D3DXMatrixRotationY(&RotMat, D3DXToRadian(-95.f));
 			_Out *= RotMat;
 			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(-10.f));
 			_Out *= RotMat;
@@ -470,14 +470,14 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = _UIDescs[_ID].Scale.x;
 			_Out._22 = _UIDescs[_ID].Scale.y;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			D3DXMatrixRotationX(&RotMat, D3DXToRadian(20.f));
+			D3DXMatrixRotationX(&RotMat, D3DXToRadian(21.f));
 			_Out *= RotMat;
-			D3DXMatrixRotationY(&RotMat, D3DXToRadian(-89.f));
+			D3DXMatrixRotationY(&RotMat, D3DXToRadian(-91.f));
 			_Out *= RotMat;
-			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(5.f));
+			D3DXMatrixRotationZ(&RotMat, D3DXToRadian(17.f));
 			_Out *= RotMat;
-			_Out._41 = -9.f; //_UIDescs[_ID].Pos.x;
-			_Out._42 = 4.2f; //_UIDescs[_ID].Pos.y;
+			_Out._41 = -9.075f; //_UIDescs[_ID].Pos.x;
+			_Out._42 = 4.1f; //_UIDescs[_ID].Pos.y;
 			_Out._43 = 16.f; //_UIDescs[_ID].Pos.z;
 		}
 		else // 0
