@@ -79,12 +79,13 @@ private:
 	bool TestShaderInit();
 	void TestShaderRelease();
 	
+	bool bCurstomEye = false;
 	void RenderShadowMaps();
 	void RenderGBuffer(const Math::Matrix & viewproj);
 	void DeferredShading(const Math::Matrix & view, 
 		const Math::Matrix & proj, 
 		const Math::Matrix & viewprojinv, 
-		const Math::Vector4 & eye);
+		const Vector4 & eye);
 
 	void RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX & viewproj);
 	LPDIRECT3DTEXTURE9	marble = nullptr;
@@ -95,6 +96,8 @@ private:
 	LPD3DXMESH			box = nullptr;
 	BasicCamera camera;
 
+	Vector4 MoonLightTarget{ 0,0,0 , 1 };
+	Vector4 CurstomEye= { 0,0,0,1 };
 	float DXScreenQuadVerticesFFP[24] = {
 		// NOTE: viewport must be added
 		-0.5f, -0.5f, 0, 1,		0, 1,

@@ -17,7 +17,7 @@ void vs_gbuffer(
 	out float3 wnorm : TEXCOORD2)
 {
     pos = mul(float4(pos.xyz, 1), matWorld);
-    wnorm = mul(matWorldInv, float4(norm, 0)).xyz;
+    wnorm = mul(float4(norm, 0), matWorld).xyz;
 
     pos = mul(pos, matViewProj);
     zw = pos.zw;
@@ -34,7 +34,11 @@ void ps_gbuffer(
 	out float4 color2 : COLOR2)	// depth
 {
     float3 n = normalize(wnorm);
-
+     
+    //float temp = n.z;
+    //n.z = n.x;
+    //n.x = temp;
+    
     color0 = tex2D(baseColor, tex);
     color1 = float4(n * 0.5f + 0.5f, 1);
     color2 = float4(zw.x / zw.y, 0, 0, 0);
@@ -53,7 +57,7 @@ void vs_gbuffer_tbn(
 {
     pos = mul(float4(pos.xyz, 1), matWorld);
 
-    wnorm = mul(matWorldInv, float4(norm, 0)).xyz;
+    wnorm = mul(float4(norm, 0), matWorld).xyz;
     wtan = mul(float4(tang, 0), matWorld).xyz;
     wbin = mul(float4(bin, 0), matWorld).xyz;
 
@@ -73,11 +77,23 @@ void ps_gbuffer_tbn(
 	out float4 color1 : COLOR1, // normals
 	out float4 color2 : COLOR2)	// depth
 {
-    float3x3 tbn = { wtan, handedness * wbin, wnorm };
-
+    float3x3 tbn =
+                float3x3(normalize(float3(wtan)),
+                         normalize(float3(wbin)),
+                         normalize(float3(wnorm)) );
+    
+    tbn = transpose(tbn);
+    
     float3 tnorm = tex2D(normalMap, tex).rgb * 2.0f - 1.0f;
-    float3 n = normalize(mul(tbn, tnorm));
-
+    //노말맵 g채널 뒤집어주자 . 
+     //tnorm.y *= -1.f;
+    ////tnorm.x *= -1.f;
+    //float temp = tnorm.z;
+    //tnorm.z = tnorm.x;
+    //tnorm.x = temp;
+    
+    float3 n = normalize(mul(tbn , tnorm ));
+    
     color0 = tex2D(baseColor, tex);
     color1 = float4(n * 0.5f + 0.5f, 1);
     color2 = float4(zw.x / zw.y, 0, 0, 0);

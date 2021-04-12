@@ -125,7 +125,7 @@ void Renderer::ReadyLights()
 
 	// 그림자맵 512 로 생성
 	Moonlight->CreateShadowMap(m_pDevice, 512);
-	Moonlight->SetProjectionParameters(7.1f, 7.1f, -5.f, +5.f);
+	Moonlight->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
 
 	PointLights[0]->CreateShadowMap(m_pDevice, 256);
 	PointLights[1]->CreateShadowMap(m_pDevice, 256);
@@ -247,30 +247,20 @@ HRESULT Renderer::Render()&
 	static float time = 0;
 
 
-
 	Math::Matrix	view, viewinv, proj;
 	Math::Matrix	viewproj, viewprojinv;
-	Math::Vector4	eye;
+	// Math::Vector4	eye;
 
 	// NOTE: camera is right-handed
 	camera.Animate(0.11f);
 	camera.GetViewMatrix(view);
 	camera.GetProjectionMatrix(proj);
 
-	camera.GetEyePosition((Math::Vector3&)eye);
+	// camera.GetEyePosition((Math::Vector3&)eye);
 
-	Math::MatrixMultiply(viewproj, view, proj);
-	Math::MatrixInverse(viewprojinv, viewproj);
+	//Math::MatrixMultiply(viewproj, view, proj);
+	//Math::MatrixInverse(viewprojinv, viewproj);
 
-	// calculate moonlight direction (let y stay in world space, so we can see shadow)
-	Math::Vector4 moondir = { -0.25f, 0.65f, -1, 0 };
-
-	Math::MatrixInverse(viewinv, view);
-	Math::Vec3TransformNormal((Math::Vector3&)moondir, (const Math::Vector3&)moondir, viewinv);
-	Math::Vec3Normalize((Math::Vector3&)moondir, (const Math::Vector3&)moondir);
-
-	moondir.y = 0.65f;
-	Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
 
 	// setup lights
 	PointLights[0]->GetPosition().x = cosf(time * 0.5f) * 2;
@@ -282,11 +272,64 @@ HRESULT Renderer::Render()&
 	PointLights[2]->GetPosition().x = cosf(0.75f * time) * 1.5f;
 	PointLights[2]->GetPosition().z = sinf(1.5f * time) * 1.5f;
 
+	
 	std::memcpy(&view, &CurrentRenderInfo.View, sizeof(Matrix));
 	std::memcpy(&viewinv, &CurrentRenderInfo.ViewInverse, sizeof(Matrix));
 	std::memcpy(&proj, &CurrentRenderInfo.Projection, sizeof(Matrix));
 	std::memcpy(&viewproj, &CurrentRenderInfo.ViewProjection, sizeof(Matrix));
 	std::memcpy(&viewprojinv, &CurrentRenderInfo.ViewProjectionInverse, sizeof(Matrix));
+	// eye = Math::Vector4{ CurrentRenderInfo.CameraLocation.x, CurrentRenderInfo.CameraLocation.y , CurrentRenderInfo.CameraLocation.z , 1.f };
+
+	// calculate moonlight direction (let y stay in world space, so we can see shadow)
+	static Math::Vector4 originmoondir = { -0.25f,-0.65f, -1, 0 };
+
+	// Math::MatrixInverse(viewinv, view);
+	ImGui::SliderFloat3("originmoondir ", (float*)&originmoondir, -1.f, 1.f);
+	/*Math::Vec3TransformNormal((Math::Vector3&)moondir, (const Math::Vector3&)moondir, viewinv);
+	Math::Vec3Normalize((Math::Vector3&)moondir, (const Math::Vector3&)moondir);*/
+
+	Math::Vector4 moondir;
+
+	D3DXVec4Normalize((Vector4*)&moondir, (Vector4*)&originmoondir);
+// 	 moondir.y = 0.65f;
+	Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
+
+	static bool bMoonLightTarget = false;
+	ImGui::Checkbox("bMoonLightTarget", &bMoonLightTarget);
+	if (bMoonLightTarget)
+	{
+		
+		ImGui::SliderFloat3("MoonLightTarget", MoonLightTarget, -5.f, 5.f);
+		Vector4 Targetdir  = MoonLightTarget - Vector4{ 0, 0, 0, 1 };
+		D3DXVec4Normalize(&Targetdir, &Targetdir);
+		moondir = { Targetdir.x , Targetdir.y ,Targetdir.z , 0.f };
+		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
+	}
+	
+	static bool TransformViewSpace = false;
+	if (ImGui::Checkbox("Transform View Space", &TransformViewSpace))
+	{
+		
+	}
+
+	if (TransformViewSpace)
+	{
+		// 달빛을 카메라 공간으로 변환 . 
+		D3DXVec4Transform((Vector4*)&moondir, (Vector4*)&moondir,
+			&CurrentRenderInfo.ViewInverse);
+		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
+	}
+
+	ImGui::Checkbox("bCustomEye", &bCurstomEye);
+	if (bCurstomEye)
+	{
+		ImGui::SliderFloat3("CurstomEye", CurstomEye, -5.f, 5.f);
+	}
+
+	
+
+	
+	
 
 	auto device = m_pDevice;
 	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
@@ -318,7 +361,10 @@ HRESULT Renderer::Render()&
 		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 		device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
-		DeferredShading(view, proj, viewprojinv, eye);
+		DeferredShading(view, proj, viewprojinv, 
+			Vector4{CurrentRenderInfo.CameraLocation.x,
+			CurrentRenderInfo.CameraLocation.y ,
+			CurrentRenderInfo.CameraLocation.z ,1.f} );
 
 		// STEP 3: render sky
 		device->SetRenderTarget(0, backbuffer);
@@ -425,7 +471,7 @@ void Renderer::Editor()&
 void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
-	
+
 	Matrix CameraView, CameraProjection;
 	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
 	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
@@ -433,12 +479,10 @@ void Renderer::RenderReady()&
 	Matrix Ortho;
 	D3DXMatrixOrthoLH(&Ortho, g_nWndCX,g_nWndCY, 0.0f, 1.f);
 
-	//CurrentRenderInfo.View = FMath::Transpose(CameraView);
-	//CurrentRenderInfo.Projection = FMath::Transpose(CameraProjection);
-	//
+	CurrentRenderInfo.View = (CameraView);
+	CurrentRenderInfo.Projection = (CameraProjection);
 	CurrentRenderInfo.ViewInverse = FMath::Inverse(CurrentRenderInfo.View);
-	CurrentRenderInfo.ProjectionInverse =
-		FMath::Inverse(CurrentRenderInfo.Projection);
+	CurrentRenderInfo.ProjectionInverse =FMath::Inverse(CurrentRenderInfo.Projection);
 	CurrentRenderInfo.ViewProjection = 
 		CameraView * CameraProjection;
 	CurrentRenderInfo.ViewProjectionInverse = FMath::Inverse(CurrentRenderInfo.ViewProjection);
@@ -447,19 +491,20 @@ void Renderer::RenderReady()&
 	CurrentRenderInfo.Ortho = Ortho;
 
 
-	Vector4 moondir = { -0.25f,0.65f, -1,0 };
+	
 	static float time = 0.0f;
 	time += TimeSystem::GetInstance()->DeltaTime();
-	// 달빛을 카메라 공간으로 변환 . 
-	D3DXVec4Transform(&moondir, &moondir,
-		&CurrentRenderInfo.ViewInverse);
-	Vector3 moondir3 = Vector3{ moondir.x , moondir.y, moondir.z };
-	D3DXVec3TransformNormal(&moondir3, &moondir3, &CurrentRenderInfo.ViewInverse);
-	D3DXVec3Normalize(&moondir3, &moondir3);
-	moondir3.y = 0.65f;
-	moondir = { moondir3.x,moondir3.y,moondir3.z ,0.0f };
+	//Vector4 moondir = { +0.25f,0.65f, -1,0 };
+	//// 달빛을 카메라 공간으로 변환 . 
+	//D3DXVec4Transform(&moondir, &moondir,
+	//	&CurrentRenderInfo.ViewInverse);
+	//Vector3 moondir3 = Vector3{ moondir.x , moondir.y, moondir.z };
+	//D3DXVec3TransformNormal(&moondir3, &moondir3, &CurrentRenderInfo.ViewInverse);
+	//D3DXVec3Normalize(&moondir3, &moondir3);
+	//moondir3.y = 0.65f;
+	//moondir = { moondir3.x,moondir3.y,moondir3.z ,0.0f };
 
-	Moonlight->SetPosition(moondir);
+	// Moonlight->SetPosition(moondir);
 
 	PointLights[0]->GetPosition().x = std::cosf(time * 0.5f) * 2.f;
 
@@ -690,7 +735,9 @@ void Renderer::RenderGBuffer(const Math::Matrix& viewproj)
 	device->SetRenderTarget(2, NULL);
 }
 
-void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& proj, const Math::Matrix& viewprojinv, const Math::Vector4& eye)
+void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& proj, 
+	const Math::Matrix& viewprojinv, 
+	const Vector4& eye)
 {
 	RECT scissorrect;
 
@@ -734,7 +781,16 @@ void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& pro
 	deferred->SetTechnique("deferred");
 	deferred->SetMatrix("matViewProjInv", (D3DXMATRIX*)&viewprojinv);
 	deferred->SetVector("pixelSize", &pixelsize);
-	deferred->SetVector("eyePos", (D3DXVECTOR4*)&eye);
+
+	if (bCurstomEye)
+	{
+		deferred->SetVector("eyePos", &CurstomEye);
+	}
+	else
+	{
+		deferred->SetVector("eyePos", &eye);
+	}
+	
 
 	deferred->Begin(NULL, 0);
 	deferred->BeginPass(0);
@@ -751,7 +807,13 @@ void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& pro
 			deferred->SetVector("lightColor", (D3DXVECTOR4*)&Moonlight->GetColor());
 			deferred->SetVector("lightPos", &Moonlight->GetPosition());
 			deferred->SetFloat("specularPower", 200.0f);
-		
+			static float sinAngularRadius = 0.0046251;
+			static float cosAngularRadius = 0.9999893;
+			ImGui::SliderFloat("sinAngularRadius", &sinAngularRadius, -1.f, 1.f);
+			ImGui::SliderFloat("cosAngularRadius ", &cosAngularRadius, -1.f, 1.f);
+
+			deferred->SetFloat("sinAngularRadius", sinAngularRadius );
+			deferred->SetFloat("cosAngularRadius", cosAngularRadius );
 
 			device->SetTexture(3, Moonlight->GetShadowMap());
 			deferred->CommitChanges();
@@ -878,6 +940,21 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 	D3DXMatrixScaling(&world[2], 0.15f, 0.15f, 0.15f);
 	D3DXMatrixScaling(&world[3], 5, 0.1f, 5);
 
+
+	static Vector3 allrotationeuler{ 0,0,0 };
+	ImGui::SliderFloat3("allrotationeuler", allrotationeuler, -360.f, 360.f);
+	D3DXMATRIX Allrotation{};
+
+	D3DXMatrixRotationYawPitchRoll(&Allrotation, 
+		FMath::ToRadian( allrotationeuler.y  ) ,  
+		FMath::ToRadian( allrotationeuler.x ) ,
+		FMath::ToRadian( allrotationeuler.z  )  );
+
+	world[0] *= Allrotation;
+	world[1] *= Allrotation;
+	world[2] *= Allrotation;
+	world[3] *= Allrotation;
+
 	world[0]._41 = -1.5;
 	world[0]._43 = 1.5;
 
@@ -919,7 +996,18 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 		effect->SetMatrix("matWorld", &world[2]);
 		effect->SetMatrix("matWorldInv", &inv);
 		effect->CommitChanges();
+		skull->DrawSubset(0);
 
+		Matrix targetscale,targettranslation ,targetworld,targetinverseworld;
+ 		D3DXMatrixScaling(&targetscale, 0.15f, 0.15f, 0.15f) ;
+		D3DXMatrixTranslation(&targettranslation, 
+			MoonLightTarget.x, MoonLightTarget.y, MoonLightTarget.z);
+		targetworld = targetscale * targettranslation;
+		D3DXMatrixInverse(&targetinverseworld,nullptr, &targetworld); 
+
+		effect->SetMatrix("matWorld", &targetworld);
+		effect->SetMatrix("matWorldInv", &targetinverseworld);
+		effect->CommitChanges();
 		skull->DrawSubset(0);
 	}
 	effect->EndPass();
@@ -1069,7 +1157,16 @@ HRESULT Renderer::RenderDeferredShading()&
 	Fx->SetTechnique("deferred");
 	Fx->SetMatrix("matViewProjInv", (D3DXMATRIX*)&CurrentRenderInfo.ViewProjectionInverse);
 	Fx->SetVector("pixelSize", &pixelsize);
-	Fx->SetVector("eyePos", (D3DXVECTOR4*)&CurrentRenderInfo.CameraLocation);
+
+	if (bCurstomEye)
+	{
+		Fx->SetVector("eyePos",&CurstomEye);
+	}
+	else
+	{
+		Fx->SetVector("eyePos", (D3DXVECTOR4*)&CurrentRenderInfo.CameraLocation);
+	}
+	
 
 	Fx->Begin(NULL, 0);
 	Fx->BeginPass(0);
@@ -1474,6 +1571,8 @@ bool Renderer::TestShaderInit()
 	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/wood2.jpg", &wood)))
 		return false;
 
+	/*if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/brick_normal.jpg", &wood_normal)))
+		return false;*/
 	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/wood2_normal.tga", &wood_normal)))
 		return false;
 
