@@ -313,7 +313,7 @@ HRESULT Renderer::RenderDebugBone()&
 	{
 		m_pDevice->SetRenderTarget(0u, BackBuffer);
 		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::DebugBone);
-			_TargetGroup != std::end(RenderEntitys))
+				 _TargetGroup != std::end(RenderEntitys))
 		{
 			for (auto& _RenderEntity : _TargetGroup->second)
 			{

@@ -70,6 +70,9 @@ void TestObject::RenderReady()
 
 HRESULT TestObject::Ready()
 {
+	m_nTag = 1;
+
+
 	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
 	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
 	SetRenderEnable(true);
@@ -106,9 +109,12 @@ HRESULT TestObject::Ready()
 	PushEditEntity(_StaticMesh.get());
 
 	// 트랜스폼 초기화 .. 
-	auto InitTransform = AddComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.001,0.001,0.001 });
+	auto InitTransform = GetComponent<ENGINE::Transform>();
+	InitTransform.lock()->SetScale({ 0.01,0.01,0.01});
 	PushEditEntity(InitTransform.lock().get());
+
+
+	m_pTransform = GetComponent<ENGINE::Transform>();
 
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
 	// PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
@@ -129,7 +135,21 @@ HRESULT TestObject::Start()
 
 UINT TestObject::Update(const float _fDeltaTime)
 {
+	Vector3 vDir = m_pTransform.lock()->GetLook();
 
+	D3DXVec3Normalize(&vDir, &vDir);
+	if (Input::GetKey(DIK_UP))
+		m_pTransform.lock()->Translate(vDir * _fDeltaTime * 10.f);
+	if (Input::GetKey(DIK_DOWN))
+		m_pTransform.lock()->Translate(-vDir * _fDeltaTime * 10.f);
+	if (Input::GetKey(DIK_LEFT))
+		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * -_fDeltaTime * 50.f), 0.f });
+	if (Input::GetKey(DIK_RIGHT))
+		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });
+		
+
+	
+	
 	return 0;
 }
 

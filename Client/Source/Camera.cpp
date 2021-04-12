@@ -55,7 +55,7 @@ UINT Camera::Update(const float _fDeltaTime)
         Mouse_Fix();
         Move_Mouse(_fDeltaTime);
     }
-    Move(_fDeltaTime);
+     Move(_fDeltaTime);
 
     return 0;
 }
@@ -99,7 +99,7 @@ void Camera::Move(const float& _fTimeDelta)
 		m_vEye -= vLength;
 		m_vAt -= vLength;
     }
-
+    
     if (Input::GetKey(DIK_A))
     {
         Vector3 vRight;
@@ -182,4 +182,5 @@ void Camera::Mouse_Fix()
 
     ClientToScreen(g_hWnd, &ptMouse);
     SetCursorPos(ptMouse.x, ptMouse.y);
+
 }

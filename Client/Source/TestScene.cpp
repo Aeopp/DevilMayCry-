@@ -5,10 +5,13 @@
 #include "ShaderTester.h"
 #include "TestAnimationObject.h"
 #include "Eff_OvertureHand.h"
+#include "Eff_Glint.h"
 #include "BtlPanel.h"
 #include "Camera.h"
-
+#include "Nero.h"
+#include "Em100.h"
 #include <iostream>
+
 using namespace std;
 
 TestScene::TestScene()
@@ -32,22 +35,17 @@ HRESULT TestScene::LoadScene()
 
 	AddGameObject<Camera>();
 
-	//AddGameObject<ShaderTester>();
-
-	AddGameObject<TestObject>();
-	AddGameObject<TestAnimationObject>();
-	/*AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();*/
+	//AddGameObject<Em100>();
+	//AddGameObject<TestObject>();
+	//AddGameObject<TestAnimationObject>();
+	//AddGameObject<Nero>();
 
 	//AddGameObject<Eff_OvertureHand>();
 	//AddGameObject<BtlPanel>();
+	//AddGameObject<Eff_Glint>();
+
+	//AddGameObject<DashImpact>();
+	//AddGameObject<Blood>();
 
 	return S_OK;
 }

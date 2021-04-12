@@ -1,4 +1,7 @@
 float4x4 ToRoot;
+
+float4x4 ScaleOffset;
+
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
@@ -22,7 +25,9 @@ VsOut VsDebug(VsIn In)
     VsOut Out = (VsOut) 0;
     float4x4 ViewProjection = mul(View, Projection);
     float4x4 RenderTransform = mul(ToRoot, World);
-    float4x4 WVP = mul(ToRoot, ViewProjection);
+    RenderTransform = mul(ScaleOffset , RenderTransform);
+    float4x4 WVP = mul(RenderTransform, ViewProjection);
+   // WVP = mul(ScaleOffset, WVP);
     Out.UV = In.UV * UVScale;
     Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     

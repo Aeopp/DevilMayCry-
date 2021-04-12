@@ -103,5 +103,16 @@ typedef struct _tagPxUserData
 {
 	std::weak_ptr<class Collider> pCollider;
 }PXUSERDATA, *LPPXUSERDATA;
+
+
+
+typedef struct tagBattleInfo
+{
+	int		iAttack;
+	int		iMaxHp;
+	int		iHp;
+
+	ATTACKTYPE	eAttackType;
+}BT_INFO;
 END
 #endif // !__ENGINE_STRUCT_H__

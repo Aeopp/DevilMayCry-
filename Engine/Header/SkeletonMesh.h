@@ -27,45 +27,52 @@ private:
 public:
 	static SkeletonMesh* Create(LPDIRECT3DDEVICE9 const _pDevice,
 								const std::filesystem::path _Path,
-								const std::any& InitParams);
+								const std::any & InitParams);
 	// Mesh을(를) 통해 상속됨
 	virtual Resource* Clone() override;
-	virtual void Editor()override;
+	virtual void      Editor()override;
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
+	bool    IsAnimationEnd();
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
-	void    Update(const float DeltaTime)&;
+	std::tuple<Vector3, Quaternion, Vector3>    Update(const float DeltaTime)&;
 	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
-	Node*   GetRootNode()&;
-	Node*	GetNode(const std::string & NodeName)&;
+	Node* GetRootNode()&;
+	Node* GetNode(const std::string & NodeName)&;
 	//      본 스키닝 매트릭스에서 ToRoot 매트릭스를 계산 
 	//      (현재 스키닝 업데이트를 하지 않는다면 반환값은 마지막 스키닝 했을시의 정보)
 	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
 
 	void   PlayAnimation(
-		const std::string & InitAnimName, 
-		const bool  bLoop ,
-		const AnimNotify & _Notify = {});
+		const std::string & InitAnimName,
+		const bool  bLoop,
+		const AnimNotify & _Notify = {} ,
+		const float _CurrentAccelerationFactor = 1.0f,
+		const float _CurrentTransitionTimeFactor = 1.0f);
 	void   PlayAnimation(
 		const uint32 AnimationIndex,
 		const bool  bLoop,
-		const AnimNotify & _Notify = {});
+		const AnimNotify & _Notify = {} ,
+		const float _CurrentAccelerationFactor = 1.0f,
+		const float _CurrentTransitionTimeFactor = 1.0f);
 
 	void    ContinueAnimation()&;
 	void    StopAnimation();
 	void	AnimationEnd()&;
 	// 0 ~ 1 정규화 
 	float   PlayingTime();
-	//                       정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
-	void    SetPlayingTime( float NewTime);
-	std::optional<AnimationInformation> GetAnimInfo(const std::string& AnimName) const&;
+	//  정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
+	void    SetPlayingTime(float NewTime);
+	std::optional<AnimationInformation> GetAnimInfo(const std::string & AnimName) const&;
+
+	void SetDeltaTimeFactor(const float DeltaTimeFactor);
 private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
-	void    AnimationUpdateImplementation()&;
+	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
 	void    AnimationSave(const std::filesystem::path & FullPath)&;
 	void    AnimationLoad(const std::filesystem::path & FullPath)&;
 private:
@@ -74,17 +81,71 @@ private:
 		const std::filesystem::path _Path,
 		const std::any & InitParams)override;
 
-	Node*  MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
+	Node* MakeHierarchy(Node * NodeParent, const aiNode* const AiNode ,
 		const std::unordered_map<std::string,
 		std::pair<uint32, Matrix>>&BoneTableParserInfo);
 	// Node* MakeHierarchyForclones(Node* const Parent,const Node* const SpProtoNode);
 	void InitTextureForVertexTextureFetch()&;
 	void AnimationNotify()&;
+
+	static inline std::string NormallyRootMotionTransitionName =
+		"NULL_TRANSITION";
+	static inline std::string NormallyRootMotionScaleName =
+		"NULL_SCALING";
+	static inline std::string NormallyRootMotionRotationName =
+		"NULL_ROTATION";
 private:
+	std::string RootMotionScaleName = NormallyRootMotionScaleName;
+	std::string RootMotionRotationName = NormallyRootMotionRotationName;
+	std::string RootMotionTransitionName = NormallyRootMotionTransitionName;
+
+	Vector3 CalcRootMotionDeltaPos(std::optional<float> bTimeBeyondAnimation,
+									const std::string & _TargetAnimName,
+									const float AnimDuraion,
+									const float AnimPrevFrameMotionTime,
+									const float AnimMotionTime)&;
+
+	Vector3 CalcRootMotionDeltaScale(std::optional<float> bTimeBeyondAnimation,
+		const std::string & _TargetAnimName,
+		const float AnimDuraion,
+		const float AnimPrevFrameMotionTime,
+		const float AnimMotionTime)&;
+
+	// 아직 회전은 테스트 하지 않았음.
+	Quaternion CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyondAnimation,
+		const std::string & _TargetAnimName,
+		const float AnimDuraion,
+		const float AnimPrevFrameMotionTime,
+		const float AnimMotionTime)&;
+
+public:
+	void    LoadAnimation(const std::filesystem::path & FilePath)&;
+	// 노드 정보는 클론들끼리 공유하므로 하나의 클론이 설정한 값으로 모든 클론이 작동.
+	void    EnableScaleRootMotion(const std::string & ScalingRootName = "");
+	void    EnableRotationRootMotion(const std::string & RotationRootName = "");
+	void    EnableTransitionRootMotion(const std::string & TransitionRootName = "");
+	void    DisableScaleRootMotion();
+	void    DisableRotationRootMotion();
+	void    DisableTransitionRootMotion();
+
+	float DeltaTimeFactor = 1.f;
+	float RootMotionDeltaFactor = 1.f;
+	bool  bRootMotionScale = false;
+	bool  bRootMotionRotation = false;
+	bool  bRootMotionTransition = false;
+
 	std::string PrevAnimName{};
 	std::string AnimName{};
+
+	float  CurrentAccelerationFactor = 1.0f;
+	float  CurrentTransitionTimeFactor = 1.0f;
 	float  CurrentAnimMotionTime{ 0.0 };
-	float  PrevAnimMotionTime{ 0.0 };
+	float  CurrentAnimPrevFrameMotionTime{ 0.0f };
+
+	float  PrevAnimMotionTime     { 0.0f };
+	float  PrevAnimPrevFrameMotionTime{ 0.0f };
+	float  PrevAccelerationFactor{ 1.0f };
+
 	float  TransitionRemainTime = -1.0;
 	float  TransitionDuration = 0.0;
 	bool   bLoop = false;
@@ -92,11 +153,15 @@ private:
 	bool   bAnimStop = false;
 	bool   bAnimSaveButton = false;
 
+	Vector3    RootMotionLastCalcDeltaScale = { 0,0,0 };
+	Quaternion RootMotionLastCalcDeltaQuat = { 0,0,0,1 };
+	Vector3    RootMotionLastCalcDeltaPos = { 0,0,0 };
+
 	AnimNotify           CurAnimNotify{};
 	AnimationInformation CurPlayAnimInfo{};
 	AnimationInformation PrevPlayAnimInfo{};
-	IDirect3DTexture9*   BoneAnimMatrixInfo{ nullptr };
-	IDirect3DTexture9*   PrevBoneAnimMatrixInfo{ nullptr };
+	IDirect3DTexture9* BoneAnimMatrixInfo{ nullptr };
+	IDirect3DTexture9* PrevBoneAnimMatrixInfo{ nullptr };
 	int32 VTFPitch{ 0 };
 	std::vector<Matrix> BoneSkinningMatries{};
 	std::vector<Matrix> PrevBoneSkinningMatries{};
@@ -108,6 +173,3 @@ private:
 };
 END
 #endif // !_SKELETONMESH_H_
-
-
-

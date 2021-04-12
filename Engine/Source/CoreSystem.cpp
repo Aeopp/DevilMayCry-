@@ -94,7 +94,6 @@ static  void  SetupImGuiStyle(bool bStyleDark_, float alpha_)
 
 static void GlobalVariableSetup()
 {
-
 	g_bDebugMode = false;
 	g_bEditMode = false;
 	g_bCollisionVisible = false;
@@ -102,7 +101,7 @@ static void GlobalVariableSetup()
 	g_bDebugRender = false;
 
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
-	D3DXCreateSphere(g_pDevice, 1.0f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
+	D3DXCreateSphere(g_pDevice, 0.00001f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
 }
 
 static void GlobalVariableFree()
@@ -213,12 +212,12 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 		return E_FAIL;
 	}
 
-	m_pPhysicsSystem = PhysicsSystem::GetInstance();
-	if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
-	{
-		PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
-		return E_FAIL;
-	}
+	//m_pPhysicsSystem = PhysicsSystem::GetInstance();
+	//if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
+	//{
+	//	PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
+	//	return E_FAIL;
+	//}
 
 	GlobalVariableSetup();
 	ImGuiSetUp();
@@ -261,7 +260,7 @@ HRESULT CoreSystem::UpdateEngine()
 		return E_FAIL;
 	}
 
-	m_pPhysicsSystem.lock()->FetchResults();
+	//m_pPhysicsSystem.lock()->FetchResults();
 
 	if (FAILED(m_pSceneSystem.lock()->UpdateSceneSystem(m_pTimeSystem.lock()->DeltaTime())))
 	{
@@ -275,15 +274,15 @@ HRESULT CoreSystem::UpdateEngine()
 		ImGui::End();
 
 		ImGui::Begin("Log");
-		for (const auto& CurLog : g_Logs)
-		{
-			ImGui::Text(CurLog.c_str());
-		}
+		//for (const auto& CurLog : g_Logs)
+		//{
+		//	ImGui::Text(CurLog.c_str());
+		//}
 		ImGui::End();
 	}
-	g_Logs.clear();
+	//g_Logs.clear();
 
-	m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
+	//m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
 
 	if (FAILED(m_pRenderer.lock()->Render()))
 	{

@@ -58,14 +58,20 @@ public:
 	D3DXMATRIX		GetWorldMatrix();
 	void			SetWorldMatrix(const D3DXMATRIX& _matWorld);
 
+	D3DXMATRIX		GetRenderMatrix();
+
 	D3DXVECTOR3		GetRight();
 	D3DXVECTOR3		GetUp();
 	D3DXVECTOR3		GetLook();
 
 	bool IsUpdated();
-
+public:
+	void	Translate(const D3DXVECTOR3 _vTranslate);
+	void	Rotate(const D3DXVECTOR3 _vRotate);
 public:
 	static D3DXQUATERNION EulerToQuaternion(const D3DXVECTOR3 _vEuler);
+	static D3DXVECTOR3 QuaternionToEuler(const D3DXQUATERNION _vQuat);
+	static float NormalizeAngle(float _fAngle);
 };
 END
 #endif // !__TRANSFORM_H__
