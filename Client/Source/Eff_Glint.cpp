@@ -127,14 +127,14 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 				if (1u == i)
 				{
 					Rot = D3DXToRadian(35.f);
-					D3DXMatrixScaling(&TempMat, Scale * 1.8f, Scale * _Aspect, 1.f);
-					Pos += Vector3(0.01f, 0.01f, 0.01f);
+					D3DXMatrixScaling(&TempMat, Scale * 1.3f, Scale * _Aspect, 1.f);
+					//Pos += Vector3(0.01f, 0.01f, 0.01f);
 				}
 				else if (2u == i)
 				{
 					Rot = D3DXToRadian(-35.f);
-					D3DXMatrixScaling(&TempMat, Scale * 0.5f, Scale * _Aspect, 1.f);
-					Pos -= Vector3(0.01f, 0.01f, 0.01f);
+					D3DXMatrixScaling(&TempMat, Scale * 0.7f, Scale * _Aspect, 1.f);
+					//Pos -= Vector3(0.01f, 0.01f, 0.01f);
 				}
 				else // 0
 				{

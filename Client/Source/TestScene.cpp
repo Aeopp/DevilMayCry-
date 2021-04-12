@@ -38,15 +38,15 @@ HRESULT TestScene::LoadScene()
 	
 	AddGameObject<Camera>();
 
-	AddGameObject<Em100>();
-	AddGameObject<TestObject>();
+	//AddGameObject<Em100>();
+	//AddGameObject<TestObject>();
 	//AddGameObject<Em0000Weapon>();
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestAnimationObject>();
 	//AddGameObject<Nero>();
 
-	//AddGameObject<Eff_OvertureHand>();
 	AddGameObject<BtlPanel>();
+	//AddGameObject<Eff_OvertureHand>();
 	//AddGameObject<Eff_Glint>();
 
 	//AddGameObject<DashImpact>();

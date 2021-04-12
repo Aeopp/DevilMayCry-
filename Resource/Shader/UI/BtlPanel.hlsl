@@ -18,6 +18,9 @@ float _TDTGaugeCurXPosOrtho;
 
 float _HPGlassDirt = 0.f;
 
+float2 _MinTexUV = float2(0.f, 0.f);
+float2 _MaxTexUV = float2(1.f, 1.f);
+
 texture NoiseMap;
 sampler Noise = sampler_state
 {
@@ -112,6 +115,12 @@ struct VsOut_NoiseClip
     float2 Clip : TEXCOORD7;
 };
 
+struct VsOut_GUI
+{
+    float4 Position : POSITION;
+    float2 UV : TEXCOORD0;
+};
+
 
 VsOut VsMain(VsIn In)
 {
@@ -202,6 +211,18 @@ VsOut_Clip VsMain_Gauge(VsIn In)
     return Out;
 };
 
+VsOut_GUI VsMain_GUI(VsIn In)
+{
+    VsOut_GUI Out = (VsOut_GUI) 0;
+    
+    Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMat);
+    Out.Position = mul(float4(Out.Position.xyz, 1.f), Ortho);
+    Out.UV.x = (_MaxTexUV.x - _MinTexUV.x) * In.UV.x + _MinTexUV.x;
+    Out.UV.y = (_MaxTexUV.y - _MinTexUV.y) * In.UV.y + _MinTexUV.y;
+
+    return Out;
+}
+
 
 struct PsIn
 {
@@ -230,6 +251,11 @@ struct PsIn_NoiseClip
     float2 NoiseCoord1 : TEXCOORD5;
     float2 NoiseCoord2 : TEXCOORD6;
     float2 Clip : TEXCOORD7;
+};
+
+struct PsIn_GUI
+{
+    float2 UV : TEXCOORD0;
 };
 
 struct PsOut
@@ -555,6 +581,15 @@ PsOut PsMain_TDTGauge1(PsIn_Clip In)
     return Out;
 };
 
+PsOut PsMain_GUI(PsIn_GUI In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    Out.Color = tex2D(ALB0, In.UV);
+
+    return Out;
+};
+
 
 technique Default
 {
@@ -701,5 +736,17 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain_Gauge();
         pixelshader = compile ps_3_0 PsMain_TDTGauge1();
+    }
+    pass p12
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain_GUI();
+        pixelshader = compile ps_3_0 PsMain_GUI();
     }
 };

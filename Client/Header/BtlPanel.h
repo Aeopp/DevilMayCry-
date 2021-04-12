@@ -18,6 +18,7 @@ private:
 		EX_GAUGE,
 		HP_GAUGE,
 		TDT_GAUGE,
+		KEYBOARD,
 		DESC_END
 	};
 	struct UI_DESC
@@ -70,6 +71,8 @@ private:
 	std::shared_ptr<ENGINE::Texture> _TDTGaugeATOSTex{};
 	std::shared_ptr<ENGINE::Texture> _TDTGaugeNRMRTex{};
 
+	std::shared_ptr<ENGINE::Texture> _KeyBoardTex{};
+
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
 
@@ -87,12 +90,22 @@ private:
 
 	float _HPGlassDirt = 0.f;
 
+	enum KEY_INPUT_ID
+	{
+		Q = 0, W, E, A, S, D, F, Z,
+		SHIFT, CTRL, SPACE, LBUTTON, MBUTTON, RBUTTON,
+		KEY_INPUT_END
+	};
+	bool _KeyboardInput[KEY_INPUT_END] = { false, };
+
 	Matrix _PerspectiveProjMatrix = Matrix();
 
 	Vector3 _LightDir = Vector3(0.f, 1.f, 1.f);
 
 	Vector3 _Rot = Vector3(0.f, 0.f, 0.f);	// 디버그용 회전벡터(Degree). 회전값이 들어간게 예외케이스라 생각해서 UI_DESC에 없음
-	
+	Vector2 _MinTexUV = Vector2(0.f, 0.f);
+	Vector2 _MaxTexUV = Vector2(1.f, 1.f);
+
 private:
 	explicit BtlPanel() = default;
 	virtual ~BtlPanel() = default;
@@ -105,6 +118,7 @@ private:
 	void	Update_TargetInfo();
 	Vector2	WorldPosToScreenPos(const Vector3& WorldPos);
 	Vector2	ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY);
+	void	Check_KeyInput();
 	void	Imgui_ModifyUI(UI_DESC_ID _ID);
 public:
 	static BtlPanel* Create();
@@ -123,5 +137,6 @@ public:
 public:
 	void SetTargetActive(bool IsActive);
 	void SetTargetPos(const Vector3& pos) { _TargetPos = pos; }
+	void SetKeyInputActive(bool IsActive);
 };
 #endif // !__UI_BTL_PANEL__

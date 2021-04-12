@@ -198,6 +198,100 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
+
+		//
+		CurID = KEYBOARD;
+		if (_UIDescs[CurID].Using)
+		{
+			// 키보드 base
+			_ImplInfo.Fx->SetTexture("ALB0Map", _KeyBoardTex->GetTexture());
+			_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(0.f, 0.f), 2u);
+			_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(1.f, 0.3f), 2u);
+
+			Create_ScreenMat(CurID, ScreenMat);	
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(12);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			// 마우스 base
+			_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(0.f, 0.594f), 2u);
+			_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(0.136f, 0.78f), 2u);
+
+			Create_ScreenMat(CurID, ScreenMat, 999);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(12);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			// 키입력
+			_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(0.316f, 0.596f), 2u);
+			_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(0.359f, 0.639f), 2u);
+
+			for (int i = 0; i <= KEY_INPUT_ID::SPACE; ++i)
+			{
+				if (!_KeyboardInput[i])
+					continue;
+
+				Create_ScreenMat(CurID, ScreenMat, i + 1);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(12);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+
+			// 마우스
+			if (_KeyboardInput[KEY_INPUT_ID::LBUTTON])
+			{
+				_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(0.15f, 0.596f), 2u);
+				_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(0.205f, 0.666f), 2u);
+
+				Create_ScreenMat(CurID, ScreenMat, KEY_INPUT_ID::LBUTTON + 1);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(12);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+			if (_KeyboardInput[KEY_INPUT_ID::RBUTTON])
+			{
+				_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(0.205f, 0.596f), 2u);
+				_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(0.15f, 0.666f), 2u);
+
+				Create_ScreenMat(CurID, ScreenMat, KEY_INPUT_ID::RBUTTON + 1);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(12);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+			if (_KeyboardInput[KEY_INPUT_ID::MBUTTON])
+			{
+				_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(0.222f, 0.596f), 2u);
+				_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(0.240f, 0.646f), 2u);
+
+				Create_ScreenMat(CurID, ScreenMat, KEY_INPUT_ID::MBUTTON + 1);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(12);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+
+			// 키보드 글자
+			_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(0.f, 0.296f), 2u);
+			_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(1.f, 0.592f), 2u);
+
+			Create_ScreenMat(CurID, ScreenMat);	
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(12);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
 	}
 
 	//
@@ -366,6 +460,8 @@ HRESULT BtlPanel::Ready()
 	_TDTGaugeATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\TDT_GaugeOut_ATOS.tga");
 	_TDTGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\TDT_GaugeOut_NRMR.tga");
 
+	_KeyBoardTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\ui8013_01_iam.tga");
+
 	D3DXMatrixPerspectiveFovLH(&_PerspectiveProjMatrix, D3DXToRadian(2.5f), (float)g_nWndCX / g_nWndCY, 0.1f, 1.f);
 		 
 	Init_UIDescs();
@@ -402,11 +498,17 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 		if (0.f > _TargetHP_Degree)
 			_TargetHP_Degree = 0.f;
 	}
-	if (Input::GetKeyDown(DIK_NUMPAD5))
+	if (Input::GetKeyDown(DIK_F1))
 	{
 		static bool bActive = _UIDescs[TARGET_CURSOR].Using;
 		bActive = !bActive;
 		SetTargetActive(bActive);
+	}
+	if (Input::GetKeyDown(DIK_F2))
+	{
+		static bool bActive = _UIDescs[KEYBOARD].Using;
+		bActive = !bActive;
+		SetKeyInputActive(bActive);
 	}
 	////////////////////////////
 
@@ -436,7 +538,10 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	//std::cout << _TDTGauge_CurXPosOrtho << std::endl;
  
 	//
-	Imgui_ModifyUI(EX_GAUGE_BACK);
+	Check_KeyInput();
+
+	//
+	Imgui_ModifyUI(KEYBOARD);
 
 	return 0;
 }
@@ -467,6 +572,11 @@ void BtlPanel::SetTargetActive(bool IsActive)
 	_UIDescs[TARGET_HP].Using = IsActive;
 }
 
+void BtlPanel::SetKeyInputActive(bool IsActive)
+{
+	_UIDescs[KEYBOARD].Using = IsActive;
+}
+
 void BtlPanel::Init_UIDescs()
 {
 	if (!_UIDescs)
@@ -482,6 +592,7 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[EX_GAUGE] = { true, Vector3(-7.55f, 3.15f, 15.f), Vector3(0.01f, 0.01f, 0.01f) };
 	_UIDescs[HP_GAUGE] = { true, Vector3(210.f, 50.f, 0.02f), Vector3(0.5f, 0.5f, 1.f) };
 	_UIDescs[TDT_GAUGE] = { true, Vector3(305.f, 75.f, 0.5f), Vector3(3.5f, 3.5f, 1.f) };
+	_UIDescs[KEYBOARD] = { true, Vector3(270.f, 570.f, 0.02f), Vector3(5.f, 1.5f, 1.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -615,7 +726,142 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		_Out._43 = _UIDescs[_ID].Pos.z;
 		break;
 
-	default:
+	case KEYBOARD:
+		switch (_Opt)
+		{
+		case 999:	// 마우스 base
+			_Out._11 = 0.89f;
+			_Out._22 = 1.;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 470.f - (g_nWndCX >> 1);
+			_Out._42 = -(545.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 1: // Q
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 65.f - (g_nWndCX >> 1);
+			_Out._42 = -(562.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 2: // W
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 86.f - (g_nWndCX >> 1);
+			_Out._42 = -(562.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 3: // E
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 107.f - (g_nWndCX >> 1);
+			_Out._42 = -(562.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 4: // A
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 76.f - (g_nWndCX >> 1);
+			_Out._42 = -(585.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 5: // S
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 98.f - (g_nWndCX >> 1);
+			_Out._42 = -(585.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 6: // D
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 119.f - (g_nWndCX >> 1);
+			_Out._42 = -(585.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 7: // A
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 141.f - (g_nWndCX >> 1);
+			_Out._42 = -(585.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 8: // Z
+			_Out._11 = 0.21f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 0.21f; //_UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 86.f - (g_nWndCX >> 1);
+			_Out._42 = -(608.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 9: // SHIFT
+			_Out._11 = 0.56f;
+			_Out._22 = 0.21f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 47.f - (g_nWndCX >> 1);
+			_Out._42 = -(607.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 10: // CTRL
+			_Out._11 = 0.34f;
+			_Out._22 = 0.21f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 38.f - (g_nWndCX >> 1);
+			_Out._42 = -(629.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 11: // SPACE
+			_Out._11 = 1.01f;
+			_Out._22 = 0.21f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 181.f - (g_nWndCX >> 1);
+			_Out._42 = -(629.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 12: // LBTN
+			_Out._11 = 0.45f;
+			_Out._22 = 0.45f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 453.f - (g_nWndCX >> 1);
+			_Out._42 = -(517.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 13: // MBTN
+			_Out._11 = 0.12f;
+			_Out._22 = 0.26f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 474.f - (g_nWndCX >> 1);
+			_Out._42 = -(514.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 14: // RBTN
+			_Out._11 = 0.45f;
+			_Out._22 = 0.45f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 494.f - (g_nWndCX >> 1);
+			_Out._42 = -(517.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		default: case 0:
+			//goto DEFAULT;
+			_Out._11 = 5.f; //_UIDescs[_ID].Scale.x;
+			_Out._22 = 1.5f;// _UIDescs[_ID].Scale.y;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 270.f/*_UIDescs[_ID].Pos.x*/ - (g_nWndCX >> 1);
+			_Out._42 = -(570.f/*_UIDescs[_ID].Pos.y*/ - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		}
+		break;
+
+	default: //DEFAULT:
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.y;
 		_Out._33 = _UIDescs[_ID].Scale.z;
@@ -682,6 +928,43 @@ Vector2 BtlPanel::ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY)
 	return Ret;
 }
 
+void BtlPanel::Check_KeyInput()
+{
+	if (!_UIDescs[KEYBOARD].Using)
+		return;
+
+	ZeroMemory(_KeyboardInput, KEY_INPUT_END);
+
+	if (Input::GetKey(DIK_Q))
+		_KeyboardInput[KEY_INPUT_ID::Q] = true;
+	if (Input::GetKey(DIK_W))
+		_KeyboardInput[KEY_INPUT_ID::W] = true;
+	if (Input::GetKey(DIK_E))
+		_KeyboardInput[KEY_INPUT_ID::E] = true;
+	if (Input::GetKey(DIK_A))
+		_KeyboardInput[KEY_INPUT_ID::A] = true;
+	if (Input::GetKey(DIK_S))
+		_KeyboardInput[KEY_INPUT_ID::S] = true;
+	if (Input::GetKey(DIK_D))
+		_KeyboardInput[KEY_INPUT_ID::D] = true;
+	if (Input::GetKey(DIK_F))
+		_KeyboardInput[KEY_INPUT_ID::F] = true;
+	if (Input::GetKey(DIK_Z))
+		_KeyboardInput[KEY_INPUT_ID::Z] = true;
+	if (Input::GetKey(DIK_LSHIFT))
+		_KeyboardInput[KEY_INPUT_ID::SHIFT] = true;
+	if (Input::GetKey(DIK_LCONTROL))
+		_KeyboardInput[KEY_INPUT_ID::CTRL] = true;
+	if (Input::GetKey(DIK_SPACE))
+		_KeyboardInput[KEY_INPUT_ID::SPACE] = true;
+	if (Input::GetMouse(DIM_L))
+		_KeyboardInput[KEY_INPUT_ID::LBUTTON] = true;
+	if (Input::GetMouse(DIM_M))
+		_KeyboardInput[KEY_INPUT_ID::MBUTTON] = true;
+	if (Input::GetMouse(DIM_R))
+		_KeyboardInput[KEY_INPUT_ID::RBUTTON] = true;
+}
+
 void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 {
 	ImGui::Text("BTLPanel : %d", _ID);
@@ -713,4 +996,12 @@ void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 	Vector3 TargetPos = _TargetPos;
 	ImGui::SliderFloat3("TargetPos", TargetPos, -10.f, 10.f);
 	_TargetPos = TargetPos;
+
+	Vector2 MinTexUV = _MinTexUV;
+	ImGui::InputFloat2("MinTexUV", MinTexUV);
+	_MinTexUV = MinTexUV;
+
+	Vector2 MaxTexUV = _MaxTexUV;
+	ImGui::InputFloat2("MaxTexUV", MaxTexUV);
+	_MaxTexUV = MaxTexUV;
 }
