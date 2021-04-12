@@ -173,6 +173,8 @@ public:
 		ANI_WIRE_SNATCH_PULL_AIR_U,
 		ANI_WIRE_SNATCH_PULL_D,
 		ANI_WIRE_SNATCH_PULL_U,
+		ANI_CBS_RUNSTOP,
+		ANI_CBS_DASHSTOP,
 		ANI_END
 	};
 
@@ -202,15 +204,16 @@ public:
 	UINT Get_CurAnimationIndex() { return m_iCurAnimationIndex; }
 	UINT Get_PreAnimationIndex() { return m_iPreAnimationIndex; }
 	UINT Get_CurWeaponIndex() { return m_iCurWeaponIndex; }
-	bool Get_CbsCharge() { return m_bCbsCharge; }
+	UINT Get_JumpCount() { return m_iJumpCount; }
+public:
+	void Set_JumpCount() { m_iJumpCount = 1; }
+public:
+	void DecreaseJumpCount() { --m_iJumpCount; }
 public:
 	bool  IsAnimationEnd();
-	void  DisableCbsCharge() { m_bCbsCharge = false; }
 public:
 	void ChangeAnimation(const std::string& InitAnimName, const bool  bLoop, const UINT AnimationIndex,const AnimNotify& _Notify = {});
 	void ChangeWeapon(UINT _iWeaponIndex);
-public:
-	void IncreaseCbsGage(float _fDeltaTime);
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;
@@ -228,10 +231,8 @@ private:
 	UINT	m_iPreAnimationIndex;
 	UINT	m_iCurWeaponIndex;
 
-	float	m_fCbsGage = 0.f;
-	bool	m_bCbsCharge = false;
 	bool	m_bDebugButton = true;
-
+	UINT	m_iJumpCount = 0;
 };
 
 

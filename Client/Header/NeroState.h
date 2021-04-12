@@ -10,7 +10,6 @@ class NeroState :    public FSMState
 protected:
 	weak_ptr<Nero>	m_pNero;
 	//weak_ptr<Animator>	m_pAnimator;
-
 public:
 	explicit NeroState(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 	virtual ~NeroState();
@@ -25,6 +24,8 @@ protected:
 	virtual HRESULT KeyInput_Idle(const int _nIndex = -1);
 	virtual HRESULT KeyInput_Run(const int _nIndex = -1);
 	virtual HRESULT KeyInput_Cbs_Idle(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Jump(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Cbs_Jump(const int _nIndex = -1);
 	virtual HRESULT PutWeapon();
 };
 
@@ -1249,38 +1250,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class BT_Att1_To_RunLoop : public NeroState
-{
-private:
-	explicit BT_Att1_To_RunLoop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_RunLoop();
-
-public:
-	static BT_Att1_To_RunLoop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_To_Idle : public NeroState
-{
-private:
-	explicit BT_Att1_To_Idle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_Idle();
-
-public:
-	static BT_Att1_To_Idle* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class BT_Att1_To_Idle_End : public NeroState
 {
 private:
@@ -1306,22 +1275,6 @@ public:
 
 public:
 	static BT_Att2_To_RunStart* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att2_To_Idle : public NeroState
-{
-private:
-	explicit BT_Att2_To_Idle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att2_To_Idle();
-
-public:
-	static BT_Att2_To_Idle* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -1391,6 +1344,8 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+private:
+	float	m_fLoopTime;
 };
 
 class Skill_Split_Landing : public NeroState
@@ -1960,6 +1915,8 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+private:
+	float	m_fLoopTime;
 };
 
 class Cbs_SKill_IceAge_End : public NeroState
@@ -2008,6 +1965,9 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	UINT	m_iLoopCount = 0;
 };
 
 class Cbs_SKill_Revolver_End : public NeroState
@@ -2360,6 +2320,9 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+private:
+	UINT	m_iLoopCount = 0;
+	float	m_fLoopTime = 0.f;
 };
 
 class Pole_WhirlWind_End : public NeroState

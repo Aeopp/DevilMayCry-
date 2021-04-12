@@ -7,8 +7,6 @@ Nero::Nero()
 	:m_iCurAnimationIndex(ANI_END)
 	, m_iPreAnimationIndex(ANI_END)
 	, m_iCurWeaponIndex(RQ)
-	, m_fCbsGage(0.f)
-	, m_bCbsCharge(false)
 {
 }
 void Nero::Free()
@@ -215,14 +213,6 @@ void Nero::ChangeAnimation(const std::string& InitAnimName, const bool bLoop, co
 void Nero::ChangeWeapon(UINT _iWeaponIndex)
 {
 	m_iCurWeaponIndex = _iWeaponIndex;
-}
-void Nero::IncreaseCbsGage(float _fDeltaTime)
-{
-	if (m_bCbsCharge)
-		return;
-	m_fCbsGage += _fDeltaTime;
-	if (1.f <= m_fCbsGage)
-		m_bCbsCharge = true;
 }
 //if (Input::GetKeyDown(DIK_LCONTROL))
 //	m_iCurWeaponIndex = m_iCurWeaponIndex == RQ ? Cbs : RQ;

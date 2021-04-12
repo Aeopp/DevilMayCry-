@@ -51,6 +51,11 @@
                 "TransitionTime": 0.10000000149011612
             },
             {
+                "Name": "Cbs_DashStop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
                 "Name": "Cbs_Idle",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
@@ -59,6 +64,11 @@
                 "Name": "Cbs_Idle_to_Idle",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
+            },
+            {
+                "Name": "Cbs_RunStop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
             },
             {
                 "Name": "Cbs_SKill_Crystal",
@@ -309,6 +319,11 @@
                 "Name": "GT_Repelled",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
+            },
+            {
+                "Name": "HitAway_GetUp",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
             },
             {
                 "Name": "HitFront",
@@ -564,6 +579,11 @@
                 "Name": "Parrying_Air",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
+            },
+            {
+                "Name": "Pole_ComboA1",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
             },
             {
                 "Name": "Pole_ComboA2",

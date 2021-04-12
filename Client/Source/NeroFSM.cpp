@@ -94,6 +94,7 @@ HRESULT NeroFSM::ReadyFSM()
 	m_vecState.emplace_back(Cbs_SKill_Revolver_Loop::Create(this, CBS_REVOLVER_LOOP, m_pNero));
 	m_vecState.emplace_back(Cbs_SKill_Revolver_End::Create(this, CBS_REVOLVER_END, m_pNero));
 	m_vecState.emplace_back(Cbs_SKill_Swing::Create(this, CBS_SWING, m_pNero));
+	m_vecState.emplace_back(Cbs_SKill_Crystal::Create(this, CBS_CRYSTAL, m_pNero));
 	
 	m_vecState.emplace_back(Middle_Cbs_BiAttack::Create(this, MIDDLE_CBS_BI_ATTACK, m_pNero));
 	m_vecState.emplace_back(Middle_Cbs_BlitzAttack::Create(this, MIDDLE_CBS_BLITZATTACK, m_pNero));
@@ -118,6 +119,15 @@ HRESULT NeroFSM::ReadyFSM()
 	m_vecState.emplace_back(Pole_WhirlWind_Loop::Create(this, POLE_WHIRLWIND_LOOP, m_pNero));
 	m_vecState.emplace_back(Pole_WhirlWind_End::Create(this, POLE_WHIRLWIND_END, m_pNero));
 #pragma endregion
+
+
+	m_vecState.emplace_back(Evade_L::Create(this, EVADE_L, m_pNero));
+	m_vecState.emplace_back(Evade_R::Create(this, EVADE_R, m_pNero));
+
+	m_vecState.emplace_back(Jump_Basic::Create(this, JUMP_START, m_pNero));
+	m_vecState.emplace_back(Jump_Fly_Loop::Create(this, JUMP_LOOP, m_pNero));
+	m_vecState.emplace_back(Jump_Landing::Create(this, JUMP_LANDING, m_pNero));
+	m_vecState.emplace_back(Jump_Twice::Create(this, JUMP_TWICE, m_pNero));
 	return S_OK;						
 }
 
