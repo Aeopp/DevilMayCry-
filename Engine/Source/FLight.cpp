@@ -24,8 +24,11 @@ D3DXVECTOR3 DXCubeUp[6] = {
 
 
 
-FLight::FLight(const FLight::Type type, const D3DXVECTOR4& position, 
-	const D3DXCOLOR& color)
+FLight::FLight(
+	const FLight::Type type, 
+	const D3DXVECTOR4& position, 
+	const D3DXCOLOR& color,
+	const float blurIntencity)
 {
 	this->_Type = type;
 	this->Position = position;
@@ -35,6 +38,7 @@ FLight::FLight(const FLight::Type type, const D3DXVECTOR4& position,
 	Spotdirection = D3DXVECTOR3(0, 0, 0);
 	Spotparams = D3DXVECTOR2(0, 0);
 
+	BlurIntencity = blurIntencity;
 	Cubeshadowmap = nullptr;
 	Blurredcubeshadowmap = nullptr;
 	Shadowmap = nullptr;
@@ -79,20 +83,31 @@ FLight::~FLight()
 
 void FLight::Edit(const uint32 Idx)
 {
-	if (_Type == Directional)
+	const std::string Id = "Light Index : " + std::to_string(Idx);
+	if (ImGui::CollapsingHeader(Id.c_str()))
 	{
-		ImGui::Text("ShadowMap %d", Idx);
-		ImGui::Image(reinterpret_cast<void**>(Shadowmap), { 256,256});
-		ImGui::Text("BlurShadowMap %d", Idx);
-		ImGui::Image(reinterpret_cast<void**>(Blurredshadowmap), { 256,256 });
-	}
-	else if (_Type == Point)
-	{
-		ImGui::Text("CubeShadowMap %d", Idx);
-		ImGui::Image(reinterpret_cast<void**>(Cubeshadowmap), { 256,256});
-		ImGui::Text("CubeBlurShadowMap %d", Idx);
-		ImGui::Image(reinterpret_cast<void**>(Blurredcubeshadowmap), { 256,256});
-	}
+		if (_Type == Directional)
+		{
+			ImGui::Text("ShadowMap %d", Idx);
+			ImGui::Image(reinterpret_cast<void**>(Shadowmap), { 256,256 });
+			ImGui::Text("BlurShadowMap %d", Idx);
+			ImGui::Image(reinterpret_cast<void**>(Blurredshadowmap), { 256,256 });
+		}
+		else if (_Type == Point)
+		{
+			ImGui::Text("CubeShadowMap %d", Idx);
+			ImGui::Image(reinterpret_cast<void**>(Cubeshadowmap), { 256,256 });
+			ImGui::Text("CubeBlurShadowMap %d", Idx);
+			ImGui::Image(reinterpret_cast<void**>(Blurredcubeshadowmap), { 256,256 });
+		}
+
+		EditImplementation(Idx);
+	};
+};
+
+void FLight::EditImplementation(const uint32 Idx)
+{
+	ImGui::SliderFloat("BlurIntencity", &BlurIntencity,0.f,1000.f);
 }
 
 void FLight::CalculateViewProjection(D3DXMATRIX& out)

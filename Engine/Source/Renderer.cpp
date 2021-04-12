@@ -195,7 +195,6 @@ void Renderer::ReadyRenderInfo()
 	{ _RenderInfo.ViewInverse._41  , _RenderInfo.ViewInverse._42,_RenderInfo.ViewInverse._43,1.f };
 	_RenderInfo.Ortho = Ortho;
 
-	Device->GetRenderTarget(0, &BackBuffer);
 	Device->GetViewport(&_RenderInfo.Viewport);
 }
 
@@ -236,20 +235,18 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 HRESULT Renderer::Render()&
 {
 	RenderReady();
-	TestLightRotation();
-	TestLightEdit();
-	GraphicSystem::GetInstance()->Begin();
-
+	RenderBegin();
 	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
 
+	RenderShadowMaps();
 		{
 		// D3DVIEWPORT9 oldviewport;
 		
 
 		// STEP 0: render shadow maps
-		Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+		
 		{
-			RenderShadowMaps();
+		
 		}
 
 		// STEP 1: g-buffer pass
@@ -378,6 +375,17 @@ void Renderer::RenderReady()&
 	RenderReadyEntitys();
 	ReadyRenderInfo();
 	Culling();
+
+
+
+
+	TestLightRotation();
+	TestLightEdit();
+}
+void Renderer::RenderBegin()&
+{
+	GraphicSystem::GetInstance()->Begin();
+	Device->GetRenderTarget(0, &BackBuffer);
 }
 // 등록코드수정 
 void Renderer::RenderReadyEntitys()&
@@ -491,13 +499,11 @@ HRESULT Renderer::RenderImplementation()&
 
 void Renderer::RenderShadowMaps()
 {
-	// moonlight
-	auto device = Device;
-
+	Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 	auto shadowmap = Shaders["Shadow"]->GetEffect();
-	auto blur = Shaders["Blur"]->GetEffect();
+	auto Blur = Shaders["Blur"]->GetEffect();
 
-	Moonlight->RenderShadowMap(device, [&](FLight* light) {
+	Moonlight->RenderShadowMap(Device, [&](FLight* light) {
 		D3DXMATRIX viewproj;
 		D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
 
@@ -507,40 +513,36 @@ void Renderer::RenderShadowMaps()
 		shadowmap->SetVector("clipPlanes", &clipplanes);
 		shadowmap->SetBool("isPerspective", FALSE);
 
-		device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+		Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 		RenderScene(shadowmap, viewproj);
 		});
 
-	Moonlight->BlurShadowMap(device, [&](FLight* light) {
+	Moonlight->BlurShadowMap(Device, [&](FLight* light) {
 		D3DXVECTOR4 pixelsize(1.0f / light->GetShadowMapSize(),
 			1.0f / light->GetShadowMapSize(), 0, 0);
-		D3DXVECTOR4 texelsize = 4.0f * pixelsize;	// make it more blurry
+		D3DXVECTOR4 TexelSize = 4.0f * pixelsize;	// make it more blurry
+		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+		Blur->SetTechnique("boxblur3x3");
+		Blur->SetVector("pixelSize", &pixelsize);
+		Blur->SetVector("texelSize", &TexelSize);
 
-		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
-		device->SetRenderState(D3DRS_ZENABLE, FALSE);
-
-		blur->SetTechnique("boxblur3x3");
-		blur->SetVector("pixelSize", &pixelsize);
-		blur->SetVector("texelSize", &texelsize);
-
-		blur->Begin(NULL, 0);
-		blur->BeginPass(0);
+		Blur->Begin(NULL, 0);
+		Blur->BeginPass(0);
 		{
 			_Quad->Render(Device);
-			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
-		blur->EndPass();
-		blur->End();
+		Blur->EndPass();
+		Blur->End();
 
-		device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		});
 
 	// point lights
-	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	shadowmap->SetBool("isPerspective", TRUE);
 
 	for (int i = 0; i < 3; ++i) {
-		PointLights[i]->RenderShadowMap(device, [&](FLight* light) {
+		PointLights[i]->RenderShadowMap(Device, [&](FLight* light) {
 			D3DXMATRIX viewproj;
 			D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
 
@@ -550,12 +552,12 @@ void Renderer::RenderShadowMaps()
 			shadowmap->SetVector("lightPos", &light->GetPosition());
 			shadowmap->SetVector("clipPlanes", &clipplanes);
 
-			device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+			Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 			RenderScene(shadowmap, viewproj);
 			});
 	}
 
-	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 }
 void Renderer::RenderGBuffer(const Matrix& ViewProjection)
 {

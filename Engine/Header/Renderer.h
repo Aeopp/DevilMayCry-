@@ -39,6 +39,7 @@ public :
 	void Push(const std::weak_ptr<GameObject>&_RenderEntity)&;
 private:
 	void RenderReady()&;
+	void RenderBegin()&;
 	void RenderReadyEntitys()&;
 	void RenderEnd()&;
 	void RenderEntityClear()&;

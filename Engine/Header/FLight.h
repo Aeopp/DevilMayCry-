@@ -33,13 +33,14 @@ private:
 	int						Currentface;
 	uint16_t				ShadowMapSize;
 	bool					Blurred;
-
+	float                   BlurIntencity;
 public:
 	FLight(Type _Type, 
-		const D3DXVECTOR4& position, const D3DXCOLOR& color);
+		const D3DXVECTOR4& position, const D3DXCOLOR& color,
+		const float blurintercity=4.f);
 	~FLight();
 
-	void Edit(const uint32 Idx);
+
 
 	void CalculateViewProjection(D3DXMATRIX& Out);
 	void CalculateScissorRect(RECT& Out, const D3DXMATRIX& View, const D3DXMATRIX& Projection, float Radius, int32_t Width, int32_t Height);
@@ -69,6 +70,10 @@ public:
 	inline bool IsPerspective()const& {return _Type!=Directional;};
 	inline LPDIRECT3DTEXTURE9 GetShadowMap() { return (Blurred ? Blurredshadowmap : Shadowmap); }
 	inline LPDIRECT3DCUBETEXTURE9 GetCubeShadowMap() { return (Blurred ? Blurredcubeshadowmap : Cubeshadowmap); }
+public:
+	void Edit(const uint32 Idx);
+private:
+	void EditImplementation(const uint32 Idx);
 };
 END
 
