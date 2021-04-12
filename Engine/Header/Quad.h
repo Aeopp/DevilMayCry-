@@ -10,8 +10,8 @@ struct ENGINE_DLL Quad
 	
 	void Render(LPDIRECT3DDEVICE9 _Device,
 				/*사이즈는 클라이언트 창 사이즈에 대한 비율 .. */
-				const float SizeXRatio,
-				const float SizeYRatio,
+				const float SizeXRatio=1.f,
+				const float SizeYRatio = 1.f,
 				LPD3DXEFFECT const Fx=nullptr)&;
 	void Release()&;
 

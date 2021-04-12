@@ -379,7 +379,8 @@ HRESULT Renderer::Render()&
 		screenquad->BeginPass(0);
 		{
 			device->SetTexture(0, sky);
-			device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+			_Quad->Render(m_pDevice); 
+			//device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		screenquad->EndPass();
 		screenquad->End();
@@ -401,7 +402,8 @@ HRESULT Renderer::Render()&
 		tonemap->BeginPass(0);
 		{
 			device->SetTexture(0, scenetarget);
-			device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+			_Quad->Render(m_pDevice);  
+			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		tonemap->EndPass();
 		tonemap->End();
@@ -669,7 +671,8 @@ void Renderer::RenderShadowMaps()
 		blur->Begin(NULL, 0);
 		blur->BeginPass(0);
 		{
-			device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+			_Quad->Render(m_pDevice);
+			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		blur->EndPass();
 		blur->End();
@@ -817,8 +820,9 @@ void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& pro
 
 			device->SetTexture(3, Moonlight->GetShadowMap());
 			deferred->CommitChanges();
+			_Quad->Render(m_pDevice);
 
-			device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		// 여기서부터 ..
 		// point lights
@@ -880,8 +884,8 @@ void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& pro
 				deferred->CommitChanges();
 
 				device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
-				// _Quad->Render(m_pDevice, 1.f, 1.f, nullptr);
-				 device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+				_Quad->Render(m_pDevice);				
+				// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 			}
 		}
 
