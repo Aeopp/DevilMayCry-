@@ -308,11 +308,9 @@ void BtlPanel::RenderReady()
 
 HRESULT BtlPanel::Ready()
 {
-
-	m_nTag = BTLPANEL;
-
-
 	SetRenderEnable(true);
+
+	m_nTag = GAMEOBJECTTAG::Btl_Panel;
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
@@ -435,7 +433,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	float TDTGaugeOrthoCenterX = -0.523437f;
 	float TDTGagueOrthoOffsetToCenter = 0.18125f;
 	_TDTGauge_CurXPosOrtho = (TDTGaugeOrthoCenterX - TDTGagueOrthoOffsetToCenter) + (360.f - _TargetHP_Degree) / 360.f * 2.f * TDTGagueOrthoOffsetToCenter;
-	std::cout << _TDTGauge_CurXPosOrtho << std::endl;
+	//std::cout << _TDTGauge_CurXPosOrtho << std::endl;
  
 	//
 	Imgui_ModifyUI(EX_GAUGE_BACK);
@@ -476,8 +474,8 @@ void BtlPanel::Init_UIDescs()
 
 	// Using, Pos, Scale
 	_UIDescs[REDORB] = { true, Vector3(1090.f, 50.f, 0.5f), Vector3(0.55f, 0.55f, 1.f) };
-	_UIDescs[TARGET_CURSOR] = { true, Vector3(640.f, 360.f, 0.02f), Vector3(0.3f, 0.3f, 1.f) };
-	_UIDescs[TARGET_HP] = { true, Vector3(640.f, 360.f, 0.5f), Vector3(0.46f, 0.46f, 1.f) };
+	_UIDescs[TARGET_CURSOR] = { false, Vector3(640.f, 360.f, 0.02f), Vector3(0.3f, 0.3f, 1.f) };
+	_UIDescs[TARGET_HP] = { false, Vector3(640.f, 360.f, 0.5f), Vector3(0.46f, 0.46f, 1.f) };
 	_UIDescs[BOSS_GUAGE] = { true, Vector3(640.f, 670.f, 0.5f), Vector3(4.7f, 5.f, 1.f) };
 	_UIDescs[HP_GLASS] = { true, Vector3(240.f, 155.f, 0.4f), Vector3(0.5f, 0.5f, 1.f) };
 	_UIDescs[EX_GAUGE_BACK] = { true, Vector3(95.f, 95.f, 0.5f), Vector3(2.f, 2.f, 1.f) };

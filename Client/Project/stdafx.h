@@ -31,6 +31,6 @@ enum GAMEOBJECTTAG
 	Monster100,
 	Monster101,
 	Monster0000,
-	BTLPANEL,
+	Btl_Panel,
 	Tag_END
 };

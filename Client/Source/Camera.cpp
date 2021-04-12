@@ -41,7 +41,7 @@ HRESULT Camera::Awake()
 	m_pPlayer = std::static_pointer_cast<TestObject>(FindGameObjectWithTag(Player).lock());
  	m_pPlayerTrans = m_pPlayer.lock()->GetComponent<ENGINE::Transform>();
 
-    m_pBtlPanel = std::static_pointer_cast<BtlPanel>(FindGameObjectWithTag(BTLPANEL).lock());
+    m_pBtlPanel = std::static_pointer_cast<BtlPanel>(FindGameObjectWithTag(Btl_Panel).lock());
 
 
 	m_pEm100 = std::static_pointer_cast<Em100>(FindGameObjectWithTag(Monster100).lock());
