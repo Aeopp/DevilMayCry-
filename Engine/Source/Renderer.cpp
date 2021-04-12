@@ -194,6 +194,9 @@ void Renderer::ReadyRenderInfo()
 	_RenderInfo.Eye =
 	{ _RenderInfo.ViewInverse._41  , _RenderInfo.ViewInverse._42,_RenderInfo.ViewInverse._43,1.f };
 	_RenderInfo.Ortho = Ortho;
+
+	Device->GetRenderTarget(0, &BackBuffer);
+	Device->GetViewport(&_RenderInfo.Viewport);
 }
 
 void Renderer::ReadyFrustum()
@@ -236,8 +239,6 @@ HRESULT Renderer::Render()&
 	TestLightRotation();
 	TestLightEdit();
 	GraphicSystem::GetInstance()->Begin();
-	Device->GetRenderTarget(0, &BackBuffer);
-	Device->GetViewport(&_RenderInfo.Viewport);
 
 	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
 
