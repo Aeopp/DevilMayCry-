@@ -93,7 +93,6 @@ void Renderer::ReadyLights()
 	PointLights[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
 	PointLights[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
 	PointLights[2]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
-
 }
 
 void Renderer::ReadyRenderTargets()
@@ -192,7 +191,7 @@ void Renderer::ReadyRenderInfo()
 	_RenderInfo.ViewProjection =
 		CameraView * CameraProjection;
 	_RenderInfo.ViewProjectionInverse = FMath::Inverse(_RenderInfo.ViewProjection);
-	_RenderInfo.CameraLocation =
+	_RenderInfo.Eye =
 	{ _RenderInfo.ViewInverse._41  , _RenderInfo.ViewInverse._42,_RenderInfo.ViewInverse._43,1.f };
 	_RenderInfo.Ortho = Ortho;
 }
@@ -236,16 +235,15 @@ HRESULT Renderer::Render()&
 	RenderReady();
 	TestLightRotation();
 	TestLightEdit();
+	GraphicSystem::GetInstance()->Begin();
+	Device->GetRenderTarget(0, &BackBuffer);
+	Device->GetViewport(&_RenderInfo.Viewport);
 
 	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
-	GraphicSystem::GetInstance()->Begin();
-		{
-		D3DVIEWPORT9 oldviewport;
-		D3DVIEWPORT9 viewport;
-		LPDIRECT3DSURFACE9 backbuffer = nullptr;
 
-		Device->GetRenderTarget(0, &backbuffer);
-		Device->GetViewport(&oldviewport);
+		{
+		// D3DVIEWPORT9 oldviewport;
+		
 
 		// STEP 0: render shadow maps
 		Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
@@ -260,8 +258,8 @@ HRESULT Renderer::Render()&
 		Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
 		// STEP 2: deferred shading
-		pixelsize.x = 1.0f / (float)oldviewport.Width;
-		pixelsize.y = -1.0f / (float)oldviewport.Height;
+		pixelsize.x = 1.0f / (float)_RenderInfo.Viewport.Width;
+		pixelsize.y = -1.0f / (float)_RenderInfo.Viewport.Height;
 
 		Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -270,15 +268,14 @@ HRESULT Renderer::Render()&
 			_RenderInfo.View, 
 			_RenderInfo.ViewProjection, 
 			_RenderInfo.ViewProjectionInverse, 
-			Vector4{_RenderInfo.CameraLocation.x,
-			_RenderInfo.CameraLocation.y ,
-			_RenderInfo.CameraLocation.z ,1.f} );
+			Vector4{_RenderInfo.Eye.x,
+			_RenderInfo.Eye.y ,
+			_RenderInfo.Eye.z ,1.f} );
 
 		// STEP 3: render sky
-		Device->SetRenderTarget(0, backbuffer);
+		Device->SetRenderTarget(0, BackBuffer);
 		Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-
-		backbuffer->Release();
+		BackBuffer->Release();
 
 		auto screenquad = Shaders["ScreenQuad"]->GetEffect();
 
@@ -338,7 +335,7 @@ HRESULT Renderer::Render()&
 		// reset states
 		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-		Device->SetViewport(&oldviewport);
+		Device->SetViewport(&_RenderInfo.Viewport);
 
 		Device->EndScene();
 	}
@@ -1029,7 +1026,7 @@ HRESULT Renderer::RenderDeferredShading()&
 	}
 	else
 	{
-		Fx->SetVector("eyePos", (D3DXVECTOR4*)&_RenderInfo.CameraLocation);
+		Fx->SetVector("eyePos", (D3DXVECTOR4*)&_RenderInfo.Eye);
 	}
 	
 

@@ -10,7 +10,7 @@ class ENGINE_DLL RenderInformation
 {
 public:
 	D3DVIEWPORT9 Viewport{};
-	Vector4 CameraLocation{0,0,0,1};
+	Vector4 Eye{0,0,0,1};
 	Matrix  View{}; 
 	Matrix  ViewInverse{};
 	Matrix  Projection{};
