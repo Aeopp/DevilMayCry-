@@ -83,7 +83,8 @@ private:
 	float _HPGaugeWidth = 50.f;
 	float _HPGauge_CurXPosOrtho = 0.f;
 	float _BossGauge_CurXPosOrtho = 0.f;
-	
+	float _TDTGauge_CurXPosOrtho = 0.f;
+
 	float _HPGlassDirt = 0.f;
 
 	Matrix _PerspectiveProjMatrix = Matrix();
@@ -102,6 +103,7 @@ private:
 	void	Init_UIDescs();
 	void	Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt = 0);
 	void	Update_TargetInfo();
+	Vector2	WorldPosToScreenPos(const Vector3& WorldPos);
 	Vector2	ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY);
 	void	Imgui_ModifyUI(UI_DESC_ID _ID);
 public:
@@ -118,5 +120,8 @@ public:
 	virtual void    Editor() override;
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
+public:
+	void SetTargetActive(bool IsActive);
+	void SetTargetPos(const Vector3& pos) { _TargetPos = pos; }
 };
 #endif // !__UI_BTL_PANEL__
