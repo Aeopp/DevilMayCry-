@@ -353,7 +353,7 @@ void Renderer::Editor()&
 {
 	if (ImGui::Begin("Render Editor"))
 	{
-		if (ImGui::TreeNode("Lights"))
+		if (ImGui::CollapsingHeader("Lights"))
 		{
 			uint32 Idx = 0u;
 			for (auto& _Light : PointLights)
@@ -362,12 +362,9 @@ void Renderer::Editor()&
 				++Idx;
 			}
 			Moonlight->Edit(Idx);
-			ImGui::TreePop();
 		}
-	
 		ImGui::End();
 	}
-	
 }
 
 void Renderer::RenderReady()&

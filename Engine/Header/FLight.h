@@ -40,8 +40,6 @@ public:
 		const float blurintercity=4.f);
 	~FLight();
 
-
-
 	void CalculateViewProjection(D3DXMATRIX& Out);
 	void CalculateScissorRect(RECT& Out, const D3DXMATRIX& View, const D3DXMATRIX& Projection, float Radius, int32_t Width, int32_t Height);
 

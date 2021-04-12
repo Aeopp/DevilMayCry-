@@ -86,29 +86,42 @@ void FLight::Edit(const uint32 Idx)
 	const std::string Id = "Light Index : " + std::to_string(Idx);
 	if (ImGui::CollapsingHeader(Id.c_str()))
 	{
-		if (_Type == Directional)
-		{
-			ImGui::Text("ShadowMap %d", Idx);
-			ImGui::Image(reinterpret_cast<void**>(Shadowmap), { 256,256 });
-			ImGui::Text("BlurShadowMap %d", Idx);
-			ImGui::Image(reinterpret_cast<void**>(Blurredshadowmap), { 256,256 });
-		}
-		else if (_Type == Point)
-		{
-			ImGui::Text("CubeShadowMap %d", Idx);
-			ImGui::Image(reinterpret_cast<void**>(Cubeshadowmap), { 256,256 });
-			ImGui::Text("CubeBlurShadowMap %d", Idx);
-			ImGui::Image(reinterpret_cast<void**>(Blurredcubeshadowmap), { 256,256 });
-		}
-
 		EditImplementation(Idx);
+		ImGui::Separator();
 	};
 };
 
 void FLight::EditImplementation(const uint32 Idx)
 {
+	std::string TypeString;
+	switch (_Type)
+	{
+	case Directional:
+		TypeString = "Directional";
+		ImGui::Text("ShadowMap");
+		ImGui::Image(reinterpret_cast<void**>(Shadowmap), { 256,256 });
+		ImGui::Text("BlurShadowMap");
+		ImGui::Image(reinterpret_cast<void**>(Blurredshadowmap), { 256,256 });
+		break;
+	case Point:
+		TypeString = "Point";
+		ImGui::Text("CubeShadowMap");
+		ImGui::Image(reinterpret_cast<void**>(Cubeshadowmap), { 256,256 });
+		ImGui::Text("CubeBlurShadowMap");
+		ImGui::Image(reinterpret_cast<void**>(Blurredcubeshadowmap), { 256,256 });
+		break;
+	default:
+		break;
+	}
+	ImGui::BulletText(TypeString.c_str());
+	ImGui::Text("ShadowMapSize %d", ShadowMapSize);
 	ImGui::SliderFloat("BlurIntencity", &BlurIntencity,0.f,1000.f);
+	ImGui::SliderFloat3("Position", Position, -1000.f, 1000.f);
+	ImGui::SliderFloat2("ProjectionSize", Projparams,-2000.f,2000.f);
+	ImGui::SliderFloat("Near", &Projparams.z, -1000.f, 1000.f);
+	ImGui::SliderFloat("Far", &Projparams.z, -1000.f, 1000.f);
 }
+	
 
 void FLight::CalculateViewProjection(D3DXMATRIX& out)
 {
