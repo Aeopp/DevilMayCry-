@@ -308,6 +308,10 @@ void BtlPanel::RenderReady()
 
 HRESULT BtlPanel::Ready()
 {
+
+	m_nTag = BTLPANEL;
+
+
 	SetRenderEnable(true);
 
 	ENGINE::RenderProperty _InitRenderProp;

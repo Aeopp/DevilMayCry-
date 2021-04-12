@@ -3,6 +3,7 @@
 
 class TestObject;
 class Em100;
+class BtlPanel;
 class Camera : public GameObject
 {
 private:
@@ -48,10 +49,13 @@ private:
 	std::weak_ptr<ENGINE::Transform> m_pEm100Trans;
 	std::weak_ptr<Em100>			 m_pEm100;
 
+	std::weak_ptr<BtlPanel>			 m_pBtlPanel;
+
+
 	int		m_iTest = -7;
 	bool	m_bLockon = false;
 
-	long	m_fCameraAngle = -7;
+	long	m_fCameraAngle = -19;
 	
 
 	
