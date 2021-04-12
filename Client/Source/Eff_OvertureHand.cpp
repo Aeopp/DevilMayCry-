@@ -130,24 +130,23 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 		Sptransform)
 	{
 		//
+		ImGui::Text("Eff_OvertureHand");
 		{
 			Vector3 SliderPosition = Sptransform->GetPosition();
-			ImGui::SliderFloat3("Position", SliderPosition, -10.f, 10.f);
+			ImGui::SliderFloat3("Pos##OvertureHand", SliderPosition, -10.f, 10.f);
 			Sptransform->SetPosition(SliderPosition);
 		}
 
 		{
 			float AllScale = Sptransform->GetScale().x;
-			ImGui::SliderFloat("All Scale", &AllScale, 0.01f, 1.f);
+			ImGui::SliderFloat("Scale##OvertureHand", &AllScale, 0.01f, 1.f);
 			Sptransform->SetScale({ AllScale,AllScale,AllScale });
 		}
 
-		static Vector3 Rotation{ 0,0,0 };
-		if (ImGui::SliderAngle("Pitch", &Rotation.x) ||
-			ImGui::SliderAngle("Yaw", &Rotation.y) ||
-			ImGui::SliderAngle("PitchRoll", &Rotation.z))
 		{
-			Sptransform->SetRotation(Rotation);
+			Vector3 SliderRotation{ 0,0,0 };
+			ImGui::SliderFloat3("Rot##OvertureHand", SliderRotation, 0.f, 360.f);
+			Sptransform->SetRotation(SliderRotation);
 		}
 	}
 

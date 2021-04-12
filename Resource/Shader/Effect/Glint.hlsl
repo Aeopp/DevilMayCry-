@@ -59,7 +59,7 @@ PsOut PsMain(PsIn In)
     float4 BaseSample = tex2D(Base, In.UV);
 
     Out.Color = BaseSample;
-    Out.Color.a *= (1.f - _SliceAmount) * 0.7f;
+    Out.Color.a *= (1.f - _SliceAmount) * 0.4f;
     
     return Out;
 };

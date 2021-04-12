@@ -4,6 +4,7 @@ matrix ScreenMat;    // (-width/2 ~ +width/2, +height/2 ~ -height/2)
 float3 LightDirection = float3(0.f, 0.f, 1.f);
 
 float _TotalAccumulateTime;
+float _AccumulationTexU;
 float _AccumulationTexV;
 
 float _HP_Degree = 0.f; // 0 ~ 360 범위
@@ -13,6 +14,7 @@ float2 _HP_Normal1;
 
 float _HPGaugeCurXPosOrtho;
 float _BossGaugeCurXPosOrtho;
+float _TDTGaugeCurXPosOrtho;
 
 float _HPGlassDirt = 0.f;
 
@@ -94,7 +96,7 @@ struct VsOut_Clip
     float3 Normal : TEXCOORD1;
     float3 Tangent : TEXCOORD2;
     float3 BiNormal : TEXCOORD3;
-    float Clip : TEXCOORD4;
+    float2 Clip : TEXCOORD4;
 };
 
 struct VsOut_NoiseClip
@@ -107,7 +109,7 @@ struct VsOut_NoiseClip
     float2 NoiseCoord0 : TEXCOORD4;
     float2 NoiseCoord1 : TEXCOORD5;
     float2 NoiseCoord2 : TEXCOORD6;
-    float Clip : TEXCOORD7;
+    float2 Clip : TEXCOORD7;
 };
 
 
@@ -194,7 +196,8 @@ VsOut_Clip VsMain_Gauge(VsIn In)
     Out.BiNormal = normalize(mul(float4(In.Position.xyz, 0.f), ScreenMat));
     Out.UV = In.UV;
                
-    Out.Clip = Out.Position.x;  // Ps 에서 계산
+    Out.Clip.x = Out.Position.x;  // Ps 에서 계산
+    Out.Clip.y = Out.Position.y;
     
     return Out;
 };
@@ -214,7 +217,7 @@ struct PsIn_Clip
     float3 Normal : TEXCOORD1;
     float3 Tangent : TEXCOORD2;
     float3 BiNormal : TEXCOORD3;
-    float Clip : TEXCOORD4;
+    float2 Clip : TEXCOORD4;
 };
 
 struct PsIn_NoiseClip
@@ -226,7 +229,7 @@ struct PsIn_NoiseClip
     float2 NoiseCoord0 : TEXCOORD4;
     float2 NoiseCoord1 : TEXCOORD5;
     float2 NoiseCoord2 : TEXCOORD6;
-    float Clip : TEXCOORD7;
+    float2 Clip : TEXCOORD7;
 };
 
 struct PsOut
@@ -331,9 +334,11 @@ PsOut PsMain_TargetHP(PsIn_NoiseClip In)
     return Out;
 };
 
-PsOut PsMain_BossGauge0(PsIn In)
+PsOut PsMain_BossGauge0(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
+   
+    clip(-In.Clip.y - 0.5f); // 게이지 평면 위쪽에 알파가 남아있는 부분이 있어서 강제로 짜름
     
     float4 ATOSSample = tex2D(ATOS0, In.UV);
     float4 NRMRSample = tex2D(NRMR0, In.UV);
@@ -355,9 +360,11 @@ PsOut PsMain_BossGauge0(PsIn In)
     return Out;
 };
 
-PsOut PsMain_BossGauge1(PsIn In)
+PsOut PsMain_BossGauge1(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
+    
+    clip(-In.Clip.y - 0.5f);
     
     float4 ATOSSample = tex2D(ATOS0, In.UV);
     float4 NRMRSample = tex2D(NRMR0, In.UV);
@@ -382,8 +389,9 @@ PsOut PsMain_BossGauge1(PsIn In)
 PsOut PsMain_BossGauge2(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
-
-    clip(_BossGaugeCurXPosOrtho - In.Clip);
+    
+    clip(-In.Clip.y - 0.5f);
+    clip(_BossGaugeCurXPosOrtho - In.Clip.x);
     
     float4 ATOSSample = tex2D(ATOS0, In.UV);
     float4 NRMRSample = tex2D(NRMR0, In.UV);
@@ -411,7 +419,8 @@ PsOut PsMain_BossGauge3(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
     
-    clip(_BossGaugeCurXPosOrtho - In.Clip);
+    clip(-In.Clip.y - 0.5f);
+    clip(_BossGaugeCurXPosOrtho - In.Clip.x);
     
     float4 ATOSSample = tex2D(ATOS0, In.UV);
     float4 NRMRSample = tex2D(NRMR0, In.UV);
@@ -467,7 +476,7 @@ PsOut PsMain_HPGauge(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
     
-    clip(_HPGaugeCurXPosOrtho - In.Clip);
+    clip(_HPGaugeCurXPosOrtho - In.Clip.x);
     
     float4 ALB0Sample = tex2D(ALB0, In.UV);
     float4 ATOSSample = tex2D(ATOS0, In.UV);
@@ -482,10 +491,66 @@ PsOut PsMain_HPGauge(PsIn_Clip In)
 
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f; // Diffuse + Ambient
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f;
     
-    Out.Color.rgb = Shade * ALB0Sample.rgb * float3(0.114f, 0.847f, 0.537f);
+    Out.Color.rgb = Shade * (ALB0Sample.rgb * float3(0.027f, 0.78f, 0.478f));
     Out.Color.a = ATOSSample.r;
+    
+    return Out;
+};
+
+PsOut PsMain_TDTGauge0(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+   
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f;
+    
+    float2 newUV = In.UV;
+    newUV.y += _AccumulationTexV;
+ 
+    Out.Color.rgb = Shade * (float3(0.149f, 0.145f, 0.208f) - 0.15f * float3(NRMRSample.aaa));
+    Out.Color.a = (ATOSSample.r + ATOSSample.b) * (1.f - tex2D(ATOS0, newUV).a * 0.8f);
+    
+    return Out;
+};
+
+PsOut PsMain_TDTGauge1(PsIn_Clip In)
+{
+    PsOut Out = (PsOut) 0;
+
+    clip(_TDTGaugeCurXPosOrtho - In.Clip.x);
+    
+    float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+   
+    float Shade = saturate(dot(WorldNormal, -normalize(LightDirection))) + 0.2f;
+    
+    float2 newUV = In.UV;
+    newUV.x += _AccumulationTexU;
+
+    Out.Color.rgb = Shade * (float3(0.478f, 0.074f, 0.028f) - 0.15f * tex2D(ATOS0, newUV).aaa);
+    Out.Color.a = ATOSSample.b;
     
     return Out;
 };
@@ -538,7 +603,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain();
+        vertexshader = compile vs_3_0 VsMain_Gauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge0();
     }
     pass p4
@@ -550,7 +615,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain();
+        vertexshader = compile vs_3_0 VsMain_Gauge();
         pixelshader = compile ps_3_0 PsMain_BossGauge1();
     }
     pass p5
@@ -612,5 +677,29 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain_Gauge();
         pixelshader = compile ps_3_0 PsMain_HPGauge();
+    }
+    pass p10
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain();
+        pixelshader = compile ps_3_0 PsMain_TDTGauge0();
+    }
+    pass p11
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain_Gauge();
+        pixelshader = compile ps_3_0 PsMain_TDTGauge1();
     }
 };

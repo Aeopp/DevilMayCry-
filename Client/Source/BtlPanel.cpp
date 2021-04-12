@@ -176,6 +176,28 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				_ImplInfo.Fx->EndPass();
 			}
 		}
+
+		//
+		CurID = TDT_GAUGE;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _TDTGaugeATOSTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("NRMR0Map", _TDTGaugeNRMRTex->GetTexture());
+			_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.3f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.1f);
+			_ImplInfo.Fx->SetFloat("_TDTGaugeCurXPosOrtho", _TDTGauge_CurXPosOrtho);
+			
+			Create_ScreenMat(CurID, ScreenMat);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(10);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			_ImplInfo.Fx->BeginPass(11);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
 	}
 
 	//
@@ -339,6 +361,9 @@ HRESULT BtlPanel::Ready()
 	_HPGaugeATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_Gauge_ATOS.tga");
 	_HPGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\HP_Gauge_NRMR.tga");
 
+	_TDTGaugeATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\TDT_GaugeOut_ATOS.tga");
+	_TDTGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\TDT_GaugeOut_NRMR.tga");
+
 	D3DXMatrixPerspectiveFovLH(&_PerspectiveProjMatrix, D3DXToRadian(2.5f), (float)g_nWndCX / g_nWndCY, 0.1f, 1.f);
 		 
 	Init_UIDescs();
@@ -375,6 +400,12 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 		if (0.f > _TargetHP_Degree)
 			_TargetHP_Degree = 0.f;
 	}
+	if (Input::GetKeyDown(DIK_NUMPAD5))
+	{
+		static bool bActive = _UIDescs[TARGET_CURSOR].Using;
+		bActive = !bActive;
+		SetTargetActive(bActive);
+	}
 	////////////////////////////
 
 	//
@@ -385,17 +416,25 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	// + 적 체력 받아와서 degree 같은 애들 갱신하자
 	// 일단 임시. 보스게이지가 한가운데 있어서 밑 로직 가능
 	_BossGauge_CurXPosOrtho = -BossGaugeOrthoOffsetToCenter + ((360.f - _TargetHP_Degree) / 360.f * 2.f * BossGaugeOrthoOffsetToCenter);
-	//std::cout << _BossGauge_CurXPosOrtho << std::endl;
 
 	//
 	float HPGaugeOrthoWidth = 0.078125f;
 	float HPGaugeOrthoStartX = ScreenPosToOrtho(_UIDescs[HP_GAUGE].Pos.x, 0.f).x - HPGaugeOrthoWidth * 0.5f;
-
 	_HPGauge_CurXPosOrtho = HPGaugeOrthoStartX + (360.f - _TargetHP_Degree) / 360.f * HPGaugeOrthoWidth * static_cast<float>(_HPGaugeCount);
-	std::cout << _HPGauge_CurXPosOrtho << std::endl;
 
 	//
-	Imgui_ModifyUI(HP_GLASS);
+	//POINT pt{};
+	//GetCursorPos(&pt);
+	//ScreenToClient(g_hWnd, &pt);
+	//Vector2 TargetPos = Vector2(static_cast<float>(pt.x), static_cast<float>(pt.y));
+
+	float TDTGaugeOrthoCenterX = -0.523437f;
+	float TDTGagueOrthoOffsetToCenter = 0.18125f;
+	_TDTGauge_CurXPosOrtho = (TDTGaugeOrthoCenterX - TDTGagueOrthoOffsetToCenter) + (360.f - _TargetHP_Degree) / 360.f * 2.f * TDTGagueOrthoOffsetToCenter;
+	std::cout << _TDTGauge_CurXPosOrtho << std::endl;
+ 
+	//
+	Imgui_ModifyUI(EX_GAUGE_BACK);
 
 	return 0;
 }
@@ -420,6 +459,11 @@ void BtlPanel::OnDisable()
 
 }
 
+void BtlPanel::SetTargetActive(bool IsActive)
+{
+	_UIDescs[TARGET_CURSOR].Using = IsActive;
+	_UIDescs[TARGET_HP].Using = IsActive;
+}
 
 void BtlPanel::Init_UIDescs()
 {
@@ -432,9 +476,10 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[TARGET_HP] = { true, Vector3(640.f, 360.f, 0.5f), Vector3(0.46f, 0.46f, 1.f) };
 	_UIDescs[BOSS_GUAGE] = { true, Vector3(640.f, 670.f, 0.5f), Vector3(4.7f, 5.f, 1.f) };
 	_UIDescs[HP_GLASS] = { true, Vector3(240.f, 155.f, 0.4f), Vector3(0.5f, 0.5f, 1.f) };
-	_UIDescs[EX_GAUGE_BACK] = { true, Vector3(80.f, 110.f, 0.5f), Vector3(1.8f, 1.8f, 1.f) };
+	_UIDescs[EX_GAUGE_BACK] = { true, Vector3(95.f, 95.f, 0.5f), Vector3(2.f, 2.f, 1.f) };
 	_UIDescs[EX_GAUGE] = { true, Vector3(-7.55f, 3.15f, 15.f), Vector3(0.01f, 0.01f, 0.01f) };
 	_UIDescs[HP_GAUGE] = { true, Vector3(210.f, 50.f, 0.02f), Vector3(0.5f, 0.5f, 1.f) };
+	_UIDescs[TDT_GAUGE] = { true, Vector3(305.f, 75.f, 0.5f), Vector3(3.5f, 3.5f, 1.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -455,7 +500,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out *= RotMat;
 			_Out._41 = (_UIDescs[_ID].Pos.x - 35.f) - (g_nWndCX >> 1);
 			_Out._42 = -((_UIDescs[_ID].Pos.y + 20.f) - (g_nWndCY >> 1));
-			_Out._43 = _UIDescs[_ID].Pos.z;
+			_Out._43 = _UIDescs[_ID].Pos.z; 
 
 		}
 		else if (2 == _Opt)
@@ -480,6 +525,15 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		}
 		break;
 
+	case TARGET_HP:
+		_Out._11 = _UIDescs[_ID].Scale.x;
+		_Out._22 = _UIDescs[_ID].Scale.y;
+		_Out._33 = _UIDescs[_ID].Scale.z;
+		_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+		_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+		_Out._43 = _UIDescs[_ID].Pos.z;
+		break;
+
 	case HP_GLASS:
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.z * 0.00001f; // y z 축 잘못뽑음 ㅠㅠ
@@ -495,7 +549,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.y;
 		_Out._33 = _UIDescs[_ID].Scale.z;
-		D3DXMatrixRotationZ(&RotMat, D3DXToRadian(-45.f));
+		D3DXMatrixRotationZ(&RotMat, D3DXToRadian(-50.f));
 		_Out *= RotMat;
 		_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 		_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
@@ -573,32 +627,24 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 void BtlPanel::Update_TargetInfo()
 {
 	Matrix RotMat;
-
+	Vector2 TargetPos = WorldPosToScreenPos(_TargetPos);
+	//std::cout << TargetPos.x << " " << TargetPos.y << std::endl;
+	
 	///////////////////////
-	// 
-	//m_pDevice->GetTransform(D3DTS_VIEW, &matView);
-	//D3DXVec3TransformCoord(&vTargetPos, &vTargetPos, &matView);
-	//m_pDevice->GetTransform(D3DTS_PROJECTION, &matProj);
-	//D3DXVec3TransformCoord(&vTargetPos, &vTargetPos, &matProj);
-	//vTargetPos.x = (vTargetPos.x * WINCX * 0.5f) + WINCX * 0.5f;
-	//vTargetPos.y = (vTargetPos.y * WINCY * -0.5f) + WINCY * 0.5f;
-	// 
 	// 임시로 마우스 위치를 타겟 위치로 지정
-	POINT pt{};
-	GetCursorPos(&pt);
-	ScreenToClient(g_hWnd, &pt);
-	_TargetPos = Vector3(static_cast<float>(pt.x), static_cast<float>(pt.y), _UIDescs[TARGET_CURSOR].Pos.z);
-	_UIDescs[TARGET_CURSOR].Pos = _TargetPos;
-	_UIDescs[TARGET_HP].Pos = _TargetPos;
-	
-	//Vector2 v = ScreenPosToOrtho(_TargetPos.x, _TargetPos.y);
-	//std::cout << v.x << " " << v.y << std::endl;
+	///POINT pt{};
+	///GetCursorPos(&pt);
+	///ScreenToClient(g_hWnd, &pt);
+	///TargetPos = Vector2(static_cast<float>(pt.x), static_cast<float>(pt.y));
 	///////////////////////
-	
-	_TargetHP_StartPtOrtho = ScreenPosToOrtho(_TargetPos.x, _TargetPos.y);
+
+	_UIDescs[TARGET_CURSOR].Pos.x = _UIDescs[TARGET_HP].Pos.x = TargetPos.x;
+	_UIDescs[TARGET_CURSOR].Pos.y = _UIDescs[TARGET_HP].Pos.y = TargetPos.y;
+
+	_TargetHP_StartPtOrtho = ScreenPosToOrtho(TargetPos.x, TargetPos.y);
 	Vector2 Offset = Vector2(0.f, -100.f);	// EndPt offset (처음은 12시방향. 방향이 중요한거라 값의 크기는 관계 없는듯)
 
-	Vector2 EndPtOrtho = ScreenPosToOrtho(_TargetPos.x + Offset.x, _TargetPos.y + Offset.y);
+	Vector2 EndPtOrtho = ScreenPosToOrtho(TargetPos.x + Offset.x, TargetPos.y + Offset.y);
 	Vector2 Dir = EndPtOrtho - _TargetHP_StartPtOrtho;
 	_TargetHP_Normal0 = Vector2(-Dir.y, Dir.x);
 	D3DXVec2Normalize(&_TargetHP_Normal0, &_TargetHP_Normal0);
@@ -607,10 +653,24 @@ void BtlPanel::Update_TargetInfo()
 	D3DXMatrixRotationZ(&RotMat, D3DXToRadian(_TargetHP_Degree));
 	D3DXVec2TransformCoord(&Offset, &Offset, &RotMat);
 
-	EndPtOrtho = ScreenPosToOrtho(_TargetPos.x + Offset.x, _TargetPos.y + Offset.y);
+	EndPtOrtho = ScreenPosToOrtho(TargetPos.x + Offset.x, TargetPos.y + Offset.y);
 	Dir = EndPtOrtho - _TargetHP_StartPtOrtho;
 	_TargetHP_Normal1 = Vector2(-Dir.y, Dir.x);
 	D3DXVec2Normalize(&_TargetHP_Normal1, &_TargetHP_Normal1);
+}
+
+Vector2 BtlPanel::WorldPosToScreenPos(const Vector3& WorldPos)
+{
+	const ENGINE::RenderInformation& info = Renderer::GetInstance()->CurrentRenderInfo;
+	
+	Vector4 Pos = Vector4(WorldPos.x, WorldPos.y, WorldPos.z, 1.f);
+	D3DXVec4Transform(&Pos, &Pos, &info.CameraView);
+	D3DXVec4Transform(&Pos, &Pos, &info.CameraProjection);
+
+	float x = (Pos.x / Pos.w + 1.f) * (g_nWndCX >> 1);
+	float y = (-Pos.y / Pos.w + 1.f) * (g_nWndCY >> 1);
+
+	return Vector2(x, y);
 }
 
 Vector2 BtlPanel::ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY)
@@ -622,6 +682,8 @@ Vector2 BtlPanel::ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY)
 
 void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 {
+	ImGui::Text("BTLPanel : %d", _ID);
+
 	Vector3 Position = _UIDescs[_ID].Pos;
 	ImGui::InputFloat3("Position", Position);
 	_UIDescs[_ID].Pos = Position;
@@ -643,6 +705,10 @@ void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 	_HPGlassDirt = HPGlassDirt;
 
 	int HPGaugeCount = _HPGaugeCount;
-	ImGui::SliderInt("HPGaugeCount", &HPGaugeCount, 1, 8);
+	ImGui::SliderInt("HPGaugeCount", &HPGaugeCount, 1, 10);
 	_HPGaugeCount = HPGaugeCount;
+
+	Vector3 TargetPos = _TargetPos;
+	ImGui::SliderFloat3("TargetPos", TargetPos, -10.f, 10.f);
+	_TargetPos = TargetPos;
 }
