@@ -64,6 +64,15 @@
     <Filter Include="02.GameObject\02. Monster\00.Em100">
       <UniqueIdentifier>{37362b12-a76f-4d83-be8b-b416dcef8771}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\02. Monster\01.Em101">
+      <UniqueIdentifier>{7bc9598d-78ac-4f39-b931-83b51179adf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02. Monster\02.Em0000">
+      <UniqueIdentifier>{713e754a-60d1-45f6-8821-e4e8ea31c584}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02. Monster\02.Em0000\Weapon">
+      <UniqueIdentifier>{c02369c1-af29-46dd-852c-dedcb84e3a5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -124,6 +133,15 @@
     </ClInclude>
     <ClInclude Include="..\Header\Em100.h">
       <Filter>02.GameObject\02. Monster\00.Em100</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Em101.h">
+      <Filter>02.GameObject\02. Monster\01.Em101</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Em0000.h">
+      <Filter>02.GameObject\02. Monster\02.Em0000</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Em0000_Weapon.h">
+      <Filter>02.GameObject\02. Monster\02.Em0000\Weapon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +207,15 @@
     </ClCompile>
     <ClCompile Include="..\Source\Monster.cpp">
       <Filter>02.GameObject\02. Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Em101.cpp">
+      <Filter>02.GameObject\02. Monster\01.Em101</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Em0000.cpp">
+      <Filter>02.GameObject\02. Monster\02.Em0000</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Em0000_Weapon.cpp">
+      <Filter>02.GameObject\02. Monster\02.Em0000\Weapon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

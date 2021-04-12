@@ -654,9 +654,10 @@ std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
 		{
 			auto SpNode = iter->second;
 			const uint32 NodeIndex = SpNode->Index;
-			if (SpNode->IsBone())
+			// if (SpNode->IsBone())
 			{
-				return   FMath::Inverse(SpNode->Offset) * BoneSkinningMatries[NodeIndex];
+				return SpNode->ToRoot;
+				// return   FMath::Inverse(SpNode->Offset) * BoneSkinningMatries[NodeIndex];
 			}
 		}
 	}

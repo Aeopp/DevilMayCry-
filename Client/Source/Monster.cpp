@@ -20,6 +20,7 @@ void Monster::RenderReady()
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
 		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
 		RenderVariableBind(_UpdateInfo);
+
 	}
 }
 

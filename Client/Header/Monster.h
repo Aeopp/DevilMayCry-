@@ -24,6 +24,9 @@ public:
 	virtual void	Fight(const float _fDeltaTime) PURE;
 	virtual void	State_Change(const float _fDeltaTime) PURE;
 
+	std::shared_ptr<ENGINE::SkeletonMesh> Get_Mesh() { return m_pMesh; }
+	
+
 public:
 	virtual HRESULT Ready() override PURE;
 	virtual HRESULT Awake() override PURE;

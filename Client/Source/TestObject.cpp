@@ -70,7 +70,9 @@ void TestObject::RenderReady()
 
 HRESULT TestObject::Ready()
 {
-	m_nTag = 1;
+	m_nTag = Player;
+
+
 
 
 	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.

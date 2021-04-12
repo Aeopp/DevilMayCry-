@@ -8,32 +8,27 @@ class TestObject;
 class Em100 final : public Monster
 {
 private:
-	enum Em100_State
+	enum Em101_State
 	{
-		Air_End,
-		Air_Loop,
-		Air_Start,
 		Attack_A,
-		Attack_D,
-		Attack_Hard,
+		Attack_B,
+		Attack_Front,
 		Dead,
+		Down_Back_Loop,
+		Down_Back_Start,
+		Down_Front_End,
+		Down_Front_Loop,
+		Down_Front_Start,
+		Down_Stand_Up,
 		Hit_Air,
 		Hit_Back,
 		Hit_End,
-		Hit_Finish,
 		Hit_Front,
 		Hit_L,
 		Hit_R,
-		Walk_Front_End,
-		Walk_Front_Loop,
-		Walk_Front_Start,
-		Walk_Left_End,
-		Walk_Left_Loop,
-		Walk_Left_Start,
-		Walk_Right_Stop,
-		Walk_Right_Loop,
-		Walk_Right_Start,
-		idle,
+		Move_End,
+		Move_Loop,
+		Move_Start,
 		State_END
 	};
 
@@ -66,20 +61,15 @@ public:
 	virtual void Editor() override;
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
-
-
 public:
 	virtual void Rotate(const float _fDeltaTime) override;
 	virtual void Update_Angle() override;
-
-
 private:
 	//몬스터 상태
-	Em100_State	m_eState;		
+	Em101_State	m_eState =State_END;		
 	//TestPlayer 받아옴.
 	std::weak_ptr<ENGINE::Transform> m_pPlayerTrans;
 	std::weak_ptr<TestObject>		 m_pPlayer;
-
 
 	//공격 및 이동 관련
 	bool		m_bMove = false;
@@ -87,10 +77,6 @@ private:
 
 	bool		m_bAttack = false;	
 	float		m_fAttackTime = 0.f;
-
-
-
-
 
 	//전투 시작 테스트 용
 	bool		m_bTest = false;

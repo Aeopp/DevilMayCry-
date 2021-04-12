@@ -26,5 +26,6 @@ enum ATTACKTYPE
 };
 
 
+
 END
 #endif // !__ENGINE_ENUM_H__

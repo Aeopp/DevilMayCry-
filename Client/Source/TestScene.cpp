@@ -10,6 +10,9 @@
 #include "Camera.h"
 #include "Nero.h"
 #include "Em100.h"
+#include "Em101.h"
+#include "Em0000.h"
+#include "Em0000_Weapon.h"
 #include <iostream>
 
 using namespace std;
@@ -32,11 +35,12 @@ TestScene* TestScene::Create()
 HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
-
+	
 	AddGameObject<Camera>();
 
-	AddGameObject<Em100>();
+	AddGameObject<Em0000>();
 	AddGameObject<TestObject>();
+	AddGameObject<Em0000Weapon>();
 	//AddGameObject<TestObject>();
 	//AddGameObject<TestAnimationObject>();
 	//AddGameObject<Nero>();
