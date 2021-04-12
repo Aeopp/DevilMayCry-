@@ -124,10 +124,32 @@ HRESULT NeroFSM::ReadyFSM()
 	m_vecState.emplace_back(Evade_L::Create(this, EVADE_L, m_pNero));
 	m_vecState.emplace_back(Evade_R::Create(this, EVADE_R, m_pNero));
 
-	m_vecState.emplace_back(Jump_Basic::Create(this, JUMP_START, m_pNero));
-	m_vecState.emplace_back(Jump_Fly_Loop::Create(this, JUMP_LOOP, m_pNero));
-	m_vecState.emplace_back(Jump_Landing::Create(this, JUMP_LANDING, m_pNero));
-	m_vecState.emplace_back(Jump_Twice::Create(this, JUMP_TWICE, m_pNero));
+	//m_vecState.emplace_back(Jump_Basic::Create(this, JUMP_START, m_pNero));
+	//m_vecState.emplace_back(Jump_Fly_Loop::Create(this, JUMP_LOOP, m_pNero));
+	//m_vecState.emplace_back(Jump_Landing::Create(this, JUMP_LANDING, m_pNero));
+	//m_vecState.emplace_back(Jump_Twice::Create(this, JUMP_TWICE, m_pNero));
+
+	//m_vecState.emplace_back(Skill_Caliber::Create(this, SKILL_CALIBER_START, m_pNero));
+	//m_vecState.emplace_back(Skill_Caliber_End::Create(this, SKILL_CALIBER_END, m_pNero));
+	//m_vecState.emplace_back(Air_Dive_Slash_Start::Create(this, SKILL_AIR_DIVE_SLASH_START, m_pNero));
+	//m_vecState.emplace_back(Air_Dive_Slash_Loop::Create(this, SKILL_AIR_DIVE_SLASH_LOOP, m_pNero));
+	//m_vecState.emplace_back(Air_Dive_Slash_End::Create(this, SKILL_AIR_DIVE_SLASH_END, m_pNero));
+	//m_vecState.emplace_back(Hr_Ex_Air_Finish::Create(this, SKILL_HR_EX_AIR_FINISH, m_pNero));
+	//m_vecState.emplace_back(Hr_Ex_Air_Roll_Start::Create(this, SKILL_HR_EX_AIR_ROLL_START, m_pNero));
+	//m_vecState.emplace_back(Hr_Ex_Air_Roll_Loop::Create(this, SKILL_HR_EX_AIR_ROLL_LOOP, m_pNero));
+	//m_vecState.emplace_back(Hr_Ex_Air_Roll_End::Create(this, SKILL_HR_EX_AIR_ROLL_END, m_pNero));
+	//m_vecState.emplace_back(Hr_Air::Create(this, SKILL_HR_AIR, m_pNero));
+	//m_vecState.emplace_back(Skill_Split::Create(this, SKILL_SPLIT_START, m_pNero));
+	//m_vecState.emplace_back(Skill_Split_Loop::Create(this, SKILL_SPLIT_LOOP, m_pNero));
+	//m_vecState.emplace_back(Skill_Split_Landing::Create(this, SKILL_SPLIT_END, m_pNero));
+	//m_vecState.emplace_back(Skill_Split_Ex::Create(this, SKILL_SPLIT_EX_START, m_pNero));
+	//m_vecState.emplace_back(Skill_Split_Ex_Loop::Create(this, SKILL_SPLIT_EX_LOOP, m_pNero));
+	//m_vecState.emplace_back(Skill_Split_Ex_Landing::Create(this, SKILL_SPLIT_EX_END, m_pNero));
+	//m_vecState.emplace_back(ComboA_Air1::Create(this, AIR_COMBOA1, m_pNero));
+	//m_vecState.emplace_back(ComboA_Air2::Create(this, AIR_COMBOA2, m_pNero));
+	//m_vecState.emplace_back(ComboA_Air3::Create(this, AIR_COMBOA3, m_pNero));
+	//m_vecState.emplace_back(ComboB_Air::Create(this, AIR_COMBOB, m_pNero));
+	//m_vecState.emplace_back(ComboA_Dash::Create(this, ATT1_DASH, m_pNero));
 	return S_OK;						
 }
 

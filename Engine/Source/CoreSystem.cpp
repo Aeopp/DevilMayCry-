@@ -275,14 +275,14 @@ HRESULT CoreSystem::UpdateEngine()
 
 		ImGui::Begin("Log");
 		{
-			for (const auto& CurLog : g_Logs)
+			/*for (const auto& CurLog : g_Logs)
 			{
 				ImGui::Text(CurLog.c_str());
-			}
+			}*/
 		}
 		ImGui::End();
 	}
-	g_Logs.clear();
+	//g_Logs.clear();
 
 	//m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
 

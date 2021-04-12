@@ -26,7 +26,7 @@ void ENGINE_DLL Log(const std::string& PushLog)
 {
 	if (g_bEditMode)
 	{
-		g_Logs.push_back(PushLog);
+		//g_Logs.push_back(PushLog);
 	}
 }
 

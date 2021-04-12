@@ -119,6 +119,7 @@ HRESULT NeroState::KeyInput_Idle(const int _nIndex)
 	else if (Input::GetKeyDown(DIK_SPACE))
 	{
 		//점프
+		//m_pFSM->ChangeState(NeroFSM::JUMP_START);
 	}
 	else if (Input::GetKeyDown(DIK_LCONTROL))
 	{
@@ -256,6 +257,92 @@ HRESULT NeroState::KeyInput_Cbs_Idle(const int _nIndex)
 
 HRESULT NeroState::KeyInput_Jump(const int _nIndex)
 {
+	if (Input::GetKey(DIK_LSHIFT))
+	{
+		//락온
+		if (Input::GetKey(DIK_W))
+		{
+			if (Input::GetKey(DIK_S) && Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
+			else if (Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
+			else if (Input::GetMouse(DIM_R))
+			{
+				//총알 발사
+			}
+			else if (Input::GetMouse(DIM_M))
+			{
+				m_pFSM->ChangeState(NeroFSM::OVERTURE_SHOOT_UP);
+			}
+		}
+		else if (Input::GetKey(DIK_S))
+		{
+			if (Input::GetMouse(DIM_L))
+				m_pFSM->ChangeState(NeroFSM::SKILL_FLOAT_GROUND);
+			else if (Input::GetMouse(DIM_R))
+			{
+				//총알 발사
+			}
+			else if (Input::GetMouse(DIM_M))
+			{
+				m_pFSM->ChangeState(NeroFSM::OVERTURE_SHOOT_DOWN);
+			}
+		}
+		else if (Input::GetKey(DIK_A))
+		{
+			if (Input::GetKey(DIK_SPACE))
+			{
+				//왼쪽 구르기
+				m_pFSM->ChangeState(NeroFSM::EVADE_L);
+			}
+		}
+		else if (Input::GetKey(DIK_D))
+		{
+			if (Input::GetKey(DIK_SPACE))
+			{
+				// 오른쪽 구르기
+				m_pFSM->ChangeState(NeroFSM::EVADE_R);
+			}
+		}
+	}
+
+	else if (Input::GetKey(DIK_W))
+	{
+		m_pFSM->ChangeState(NeroFSM::RUNSTART);
+	}
+	else if (Input::GetKey(DIK_S))
+	{
+		//180도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_180);
+	}
+	else if (Input::GetKey(DIK_A))
+	{
+		//왼쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_L);
+	}
+	else if (Input::GetKey(DIK_D))
+	{
+		//오른쪽으로 90도 회전
+		m_pFSM->ChangeState(NeroFSM::RUNSTART_R);
+	}
+	else if (Input::GetMouseDown(DIM_L))
+	{
+		m_pFSM->ChangeState(NeroFSM::ATT1);
+	}
+	else if (Input::GetMouseDown(DIM_M))
+	{
+		m_pFSM->ChangeState(NeroFSM::OVERTURE_SHOOT);
+	}
+	else if (Input::GetKeyDown(DIK_SPACE))
+	{
+		//점프
+		m_pFSM->ChangeState(NeroFSM::JUMP_START);
+	}
+	else if (Input::GetKeyDown(DIK_LCONTROL))
+	{
+		m_pNero.lock()->ChangeWeapon(Nero::Cbs);
+		m_pFSM->ChangeState(NeroFSM::CBS_IDLE);
+	}
 	return S_OK;
 }
 
@@ -3494,63 +3581,6 @@ HRESULT Skill_Float_Ground_Finish::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
-Skill_Float_Air::Skill_Float_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
-	:NeroState(_pFSM, _nIndex, _pNero)
-{
-}
-
-Skill_Float_Air::~Skill_Float_Air()
-{
-}
-
-Skill_Float_Air* Skill_Float_Air::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
-{
-	return new Skill_Float_Air(_pFSM, _nIndex, _pNero);
-}
-
-HRESULT Skill_Float_Air::StateEnter()
-{
-	return S_OK;
-}
-
-HRESULT Skill_Float_Air::StateExit()
-{
-	return S_OK;
-}
-
-HRESULT Skill_Float_Air::StateUpdate(const float _fDeltaTime)
-{
-	return S_OK;
-}
-
-Skill_Float_Air_Ex3::Skill_Float_Air_Ex3(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
-	:NeroState(_pFSM, _nIndex, _pNero)
-{
-}
-
-Skill_Float_Air_Ex3::~Skill_Float_Air_Ex3()
-{
-}
-
-Skill_Float_Air_Ex3* Skill_Float_Air_Ex3::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
-{
-	return new Skill_Float_Air_Ex3(_pFSM, _nIndex, _pNero);
-}
-
-HRESULT Skill_Float_Air_Ex3::StateEnter()
-{
-	return S_OK;
-}
-
-HRESULT Skill_Float_Air_Ex3::StateExit()
-{
-	return S_OK;
-}
-
-HRESULT Skill_Float_Air_Ex3::StateUpdate(const float _fDeltaTime)
-{
-	return S_OK;
-}
 
 Skill_Shuffle::Skill_Shuffle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -3579,6 +3609,7 @@ HRESULT Skill_Shuffle::StateEnter()
 
 HRESULT Skill_Shuffle::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
@@ -3591,34 +3622,6 @@ HRESULT Skill_Shuffle::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
-Skill_Caliber::Skill_Caliber(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
-	:NeroState(_pFSM, _nIndex, _pNero)
-{
-}
-
-Skill_Caliber::~Skill_Caliber()
-{
-}
-
-Skill_Caliber* Skill_Caliber::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
-{
-	return new Skill_Caliber(_pFSM, _nIndex, _pNero);
-}
-
-HRESULT Skill_Caliber::StateEnter()
-{
-	return S_OK;
-}
-
-HRESULT Skill_Caliber::StateExit()
-{
-	return S_OK;
-}
-
-HRESULT Skill_Caliber::StateUpdate(const float _fDeltaTime)
-{
-	return S_OK;
-}
 
 Skill_Streak::Skill_Streak(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero)
@@ -3687,9 +3690,6 @@ HRESULT Skill_Streak_Ex3::StateUpdate(const float _fDeltaTime)
 {
 	return S_OK;
 }
-
-
-
 
 Skill_Streak_Loop::Skill_Streak_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
 	:NeroState(_pFSM, _nIndex, _pNero), m_fLoopTime(0.f)
@@ -5678,3 +5678,598 @@ HRESULT Pole_WhirlWind_End::StateUpdate(const float _fDeltaTime)
 
 
 #pragma endregion
+
+ComboA_Dash::ComboA_Dash(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+ComboA_Dash::~ComboA_Dash()
+{
+
+}
+
+ComboA_Dash* ComboA_Dash::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new ComboA_Dash(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT ComboA_Dash::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("ComboA1_Dash", false, Nero::ANI_SHUFFLE);
+
+	return S_OK;
+}
+
+HRESULT ComboA_Dash::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT ComboA_Dash::StateUpdate(const float _fDeltaTime)
+{
+	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	if (Input::GetMouseDown(DIM_L))
+	{
+		if (0.22f <= fCurrAnimationTime && fCurrAnimationTime <= 0.35f)
+		{
+			m_pFSM->ChangeState(NeroFSM::ATT2);
+		}
+
+		//else if (0.4f < fCurrAnimationTime && fCurrAnimationTime <= 0.8f)
+		//{
+		//	// 레드퀸 콤보 땅바닥 찍는거 시작 
+		//	m_pFSM->ChangeState(NeroFSM::ATT_COMBO_C1);
+		//}
+	}
+	else if (0.37f <= fCurrAnimationTime)
+	{
+		m_pFSM->ChangeState(NeroFSM::IDLE_START);
+	}
+
+	return S_OK;
+}
+
+Skill_Caliber::Skill_Caliber(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Skill_Caliber::~Skill_Caliber()
+{
+
+}
+
+Skill_Caliber* Skill_Caliber::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Skill_Caliber(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Skill_Caliber::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Caliber_Start", false, Nero::ANI_CALIBER_START);
+
+	return S_OK;
+}
+
+HRESULT Skill_Caliber::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Skill_Caliber::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Skill_Caliber_End::Skill_Caliber_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Skill_Caliber_End::~Skill_Caliber_End()
+{
+
+}
+
+Skill_Caliber_End* Skill_Caliber_End::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+
+	return new Skill_Caliber_End(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Skill_Caliber_End::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Caliber_End", false, Nero::ANI_CALIBER_END);
+
+	return S_OK;
+}
+
+HRESULT Skill_Caliber_End::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Skill_Caliber_End::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Hr_Air::Hr_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Hr_Air::~Hr_Air()
+{
+
+}
+
+Hr_Air* Hr_Air::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Hr_Air(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Hr_Air::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Hr_Air", false, Nero::ANI_HR_AIR);
+
+	return S_OK;
+}
+
+HRESULT Hr_Air::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Hr_Air::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Hr_Ex_Start::Hr_Ex_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Hr_Ex_Start::~Hr_Ex_Start()
+{
+
+}
+
+Hr_Ex_Start* Hr_Ex_Start::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Hr_Ex_Start(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Hr_Ex_Start::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Hr_Ex_Start", false, Nero::ANI_HR_EX_START);
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Start::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Start::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Hr_Ex_Finish::Hr_Ex_Finish(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Hr_Ex_Finish::~Hr_Ex_Finish()
+{
+
+}
+
+Hr_Ex_Finish* Hr_Ex_Finish::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Hr_Ex_Finish(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Hr_Ex_Finish::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Hr_Ex_Finish", false, Nero::ANI_HR_EX_FINISH);
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Finish::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Finish::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Hr_Ex_Air_Roll_Start::Hr_Ex_Air_Roll_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Hr_Ex_Air_Roll_Start::~Hr_Ex_Air_Roll_Start()
+{
+
+}
+
+Hr_Ex_Air_Roll_Start* Hr_Ex_Air_Roll_Start::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Hr_Ex_Air_Roll_Start(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Hr_Ex_Air_Roll_Start::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Hr_Ex_Air_Roll_Start", false, Nero::ANI_HR_EX_AIR_ROLL_START);
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Roll_Start::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Roll_Start::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Hr_Ex_Air_Roll_Loop::Hr_Ex_Air_Roll_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Hr_Ex_Air_Roll_Loop::~Hr_Ex_Air_Roll_Loop()
+{
+
+}
+
+Hr_Ex_Air_Roll_Loop* Hr_Ex_Air_Roll_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Hr_Ex_Air_Roll_Loop(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Hr_Ex_Air_Roll_Loop::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Hr_Ex_Air_Roll_Loop", false, Nero::ANI_HR_EX_AIR_ROLL_LOOP);
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Roll_Loop::StateExit()
+{
+	NeroState::StateExit();
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Roll_Loop::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Hr_Ex_Air_Roll_End::Hr_Ex_Air_Roll_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Hr_Ex_Air_Roll_End::~Hr_Ex_Air_Roll_End()
+{
+
+}
+
+Hr_Ex_Air_Roll_End* Hr_Ex_Air_Roll_End::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Hr_Ex_Air_Roll_End(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Hr_Ex_Air_Roll_End::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Hr_Ex_Air_Roll_End", false, Nero::ANI_HR_EX_AIR_ROLL_END);
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Roll_End::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Roll_End::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Hr_Ex_Air_Finish::Hr_Ex_Air_Finish(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Hr_Ex_Air_Finish::~Hr_Ex_Air_Finish()
+{
+
+}
+
+Hr_Ex_Air_Finish* Hr_Ex_Air_Finish::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Hr_Ex_Air_Finish(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Hr_Ex_Air_Finish::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Hr_Ex_Air_Finish", false, Nero::ANI_HR_EX_AIR_FINISH);
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Finish::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Hr_Ex_Air_Finish::StateUpdate(const float _fDeltaTime)
+{
+
+	return S_OK;
+}
+
+Skill_Split_Ex::Skill_Split_Ex(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Skill_Split_Ex::~Skill_Split_Ex()
+{
+
+}
+
+Skill_Split_Ex* Skill_Split_Ex::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Skill_Split_Ex(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Skill_Split_Ex::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("SplitEx_Start", false, Nero::ANI_SPLITEX_START);
+
+	return S_OK;
+}
+
+HRESULT Skill_Split_Ex::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Skill_Split_Ex::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Skill_Split_Ex_Loop::Skill_Split_Ex_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Skill_Split_Ex_Loop::~Skill_Split_Ex_Loop()
+{
+
+}
+
+Skill_Split_Ex_Loop* Skill_Split_Ex_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Skill_Split_Ex_Loop(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Skill_Split_Ex_Loop::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("SplitEx_Loop", false, Nero::ANI_SPLITEX_LOOP);
+
+	return S_OK;
+}
+
+HRESULT Skill_Split_Ex_Loop::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Skill_Split_Ex_Loop::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Skill_Split_Ex_Landing::Skill_Split_Ex_Landing(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Skill_Split_Ex_Landing::~Skill_Split_Ex_Landing()
+{
+
+}
+
+Skill_Split_Ex_Landing* Skill_Split_Ex_Landing::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Skill_Split_Ex_Landing(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Skill_Split_Ex_Landing::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("SplitEx_Landing", false, Nero::ANI_SPLITEX_LANDING);
+
+	return S_OK;
+}
+
+HRESULT Skill_Split_Ex_Landing::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Skill_Split_Ex_Landing::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Air_Dive_Slash_Start::Air_Dive_Slash_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Air_Dive_Slash_Start::~Air_Dive_Slash_Start()
+{
+
+}
+
+Air_Dive_Slash_Start* Air_Dive_Slash_Start::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Air_Dive_Slash_Start(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Air_Dive_Slash_Start::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Air_Dive_Slash_Start", false, Nero::ANI_AIR_DIVE_SLASH_START);
+
+	return S_OK;
+}
+
+HRESULT Air_Dive_Slash_Start::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Air_Dive_Slash_Start::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Air_Dive_Slash_Loop::Air_Dive_Slash_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Air_Dive_Slash_Loop::~Air_Dive_Slash_Loop()
+{
+
+}
+
+Air_Dive_Slash_Loop* Air_Dive_Slash_Loop::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Air_Dive_Slash_Loop(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Air_Dive_Slash_Loop::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Air_Dive_Slash_Loop", false, Nero::ANI_AIR_DIVE_SLASH_LOOP);
+
+	return S_OK;
+}
+
+HRESULT Air_Dive_Slash_Loop::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Air_Dive_Slash_Loop::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
+
+Air_Dive_Slash_End::Air_Dive_Slash_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM, _nIndex, _pNero)
+{
+
+}
+
+Air_Dive_Slash_End::~Air_Dive_Slash_End()
+{
+
+}
+
+Air_Dive_Slash_End* Air_Dive_Slash_End::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Air_Dive_Slash_End(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Air_Dive_Slash_End::StateEnter()
+{
+	NeroState::StateEnter();
+	m_pNero.lock()->ChangeAnimation("Air_Dive_Slash_End", false, Nero::ANI_AIR_DIVE_SLASH_FINISH);
+
+	return S_OK;
+}
+
+HRESULT Air_Dive_Slash_End::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Air_Dive_Slash_End::StateUpdate(const float _fDeltaTime)
+{
+	return S_OK;
+}
