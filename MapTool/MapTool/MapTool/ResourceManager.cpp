@@ -72,7 +72,7 @@ void ResourceManager::MenuBar()
 
 				if (m_sCurrSel == sKey.string())
 				{
-					GameObjectManager::Instance.AddGameObject(m_sCurrSel, rPair.second->m_pShape);
+					GameObjectManager::Instance.AddGameObject(m_sCurrSel, rPair.second->m_pTriangleMesh);
 					break;
 				}
 			}

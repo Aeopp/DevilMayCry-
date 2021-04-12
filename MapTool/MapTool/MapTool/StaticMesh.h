@@ -12,9 +12,7 @@ public:
 
 	PxTriangleMesh* m_pTriangleMesh;
 	PxTriangleMeshDesc* m_pTriangleMeshDesc;
-	PxShape* m_pShape;
 
-	PxTriangleMeshGeometry m_TriangleMeshGeometry;
 public:
 	StaticMesh();
 	~StaticMesh();

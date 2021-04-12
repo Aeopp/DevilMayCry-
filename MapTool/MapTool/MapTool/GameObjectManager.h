@@ -20,7 +20,7 @@ public:
 	void ShowMenuBar();
 	void ShowGameObjectList();
 public:
-	void AddGameObject(std::string _sMeshID, PxShape* _pShape);
+	void AddGameObject(std::string _sMeshID, PxTriangleMesh* _pTriangleMesh);
 	void DeleteGameObject();
 };
 

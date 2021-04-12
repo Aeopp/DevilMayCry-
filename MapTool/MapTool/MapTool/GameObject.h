@@ -9,6 +9,8 @@ public:
 	Transform* m_pTransform;
 
 	PxRigidActor* m_pRigidActor;
+	PxShape* m_pShape;
+	PxTriangleMeshGeometry m_Geometry;
 	
 	int m_nIndex;
 
@@ -18,7 +20,7 @@ public:
 	~GameObject();
 
 public:
-	void CreateRigidActor(PxShape* _pTriangleMesh);
+	void CreateRigidActor(PxTriangleMesh* _pTriangleMesh);
 
 	void Update();
 };

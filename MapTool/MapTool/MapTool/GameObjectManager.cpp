@@ -119,7 +119,7 @@ void GameObjectManager::ShowGameObjectList()
 	{
 		for (int i = 0; i < rPair.second.size(); ++i)
 		{
-			ppIndex[i] = new char[MAX_PATH];
+			ppIndex[nIndex] = new char[MAX_PATH];
 			char szIndex[10] = {};
 			_itoa_s(rPair.second[i]->m_nIndex, szIndex, 10, 10);
 
@@ -127,13 +127,13 @@ void GameObjectManager::ShowGameObjectList()
 			sTemp += " / ";
 			sTemp += szIndex;
 
-			strcpy_s(ppIndex[i], sizeof(char) * MAX_PATH, sTemp.c_str());
+			strcpy_s(ppIndex[nIndex], sizeof(char) * MAX_PATH, sTemp.c_str());
 
 			rPair.second[i]->m_nListIdx = nIndex++;
 		}
 	}
 
-	if (ImGui::ListBox("##GameObjectList", &m_nCurrItem, ppIndex, nItemCount, nItemCount))
+	if (ImGui::ListBox("ABC##GameObjectList", &m_nCurrItem, ppIndex, nItemCount, nItemCount))
 	{
 		if (-1 != m_nCurrItem)
 		{
@@ -143,72 +143,46 @@ void GameObjectManager::ShowGameObjectList()
 			std::string sKey = sSelected.substr(0, nToken - 1);
 			std::string sIndex = sSelected.substr(nToken + 2, sSelected.length() - 1);
 
-			m_pSelected = m_Container[sKey][atoi(sIndex.c_str())];
+			int nListIdx = atoi(sIndex.c_str());
+
+			for (auto pGameObject : m_Container[sKey])
+			{
+				if (pGameObject->m_nListIdx == nListIdx)
+				{
+					m_pSelected = pGameObject;
+					break;
+				}
+			}
 		}
 	}
-	//if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
-	//{
-	//	if (-1 != m_nCurrItem && m_pSelected)
-	//	{
-	//		Camera::SetCameraFocus(rPair.second[m_nCurrItem]->m_pTransform->GetPosition());
-	//	}
-	//}
-
+	else
+	{
+		if (ImGui::IsItemClicked())
+		{
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
+			{
+				if (nullptr != m_pSelected)
+				{
+					Camera::SetCameraFocus(m_pSelected->m_pTransform->GetPosition());
+				}
+			}
+		}
+	}
 
 	for (int i = 0; i < nItemCount; ++i)
 	{
 		delete[] ppIndex[i];
 	}
 	delete[] ppIndex;
-	
-	/*bool bSel = false;
-
-	static int nSel = m_nCurrItem;
-	for (auto& rPair : m_Container)
-	{
-		char** ppIndex;
-		ppIndex = new char* [rPair.second.size()];
-
-		ImGui::Text(rPair.first.c_str());
-		for (int i = 0; i < rPair.second.size(); ++i)
-		{
-			ppIndex[i] = new char[10];
-			_itoa_s(rPair.second[i]->m_nIndex, ppIndex[i], 10, 10);
-		}
-		std::string sLabel = "##" + rPair.first;
-
-		if (bSel)
-			nSel = -1;
-		if (bSel = ImGui::ListBox(sLabel.c_str(), &nSel, ppIndex, rPair.second.size(), rPair.second.size()))
-		{
-			m_nCurrItem = nSel;
-			if (-1 != m_nCurrItem && m_nCurrItem < rPair.second.size())
-				m_pSelected = rPair.second[m_nCurrItem];
-
-	
-		}
-		if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
-		{
-			if (-1 != m_nCurrItem && m_pSelected)
-			{
-				Camera::SetCameraFocus(rPair.second[m_nCurrItem]->m_pTransform->GetPosition());
-			}
-		}
-		for (int i = 0; i < rPair.second.size(); ++i)
-		{
-			delete[] ppIndex[i];
-		}
-		delete[] ppIndex;
-	}*/
 }
 
-void GameObjectManager::AddGameObject(std::string _sMeshID, PxShape* _pShape)
+void GameObjectManager::AddGameObject(std::string _sMeshID, PxTriangleMesh* _pTriangleMesh)
 {
 	//게임 오브젝트 동적 생성 및 초기화.
 	GameObject* pInstance = new GameObject;
 
 	pInstance->m_sMesh = _sMeshID;
-	pInstance->CreateRigidActor(_pShape);
+	pInstance->CreateRigidActor(_pTriangleMesh);
 	//
 	auto iterFind = m_Container.find(_sMeshID);
 

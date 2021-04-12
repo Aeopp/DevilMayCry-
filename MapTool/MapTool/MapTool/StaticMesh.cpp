@@ -11,8 +11,7 @@
 #include "Physics.h"
 
 StaticMesh::StaticMesh()
-	: m_pShape(nullptr)
-	, m_pTriangleMesh(nullptr)
+	: m_pTriangleMesh(nullptr)
 	, m_pTriangleMeshDesc(nullptr)
 {
 }
@@ -27,8 +26,7 @@ StaticMesh::~StaticMesh()
 	m_vecSubset.clear();
 	m_vecSubset.shrink_to_fit();
 
-	if (nullptr != m_pShape)
-		m_pShape->release();
+
 	if (nullptr != m_pTriangleMesh)
 		m_pTriangleMesh->release();
 }
@@ -463,9 +461,6 @@ HRESULT StaticMesh::CreateTriangleMesh()
 	
 	cout << "Succeed to Create TriangleMesh" << endl;
 
-	m_TriangleMeshGeometry.triangleMesh = m_pTriangleMesh;
-
-	m_pShape = Physics::Instance.m_pPhysics->createShape(m_TriangleMeshGeometry, *Physics::Instance.m_pDefaultMaterial);
 	
 	return S_OK;
 }
