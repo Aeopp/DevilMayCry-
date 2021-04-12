@@ -32,19 +32,18 @@ private:
 	void    ReadyRenderInfo();
 	void    ReadyFrustum();
 	void    ReadyQuad();	
-public :
-	// 오브젝트의 렌더 세팅이 켜져있다면 RenderInterface 인터페이스를 검사하고 엔티티에 추가 .
-	void Push(const std::weak_ptr<GameObject>& _RenderEntity)&;
 public : 
 	HRESULT Render()&;
 	void    Editor()&;
+	// 오브젝트의 렌더 세팅이 켜져있다면 RenderInterface 인터페이스를 검사하고 엔티티에 추가 .
+	void Push(const std::weak_ptr<GameObject>&_RenderEntity)&;
 private:
 	void RenderReady()&;
 	void RenderReadyEntitys()&;
-	void Culling()&;
-	void FrustumCulling()&;
 	void RenderEnd()&;
 	void RenderEntityClear()&;
+	void FrustumCulling()&;
+	void Culling()&;
 private:
 	HRESULT RenderImplementation()&;
 	// HRESULT RenderGBuffer()&;
@@ -59,26 +58,25 @@ private:
 	HRESULT RenderShadowScene(FLight*const  Light);
 	HRESULT RenderTargetDebugRender()&;
 public:
-	bool    bEdit = false;
+	bool bEdit = false;
 	RenderInformation _RenderInfo{};
 	RenderInformation _PrevRenderInfo{};
 private:
-	D3DVIEWPORT9       BackBufViewport{};
 	IDirect3DSurface9* BackBuffer{ nullptr };
 	std::shared_ptr<Frustum> CameraFrustum{};
-	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
+	LPDIRECT3DDEVICE9	Device{ nullptr };
 	std::map<RenderProperty::Order, std::vector<RenderInterface*>> RenderEntitys{};
 	std::shared_ptr<Quad> _Quad;
 	std::map<std::string, std::shared_ptr<ENGINE::Shader>> Shaders{};
 	std::map<std::string, std::shared_ptr<RenderTarget>>   RenderTargets{};
-
 	std::shared_ptr<FLight> Moonlight{};
 	std::vector<std::shared_ptr<FLight>> PointLights{};
 
 	// 쉐이더 테스트 시작 ....
 	bool TestShaderInit();
 	void TestShaderRelease();
-	
+	void TestLightRotation();
+	void TestLightEdit();
 	bool bCurstomEye = false;
 	void RenderShadowMaps();
 	void RenderGBuffer(

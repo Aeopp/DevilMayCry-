@@ -26,8 +26,8 @@ void Renderer::Free()
 
 HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 {
-	m_pDevice = _pDevice;
-	SafeAddRef(m_pDevice);
+	Device = _pDevice;
+	SafeAddRef(Device);
 	ReadyRenderTargets();
 	ReadyShader("..\\..\\Resource\\Shader");
 	ReadyLights();
@@ -83,12 +83,12 @@ void Renderer::ReadyLights()
 			{ 0,0,1,1 }));
 
 	// 그림자맵 512 로 생성
-	Moonlight->CreateShadowMap(m_pDevice, 512);
+	Moonlight->CreateShadowMap(Device, 512);
 	Moonlight->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
 
-	PointLights[0]->CreateShadowMap(m_pDevice, 256);
-	PointLights[1]->CreateShadowMap(m_pDevice, 256);
-	PointLights[2]->CreateShadowMap(m_pDevice, 256);
+	PointLights[0]->CreateShadowMap(Device, 256);
+	PointLights[1]->CreateShadowMap(Device, 256);
+	PointLights[2]->CreateShadowMap(Device, 256);
 
 	PointLights[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
 	PointLights[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
@@ -180,8 +180,8 @@ void Renderer::ReadyRenderTargets()
 void Renderer::ReadyRenderInfo()
 {
 	Matrix CameraView, CameraProjection, Ortho;
-	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
-	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
+	Device->GetTransform(D3DTS_VIEW, &CameraView);
+	Device->GetTransform(D3DTS_PROJECTION, &CameraProjection);
 
 	D3DXMatrixOrthoLH(&Ortho, g_nWndCX, g_nWndCY, 0.0f, 1.f);
 
@@ -200,13 +200,13 @@ void Renderer::ReadyRenderInfo()
 void Renderer::ReadyFrustum()
 {
 	CameraFrustum = std::make_shared<Frustum>();
-	CameraFrustum->Initialize(m_pDevice);
+	CameraFrustum->Initialize(Device);
 }
 
 void Renderer::ReadyQuad()
 {
 	_Quad = std::make_shared<Quad>();
-	_Quad->Initialize(m_pDevice);
+	_Quad->Initialize(Device);
 }
 
 void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
@@ -231,110 +231,24 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 };
 
 // 렌더 레디에서 절두체 준비 ..
-
 HRESULT Renderer::Render()&
 {
 	RenderReady();
-	static float time = 0;
+	TestLightRotation();
+	TestLightEdit();
 
-
-	Math::Matrix	view, viewinv, proj;
-	Math::Matrix	viewproj, viewprojinv;
-	// Math::Vector4	eye;
-
-	// NOTE: camera is right-handed
-	/*camera.Animate(0.11f);
-	camera.GetViewMatrix(view);
-	camera.GetProjectionMatrix(proj);*/
-
-	// camera.GetEyePosition((Math::Vector3&)eye);
-
-	//Math::MatrixMultiply(viewproj, view, proj);
-	//Math::MatrixInverse(viewprojinv, viewproj);
-
-
-	// setup lights
-	PointLights[0]->GetPosition().x = cosf(time * 0.5f) * 2;
-	PointLights[0]->GetPosition().z = sinf(time * 0.5f) * cosf(time * 0.5f) * 2;
-
-	PointLights[1]->GetPosition().x = cosf(1.5f * time) * 2;
-	PointLights[1]->GetPosition().z = sinf(1 * time) * 2;
-
-	PointLights[2]->GetPosition().x = cosf(0.75f * time) * 1.5f;
-	PointLights[2]->GetPosition().z = sinf(1.5f * time) * 1.5f;
-
-	
-	std::memcpy(&view, &_RenderInfo.View, sizeof(Matrix));
-	std::memcpy(&viewinv, &_RenderInfo.ViewInverse, sizeof(Matrix));
-	std::memcpy(&proj, &_RenderInfo.Projection, sizeof(Matrix));
-	std::memcpy(&viewproj, &_RenderInfo.ViewProjection, sizeof(Matrix));
-	std::memcpy(&viewprojinv, &_RenderInfo.ViewProjectionInverse, sizeof(Matrix));
-	// eye = Math::Vector4{ CurrentRenderInfo.CameraLocation.x, CurrentRenderInfo.CameraLocation.y , CurrentRenderInfo.CameraLocation.z , 1.f };
-
-	// calculate moonlight direction (let y stay in world space, so we can see shadow)
-	static Math::Vector4 originmoondir = { -0.25f,-0.65f, -1, 0 };
-
-	// Math::MatrixInverse(viewinv, view);
-	ImGui::SliderFloat3("originmoondir ", (float*)&originmoondir, -1.f, 1.f);
-	/*Math::Vec3TransformNormal((Math::Vector3&)moondir, (const Math::Vector3&)moondir, viewinv);
-	Math::Vec3Normalize((Math::Vector3&)moondir, (const Math::Vector3&)moondir);*/
-
-	Math::Vector4 moondir;
-
-	D3DXVec4Normalize((Vector4*)&moondir, (Vector4*)&originmoondir);
-// 	 moondir.y = 0.65f;
-	Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
-
-	static bool bMoonLightTarget = false;
-	ImGui::Checkbox("bMoonLightTarget", &bMoonLightTarget);
-	if (bMoonLightTarget)
-	{
-		
-		ImGui::SliderFloat3("MoonLightTarget", MoonLightTarget, -5.f, 5.f);
-		Vector4 Targetdir  = MoonLightTarget - Vector4{ 0, 0, 0, 1 };
-		D3DXVec4Normalize(&Targetdir, &Targetdir);
-		moondir = { Targetdir.x , Targetdir.y ,Targetdir.z , 0.f };
-		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
-	}
-	
-	static bool TransformViewSpace = false;
-	if (ImGui::Checkbox("Transform View Space", &TransformViewSpace))
-	{
-		
-	}
-
-	if (TransformViewSpace)
-	{
-		// 달빛을 카메라 공간으로 변환 . 
-		D3DXVec4Transform((Vector4*)&moondir, (Vector4*)&moondir,
-			&_RenderInfo.ViewInverse);
-		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
-	}
-
-	ImGui::Checkbox("bCustomEye", &bCurstomEye);
-	if (bCurstomEye)
-	{
-		ImGui::SliderFloat3("CurstomEye", CurstomEye, -5.f, 5.f);
-	}
-
-	
-
-	
-	
-
-	auto device = m_pDevice;
 	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
-
-	if (SUCCEEDED(device->BeginScene())) {
+	GraphicSystem::GetInstance()->Begin();
+		{
 		D3DVIEWPORT9 oldviewport;
 		D3DVIEWPORT9 viewport;
 		LPDIRECT3DSURFACE9 backbuffer = nullptr;
 
-		device->GetRenderTarget(0, &backbuffer);
-		device->GetViewport(&oldviewport);
+		Device->GetRenderTarget(0, &backbuffer);
+		Device->GetViewport(&oldviewport);
 
 		// STEP 0: render shadow maps
-		device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+		Device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 		{
 			RenderShadowMaps();
 		}
@@ -343,14 +257,14 @@ HRESULT Renderer::Render()&
 		{
 			RenderGBuffer(_RenderInfo.ViewProjection);
 		}
-		device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+		Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
 		// STEP 2: deferred shading
 		pixelsize.x = 1.0f / (float)oldviewport.Width;
 		pixelsize.y = -1.0f / (float)oldviewport.Height;
 
-		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
-		device->SetRenderState(D3DRS_ZENABLE, FALSE);
+		Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
 		DeferredShading(
 			_RenderInfo.View, 
@@ -361,8 +275,8 @@ HRESULT Renderer::Render()&
 			_RenderInfo.CameraLocation.z ,1.f} );
 
 		// STEP 3: render sky
-		device->SetRenderTarget(0, backbuffer);
-		device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+		Device->SetRenderTarget(0, backbuffer);
+		Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
 
 		backbuffer->Release();
 
@@ -372,18 +286,18 @@ HRESULT Renderer::Render()&
 		screenquad->Begin(NULL, 0);
 		screenquad->BeginPass(0);
 		{
-			device->SetTexture(0, sky);
-			_Quad->Render(m_pDevice); 
+			Device->SetTexture(0, sky);
+			_Quad->Render(Device);
 			//device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		screenquad->EndPass();
 		screenquad->End();
 
 		// STEP 4: tone mapping
-		device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-		device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		Device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
+		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 		auto tonemap = Shaders["ToneMap"]->GetEffect();
 
@@ -395,8 +309,8 @@ HRESULT Renderer::Render()&
 		tonemap->Begin(NULL, 0);
 		tonemap->BeginPass(0);
 		{
-			device->SetTexture(0, scenetarget);
-			_Quad->Render(m_pDevice);  
+			Device->SetTexture(0, scenetarget);
+			_Quad->Render(Device);
 			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		tonemap->EndPass();
@@ -422,15 +336,12 @@ HRESULT Renderer::Render()&
 		//screenquad->End();
 
 		// reset states
-		device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-		device->SetRenderState(D3DRS_ZENABLE, TRUE);
-		device->SetViewport(&oldviewport);
+		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		Device->SetViewport(&oldviewport);
 
-		device->EndScene();
+		Device->EndScene();
 	}
-
-	time += TimeSystem::GetInstance()->DeltaTime();
-
 
 	// GraphicSystem::GetInstance()->Begin();
 	// RenderImplementation();
@@ -438,7 +349,7 @@ HRESULT Renderer::Render()&
 	ImguiRender();
 	// GraphicSystem::GetInstance()->End();
 	RenderEnd();
-	device->Present(NULL, NULL, NULL, NULL);
+	Device->Present(NULL, NULL, NULL, NULL);
 
 	return S_OK;
 }
@@ -506,31 +417,31 @@ void Renderer::RenderEntityClear()&
 
 HRESULT Renderer::RenderImplementation()&
 {
-	//m_pDevice->GetRenderTarget(0u, &BackBuffer);
-	//m_pDevice->GetViewport(&BackBufViewport);
+	//Device->GetRenderTarget(0u, &BackBuffer);
+	//Device->GetViewport(&BackBufViewport);
 	//{
 	//	RenderShadows();
 	//	RenderGBuffer();
 	//    RenderDeferredShading();
-	//	m_pDevice->SetRenderTarget(0u, BackBuffer);
-	//	m_pDevice->Clear(
+	//	Device->SetRenderTarget(0u, BackBuffer);
+	//	Device->Clear(
 	//		0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0, 1.0f, 0);
-	//	m_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+	//	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
 	//	auto*const screenquad = Shaders["ScreenQuad"]->GetEffect();  
 	//	screenquad->SetTechnique("screenquad");
 	//	screenquad->Begin(NULL, 0);
 	//	screenquad->BeginPass(0);
 	//	{
-	//		m_pDevice->SetTexture(0, sky);
-	//		_Quad->Render(m_pDevice, 1.f, 1.f, screenquad);
+	//		Device->SetTexture(0, sky);
+	//		_Quad->Render(Device, 1.f, 1.f, screenquad);
 	//	}
 	//	screenquad->EndPass();
 	//	screenquad->End();
 
-	//	m_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-	//	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	//	m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	//	m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	//	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
+	//	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	//	Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	//	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 	//	auto* const tonemap = Shaders["ToneMap"]->GetEffect();
 	//	tonemap->SetTechnique("tonemap");
@@ -542,8 +453,8 @@ HRESULT Renderer::RenderImplementation()&
 	//	tonemap->Begin(NULL, 0);
 	//	tonemap->BeginPass(0);
 	//	{
-	//		m_pDevice->SetTexture(0, RenderTargets["SceneTarget"]->GetTexture());
-	//		_Quad->Render(m_pDevice, 1.f, 1.f, tonemap);
+	//		Device->SetTexture(0, RenderTargets["SceneTarget"]->GetTexture());
+	//		_Quad->Render(Device, 1.f, 1.f, tonemap);
 	//	}
 	//	tonemap->EndPass();
 	//	tonemap->End();
@@ -554,27 +465,27 @@ HRESULT Renderer::RenderImplementation()&
 	//	viewport.X = viewport.Y = 10;
 
 
-	//	m_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-	//	m_pDevice->SetViewport(&viewport);
+	//	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+	//	Device->SetViewport(&viewport);
 
 
 	//	/*screenquad->Begin(NULL, 0);
 	//	screenquad->BeginPass(0);
 	//	{
-	//		m_pDevice->SetTexture()
+	//		Device->SetTexture()
 	//	}*/
 
 
-	//	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//	m_pDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
-	//	m_pDevice->SetViewport(&BackBufViewport);
+	//	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	//	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	//	Device->SetViewport(&BackBufViewport);
 	//	/*RenderForwardAlphaBlend();
 	//	RenderAlphaBlendEffect();
 	//	RenderUI();
 	//	RenderDebug();
 	//	RenderDebugBone();*/
 	//}
-	//// m_pDevice->SetRenderTarget(0u, BackBuffer);
+	//// Device->SetRenderTarget(0u, BackBuffer);
 	//BackBuffer->Release();
 
 	return S_OK;
@@ -583,7 +494,7 @@ HRESULT Renderer::RenderImplementation()&
 void Renderer::RenderShadowMaps()
 {
 	// moonlight
-	auto device = m_pDevice;
+	auto device = Device;
 
 	auto shadowmap = Shaders["Shadow"]->GetEffect();
 	auto blur = Shaders["Blur"]->GetEffect();
@@ -617,7 +528,7 @@ void Renderer::RenderShadowMaps()
 		blur->Begin(NULL, 0);
 		blur->BeginPass(0);
 		{
-			_Quad->Render(m_pDevice);
+			_Quad->Render(Device);
 			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		blur->EndPass();
@@ -650,7 +561,7 @@ void Renderer::RenderShadowMaps()
 }
 void Renderer::RenderGBuffer(const Matrix& ViewProjection)
 {
-	auto* const device = m_pDevice;
+	auto* const device = Device;
 
 	// device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
@@ -692,7 +603,7 @@ void Renderer::DeferredShading(
 {
 	RECT scissorrect;
 
-	auto device = m_pDevice;
+	auto device = Device;
 
 	auto scenesurface = RenderTargets["SceneTarget"]->GetSurface();
 	auto albedo = RenderTargets["ALBM"]->GetTexture();
@@ -768,7 +679,7 @@ void Renderer::DeferredShading(
 
 			device->SetTexture(3, Moonlight->GetShadowMap());
 			deferred->CommitChanges();
-			_Quad->Render(m_pDevice);
+			_Quad->Render(Device);
 
 			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
@@ -834,7 +745,7 @@ void Renderer::DeferredShading(
 				deferred->CommitChanges();
 
 				device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
-				_Quad->Render(m_pDevice);				
+				_Quad->Render(Device);				
 				// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 			}
 		}
@@ -932,7 +843,7 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 	effect->BeginPass(0);
 	{
 		// skull 1
-		m_pDevice->SetTexture(0, marble);
+		Device->SetTexture(0, marble);
 		skull->DrawSubset(0);
 
 		// skull 2
@@ -981,8 +892,8 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 	effect->Begin(NULL, 0);
 	effect->BeginPass(0);
 	{
-		m_pDevice->SetTexture(0, wood);
-		m_pDevice->SetTexture(1, wood_normal);
+		Device->SetTexture(0, wood);
+		Device->SetTexture(1, wood_normal);
 
 		box->DrawSubset(0);
 	}
@@ -995,25 +906,25 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 //
 //HRESULT Renderer::RenderGBuffer()&
 //{
-//	/*m_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+//	/*Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
 //
-//	m_pDevice->SetRenderTarget(0u, RenderTargets["ALBM"]->GetSurface());
-//	m_pDevice->SetRenderTarget(1u, RenderTargets["NRMR"]->GetSurface());
-//	m_pDevice->SetRenderTarget(2u, RenderTargets["Depth"]->GetSurface());
+//	Device->SetRenderTarget(0u, RenderTargets["ALBM"]->GetSurface());
+//	Device->SetRenderTarget(1u, RenderTargets["NRMR"]->GetSurface());
+//	Device->SetRenderTarget(2u, RenderTargets["Depth"]->GetSurface());
 //
-//	m_pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-//	m_pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-//	m_pDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-//	m_pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-//	m_pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+//	Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+//	Device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 //
-//	m_pDevice->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-//	m_pDevice->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-//	m_pDevice->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-//	m_pDevice->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-//	m_pDevice->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+//	Device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+//	Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 //
-//	m_pDevice->Clear(0u, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+//	Device->Clear(0u, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 //
 //	auto GBufferRenderImplementation = [this](
 //		const RenderProperty::Order _Order,
@@ -1025,7 +936,7 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 //			{
 //				RenderInterface::ImplementationInfo _ImplInfo{};
 //				_ImplInfo.Fx = Fx;
-//				_ImplInfo._Device = m_pDevice;
+//				_ImplInfo._Device = Device;
 //				Fx->SetMatrix("ViewProjection", &CurrentRenderInfo.ViewProjection);
 //
 //				uint32 Passes = 0u;
@@ -1058,11 +969,11 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 //	GBufferRenderImplementation(RenderProperty::Order::GBuffer, Shaders["GBuffer"]->GetEffect());
 //	GBufferRenderImplementation(RenderProperty::Order::GBufferSK, Shaders["GBufferSK"]->GetEffect() );
 //
-//	m_pDevice->SetRenderTarget(1u, nullptr);
-//	m_pDevice->SetRenderTarget(2u, nullptr);
+//	Device->SetRenderTarget(1u, nullptr);
+//	Device->SetRenderTarget(2u, nullptr);
 //
-//	m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-//	m_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+//	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+//	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 //
 //	return S_OK;*/
 //}
@@ -1070,42 +981,42 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 
 HRESULT Renderer::RenderDeferredShading()&
 {
-	m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-	m_pDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
 	Vector4 pixelsize{};
-	pixelsize.x = 1.0f / static_cast<float> (BackBufViewport.Width);
-	pixelsize.y = -1.0f / static_cast<float> (BackBufViewport.Height);
+	pixelsize.x = 1.0f / static_cast<float> (_RenderInfo.Viewport.Width);
+	pixelsize.y = -1.0f / static_cast<float> (_RenderInfo.Viewport.Height);
 
-	m_pDevice->SetFVF(D3DFVF_XYZW |D3DFVF_TEX1);
-	m_pDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+	Device->SetFVF(D3DFVF_XYZW |D3DFVF_TEX1);
+	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
-	m_pDevice->SetRenderTarget(0u, RenderTargets["SceneTarget"]->GetSurface());
-	m_pDevice->Clear(0,NULL,D3DCLEAR_TARGET, 0, 1.0f, 0);
+	Device->SetRenderTarget(0u, RenderTargets["SceneTarget"]->GetSurface());
+	Device->Clear(0,NULL,D3DCLEAR_TARGET, 0, 1.0f, 0);
 
-	m_pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	m_pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	m_pDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
-	m_pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	m_pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	m_pDevice->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, TRUE);
+	Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+	Device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	Device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	Device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, TRUE);
 
 	for (int i = 1; i < 5; ++i) {
-		m_pDevice->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-		m_pDevice->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-		m_pDevice->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
-		m_pDevice->SetSamplerState(i, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-		m_pDevice->SetSamplerState(i, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		Device->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+		Device->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		Device->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+		Device->SetSamplerState(i, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		Device->SetSamplerState(i, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 	}
 
-	m_pDevice->SetTexture(0, RenderTargets["ALBM"]->GetTexture());
-	m_pDevice->SetTexture(1, RenderTargets["NRMR"]->GetTexture());
-	m_pDevice->SetTexture(2, RenderTargets["Depth"]->GetTexture());
+	Device->SetTexture(0, RenderTargets["ALBM"]->GetTexture());
+	Device->SetTexture(1, RenderTargets["NRMR"]->GetTexture());
+	Device->SetTexture(2, RenderTargets["Depth"]->GetTexture());
 
-	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
-	m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-	m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 
 	auto* const Fx = Shaders["DeferredShading"]->GetEffect();
 	Fx->SetTechnique("deferred");
@@ -1138,14 +1049,14 @@ HRESULT Renderer::RenderDeferredShading()&
 		Fx->SetFloat("specularPower", 200.0f);
 		
 
-		m_pDevice->SetTexture(3, Moonlight->GetShadowMap());
+		Device->SetTexture(3, Moonlight->GetShadowMap());
 		Fx->CommitChanges();
 
 
-		_Quad->Render(m_pDevice, 1.f, 1.f, Fx);
+		_Quad->Render(Device, 1.f, 1.f, Fx);
 	}
 
-	m_pDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 	RECT scissorrect;
 	static constexpr float POINT_LIGHT_RADIUS = 3.0f;
 	for (int i = 0; i < 3; ++i)
@@ -1159,25 +1070,25 @@ HRESULT Renderer::RenderDeferredShading()&
 			(const D3DXMATRIX&)_RenderInfo.Projection,
 			POINT_LIGHT_RADIUS, g_nWndCX, g_nWndCY);
 
-		m_pDevice->SetScissorRect(&scissorrect);
+		Device->SetScissorRect(&scissorrect);
 
 		Fx->SetVector("clipPlanes", &clipplanes);
 		Fx->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
 		Fx->SetVector("lightPos", &PointLights[i]->GetPosition());
 		Fx->SetFloat("specularPower", 80.0f);
 		Fx->SetFloat("lightRadius", POINT_LIGHT_RADIUS);
-		m_pDevice->SetTexture(4, PointLights[i]->GetCubeShadowMap());
+		Device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
 		Fx->CommitChanges();
-		_Quad->Render(m_pDevice, 1.f, 1.f, Fx);
+		_Quad->Render(Device, 1.f, 1.f, Fx);
 	}
 
-	m_pDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 
 	Fx->EndPass();
 	Fx->End();
 
-	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	m_pDevice->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, FALSE);
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	Device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, FALSE);
 
 	// draw some outline around scissor rect
 	float rectvertices[24];
@@ -1194,25 +1105,25 @@ HRESULT Renderer::RenderDeferredShading()&
 	rectvertices[18] += scissorrect.right;
 	rectvertices[19] += scissorrect.top;
 
-	m_pDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
+	Device->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
 	auto*const screenquad = Shaders["ScreenQuad"]->GetEffect();
 	screenquad->SetTechnique("rect");
 	screenquad->Begin(NULL, 0);
 	screenquad->BeginPass(0);
 	{
-		m_pDevice->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, 0, 4, 4, rectindices, D3DFMT_INDEX16, rectvertices, 6 * sizeof(float));
+		Device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, 0, 4, 4, rectindices, D3DFMT_INDEX16, rectvertices, 6 * sizeof(float));
 	}
 	screenquad->EndPass();
 	screenquad->End();
 
-	m_pDevice->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+	Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
 	return S_OK;
 }
 
 HRESULT Renderer::RenderForwardAlphaBlend()&
 {
-	m_pDevice->SetRenderTarget(0u, BackBuffer);
+	Device->SetRenderTarget(0u, BackBuffer);
 
 	auto ForwardAlphaBlendImplementation = [this](const RenderProperty::Order& _Order , ID3DXEffect*const Fx) 
 	{
@@ -1224,7 +1135,7 @@ HRESULT Renderer::RenderForwardAlphaBlend()&
 
 			RenderInterface::ImplementationInfo _ImplInfo{};
 			_ImplInfo.Fx = Fx;
-			_ImplInfo._Device = m_pDevice;
+			_ImplInfo._Device = Device;
 
 			uint32 Passes = 0u;
 			Fx->Begin(&Passes, NULL);
@@ -1260,7 +1171,7 @@ HRESULT Renderer::RenderAlphaBlendEffect()&
 	//if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::AlphaBlendEffect);
 	//	_TargetGroup != std::end(RenderEntitys))
 	//{
-	//	m_pDevice->SetRenderTarget(0u, BackBuffer);
+	//	Device->SetRenderTarget(0u, BackBuffer);
 
 	//	for (auto& _RenderEntity : _TargetGroup->second)
 	//	{
@@ -1283,7 +1194,7 @@ HRESULT Renderer::RenderDebug()&
 {
 	if (g_bDebugRender)
 	{
-		m_pDevice->SetRenderTarget(0u, BackBuffer);
+		Device->SetRenderTarget(0u, BackBuffer);
 
 		auto DebugRenderImplementation = [this](const RenderProperty::Order & _Order , ID3DXEffect*const Fx) 
 		{
@@ -1296,7 +1207,7 @@ HRESULT Renderer::RenderDebug()&
 
 				RenderInterface::ImplementationInfo _ImplInfo{};
 				_ImplInfo.Fx = Fx;
-				_ImplInfo._Device = m_pDevice;
+				_ImplInfo._Device = Device;
 				uint32 Passes = 0u;
 				Fx->Begin(&Passes, NULL);
 
@@ -1339,7 +1250,7 @@ HRESULT Renderer::RenderDebugBone()&
 		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::DebugBone);
 			_TargetGroup != std::end(RenderEntitys))
 		{
-			m_pDevice->SetRenderTarget(0u, BackBuffer);
+			Device->SetRenderTarget(0u, BackBuffer);
 			auto* const Fx = Shaders["DebugBone"]->GetEffect();
 
 			Fx->SetMatrix("View",
@@ -1350,7 +1261,7 @@ HRESULT Renderer::RenderDebugBone()&
 
 			RenderInterface::ImplementationInfo _ImplInfo{};
 			_ImplInfo.Fx = Fx;
-			_ImplInfo._Device = m_pDevice;
+			_ImplInfo._Device = Device;
 			uint32 Passes = 0u;
 			Fx->Begin(&Passes, NULL);
 
@@ -1382,7 +1293,7 @@ HRESULT Renderer::RenderDebugBone()&
 
 HRESULT Renderer::RenderUI()&
 {
-	/*m_pDevice->SetRenderTarget(0u, BackBuffer);
+	/*Device->SetRenderTarget(0u, BackBuffer);
 	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::UI);
 		_TargetGroup != std::end(RenderEntitys))
 	{
@@ -1404,14 +1315,14 @@ HRESULT Renderer::RenderUI()&
 HRESULT Renderer::ImguiRender()&
 {
 	ImGui::EndFrame();
-	m_pDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
-	m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	m_pDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
-	m_pDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 
 	return S_OK;
 }
@@ -1427,7 +1338,7 @@ HRESULT Renderer::RenderShadowScene(FLight*const Light)
 		{
 			RenderInterface::ImplementationInfo _ImplInfo{};
 			_ImplInfo.Fx = Fx;
-			_ImplInfo._Device = m_pDevice;
+			_ImplInfo._Device = Device;
 			Matrix matViewProj;
 			Light->CalculateViewProjection(matViewProj);
 			
@@ -1483,7 +1394,7 @@ HRESULT Renderer::RenderShadowScene(FLight*const Light)
 		};
 	};
 
-	m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+	Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 	ShadowSceneRenderImplementation(RenderProperty::Order::Shadow, Shaders["Shadow"]->GetEffect());
 	ShadowSceneRenderImplementation(RenderProperty::Order::ShadowSK, Shaders["ShadowSK"]->GetEffect());
 
@@ -1512,27 +1423,27 @@ HRESULT Renderer::RenderTargetDebugRender()&
 bool Renderer::TestShaderInit()
 {
 	//// Shader Test ... 
-	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/box.x", D3DXMESH_MANAGED, m_pDevice, NULL, NULL, NULL, NULL, &box)))
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/box.x", D3DXMESH_MANAGED, Device, NULL, NULL, NULL, NULL, &box)))
 		return false;
 
-	if (FAILED(DxHelper::DXGenTangentFrame(m_pDevice, box, &box)))
+	if (FAILED(DxHelper::DXGenTangentFrame(Device, box, &box)))
 		return false;
 
-	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/skullocc3.x", D3DXMESH_MANAGED, m_pDevice, NULL, NULL, NULL, NULL, &skull)))
+	if (FAILED(D3DXLoadMeshFromX(L"../../Media/MeshesDX/skullocc3.x", D3DXMESH_MANAGED, Device, NULL, NULL, NULL, NULL, &skull)))
 		return false;
 
-	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/marble.dds", &marble)))
+	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/marble.dds", &marble)))
 		return false;
 
-	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/wood2.jpg", &wood)))
+	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/wood2.jpg", &wood)))
 		return false;
 
-	/*if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/brick_normal.jpg", &wood_normal)))
+	/*if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/brick_normal.jpg", &wood_normal)))
 		return false;*/
-	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/wood2_normal.tga", &wood_normal)))
+	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/wood2_normal.tga", &wood_normal)))
 		return false;
 
-	if (FAILED(D3DXCreateTextureFromFileA(m_pDevice, "../../Media/Textures/static_sky.jpg", &sky)))
+	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/static_sky.jpg", &sky)))
 		return false;
 }
 
@@ -1550,4 +1461,58 @@ void Renderer::TestShaderRelease()
 		skull->Release();
 	if (box)
 		box->Release();
+}
+
+// 포인트 라이트 회전 !
+void Renderer::TestLightRotation()
+{
+	static float time = 0;
+	PointLights[0]->GetPosition().x = cosf(time * 0.5f) * 2;
+	PointLights[0]->GetPosition().z = sinf(time * 0.5f) * cosf(time * 0.5f) * 2;
+
+	PointLights[1]->GetPosition().x = cosf(1.5f * time) * 2;
+	PointLights[1]->GetPosition().z = sinf(1 * time) * 2;
+
+	PointLights[2]->GetPosition().x = cosf(0.75f * time) * 1.5f;
+	PointLights[2]->GetPosition().z = sinf(1.5f * time) * 1.5f;
+
+	time += TimeSystem::GetInstance()->DeltaTime();
 };
+
+void Renderer::TestLightEdit()
+{
+	static Math::Vector4 originmoondir = { -0.25f,-0.65f, -1, 0 };
+	ImGui::SliderFloat3("originmoondir ", (float*)&originmoondir, -1.f, 1.f);
+	Math::Vector4 moondir;
+
+	D3DXVec4Normalize((Vector4*)&moondir, (Vector4*)&originmoondir);
+	Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
+
+	static bool bMoonLightTarget = false;
+	ImGui::Checkbox("bMoonLightTarget", &bMoonLightTarget);
+	if (bMoonLightTarget)
+	{
+		ImGui::SliderFloat3("MoonLightTarget", MoonLightTarget, -5.f, 5.f);
+		Vector4 Targetdir = MoonLightTarget - Vector4{ 0, 0, 0, 1 };
+		D3DXVec4Normalize(&Targetdir, &Targetdir);
+		moondir = { Targetdir.x , Targetdir.y ,Targetdir.z , 0.f };
+		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
+	}
+
+	static bool TransformViewSpace = false;
+	ImGui::Checkbox("Transform View Space", &TransformViewSpace);
+	if (TransformViewSpace)
+	{
+		// 달빛을 카메라 공간으로 변환 . 
+		D3DXVec4Transform((Vector4*)&moondir, (Vector4*)&moondir,
+			&_RenderInfo.ViewInverse);
+		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
+	}
+
+	ImGui::Checkbox("bCustomEye", &bCurstomEye);
+	if (bCurstomEye)
+	{
+		ImGui::SliderFloat3("CurstomEye", CurstomEye, -5.f, 5.f);
+	};
+};
+

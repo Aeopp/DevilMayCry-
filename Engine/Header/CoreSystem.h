@@ -1,7 +1,5 @@
 #ifndef __CORE_SYSTEM_H__
 #define __CORE_SYSTEM_H__
-
-
 #include "Object.h"
 
 BEGIN(ENGINE)
