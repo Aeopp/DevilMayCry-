@@ -4,7 +4,7 @@
 #include "PxPhysicsAPI.h"
 BEGIN(ENGINE)
 USING(physx)
-class Collider abstract : public Component
+class ENGINE_DLL Collider abstract : public Component
 {
 protected:
 	PxShape*		m_pShape;

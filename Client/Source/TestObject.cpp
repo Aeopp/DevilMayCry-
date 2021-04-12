@@ -63,7 +63,7 @@ void TestObject::RenderReady()
 	{
 		_RenderProperty.bRender = true;
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
+		_UpdateInfo.World = _SpTransform->GetRenderMatrix();
 		RenderVariableBind(_UpdateInfo);
 	}
 }
@@ -119,12 +119,15 @@ HRESULT TestObject::Ready()
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
 	// PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
 
+
 	return S_OK;
 };
 
 HRESULT TestObject::Awake()
 {
-	
+	auto pBoxCollider = AddComponent<BoxCollider>();
+	pBoxCollider.lock()->ReadyBoxCollider();
+	pBoxCollider.lock()->SetRigid(true);
 	return S_OK;
 }
 

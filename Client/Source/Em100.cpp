@@ -370,6 +370,7 @@ HRESULT Em100::Ready()
 
 	//몬스터 회전 기본 속도
 	m_fAngleSpeed = D3DXToRadian(100.f);
+
 	return S_OK;
 }
 
@@ -378,8 +379,6 @@ HRESULT Em100::Awake()
 	m_pPlayer = std::static_pointer_cast<TestObject>(FindGameObjectWithTag(1).lock());
 
 	m_pPlayerTrans = m_pPlayer.lock()->GetComponent<ENGINE::Transform>();
-
-
 	return S_OK;
 }
 

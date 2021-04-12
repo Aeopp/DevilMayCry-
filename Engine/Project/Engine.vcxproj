@@ -184,9 +184,12 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\AnimationTrack.h" />
     <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\BoxCollider.h" />
+    <ClInclude Include="..\Header\CapsuleCollider.h" />
     <ClInclude Include="..\Header\Collider.h" />
     <ClInclude Include="..\Header\CollisionCallback.h" />
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
+    <ClInclude Include="..\Header\MeshCollider.h" />
     <ClInclude Include="..\Header\Node.h" />
     <ClInclude Include="..\Header\Component.h" />
     <ClInclude Include="..\Header\Core.h" />
@@ -230,6 +233,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Shader.h" />
     <ClInclude Include="..\Header\ShaderTester.h" />
     <ClInclude Include="..\Header\SkeletonMesh.h" />
+    <ClInclude Include="..\Header\SphereCollider.h" />
     <ClInclude Include="..\Header\StaticMesh.h" />
     <ClInclude Include="..\Header\Subset.h" />
     <ClInclude Include="..\Header\Texture.h" />
@@ -244,8 +248,11 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\AnimationInformation.cpp" />
     <ClCompile Include="..\Source\AnimationTrack.cpp" />
     <ClCompile Include="..\Source\AnimNotify.cpp" />
+    <ClCompile Include="..\Source\BoxCollider.cpp" />
+    <ClCompile Include="..\Source\CapsuleCollider.cpp" />
     <ClCompile Include="..\Source\Collider.cpp" />
     <ClCompile Include="..\Source\CollisionCallback.cpp" />
+    <ClCompile Include="..\Source\MeshCollider.cpp" />
     <ClCompile Include="..\Source\Node.cpp" />
     <ClCompile Include="..\Source\Component.cpp" />
     <ClCompile Include="..\Source\Core.cpp" />
@@ -281,6 +288,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Shader.cpp" />
     <ClCompile Include="..\Source\ShaderTester.cpp" />
     <ClCompile Include="..\Source\SkeletonMesh.cpp" />
+    <ClCompile Include="..\Source\SphereCollider.cpp" />
     <ClCompile Include="..\Source\StaticMesh.cpp" />
     <ClCompile Include="..\Source\Subset.cpp" />
     <ClCompile Include="..\Source\Texture.cpp" />

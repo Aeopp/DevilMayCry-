@@ -64,6 +64,9 @@
     <Filter Include="02.GameObject\02. Monster\00.Em100">
       <UniqueIdentifier>{37362b12-a76f-4d83-be8b-b416dcef8771}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\Test\TestMap">
+      <UniqueIdentifier>{c652dbc0-daf7-43be-9264-8350006009a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="..\Header\Em100.h">
       <Filter>02.GameObject\02. Monster\00.Em100</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\TestMap.h">
+      <Filter>02.GameObject\Test\TestMap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +195,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\Monster.cpp">
       <Filter>02.GameObject\02. Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\TestMap.cpp">
+      <Filter>02.GameObject\Test\TestMap</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

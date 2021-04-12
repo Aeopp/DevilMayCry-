@@ -322,6 +322,9 @@ static inline HRESULT LoadMesh(
 	{
 		VertexLocations = std::vector<Vector3>();
 		VertexLocations->resize(_pVBDesc->nNumVertices);
+		//Triangle Mesh Cooking에 필요한 버텍스 정보 -- 2021/04/12 권현재
+		_pVBDesc->LocalVertexLocation.reset(new std::vector<D3DXVECTOR3>());
+		_pVBDesc->LocalVertexLocation->resize(_pVBDesc->nNumVertices);
 	}
 
 	for (UINT nVertexIdx = 0; nVertexIdx < _pVBDesc->nNumVertices; ++nVertexIdx)
@@ -331,6 +334,13 @@ static inline HRESULT LoadMesh(
 			vecVertices.push_back(_pAiMesh->mVertices[nVertexIdx].x);
 			vecVertices.push_back(_pAiMesh->mVertices[nVertexIdx].y);
 			vecVertices.push_back(_pAiMesh->mVertices[nVertexIdx].z);
+
+			//Triangle Mesh Cooking에 필요한 버텍스 정보 -- 2021/04/12 권현재
+			if (bLoadMeshStorageVertexLocations)
+			{
+				(*_pVBDesc->LocalVertexLocation)[nVertexIdx] = (AssimpHelper::ConvertVec3(_pAiMesh->mVertices[nVertexIdx]));
+			}
+
 			if (VertexLocations)
 			{
 				(*VertexLocations)[nVertexIdx] = AssimpHelper::ConvertVec3(_pAiMesh->mVertices[nVertexIdx]);
@@ -407,11 +417,11 @@ static inline HRESULT LoadMesh(
 	//_pAiMesh로 부터 메쉬를 이루는 면의 정점 인덱스 정보 로딩.
 	std::vector<uint32> vecIndices;
 
-	if (VertexLocations)
+	/*if (VertexLocations)
 	{
 		_pVBDesc->LocalVertexLocation = std::make_shared <std::vector<Vector3>>();
 		_pVBDesc->LocalVertexLocation->resize(uint64(_pVBDesc->nNumFaces * 3u));
-	}
+	}*/
 
 	for (uint32 nFaceIdx = 0; nFaceIdx < _pVBDesc->nNumFaces; ++nFaceIdx)
 	{
@@ -420,10 +430,10 @@ static inline HRESULT LoadMesh(
 		{
 			const uint32 VertexIndex = CurrFace.mIndices[nIdx]; 
 			vecIndices.push_back(VertexIndex);
-			if (VertexLocations)
+		/*	if (VertexLocations)
 			{
 				_pVBDesc->LocalVertexLocation->push_back( (*VertexLocations)[VertexIndex]);
-			}
+			}*/
 		}
 	}
 	//인덱스 버퍼 생성

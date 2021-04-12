@@ -212,12 +212,12 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 		return E_FAIL;
 	}
 
-	//m_pPhysicsSystem = PhysicsSystem::GetInstance();
-	//if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
-	//{
-	//	PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
-	//	return E_FAIL;
-	//}
+	m_pPhysicsSystem = PhysicsSystem::GetInstance();
+	if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
+	{
+		PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
+		return E_FAIL;
+	}
 
 	GlobalVariableSetup();
 	ImGuiSetUp();
@@ -260,7 +260,7 @@ HRESULT CoreSystem::UpdateEngine()
 		return E_FAIL;
 	}
 
-	//m_pPhysicsSystem.lock()->FetchResults();
+	m_pPhysicsSystem.lock()->FetchResults();
 
 	if (FAILED(m_pSceneSystem.lock()->UpdateSceneSystem(m_pTimeSystem.lock()->DeltaTime())))
 	{
@@ -282,7 +282,7 @@ HRESULT CoreSystem::UpdateEngine()
 	}
 	//g_Logs.clear();
 
-	//m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
+	m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
 
 	if (FAILED(m_pRenderer.lock()->Render()))
 	{

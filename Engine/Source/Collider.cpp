@@ -32,7 +32,6 @@ HRESULT Collider::ReadyCollider()
 
 	//Scene¿¡ Actor Ãß°¡.
 	Physics::AddActor(*m_pRigidActor);
-
 	return S_OK;
 }
 

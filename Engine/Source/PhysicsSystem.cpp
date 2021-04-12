@@ -52,11 +52,16 @@ PhysicsSystem::PhysicsSystem()
 void PhysicsSystem::Free()
 {
 	Object::Free();
+
+	if(m_bSimulate)
+		while (false == (m_pScene->fetchResults(false)));
+
 	PX_RELEASE(m_pScene);
 
 	SafeDelete(m_pCollisionCallback);
 
 	PX_RELEASE(m_pDispatcher);
+	PX_RELEASE(m_pCooking);
 	PX_RELEASE(m_pPhysics);
 
 	if (m_pPVD)
@@ -102,7 +107,7 @@ HRESULT PhysicsSystem::ReadyPhysicsSystem()
 
 	//Scene Description
 	physx::PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
-	sceneDesc.gravity = physx::PxVec3(0.f, 0.f, 0.f);
+	sceneDesc.gravity = physx::PxVec3(0.f, -9.81f, 0.f);
 	m_pDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = m_pDispatcher;
 	sceneDesc.filterShader = contactReportFilterShader;
@@ -118,7 +123,10 @@ HRESULT PhysicsSystem::ReadyPhysicsSystem()
 	m_pScene->setSimulationEventCallback(m_pCollisionCallback);
 
 	//Default Material
-	m_pDefaultMaterial = m_pPhysics->createMaterial(0.5f, 0.5f, 0.5f);
+	m_pDefaultMaterial = m_pPhysics->createMaterial(1.f, 1.f, 0.f);
+
+	//Cooking
+	m_pCooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_pFoundation, m_pPhysics->getTolerancesScale());
 
 	return S_OK;
 }
@@ -193,7 +201,10 @@ void PhysicsSystem::FetchResults(const bool _bBlock)
 		pCollider.lock()->GetGameObject().lock()->GetComponent<Transform>().lock()->SetSimulationResult(D3DXQUATERNION(globalPose.q.x, globalPose.q.y, globalPose.q.z, globalPose.q.w), D3DXVECTOR3(globalPose.p.x, globalPose.p.y, globalPose.p.z));
 	}
 
+	delete[] ppActors;
+
 	m_bSimulate = false;
+
 }
 
 physx::PxPhysics* PhysicsSystem::GetPxPhysics()
@@ -204,6 +215,11 @@ physx::PxPhysics* PhysicsSystem::GetPxPhysics()
 physx::PxMaterial* PhysicsSystem::GetDefaultMaterial()
 {
 	return m_pDefaultMaterial;
+}
+
+PxCooking* PhysicsSystem::GetCooking()
+{
+	return m_pCooking;
 }
 
 void PhysicsSystem::AddActor(physx::PxActor& _rActor)
@@ -220,7 +236,9 @@ void PhysicsSystem::RemoveActor(physx::PxActor& _rActor)
 	m_pScene->removeActor(_rActor);
 }
 
-bool PhysicsSystem::IsSimulate()
+void PhysicsSystem::ReleaseActor(physx::PxActor& _rActor)
 {
-	return m_bSimulate;
+	if (nullptr == m_pScene)
+		return;
+	m_vecRelease.push_back(&_rActor);
 }

@@ -142,6 +142,18 @@
     <ClCompile Include="..\Source\SkeletonMesh.cpp">
       <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\BoxCollider.cpp">
+      <Filter>03.Utility\00.Component\02.Collider\01.BoxCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\MeshCollider.cpp">
+      <Filter>03.Utility\00.Component\02.Collider\04.MeshCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\SphereCollider.cpp">
+      <Filter>03.Utility\00.Component\02.Collider\02.SphereCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\CapsuleCollider.cpp">
+      <Filter>03.Utility\00.Component\02.Collider\03.CapsuleCollider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
@@ -369,6 +381,18 @@
     <ClInclude Include="..\Header\SkeletonMesh.h">
       <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\BoxCollider.h">
+      <Filter>03.Utility\00.Component\02.Collider\01.BoxCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\MeshCollider.h">
+      <Filter>03.Utility\00.Component\02.Collider\04.MeshCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\SphereCollider.h">
+      <Filter>03.Utility\00.Component\02.Collider\02.SphereCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\CapsuleCollider.h">
+      <Filter>03.Utility\00.Component\02.Collider\03.CapsuleCollider</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">
@@ -520,6 +544,18 @@
     </Filter>
     <Filter Include="03.Utility\00.Component\02.Collider\00.Base">
       <UniqueIdentifier>{487dec92-39d2-4127-a291-3b9efb68dd2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Utility\00.Component\02.Collider\01.BoxCollider">
+      <UniqueIdentifier>{436136bb-9b12-4367-be46-9f59ceebca78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Utility\00.Component\02.Collider\02.SphereCollider">
+      <UniqueIdentifier>{5f58bd46-b84a-4745-bbd8-2dbba77f1d7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Utility\00.Component\02.Collider\03.CapsuleCollider">
+      <UniqueIdentifier>{8caffd03-268c-4d55-bfe2-25bcb61e4c8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Utility\00.Component\02.Collider\04.MeshCollider">
+      <UniqueIdentifier>{fcae3c07-57d9-4b01-a82e-813f15b5ae31}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

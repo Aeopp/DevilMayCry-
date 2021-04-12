@@ -11,6 +11,7 @@
 #include "Nero.h"
 #include "Em100.h"
 #include <iostream>
+#include "TestMap.h"
 
 using namespace std;
 
@@ -36,7 +37,8 @@ HRESULT TestScene::LoadScene()
 	AddGameObject<Camera>();
 
 	//AddGameObject<Em100>();
-	//AddGameObject<TestObject>();
+	AddGameObject<TestObject>();
+	AddGameObject<TestMap>();
 	//AddGameObject<TestAnimationObject>();
 	//AddGameObject<Nero>();
 
