@@ -14,9 +14,15 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <vector>
+#include <map>
+#include <unordered_map>
 #include <iostream>
-//using namespace std;
+#include <set>
 
+#include <commdlg.h>
+
+#include <filesystem>
 
 #pragma region DIRECTX3D
 #include <d3d9.h>
@@ -28,13 +34,25 @@
 
 #pragma region MAPTOOL
 #include "Extern.h"
+#include "Enum.h"
 #include "Function.h"
+#include "Struct.h"
 #pragma endregion
 
 #pragma region IMGUI 
 #include "imgui_impl_dx9.h"
 #include "imgui_impl_win32.h"
 #include "imgui.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui_internal.h"
+
+#include "Inspector.h"
+#include "GameObjectManager.h"
+#include "ResourceManager.h"
+#include "Input.h"
+#include "Grid.h"
+#include "Camera.h"
+
 #pragma endregion
 
 
@@ -57,3 +75,5 @@
 #define new DBG_NEW 
 #endif // DBG_NEW
 #endif // _DEBUG
+
+using namespace std;
