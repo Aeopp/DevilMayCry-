@@ -164,21 +164,22 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 		}
 
 		//
+		ImGui::Text("Eff_Glint");
 		{
 			Vector3 SliderPosition = Sptransform->GetPosition();
-			ImGui::SliderFloat3("Position", SliderPosition, -10.f, 10.f);
+			ImGui::SliderFloat3("Pos##Glint", SliderPosition, -10.f, 10.f);
 			Sptransform->SetPosition(SliderPosition);
 		}
 
 		{
 			float Scale = Sptransform->GetScale().x;
-			ImGui::SliderFloat("Scale", &Scale, 0.1f, 10.f);
+			ImGui::SliderFloat("Scale##Glint", &Scale, 0.1f, 10.f);
 			Sptransform->SetScale({ Scale, Scale, Scale });	// x¸¸ À¯È¿
 		}
 
 		{
 			float Aspect = _Aspect;
-			ImGui::SliderFloat("Aspect", &Aspect, 0.1f, 1.f);
+			ImGui::SliderFloat("Aspect##Glint", &Aspect, 0.1f, 1.f);
 			_Aspect = Aspect;
 		}
 
