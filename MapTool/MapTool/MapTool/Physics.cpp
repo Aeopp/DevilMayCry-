@@ -60,9 +60,9 @@ HRESULT Physics::Ready()
 	physx::PxPvdTransport* pPVDTransport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	Instance.m_pPVD->connect(*pPVDTransport, physx::PxPvdInstrumentationFlag::eALL);
 #endif
-
+	physx::PxTolerancesScale pTolerance = physx::PxTolerancesScale();
 	//Physics
-	Instance.m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *Instance.m_pFoundation, physx::PxTolerancesScale(), true, Instance.m_pPVD);
+	Instance.m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *Instance.m_pFoundation, pTolerance, true, Instance.m_pPVD);
 	if (nullptr == Instance.m_pPhysics)
 	{
 		return E_FAIL;

@@ -37,7 +37,10 @@ void GameObjectManager::Update()
 			for (UINT i = 0; i < m_Container[m_pSelected->m_sMesh].size(); ++i)
 			{
 				if (m_pSelected == m_Container[m_pSelected->m_sMesh][i])
-					m_nCurrItem = i;
+				{
+					m_nCurrItem = m_pSelected->m_nListIdx;
+					break;
+				}
 			}
 		}
 		//ResourceManager::Instance.RayCast();
@@ -102,6 +105,65 @@ void GameObjectManager::ShowMenuBar()
 
 void GameObjectManager::ShowGameObjectList()
 {
+	int nItemCount = 0;
+	for (auto& rPair : m_Container)
+	{
+		nItemCount += rPair.second.size();
+	}
+
+	char** ppIndex;
+	ppIndex = new char* [nItemCount];
+
+	int nIndex = 0;
+	for (auto& rPair : m_Container)
+	{
+		for (int i = 0; i < rPair.second.size(); ++i)
+		{
+			ppIndex[i] = new char[MAX_PATH];
+			char szIndex[10] = {};
+			_itoa_s(rPair.second[i]->m_nIndex, szIndex, 10, 10);
+
+			std::string sTemp = rPair.first;
+			sTemp += " / ";
+			sTemp += szIndex;
+
+			strcpy_s(ppIndex[i], sizeof(char) * MAX_PATH, sTemp.c_str());
+
+			rPair.second[i]->m_nListIdx = nIndex++;
+		}
+	}
+
+	if (ImGui::ListBox("##GameObjectList", &m_nCurrItem, ppIndex, nItemCount, nItemCount))
+	{
+		if (-1 != m_nCurrItem)
+		{
+			std::string sSelected = ppIndex[m_nCurrItem];
+			size_t nToken = sSelected.find('/');
+
+			std::string sKey = sSelected.substr(0, nToken - 1);
+			std::string sIndex = sSelected.substr(nToken + 2, sSelected.length() - 1);
+
+			m_pSelected = m_Container[sKey][atoi(sIndex.c_str())];
+		}
+	}
+	//if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
+	//{
+	//	if (-1 != m_nCurrItem && m_pSelected)
+	//	{
+	//		Camera::SetCameraFocus(rPair.second[m_nCurrItem]->m_pTransform->GetPosition());
+	//	}
+	//}
+
+
+	for (int i = 0; i < nItemCount; ++i)
+	{
+		delete[] ppIndex[i];
+	}
+	delete[] ppIndex;
+	
+	/*bool bSel = false;
+
+	static int nSel = m_nCurrItem;
 	for (auto& rPair : m_Container)
 	{
 		char** ppIndex;
@@ -114,12 +176,17 @@ void GameObjectManager::ShowGameObjectList()
 			_itoa_s(rPair.second[i]->m_nIndex, ppIndex[i], 10, 10);
 		}
 		std::string sLabel = "##" + rPair.first;
-		ImGui::ListBox(sLabel.c_str(), &m_nCurrItem, ppIndex, rPair.second.size(), rPair.second.size());
 
-		
-		if (-1 != m_nCurrItem && m_nCurrItem < rPair.second.size())
-			m_pSelected = rPair.second[m_nCurrItem];
-		
+		if (bSel)
+			nSel = -1;
+		if (bSel = ImGui::ListBox(sLabel.c_str(), &nSel, ppIndex, rPair.second.size(), rPair.second.size()))
+		{
+			m_nCurrItem = nSel;
+			if (-1 != m_nCurrItem && m_nCurrItem < rPair.second.size())
+				m_pSelected = rPair.second[m_nCurrItem];
+
+	
+		}
 		if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
 		{
 			if (-1 != m_nCurrItem && m_pSelected)
@@ -127,13 +194,12 @@ void GameObjectManager::ShowGameObjectList()
 				Camera::SetCameraFocus(rPair.second[m_nCurrItem]->m_pTransform->GetPosition());
 			}
 		}
-
 		for (int i = 0; i < rPair.second.size(); ++i)
 		{
 			delete[] ppIndex[i];
 		}
 		delete[] ppIndex;
-	}
+	}*/
 }
 
 void GameObjectManager::AddGameObject(std::string _sMeshID, PxShape* _pShape)

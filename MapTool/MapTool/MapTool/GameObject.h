@@ -11,6 +11,8 @@ public:
 	PxRigidActor* m_pRigidActor;
 	
 	int m_nIndex;
+
+	int m_nListIdx;
 public:
 	GameObject();
 	~GameObject();

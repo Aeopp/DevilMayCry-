@@ -11,6 +11,9 @@
 #include "Physics.h"
 
 StaticMesh::StaticMesh()
+	: m_pShape(nullptr)
+	, m_pTriangleMesh(nullptr)
+	, m_pTriangleMeshDesc(nullptr)
 {
 }
 
@@ -23,6 +26,11 @@ StaticMesh::~StaticMesh()
 	}
 	m_vecSubset.clear();
 	m_vecSubset.shrink_to_fit();
+
+	if (nullptr != m_pShape)
+		m_pShape->release();
+	if (nullptr != m_pTriangleMesh)
+		m_pTriangleMesh->release();
 }
 
 HRESULT StaticMesh::Load(std::filesystem::path _Path)
@@ -196,19 +204,24 @@ HRESULT StaticMesh::Load(std::filesystem::path _Path)
 			if (pSubset->m_tVBDesc.bHasPosition)
 			{
 
-				D3DXVECTOR3 vPos(pAiMesh->mVertices[nIdx].x, pAiMesh->mVertices[nIdx].y, pAiMesh->mVertices[nIdx].z);
-
-				D3DXMATRIX matScale;
-				D3DXMatrixScaling(&matScale, 0.01f, 0.01f, 0.01f);
-
-				D3DXVec3TransformCoord(&vPos, &vPos, &matScale);
-
-				PxVec3 pxVPos(vPos.x, vPos.y, vPos.z);
+				vecVertices.push_back(pAiMesh->mVertices[nIdx].x);
+				vecVertices.push_back(pAiMesh->mVertices[nIdx].y);
+				vecVertices.push_back(pAiMesh->mVertices[nIdx].z);
+				PxVec3 pxVPos(pAiMesh->mVertices[nIdx].x, pAiMesh->mVertices[nIdx].y, pAiMesh->mVertices[nIdx].z);
 				m_vecVertices.push_back(pxVPos);
+				//D3DXVECTOR3 vPos(pAiMesh->mVertices[nIdx].x, pAiMesh->mVertices[nIdx].y, pAiMesh->mVertices[nIdx].z);
 
-				vecVertices.push_back(vPos.x);
-				vecVertices.push_back(vPos.y);
-				vecVertices.push_back(vPos.z);
+				//D3DXMATRIX matScale;
+				//D3DXMatrixScaling(&matScale, 0.01f, 0.01f, 0.01f);
+
+				//D3DXVec3TransformCoord(&vPos, &vPos, &matScale);
+
+				/*PxVec3 pxVPos(vPos.x, vPos.y, vPos.z);
+				m_vecVertices.push_back(pxVPos);*/
+
+				//vecVertices.push_back(vPos.x);
+				//vecVertices.push_back(vPos.y);
+				//vecVertices.push_back(vPos.z);
 			}
 			if (pSubset->m_tVBDesc.bHasNormal)
 			{
@@ -442,6 +455,7 @@ HRESULT StaticMesh::CreateTriangleMesh()
 	{
 		cout << "Failed to Create TriangleMesh" << endl;
 	}
+	cout << eResult << endl;
 
 	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 
