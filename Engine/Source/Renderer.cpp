@@ -31,20 +31,13 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	ReadyRenderTargets();
 	ReadyShader("..\\..\\Resource\\Shader");
 	ReadyLights();
-	TestShaderInit();
-	CameraFrustum = std::make_shared<Frustum>();
-	CameraFrustum->Initialize(m_pDevice);
-	_Quad = std::make_shared<Quad>();
-	_Quad->Initialize(m_pDevice);
+	ReadyFrustum();
+	ReadyQuad();
 
-	//camera.SetAspect((float)g_nWndCX/ (float)g_nWndCY);
-	//camera.SetFov(Math::DegreesToRadians(45));
-	//camera.SetClipPlanes(0.1f, 50);
-	//camera.SetZoomLimits(3, 10);
-	//camera.SetDistance(5);
-	//camera.SetPosition(0, 0.5f, 0);
-	//camera.SetOrientation(Math::DegreesToRadians(-135), Math::DegreesToRadians(30), 0);
-	//
+
+
+	TestShaderInit();
+
 	return S_OK;
 };
 
@@ -182,6 +175,18 @@ void Renderer::ReadyRenderTargets()
 			RenderTargetDebugRenderSize);
 	}
 
+}
+
+void Renderer::ReadyFrustum()
+{
+	CameraFrustum = std::make_shared<Frustum>();
+	CameraFrustum->Initialize(m_pDevice);
+}
+
+void Renderer::ReadyQuad()
+{
+	_Quad = std::make_shared<Quad>();
+	_Quad->Initialize(m_pDevice);
 }
 
 void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
@@ -440,11 +445,10 @@ void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
 
-	Matrix CameraView, CameraProjection;
+	Matrix CameraView, CameraProjection , Ortho;
 	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
 	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
-	
-	Matrix Ortho;
+
 	D3DXMatrixOrthoLH(&Ortho, g_nWndCX,g_nWndCY, 0.0f, 1.f);
 
 	CurrentRenderInfo.View = (CameraView);
@@ -457,22 +461,9 @@ void Renderer::RenderReady()&
 	CurrentRenderInfo.CameraLocation =
 	{ CurrentRenderInfo.ViewInverse._41  , CurrentRenderInfo.ViewInverse._42,CurrentRenderInfo.ViewInverse._43,1.f };
 	CurrentRenderInfo.Ortho = Ortho;
-
-
 	
-	static float time = 0.0f;
+	/*static float time = 0.0f;
 	time += TimeSystem::GetInstance()->DeltaTime();
-	//Vector4 moondir = { +0.25f,0.65f, -1,0 };
-	//// 달빛을 카메라 공간으로 변환 . 
-	//D3DXVec4Transform(&moondir, &moondir,
-	//	&CurrentRenderInfo.ViewInverse);
-	//Vector3 moondir3 = Vector3{ moondir.x , moondir.y, moondir.z };
-	//D3DXVec3TransformNormal(&moondir3, &moondir3, &CurrentRenderInfo.ViewInverse);
-	//D3DXVec3Normalize(&moondir3, &moondir3);
-	//moondir3.y = 0.65f;
-	//moondir = { moondir3.x,moondir3.y,moondir3.z ,0.0f };
-
-	// Moonlight->SetPosition(moondir);
 
 	PointLights[0]->GetPosition().x = std::cosf(time * 0.5f) * 2.f;
 
@@ -483,10 +474,7 @@ void Renderer::RenderReady()&
 	PointLights[1]->GetPosition().z = std::sinf(1.f * time) * 2.f;
 
 	PointLights[2]->GetPosition().x = std::cosf(0.75f * time) * 1.5f;
-	PointLights[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;
-
-	// camera.Update(TimeSystem::GetInstance()->DeltaTime());
-
+	PointLights[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;*/
 
 	Culling();
 

@@ -26,6 +26,8 @@ private :
 public :
 	HRESULT ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice);
 	void    ReadyRenderTargets();
+	void    ReadyFrustum();
+	void    ReadyQuad();
 private:
 	void	ReadyShader(const std::filesystem::path & TargetPath);
 	void    ReadyLights();
@@ -60,7 +62,6 @@ private:
 	HRESULT RenderDebugBone()&;
 	HRESULT RenderUI()&;
 	HRESULT ImguiRender()&;
-	
 	HRESULT RenderShadowScene(FLight*const  Light);
 private:
 	void RenderTargetDebugRender()&;
