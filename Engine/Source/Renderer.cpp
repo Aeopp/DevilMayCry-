@@ -37,14 +37,14 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	_Quad = std::make_shared<Quad>();
 	_Quad->Initialize(m_pDevice);
 
-	camera.SetAspect((float)g_nWndCX/ (float)g_nWndCY);
-	camera.SetFov(Math::DegreesToRadians(45));
-	camera.SetClipPlanes(0.1f, 50);
-	camera.SetZoomLimits(3, 10);
-	camera.SetDistance(5);
-	camera.SetPosition(0, 0.5f, 0);
-	camera.SetOrientation(Math::DegreesToRadians(-135), Math::DegreesToRadians(30), 0);
-	
+	//camera.SetAspect((float)g_nWndCX/ (float)g_nWndCY);
+	//camera.SetFov(Math::DegreesToRadians(45));
+	//camera.SetClipPlanes(0.1f, 50);
+	//camera.SetZoomLimits(3, 10);
+	//camera.SetDistance(5);
+	//camera.SetPosition(0, 0.5f, 0);
+	//camera.SetOrientation(Math::DegreesToRadians(-135), Math::DegreesToRadians(30), 0);
+	//
 	return S_OK;
 };
 
@@ -485,7 +485,7 @@ void Renderer::RenderReady()&
 	PointLights[2]->GetPosition().x = std::cosf(0.75f * time) * 1.5f;
 	PointLights[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;
 
-	camera.Update(TimeSystem::GetInstance()->DeltaTime());
+	// camera.Update(TimeSystem::GetInstance()->DeltaTime());
 
 
 	Culling();
