@@ -147,6 +147,7 @@
     <ClCompile Include="..\Source\Color.cpp" />
     <ClCompile Include="..\Source\basiccamera.cpp" />
     <ClCompile Include="..\Source\_3Dmath.cpp" />
+    <ClCompile Include="DxHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
@@ -373,6 +374,7 @@
     <ClInclude Include="..\Header\Color.h" />
     <ClInclude Include="..\Header\basiccamera.h" />
     <ClInclude Include="..\Header\_3Dmath.h" />
+    <ClInclude Include="..\Header\DxHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">
