@@ -177,6 +177,26 @@ void Renderer::ReadyRenderTargets()
 
 }
 
+void Renderer::ReadyRenderInfo()
+{
+	Matrix CameraView, CameraProjection, Ortho;
+	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
+	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
+
+	D3DXMatrixOrthoLH(&Ortho, g_nWndCX, g_nWndCY, 0.0f, 1.f);
+
+	_RenderInfo.View = (CameraView);
+	_RenderInfo.Projection = (CameraProjection);
+	_RenderInfo.ViewInverse = FMath::Inverse(_RenderInfo.View);
+	_RenderInfo.ProjectionInverse = FMath::Inverse(_RenderInfo.Projection);
+	_RenderInfo.ViewProjection =
+		CameraView * CameraProjection;
+	_RenderInfo.ViewProjectionInverse = FMath::Inverse(_RenderInfo.ViewProjection);
+	_RenderInfo.CameraLocation =
+	{ _RenderInfo.ViewInverse._41  , _RenderInfo.ViewInverse._42,_RenderInfo.ViewInverse._43,1.f };
+	_RenderInfo.Ortho = Ortho;
+}
+
 void Renderer::ReadyFrustum()
 {
 	CameraFrustum = std::make_shared<Frustum>();
@@ -244,11 +264,11 @@ HRESULT Renderer::Render()&
 	PointLights[2]->GetPosition().z = sinf(1.5f * time) * 1.5f;
 
 	
-	std::memcpy(&view, &CurrentRenderInfo.View, sizeof(Matrix));
-	std::memcpy(&viewinv, &CurrentRenderInfo.ViewInverse, sizeof(Matrix));
-	std::memcpy(&proj, &CurrentRenderInfo.Projection, sizeof(Matrix));
-	std::memcpy(&viewproj, &CurrentRenderInfo.ViewProjection, sizeof(Matrix));
-	std::memcpy(&viewprojinv, &CurrentRenderInfo.ViewProjectionInverse, sizeof(Matrix));
+	std::memcpy(&view, &_RenderInfo.View, sizeof(Matrix));
+	std::memcpy(&viewinv, &_RenderInfo.ViewInverse, sizeof(Matrix));
+	std::memcpy(&proj, &_RenderInfo.Projection, sizeof(Matrix));
+	std::memcpy(&viewproj, &_RenderInfo.ViewProjection, sizeof(Matrix));
+	std::memcpy(&viewprojinv, &_RenderInfo.ViewProjectionInverse, sizeof(Matrix));
 	// eye = Math::Vector4{ CurrentRenderInfo.CameraLocation.x, CurrentRenderInfo.CameraLocation.y , CurrentRenderInfo.CameraLocation.z , 1.f };
 
 	// calculate moonlight direction (let y stay in world space, so we can see shadow)
@@ -287,7 +307,7 @@ HRESULT Renderer::Render()&
 	{
 		// 달빛을 카메라 공간으로 변환 . 
 		D3DXVec4Transform((Vector4*)&moondir, (Vector4*)&moondir,
-			&CurrentRenderInfo.ViewInverse);
+			&_RenderInfo.ViewInverse);
 		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
 	}
 
@@ -321,7 +341,7 @@ HRESULT Renderer::Render()&
 
 		// STEP 1: g-buffer pass
 		{
-			RenderGBuffer(viewproj);
+			RenderGBuffer(_RenderInfo.ViewProjection);
 		}
 		device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
@@ -332,10 +352,13 @@ HRESULT Renderer::Render()&
 		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 		device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
-		DeferredShading(view, proj, viewprojinv, 
-			Vector4{CurrentRenderInfo.CameraLocation.x,
-			CurrentRenderInfo.CameraLocation.y ,
-			CurrentRenderInfo.CameraLocation.z ,1.f} );
+		DeferredShading(
+			_RenderInfo.View, 
+			_RenderInfo.ViewProjection, 
+			_RenderInfo.ViewProjectionInverse, 
+			Vector4{_RenderInfo.CameraLocation.x,
+			_RenderInfo.CameraLocation.y ,
+			_RenderInfo.CameraLocation.z ,1.f} );
 
 		// STEP 3: render sky
 		device->SetRenderTarget(0, backbuffer);
@@ -444,40 +467,8 @@ void Renderer::Editor()&
 void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
-
-	Matrix CameraView, CameraProjection , Ortho;
-	m_pDevice->GetTransform(D3DTS_VIEW, &CameraView);
-	m_pDevice->GetTransform(D3DTS_PROJECTION, &CameraProjection);
-
-	D3DXMatrixOrthoLH(&Ortho, g_nWndCX,g_nWndCY, 0.0f, 1.f);
-
-	CurrentRenderInfo.View = (CameraView);
-	CurrentRenderInfo.Projection = (CameraProjection);
-	CurrentRenderInfo.ViewInverse = FMath::Inverse(CurrentRenderInfo.View);
-	CurrentRenderInfo.ProjectionInverse =FMath::Inverse(CurrentRenderInfo.Projection);
-	CurrentRenderInfo.ViewProjection = 
-		CameraView * CameraProjection;
-	CurrentRenderInfo.ViewProjectionInverse = FMath::Inverse(CurrentRenderInfo.ViewProjection);
-	CurrentRenderInfo.CameraLocation =
-	{ CurrentRenderInfo.ViewInverse._41  , CurrentRenderInfo.ViewInverse._42,CurrentRenderInfo.ViewInverse._43,1.f };
-	CurrentRenderInfo.Ortho = Ortho;
-	
-	/*static float time = 0.0f;
-	time += TimeSystem::GetInstance()->DeltaTime();
-
-	PointLights[0]->GetPosition().x = std::cosf(time * 0.5f) * 2.f;
-
-	PointLights[0]->GetPosition().z = std::sinf(time * 0.5f) *
-		std::cosf(time * 0.5f) * 2.f;
-
-	PointLights[1]->GetPosition().x = std::cosf(1.5f * time) * 2.f;
-	PointLights[1]->GetPosition().z = std::sinf(1.f * time) * 2.f;
-
-	PointLights[2]->GetPosition().x = std::cosf(0.75f * time) * 1.5f;
-	PointLights[2]->GetPosition().z = std::sinf(1.5f * time) * 1.5f;*/
-
+	ReadyRenderInfo();
 	Culling();
-
 }
 // 등록코드수정 
 void Renderer::RenderReadyEntitys()&
@@ -498,12 +489,13 @@ void Renderer::Culling()&
 
 void Renderer::FrustumCulling()&
 {
-	CameraFrustum->Make(CurrentRenderInfo.ViewInverse, CurrentRenderInfo.Projection);
+	CameraFrustum->Make(_RenderInfo.ViewInverse, _RenderInfo.Projection);
 	// 절두체에서 검사해서 Entity 그룹에서 지우기 ....
 }
 
 void Renderer::RenderEnd()&
 {
+	_PrevRenderInfo = _RenderInfo;
 	RenderEntityClear();
 }
 
@@ -656,7 +648,7 @@ void Renderer::RenderShadowMaps()
 
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 }
-void Renderer::RenderGBuffer(const Math::Matrix& viewproj)
+void Renderer::RenderGBuffer(const Matrix& ViewProjection)
 {
 	auto* const device = m_pDevice;
 
@@ -684,7 +676,7 @@ void Renderer::RenderGBuffer(const Math::Matrix& viewproj)
 	device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 	{
 		gbuffer->SetTechnique("gbuffer");
-		RenderScene(gbuffer, (const D3DXMATRIX&)viewproj);
+		RenderScene(gbuffer, (const D3DXMATRIX&)ViewProjection);
 	}
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
@@ -692,9 +684,11 @@ void Renderer::RenderGBuffer(const Math::Matrix& viewproj)
 	device->SetRenderTarget(2, NULL);
 }
 
-void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& proj, 
-	const Math::Matrix& viewprojinv, 
-	const Vector4& eye)
+void Renderer::DeferredShading(
+	const Matrix& View,
+	const Matrix& Projection,
+	const Matrix& ViewProjectionInverse,
+	const Vector4& Eye)
 {
 	RECT scissorrect;
 
@@ -736,7 +730,7 @@ void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& pro
 	Vector4 pixelsize = { 1.0f / g_nWndCX,-1.0f / g_nWndCY ,0,0 };
 
 	deferred->SetTechnique("deferred");
-	deferred->SetMatrix("matViewProjInv", (D3DXMATRIX*)&viewprojinv);
+	deferred->SetMatrix("matViewProjInv", &ViewProjectionInverse);
 	deferred->SetVector("pixelSize", &pixelsize);
 
 	if (bCurstomEye)
@@ -745,7 +739,7 @@ void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& pro
 	}
 	else
 	{
-		deferred->SetVector("eyePos", &eye);
+		deferred->SetVector("eyePos", &Eye);
 	}
 	
 
@@ -792,8 +786,10 @@ void Renderer::DeferredShading(const Math::Matrix& view, const Math::Matrix& pro
 
 				D3DXMatrixTranspose(&viewtranspose, (Matrix*)&view);
 				D3DXMatrixTranspose(&projtranspose, (Matrix*)&proj);*/
-				Math::Matrix viewtranspose, projtranspose; 
-				Math::MatrixTranspose(viewtranspose, view);
+				Math::Matrix viewtranspose, projtranspose ,view,proj; 
+				std::memcpy(&view, &View, sizeof(Matrix));
+				std::memcpy(&proj, &Projection, sizeof(Matrix)); 
+				Math::MatrixTranspose(viewtranspose, view);   
 				Math::MatrixTranspose(projtranspose, proj);
 
 				PointLights[i]->CalculateScissorRect(
@@ -1113,7 +1109,7 @@ HRESULT Renderer::RenderDeferredShading()&
 
 	auto* const Fx = Shaders["DeferredShading"]->GetEffect();
 	Fx->SetTechnique("deferred");
-	Fx->SetMatrix("matViewProjInv", (D3DXMATRIX*)&CurrentRenderInfo.ViewProjectionInverse);
+	Fx->SetMatrix("matViewProjInv", (D3DXMATRIX*)&_RenderInfo.ViewProjectionInverse);
 	Fx->SetVector("pixelSize", &pixelsize);
 
 	if (bCurstomEye)
@@ -1122,7 +1118,7 @@ HRESULT Renderer::RenderDeferredShading()&
 	}
 	else
 	{
-		Fx->SetVector("eyePos", (D3DXVECTOR4*)&CurrentRenderInfo.CameraLocation);
+		Fx->SetVector("eyePos", (D3DXVECTOR4*)&_RenderInfo.CameraLocation);
 	}
 	
 
@@ -1159,8 +1155,8 @@ HRESULT Renderer::RenderDeferredShading()&
 
 		PointLights[i]->CalculateScissorRect
 		(
-			scissorrect, (const D3DXMATRIX&)CurrentRenderInfo.View,
-			(const D3DXMATRIX&)CurrentRenderInfo.Projection,
+			scissorrect, (const D3DXMATRIX&)_RenderInfo.View,
+			(const D3DXMATRIX&)_RenderInfo.Projection,
 			POINT_LIGHT_RADIUS, g_nWndCX, g_nWndCY);
 
 		m_pDevice->SetScissorRect(&scissorrect);
@@ -1223,8 +1219,8 @@ HRESULT Renderer::RenderForwardAlphaBlend()&
 		if (auto _TargetGroup = RenderEntitys.find(_Order);
 			_TargetGroup != std::end(RenderEntitys))
 		{
-			Fx->SetMatrix("View", &CurrentRenderInfo.View);
-			Fx->SetMatrix("Projection", &CurrentRenderInfo.Projection);
+			Fx->SetMatrix("View", &_RenderInfo.View);
+			Fx->SetMatrix("Projection", &_RenderInfo.Projection);
 
 			RenderInterface::ImplementationInfo _ImplInfo{};
 			_ImplInfo.Fx = Fx;
@@ -1295,8 +1291,8 @@ HRESULT Renderer::RenderDebug()&
 				_TargetGroup != std::end(RenderEntitys))
 			{
 				Fx->SetMatrix("View",
-					&CurrentRenderInfo.View);
-				Fx->SetMatrix("Projection", &CurrentRenderInfo.Projection);
+					&_RenderInfo.View);
+				Fx->SetMatrix("Projection", &_RenderInfo.Projection);
 
 				RenderInterface::ImplementationInfo _ImplInfo{};
 				_ImplInfo.Fx = Fx;
@@ -1347,8 +1343,8 @@ HRESULT Renderer::RenderDebugBone()&
 			auto* const Fx = Shaders["DebugBone"]->GetEffect();
 
 			Fx->SetMatrix("View",
-				&CurrentRenderInfo.View);
-			Fx->SetMatrix("Projection", &CurrentRenderInfo.Projection);
+				&_RenderInfo.View);
+			Fx->SetMatrix("Projection", &_RenderInfo.Projection);
 			const Matrix ScaleOffset = FMath::Scale({ 0.01 ,0.01,0.01 });
 			Fx->SetMatrix("ScaleOffset", &ScaleOffset);
 
@@ -1494,7 +1490,7 @@ HRESULT Renderer::RenderShadowScene(FLight*const Light)
 	return S_OK;
 }
 
-void Renderer::RenderTargetDebugRender()&
+HRESULT Renderer::RenderTargetDebugRender()&
 {
 	if (g_bRenderTargetVisible)
 	{
@@ -1509,6 +1505,8 @@ void Renderer::RenderTargetDebugRender()&
 			};
 		}
 	}
+
+	return S_OK;
 }
 
 bool Renderer::TestShaderInit()

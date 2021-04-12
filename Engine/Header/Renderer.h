@@ -25,25 +25,19 @@ private :
 	virtual void Free()	override ;
 public :
 	HRESULT ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice);
-	void    ReadyRenderTargets();
-	void    ReadyFrustum();
-	void    ReadyQuad();
 private:
+	void    ReadyRenderTargets();
 	void	ReadyShader(const std::filesystem::path & TargetPath);
 	void    ReadyLights();
-private:
-	std::shared_ptr<Frustum> CameraFrustum{};
-	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
-	std::map<RenderProperty::Order, std::vector<RenderInterface*>> RenderEntitys{};
+	void    ReadyRenderInfo();
+	void    ReadyFrustum();
+	void    ReadyQuad();	
 public :
 	// 오브젝트의 렌더 세팅이 켜져있다면 RenderInterface 인터페이스를 검사하고 엔티티에 추가 .
 	void Push(const std::weak_ptr<GameObject>& _RenderEntity)&;
 public : 
 	HRESULT Render()&;
 	void    Editor()&;
-	bool    bEdit = false;
-	RenderInformation CurrentRenderInfo{};
-	RenderInformation PrevRenderInfo{};
 private:
 	void RenderReady()&;
 	void RenderReadyEntitys()&;
@@ -63,12 +57,17 @@ private:
 	HRESULT RenderUI()&;
 	HRESULT ImguiRender()&;
 	HRESULT RenderShadowScene(FLight*const  Light);
-private:
-	void RenderTargetDebugRender()&;
+	HRESULT RenderTargetDebugRender()&;
+public:
+	bool    bEdit = false;
+	RenderInformation _RenderInfo{};
+	RenderInformation _PrevRenderInfo{};
 private:
 	D3DVIEWPORT9       BackBufViewport{};
 	IDirect3DSurface9* BackBuffer{ nullptr };
-private:
+	std::shared_ptr<Frustum> CameraFrustum{};
+	LPDIRECT3DDEVICE9	m_pDevice{ nullptr };
+	std::map<RenderProperty::Order, std::vector<RenderInterface*>> RenderEntitys{};
 	std::shared_ptr<Quad> _Quad;
 	std::map<std::string, std::shared_ptr<ENGINE::Shader>> Shaders{};
 	std::map<std::string, std::shared_ptr<RenderTarget>>   RenderTargets{};
@@ -82,20 +81,22 @@ private:
 	
 	bool bCurstomEye = false;
 	void RenderShadowMaps();
-	void RenderGBuffer(const Math::Matrix & viewproj);
-	void DeferredShading(const Math::Matrix & view, 
-		const Math::Matrix & proj, 
-		const Math::Matrix & viewprojinv, 
-		const Vector4 & eye);
-
+	void RenderGBuffer(
+		const Matrix & ViewProjection);
+	void DeferredShading(
+		const Matrix & View, 
+		const Matrix & Projection, 
+		const Matrix & ViewProjectionInverse, 
+		const Vector4 & Eye);
 	void RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX & viewproj);
+
+	
 	LPDIRECT3DTEXTURE9	marble = nullptr;
 	LPDIRECT3DTEXTURE9	wood = nullptr;
 	LPDIRECT3DTEXTURE9	wood_normal = nullptr;
 	LPDIRECT3DTEXTURE9	sky = nullptr;
 	LPD3DXMESH			skull = nullptr;
 	LPD3DXMESH			box = nullptr;
-	BasicCamera camera;
 
 	Vector4 MoonLightTarget{ 0,0,0 , 1 };
 	Vector4 CurstomEye= { 0,0,0,1 };

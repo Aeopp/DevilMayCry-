@@ -111,7 +111,7 @@ void RenderTarget::DebugRender(ID3DXEffect* const Fx)
 
 	Fx->SetTexture("RenderTargetTexture", TargetTexture);
 	Fx->SetMatrix("Ortho", 
-		&Renderer::GetInstance()->CurrentRenderInfo.Ortho);
+		&Renderer::GetInstance()->_RenderInfo.Ortho);
 	Fx->SetMatrix("ScreenMatrix", &ScreenMatrix);
 	Fx->CommitChanges();
 	uint32 Pass = 0u;

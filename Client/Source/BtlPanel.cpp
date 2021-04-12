@@ -355,7 +355,7 @@ void BtlPanel::Update_TargetInfo()
 Vector2 BtlPanel::ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY)
 {
 	Vector2 Ret = Vector2(_ScreenPosX - (g_nWndCX >> 1), -(_ScreenPosY - (g_nWndCY >> 1)));	
-	D3DXVec2TransformCoord(&Ret, &Ret, &Renderer::GetInstance()->CurrentRenderInfo.Ortho);
+	D3DXVec2TransformCoord(&Ret, &Ret, &Renderer::GetInstance()->_RenderInfo.Ortho);
 	return Ret;
 }
 
