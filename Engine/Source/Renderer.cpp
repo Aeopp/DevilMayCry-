@@ -70,17 +70,20 @@ void Renderer::ReadyLights()
 		FLight(
 			FLight::Type::Point, { 1.5f,0.5f, 0.0f ,1 },
 			{ 1,0,0,1 }));
+	PointLights[0]->SetPointRadius(7.1f);
 
 	PointLights[1] = std::make_shared<FLight>(
 		FLight(
 			FLight::Type::Point, { -0.7f , 0.5f , 1.2f , 1.f },
 			{ 0,1,0,1 }));
+	PointLights[1]->SetPointRadius(7.1f);
 
 	PointLights[2] = std::make_shared<FLight>(
 		FLight(
 			FLight::Type::Point,
 			{ 0.0f,0.5f,0.0f,1 },
 			{ 0,0,1,1 }));
+	PointLights[2]->SetPointRadius(7.1f);
 
 	// 그림자맵 512 로 생성
 	Moonlight->CreateShadowMap(Device, 512);
@@ -236,113 +239,28 @@ HRESULT Renderer::Render()&
 {
 	RenderReady();
 	RenderBegin();
-	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
-
+	// 쉐도우 패스 
 	RenderShadowMaps();
-		{
-		// D3DVIEWPORT9 oldviewport;
-		
-
-		// STEP 0: render shadow maps
-		
-		{
-		
-		}
-
-		// STEP 1: g-buffer pass
-		{
-			RenderGBuffer(_RenderInfo.ViewProjection);
-		}
-		Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-
-		// STEP 2: deferred shading
-		pixelsize.x = 1.0f / (float)_RenderInfo.Viewport.Width;
-		pixelsize.y = -1.0f / (float)_RenderInfo.Viewport.Height;
-
-		Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
-		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
-
-		DeferredShading(
-			_RenderInfo.View, 
-			_RenderInfo.ViewProjection, 
-			_RenderInfo.ViewProjectionInverse, 
-			Vector4{_RenderInfo.Eye.x,
-			_RenderInfo.Eye.y ,
-			_RenderInfo.Eye.z ,1.f} );
-
-		// STEP 3: render sky
-		Device->SetRenderTarget(0, BackBuffer);
-		Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-		BackBuffer->Release();
-
-		auto screenquad = Shaders["ScreenQuad"]->GetEffect();
-
-		screenquad->SetTechnique("screenquad");
-		screenquad->Begin(NULL, 0);
-		screenquad->BeginPass(0);
-		{
-			Device->SetTexture(0, sky);
-			_Quad->Render(Device);
-			//device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
-		}
-		screenquad->EndPass();
-		screenquad->End();
-
-		// STEP 4: tone mapping
-		Device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-
-		auto tonemap = Shaders["ToneMap"]->GetEffect();
-
-		auto scenetarget = RenderTargets["SceneTarget"]->GetTexture();
-
-		tonemap->SetTechnique("tonemap");
-		tonemap->SetVector("pixelSize", &pixelsize);
-
-		tonemap->Begin(NULL, 0);
-		tonemap->BeginPass(0);
-		{
-			Device->SetTexture(0, scenetarget);
-			_Quad->Render(Device);
-			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
-		}
-		tonemap->EndPass();
-		tonemap->End();
-
-		//// render text
-		//viewport = oldviewport;
-
-		//viewport.Width = 1024;
-		//viewport.Height = 256;
-		//viewport.X = viewport.Y = 10;
-
-		//device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-		//device->SetViewport(&viewport);
-
-		//screenquad->Begin(NULL, 0);
-		//screenquad->BeginPass(0);
-		//{
-		//	// device->SetTexture(0, helptext);
-		//	device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
-		//}
-		//screenquad->EndPass();
-		//screenquad->End();
-
-		// reset states
-		Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-		Device->SetViewport(&_RenderInfo.Viewport);
-
-		Device->EndScene();
-	}
-
-	// GraphicSystem::GetInstance()->Begin();
-	// RenderImplementation();
+	// 기하 패스
+	RenderGBuffer(_RenderInfo.ViewProjection);
+	// 디퍼드 렌더링 .
+	DeferredShading(
+		_RenderInfo.View,
+		_RenderInfo.ViewProjection,
+		_RenderInfo.ViewProjectionInverse,
+		Vector4{ _RenderInfo.Eye.x,
+		_RenderInfo.Eye.y ,
+		_RenderInfo.Eye.z ,1.f });
+	// 백버퍼로 백업 . 
+	Device->SetRenderTarget(0, BackBuffer);
+	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+	BackBuffer->Release();
+	RenderSky();
+	Tonemapping();
+	ResetState();
 	RenderTargetDebugRender();
 	ImguiRender();
-	// GraphicSystem::GetInstance()->End();
+	GraphicSystem::GetInstance()->End();
 	RenderEnd();
 	Device->Present(NULL, NULL, NULL, NULL);
 
@@ -399,6 +317,14 @@ void Renderer::RenderReadyEntitys()&
 void Renderer::Culling()&
 {
 	FrustumCulling();
+}
+
+void Renderer::ResetState()&
+{
+	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	Device->SetViewport(&_RenderInfo.Viewport);
 }
 
 void Renderer::FrustumCulling()&
@@ -598,6 +524,15 @@ void Renderer::DeferredShading(
 	const Matrix& ViewProjectionInverse,
 	const Vector4& Eye)
 {
+	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
+
+	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	// STEP 2: deferred shading
+	pixelsize.x = 1.0f / (float)_RenderInfo.Viewport.Width;
+	pixelsize.y = -1.0f / (float)_RenderInfo.Viewport.Height;
+	// Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+
 	RECT scissorrect;
 
 	auto device = Device;
@@ -634,8 +569,6 @@ void Renderer::DeferredShading(
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
-	Vector4 pixelsize = { 1.0f / g_nWndCX,-1.0f / g_nWndCY ,0,0 };
 
 	deferred->SetTechnique("deferred");
 	deferred->SetMatrix("matViewProjInv", &ViewProjectionInverse);
@@ -678,7 +611,6 @@ void Renderer::DeferredShading(
 			deferred->CommitChanges();
 			_Quad->Render(Device);
 
-			// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
 		}
 		// 여기서부터 ..
 		// point lights
@@ -687,7 +619,6 @@ void Renderer::DeferredShading(
 		for (int i = 0; i < 3; ++i) {
 			clipplanes.x = PointLights[i]->GetNearPlane();
 			clipplanes.y = PointLights[i]->GetFarPlane();
-			float POINT_LIGHT_RADIUS = 7.f;
 
 			 {
 				/*Matrix viewtranspose , projtranspose;
@@ -702,7 +633,15 @@ void Renderer::DeferredShading(
 
 				PointLights[i]->CalculateScissorRect(
 					scissorrect, (const D3DXMATRIX&)viewtranspose, (const D3DXMATRIX&)projtranspose,
-					POINT_LIGHT_RADIUS, g_nWndCX, g_nWndCY);
+					PointLights[i]->GetPointRadius(), g_nWndCX, g_nWndCY);
+				Vector4 PtPos = PointLights[i]->GetPosition();
+				PtPos.w = 1.f;
+				D3DXVec4Transform(&PtPos, &PtPos, &_RenderInfo.ViewProjection);
+				PtPos.x /= PtPos.w;
+				PtPos.y /= PtPos.w;
+				PtPos.z /= PtPos.w;
+				PtPos.w /= PtPos.w;
+				ImGui::Text("Pt Idx %d , %3.3f, %3.3f , %3.3f , %3.3f", i, PtPos.x, PtPos.y, PtPos.z, PtPos.w);
 
 				//Matrix dxview, dxproj;
 				//std::memcpy(&dxview, &view, sizeof(Matrix));
@@ -738,12 +677,12 @@ void Renderer::DeferredShading(
 				deferred->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
 				deferred->SetVector("lightPos", &PointLights[i]->GetPosition());
 				deferred->SetFloat("specularPower", 80.0f);
-				deferred->SetFloat("lightRadius", POINT_LIGHT_RADIUS);
+				deferred->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
 				deferred->CommitChanges();
 
 				device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
 				_Quad->Render(Device);				
-				// device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, DXScreenQuadVertices, 6 * sizeof(float));
+
 			}
 		}
 
@@ -1413,6 +1352,47 @@ HRESULT Renderer::RenderTargetDebugRender()&
 			};
 		}
 	}
+
+	return S_OK;
+}
+
+HRESULT Renderer::RenderSky()&
+{
+	auto screenquad = Shaders["ScreenQuad"]->GetEffect();
+	screenquad->SetTechnique("screenquad");
+	screenquad->Begin(NULL, 0);
+	screenquad->BeginPass(0);
+	Device->SetTexture(0, sky);
+	_Quad->Render(Device);
+	screenquad->EndPass();
+	screenquad->End();
+
+	return S_OK;
+}
+
+HRESULT Renderer::Tonemapping()&
+{
+	//                     감마보정 수행 . 
+	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
+	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	auto tonemap = Shaders["ToneMap"]->GetEffect();
+
+	auto scenetarget = RenderTargets["SceneTarget"]->GetTexture();
+	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
+	pixelsize.x = 1.0f / (float)_RenderInfo.Viewport.Width;
+	pixelsize.y = -1.0f / (float)_RenderInfo.Viewport.Height;
+	tonemap->SetTechnique("tonemap");
+	tonemap->SetVector("pixelSize", &pixelsize);
+
+	tonemap->Begin(NULL, 0);
+	tonemap->BeginPass(0);
+	Device->SetTexture(0, scenetarget);
+	_Quad->Render(Device);
+	tonemap->EndPass();
+	tonemap->End();
 
 	return S_OK;
 }

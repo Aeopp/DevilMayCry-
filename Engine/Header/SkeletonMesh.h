@@ -13,6 +13,8 @@
 #include <functional>
 #include <set>
 #include "AnimNotify.h"
+#include <optional>
+
 
 class aiNode;
 
@@ -36,6 +38,8 @@ public:
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
 	bool    IsAnimationEnd();
+	void    EnableToRootMatricies();
+	void    DisableToRootMatricies();
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
 	std::tuple<Vector3, Quaternion, Vector3>   
@@ -51,7 +55,10 @@ public:
 	//      반환값 * World 하면 해당 오브젝트의 해당 뼈의 행렬을 구함.
 	std::optional<Matrix> GetNodeToRoot
 					(const std::string & NodeName)&;
-
+	// 노드가 존재하지 않는다면 널 포인터 . ToRoot 매트릭스가 계속 업데이트 되길 기대한다면
+	// 스켈레톤 메쉬 업데이트 반드시 호출 
+	// EnableToRootMatricies 켜줬는지 확인 (최적화로 인해 기본 옵션이 아님 ) 
+	Matrix* GetToRootMatrixPtr(const std::string & NodeName)&;
 	void   PlayAnimation(
 		const std::string & InitAnimName,
 		const bool  bLoop,
@@ -81,6 +88,7 @@ private:
 	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
 	void AnimationSave(const std::filesystem::path & FullPath)&;
 private:
+	void UpdateToRootMatricies();
 	virtual HRESULT LoadMeshImplementation(
 		const aiScene * AiScene,
 		const std::filesystem::path _Path,
@@ -182,6 +190,8 @@ public:
 	std::shared_ptr<std::map<uint32, std::string>>				AnimIndexNameMap{};
 	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
 	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
+	//              노드 이름과 ToRoot 매트릭스 매핑 ... 
+	std::optional<std::unordered_map<std::string, Matrix>> ToRoots{};
 };
 END
 #endif // !_SKELETONMESH_H_

@@ -46,6 +46,7 @@ FLight::FLight(
 	Currentface = 0;
 	ShadowMapSize = 0;
 	Blurred = false;
+	PointRadius = 7.1f;
 
 	switch (type) {
 	case Point:
@@ -115,11 +116,62 @@ void FLight::EditImplementation(const uint32 Idx)
 	}
 	ImGui::BulletText(TypeString.c_str());
 	ImGui::Text("ShadowMapSize %d", ShadowMapSize);
-	ImGui::SliderFloat("BlurIntencity", &BlurIntencity,0.f,1000.f);
-	ImGui::SliderFloat3("Position", Position, -1000.f, 1000.f);
-	ImGui::SliderFloat2("ProjectionSize", Projparams,-2000.f,2000.f);
-	ImGui::SliderFloat("Near", &Projparams.z, -1000.f, 1000.f);
-	ImGui::SliderFloat("Far", &Projparams.z, -1000.f, 1000.f);
+
+	{
+		ImGui::Text("BlurIntencity %3.3f",BlurIntencity);
+		static float BlurIntencitySliderPower = 0.01f;
+		ImGui::SliderFloat("BlurIntencitySliderPower", &BlurIntencitySliderPower, -1.f, 1.f);
+		ImGui::InputFloat("In BlurIntencity", &BlurIntencity);
+		float AddBlurIntencity = 0.0f;
+		if (ImGui::SliderFloat("Add BlurIntencity", &AddBlurIntencity, -1.f, +1.f, "%3.3f"))
+		{
+			AddBlurIntencity *= BlurIntencitySliderPower;
+		}
+		BlurIntencity += AddBlurIntencity;
+	}
+
+	{
+		ImGui::Text("Position : %4.3f, %4.3f, %4.3f", Position.x, Position.y, Position.z);
+		static float PositionSliderPower = 0.01f;
+		ImGui::SliderFloat("PositionSliderPower", &PositionSliderPower, -1.f, 1.f);
+		ImGui::InputFloat3("In Position", Position);
+		Vector3 AddPosition{ 0,0,0 };
+		if (ImGui::SliderFloat3("Add Position", AddPosition, -1.f, 1.f, "%3.3f"))
+		{
+			AddPosition *= PositionSliderPower;
+		}
+		Position.x += AddPosition.x;
+		Position.y += AddPosition.y;
+		Position.z += AddPosition.z;
+	}
+
+	{
+		ImGui::Text("Projection Size : %4.4f , %4.4f", Projparams.x, Projparams.y);
+		static float ProjectionSizeSliderPower = 0.01f;
+		ImGui::SliderFloat("PositionSliderPower", &ProjectionSizeSliderPower, FLT_MIN, 0.99999f);
+		Vector2 AddProjectionSize = { 0.f ,0.f };
+		if (ImGui::SliderFloat2("Add ProjectionSize", AddProjectionSize, -1.f, 1.f))
+		{
+
+		}
+		ImGui::SliderFloat2("ProjectionSize", Projparams, -500.f, 500.f , "%4.3f",ProjectionSizeSliderPower);
+		ImGui::InputFloat2("In ProjectionSize", Projparams);
+
+
+	}
+
+	{
+		static float NearFarSliderPower = 0.01f;
+		ImGui::SliderFloat("NearFarSliderPower", &NearFarSliderPower, FLT_MIN, 0.99999f);
+		ImGui::SliderFloat("Near", &Projparams.z, -500.f, 500.f,"%4.5f", NearFarSliderPower);
+		ImGui::InputFloat("In Near", &Projparams.z);
+		ImGui::SliderFloat("Far", &Projparams.w, -500.f, 500.f , "%4.5f", NearFarSliderPower);
+		ImGui::InputFloat("In Far", &Projparams.w);
+	}
+
+	{
+		ImGui::ColorEdit4("Light Color", Color);
+	}
 }
 	
 
@@ -403,4 +455,5 @@ void FLight::SetSpotParameters(const D3DXVECTOR3& dir, float inner, float outer)
 	Spotparams.x = cosf(inner);
 	Spotparams.y = cosf(outer);
 }
+
 

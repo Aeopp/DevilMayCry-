@@ -43,8 +43,10 @@ private:
 	void RenderReadyEntitys()&;
 	void RenderEnd()&;
 	void RenderEntityClear()&;
+private:
 	void FrustumCulling()&;
 	void Culling()&;
+	void ResetState()&;
 private:
 	HRESULT RenderImplementation()&;
 	// HRESULT RenderGBuffer()&;
@@ -58,6 +60,8 @@ private:
 	HRESULT ImguiRender()&;
 	HRESULT RenderShadowScene(FLight*const  Light);
 	HRESULT RenderTargetDebugRender()&;
+	HRESULT RenderSky()&;
+	HRESULT Tonemapping()&;
 public:
 	bool bEdit = false;
 	RenderInformation _RenderInfo{};

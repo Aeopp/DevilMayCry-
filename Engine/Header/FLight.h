@@ -24,6 +24,8 @@ private:
 	D3DXVECTOR3				Spotdirection;
 	D3DXVECTOR2				Spotparams;	// cos(inner), cos(outer)
 
+
+	float				    PointRadius;
 	D3DXCOLOR				Color;
 	LPDIRECT3DCUBETEXTURE9	Cubeshadowmap;
 	LPDIRECT3DCUBETEXTURE9	Blurredcubeshadowmap;
@@ -64,7 +66,8 @@ public:
 	inline D3DXVECTOR4& GetPosition()     { return Position; }
 	inline D3DXVECTOR3& GetSpotDirection() { return Spotdirection; }
 	inline D3DXCOLOR& GetColor() { return Color; }
-
+	inline float GetPointRadius()const& { return PointRadius;  };
+	inline void  SetPointRadius(const float _PtRadius)& { PointRadius = _PtRadius;  };
 	inline bool IsPerspective()const& {return _Type!=Directional;};
 	inline LPDIRECT3DTEXTURE9 GetShadowMap() { return (Blurred ? Blurredshadowmap : Shadowmap); }
 	inline LPDIRECT3DCUBETEXTURE9 GetCubeShadowMap() { return (Blurred ? Blurredcubeshadowmap : Cubeshadowmap); }

@@ -298,6 +298,11 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 	Root->NodeUpdate(FMath::Identity(),
 		CurPlayAnimMotionTime, AnimName, IsAnimationBlend);
+
+	if (ToRoots.has_value())
+	{
+		UpdateToRootMatricies();
+	}
 	//
 	VTFUpdate();
 
@@ -549,6 +554,17 @@ bool SkeletonMesh::IsAnimationEnd()
 	return bAnimationEnd;
 }
 
+void SkeletonMesh::EnableToRootMatricies()
+{
+	ToRoots.emplace(std::unordered_map<std::string, Matrix>());
+	UpdateToRootMatricies();
+}
+
+void SkeletonMesh::DisableToRootMatricies()
+{
+	ToRoots.reset();
+}
+
 void SkeletonMesh::EnablePrevVTF()&
 {
 	if (!PrevBoneAnimMatrixInfo)
@@ -668,24 +684,30 @@ Node* SkeletonMesh::GetNode(const std::string& NodeName)&
 	}
 
 	return nullptr;
-}
+};
 
 std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
 {
-	if (Nodes)
+	auto ToRootMatricPtr = GetToRootMatrixPtr(NodeName);
+	if (ToRootMatricPtr)
 	{
-		auto iter = Nodes->find(NodeName);
-		if (iter != std::end(*Nodes))
-		{
-			auto SpNode = iter->second;
-			if (SpNode)
-			{
-				return SpNode->ToRoot;
-			}
-		}
+		return { *ToRootMatricPtr };
 	}
 
 	return std::nullopt;
+}
+
+Matrix* SkeletonMesh::GetToRootMatrixPtr(const std::string& NodeName)&
+{
+	if (ToRoots)
+	{
+		if (auto iter = ToRoots->find(NodeName);
+			iter != std::end(*ToRoots))
+		{
+			return &iter->second;
+		}
+	}
+	return nullptr;
 }
 
 void SkeletonMesh::PlayAnimation(
@@ -833,6 +855,19 @@ static aiNode* FindBone(aiNode* AiNode,
 	return nullptr;
 };
 
+void SkeletonMesh::UpdateToRootMatricies()
+{
+	if (Nodes)
+	{
+		for (auto& [NodeName, spNode] : *Nodes)
+		{
+			if (spNode)
+			{
+				(*ToRoots)[NodeName] = spNode->ToRoot;
+			}
+		}
+	}
+}
 
 HRESULT SkeletonMesh::LoadMeshImplementation(
 	const aiScene* AiScene,
