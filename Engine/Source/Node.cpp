@@ -41,7 +41,7 @@ Node::CurrentAnimationTransform(
 	const double CurrentAnimationTime)
 {
 	Vector3 Scale{ 1,1,1 };
-	Quaternion Quat{};
+	Quaternion Quat{0,0,0,1};
 	Vector3 Pos{ 0,0,0 };
 
 	{
@@ -217,7 +217,7 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 
 	if (bCurAnim)
 	{
-		auto [Scale,Quat,Pos ] = 
+		auto [Scale,Quat,Pos] = 
 			CurrentAnimationTransform(iter->second, CurrentAnimationTime);
 
 		if (IsAnimationBlend.has_value())

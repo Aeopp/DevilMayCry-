@@ -1293,7 +1293,7 @@ Quaternion SkeletonMesh::CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyon
 				const Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
 				const Quaternion StartQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, 0.0f);
 				const Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, bTimeBeyondAnimation.value());
-
+				
 				return (EndQuat - PrevQuat) + (CurQuat - StartQuat);
 			}
 			else
@@ -1306,8 +1306,27 @@ Quaternion SkeletonMesh::CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyon
 		}
 	}
 
-	return { 0,0,0 ,1 };
-}
+    return { 0,0,0 ,1 };
+};
+
+ void GetNodeTransform(aiNode* const _Node ,
+	std::unordered_map<std::string,std::tuple<Vector3,Quaternion,Vector3>>& Table)
+{	
+	 if (_Node == nullptr)return;
+
+
+	const std::string CurNodeName = _Node->mName.C_Str();
+	auto TargetMatrix = AssimpHelper::ConvertMatrix(_Node->mTransformation);
+	Vector3 Scale, Pos;
+	Quaternion Quat;
+	D3DXMatrixDecompose(&Scale, &Quat, &Pos, &TargetMatrix);
+	Table[CurNodeName] = {Scale,Quat,Pos};
+
+	for (int i = 0; i < _Node->mNumChildren; ++i)
+	{
+		GetNodeTransform(_Node->mChildren[i], Table);
+	}
+};
 
 void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 {
@@ -1332,6 +1351,7 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 		aiProcess_SplitLargeMeshes |
 		aiProcess_JoinIdenticalVertices
 	);
+
 	if (AiScene == nullptr)return;
 
 	bHasAnimation = AiScene->HasAnimations();
@@ -1408,8 +1428,60 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 				}
 			}
 
+			std::unordered_map<std::string, std::tuple<Vector3, Quaternion, Vector3>>Table{};
+			GetNodeTransform(AiScene->mRootNode, Table);
+
+			for (auto& [NodeName, _Node] : *Nodes)
+			{
+				auto& CurNodeAnimTrack =  _Node->_AnimationTrack[CurAnimInfo.Name];
+
+				if (CurNodeAnimTrack.ScaleTimeLine.empty())
+				{
+					CurNodeAnimTrack.ScaleTimeLine.insert({ 0.0f,std::get<0>(Table[NodeName]) });
+				}
+				if (CurNodeAnimTrack.QuatTimeLine.empty())
+				{
+					CurNodeAnimTrack.QuatTimeLine.insert({ 0.0f,std::get<1>(Table[NodeName]) });
+				}
+				if (CurNodeAnimTrack.PosTimeLine.empty())
+				{
+					CurNodeAnimTrack.PosTimeLine.insert({ 0.0f,std::get<2>(Table[NodeName]) });
+				}
+			}
+
 			AnimInfoTable->insert({ CurAnimInfo.Name , CurAnimInfo });
 		}
+	}
+	else
+	{
+		std::unordered_map<std::string, std::tuple<Vector3, Quaternion, Vector3>>Table{};
+		GetNodeTransform(AiScene->mRootNode, Table);
+
+		for (auto& [NodeName, _Node] : *Nodes)
+		{
+			auto& CurNodeAnimTrack = _Node->_AnimationTrack[CurAnimInfo.Name];
+
+			if (CurNodeAnimTrack.ScaleTimeLine.empty())
+			{
+				CurNodeAnimTrack.ScaleTimeLine.insert({ 0.0f,std::get<0>(Table[NodeName]) });
+			}
+			if (CurNodeAnimTrack.QuatTimeLine.empty())
+			{
+				CurNodeAnimTrack.QuatTimeLine.insert({ 0.0f,std::get<1>(Table[NodeName]) });
+			}
+			if (CurNodeAnimTrack.PosTimeLine.empty())
+			{
+				CurNodeAnimTrack.PosTimeLine.insert({ 0.0f,std::get<2>(Table[NodeName]) });
+			}
+		}
+
+		AnimInfoTable->insert({ CurAnimInfo.Name , CurAnimInfo });
+
+		AnimationInformation CurAnimInfo{};
+		CurAnimInfo.TickPerSecond = _AiAnimation->mTicksPerSecond;
+		CurAnimInfo.SetAcceleration(1.0f);
+		CurAnimInfo.Name = FilePath.filename().stem().string();
+		CurAnimInfo.Duration = _AiAnimation->mDuration;
 	}
 };
 

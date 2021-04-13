@@ -21,113 +21,113 @@ BtlPanel* BtlPanel::Create()
 	return new BtlPanel{};
 }
 
-
-void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
-{
-	UI_DESC_ID CurID = DESC_END;
-	Matrix ScreenMat;
-
-	_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
-
-	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
-	if (auto SharedSubset = WeakSubset_Plane.lock();
-		SharedSubset)
-	{
-		//
-		CurID = REDORB;
-		if (_UIDescs[CurID].Using)
-		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 1.f, 1.f), 3u);
-
-			_ImplInfo.Fx->SetTexture("RedOrbALBMMap", _RedOrbALBMTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("RedOrbATOSMap", _RedOrbATOSTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("RedOrbNRMRMap", _RedOrbNRMRTex->GetTexture());
-
-			Create_ScreenMat(CurID, ScreenMat);
-			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-
-			_ImplInfo.Fx->BeginPass(0);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-
-		//
-		CurID = TARGET_CURSOR;
-		if (_UIDescs[CurID].Using)
-		{
-			_ImplInfo.Fx->SetTexture("TargetCursorMap", _TargetCursorTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.3f);
-
-			for (int i = 0; i < 3; ++i)
-			{
-				Create_ScreenMat(CurID, ScreenMat, i);
-				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-
-				_ImplInfo.Fx->BeginPass(1);
-				SharedSubset->Render(_ImplInfo.Fx);
-				_ImplInfo.Fx->EndPass();
-			}
-		}
-
-		//
-		CurID = BOSS_GUAGE;
-		if (_UIDescs[CurID].Using)
-		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 0.f, 1.f), 3u);
-			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
-
-			_ImplInfo.Fx->SetTexture("BossGaugeATOSMap", _BossGaugeAOTSTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("BossGaugeNRMRMap", _BossGaugeNRMRTex->GetTexture());
-
-			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
-			_ImplInfo.Fx->SetFloat("_BossGaugeCurXPosOrtho", _BossGauge_CurXPosOrtho);
-
-			Create_ScreenMat(CurID, ScreenMat);
-			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-
-			_ImplInfo.Fx->BeginPass(3);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-
-			_ImplInfo.Fx->BeginPass(4);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-
-			_ImplInfo.Fx->BeginPass(5);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-
-			_ImplInfo.Fx->BeginPass(6);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-	}
-
-	auto WeakSubset_Pipe0 = _Pipe0Mesh->GetSubset(0u);
-	if (auto SharedSubset = WeakSubset_Pipe0.lock();
-		SharedSubset)
-	{
-		//
-		CurID = TARGET_HP;
-		if (_UIDescs[CurID].Using)
-		{
-			_ImplInfo.Fx->SetTexture("TargetHPMap", _EnemyHPTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_TotalAccumulateTime", _TotalAccumulateTime);
-			
-			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
-			_ImplInfo.Fx->SetFloatArray("_HP_StartPt", _TargetHP_StartPtOrtho, 2u);
-			_ImplInfo.Fx->SetFloatArray("_HP_Normal0", _TargetHP_Normal0, 2u);
-			_ImplInfo.Fx->SetFloatArray("_HP_Normal1", _TargetHP_Normal1, 2u);
-
-			Create_ScreenMat(CurID, ScreenMat);
-			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
-
-			_ImplInfo.Fx->BeginPass(2);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-	}
-};
+//
+//void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	UI_DESC_ID CurID = DESC_END;
+//	Matrix ScreenMat;
+//
+//	_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
+//
+//	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
+//	if (auto SharedSubset = WeakSubset_Plane.lock();
+//		SharedSubset)
+//	{
+//		//
+//		CurID = REDORB;
+//		if (_UIDescs[CurID].Using)
+//		{
+//			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 1.f, 1.f), 3u);
+//
+//			_ImplInfo.Fx->SetTexture("RedOrbALBMMap", _RedOrbALBMTex->GetTexture());
+//			_ImplInfo.Fx->SetTexture("RedOrbATOSMap", _RedOrbATOSTex->GetTexture());
+//			_ImplInfo.Fx->SetTexture("RedOrbNRMRMap", _RedOrbNRMRTex->GetTexture());
+//
+//			Create_ScreenMat(CurID, ScreenMat);
+//			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+//
+//			_ImplInfo.Fx->BeginPass(0);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//		}
+//
+//		//
+//		CurID = TARGET_CURSOR;
+//		if (_UIDescs[CurID].Using)
+//		{
+//			_ImplInfo.Fx->SetTexture("TargetCursorMap", _TargetCursorTex->GetTexture());
+//			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.3f);
+//
+//			for (int i = 0; i < 3; ++i)
+//			{
+//				Create_ScreenMat(CurID, ScreenMat, i);
+//				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+//
+//				_ImplInfo.Fx->BeginPass(1);
+//				SharedSubset->Render(_ImplInfo.Fx);
+//				_ImplInfo.Fx->EndPass();
+//			}
+//		}
+//
+//		//
+//		CurID = BOSS_GUAGE;
+//		if (_UIDescs[CurID].Using)
+//		{
+//			_ImplInfo.Fx->SetFloatArray("LightDirection", Vector3(0.f, 0.f, 1.f), 3u);
+//			//_ImplInfo.Fx->SetFloatArray("LightDirection", _LightDir, 3u);
+//
+//			_ImplInfo.Fx->SetTexture("BossGaugeATOSMap", _BossGaugeAOTSTex->GetTexture());
+//			_ImplInfo.Fx->SetTexture("BossGaugeNRMRMap", _BossGaugeNRMRTex->GetTexture());
+//
+//			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
+//			_ImplInfo.Fx->SetFloat("_BossGaugeCurXPosOrtho", _BossGauge_CurXPosOrtho);
+//
+//			Create_ScreenMat(CurID, ScreenMat);
+//			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+//
+//			_ImplInfo.Fx->BeginPass(3);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//
+//			_ImplInfo.Fx->BeginPass(4);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//
+//			_ImplInfo.Fx->BeginPass(5);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//
+//			_ImplInfo.Fx->BeginPass(6);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//		}
+//	}
+//
+//	auto WeakSubset_Pipe0 = _Pipe0Mesh->GetSubset(0u);
+//	if (auto SharedSubset = WeakSubset_Pipe0.lock();
+//		SharedSubset)
+//	{
+//		//
+//		CurID = TARGET_HP;
+//		if (_UIDescs[CurID].Using)
+//		{
+//			_ImplInfo.Fx->SetTexture("TargetHPMap", _EnemyHPTex->GetTexture());
+//			_ImplInfo.Fx->SetFloat("_TotalAccumulateTime", _TotalAccumulateTime);
+//			
+//			_ImplInfo.Fx->SetFloat("_HP_Degree", _TargetHP_Degree);
+//			_ImplInfo.Fx->SetFloatArray("_HP_StartPt", _TargetHP_StartPtOrtho, 2u);
+//			_ImplInfo.Fx->SetFloatArray("_HP_Normal0", _TargetHP_Normal0, 2u);
+//			_ImplInfo.Fx->SetFloatArray("_HP_Normal1", _TargetHP_Normal1, 2u);
+//
+//			Create_ScreenMat(CurID, ScreenMat);
+//			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+//
+//			_ImplInfo.Fx->BeginPass(2);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//		}
+//	}
+//};
 
 void BtlPanel::RenderReady()
 {
@@ -140,15 +140,15 @@ HRESULT BtlPanel::Ready()
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	_InitRenderProp.RenderOrders =
-	{
-		ENGINE::RenderProperty::Order::UI,
-		//ENGINE::RenderProperty::Order::Debug
-	};
-	RenderInterface::Initialize(_InitRenderProp);
+	//_InitRenderProp.RenderOrders =
+	//{
+	//	ENGINE::RenderProperty::Order::UI,
+	//	//ENGINE::RenderProperty::Order::Debug
+	//};
+	//RenderInterface::Initialize(_InitRenderProp);
 
-	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::UI,
-		L"..\\..\\Resource\\Shader\\UI\\BtlPanel.hlsl", {});
+	//_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::UI,
+	//	L"..\\..\\Resource\\Shader\\UI\\BtlPanel.hlsl", {});
 
 	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
 	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\pipe00.fbx");

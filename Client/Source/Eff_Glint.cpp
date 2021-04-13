@@ -21,29 +21,29 @@ Eff_Glint* Eff_Glint::Create()
 	return new Eff_Glint{};
 }
 
-
-void Eff_Glint::RenderAlphaBlendEffectImplementation(
-	const ImplementationInfo& _ImplInfo)
-{
-	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
-	if (auto SharedSubset = WeakSubset_Plane.lock();
-		SharedSubset)
-	{
-		for (UINT i = 0u; i < 3u; ++i)
-		{
-			if (_SliceAmount[i] < 1.f)
-			{
-				_ImplInfo.Fx->SetMatrix("World", &_WorldMatrix[i]);
-				_ImplInfo.Fx->SetFloat("_SliceAmount", _SliceAmount[i]);
-
-				_ImplInfo.Fx->SetTexture("BaseMap", _GlintTex->GetTexture());
-				_ImplInfo.Fx->BeginPass(0);
-				SharedSubset->Render(_ImplInfo.Fx);
-				_ImplInfo.Fx->EndPass();
-			}
-		}
-	}
-}
+//
+//void Eff_Glint::RenderAlphaBlendEffectImplementation(
+//	const ImplementationInfo& _ImplInfo)
+//{
+//	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
+//	if (auto SharedSubset = WeakSubset_Plane.lock();
+//		SharedSubset)
+//	{
+//		for (UINT i = 0u; i < 3u; ++i)
+//		{
+//			if (_SliceAmount[i] < 1.f)
+//			{
+//				_ImplInfo.Fx->SetMatrix("World", &_WorldMatrix[i]);
+//				_ImplInfo.Fx->SetFloat("_SliceAmount", _SliceAmount[i]);
+//
+//				_ImplInfo.Fx->SetTexture("BaseMap", _GlintTex->GetTexture());
+//				_ImplInfo.Fx->BeginPass(0);
+//				SharedSubset->Render(_ImplInfo.Fx);
+//				_ImplInfo.Fx->EndPass();
+//			}
+//		}
+//	}
+//}
 
 HRESULT Eff_Glint::Ready()
 {
@@ -55,15 +55,15 @@ HRESULT Eff_Glint::Ready()
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	_InitRenderProp.RenderOrders =
-	{
-		ENGINE::RenderProperty::Order::AlphaBlendEffect,
-		//ENGINE::RenderProperty::Order::Debug
-	};
-	RenderInterface::Initialize(_InitRenderProp);
+	//_InitRenderProp.RenderOrders =
+	//{
+	//	ENGINE::RenderProperty::Order::AlphaBlendEffect,
+	//	//ENGINE::RenderProperty::Order::Debug
+	//};
+	//RenderInterface::Initialize(_InitRenderProp);
 
-	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
-		L"..\\..\\Resource\\Shader\\Effect\\Glint.hlsl", {});
+	//_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
+	//	L"..\\..\\Resource\\Shader\\Effect\\Glint.hlsl", {});
 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 1.f, 1.f, 1.f });

@@ -21,97 +21,98 @@ TestObject* TestObject::Create()
 	return new TestObject{};
 }
 
+//
+//void TestObject::RenderForwardAlphaBlendImplementation(
+//	const ImplementationInfo& _ImplInfo)
+//{
+//	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+//	const auto& RenderInfo = GetRenderUpdateInfo();
+//
+//	if (NumSubset > 0)
+//	{
+//		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+//	}
+//
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
+//			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+//			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+//			
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	}
+//};
 
-void TestObject::RenderForwardAlphaBlendImplementation(
-	const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-	const auto& RenderInfo = GetRenderUpdateInfo();
-
-	if (NumSubset > 0)
-	{
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
-	}
-
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-			
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-};
-
-void TestObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-	const auto& RenderInfo = GetRenderUpdateInfo();
-	if (NumSubset > 0)
-	{
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
-	}
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-};
-
-void TestObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-
-	if (NumSubset > 0)
-	{
-		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("matWorld", &RenderInfo.World);
-	}
-
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	};
-};
-
-void TestObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-
-	if (NumSubset > 0)
-	{
-		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
-	}
-
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, 0u, _ImplInfo._Device);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, 1u, _ImplInfo._Device);
-			// SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			// SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	};
-};
+//void TestObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+//	const auto& RenderInfo = GetRenderUpdateInfo();
+//	if (NumSubset > 0)
+//	{
+//		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+//	}
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	}
+//};
+//
+//void TestObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+//
+//	if (NumSubset > 0)
+//	{
+//		const auto& RenderInfo = GetRenderUpdateInfo();
+//		_ImplInfo.Fx->SetMatrix("matWorld", &RenderInfo.World);
+//	}
+//
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	};
+//};
+//
+//void TestObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	const uint64 NumSubset = _StaticMesh->GetNumSubset();
+//
+//	if (NumSubset > 0)
+//	{
+//		const auto& RenderInfo = GetRenderUpdateInfo();
+//		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+//	}
+//
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, 0u, _ImplInfo._Device);
+//			SharedSubset->BindProperty(TextureType::NORMALS, 0u, 1u, _ImplInfo._Device);
+//			// SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+//			// SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	};
+//};
+//
 
 void TestObject::RenderReady()
 {
@@ -122,7 +123,6 @@ void TestObject::RenderReady()
 		_RenderProperty.bRender = true;
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
 		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
 	}
 }
 
@@ -137,13 +137,13 @@ HRESULT TestObject::Ready()
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	_InitRenderProp.RenderOrders = 
+	/*_InitRenderProp.RenderOrders = 
 	{ 
 		RenderProperty::Order::ForwardAlphaBlend,
 		RenderProperty::Order::Shadow,
 		RenderProperty::Order::GBuffer,
 		RenderProperty::Order::Debug,
-	};
+	};*/
 	RenderInterface::Initialize(_InitRenderProp);
 	// 
 

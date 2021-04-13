@@ -22,119 +22,119 @@ TestAnimationObject* TestAnimationObject::Create()
 	return new TestAnimationObject{};
 }
 
-
-void TestAnimationObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
-{	
-	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-
-	if (NumSubset > 0)
-	{
-		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
-		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
-	}
-	
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, 0u, _ImplInfo._Device);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, 1u, _ImplInfo._Device);
-			// SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			// SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	};
-}
-
-void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
-{
-	const auto& RenderInfo = GetRenderUpdateInfo();
-	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-	
-	if (NumSubset > 0)
-	{
-		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
-		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
-	}
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-}
-
-void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
-{
-	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
-		SpTransform)
-	{
-		const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
-		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
-		_SkeletonMesh->BoneDebugRender(SpTransform->GetWorldMatrix() ,_ImplInfo.Fx);
-	}
-}
-
-void TestAnimationObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-
-	if (NumSubset > 0)
-	{
-		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("matWorld", &RenderInfo.World);
-		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
-	}
-
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	};
-}
-
-
-void TestAnimationObject::RenderForwardAlphaBlendImplementation(
-	const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
-
-	if (NumSubset > 0)
-	{
-		const auto& RenderInfo = GetRenderUpdateInfo();
-		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
-		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
-	}
-
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			if (SharedSubset->bRender)
-			{
-				const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-				SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-				SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-				SharedSubset->Render(_ImplInfo.Fx);
-			}
-		}
-	}
-};
-
+//
+//void TestAnimationObject::RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)
+//{	
+//	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+//
+//	if (NumSubset > 0)
+//	{
+//		const auto& RenderInfo = GetRenderUpdateInfo();
+//		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+//		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+//	}
+//	
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, 0u, _ImplInfo._Device);
+//			SharedSubset->BindProperty(TextureType::NORMALS, 0u, 1u, _ImplInfo._Device);
+//			// SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+//			// SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	};
+//}
+//
+//void TestAnimationObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	const auto& RenderInfo = GetRenderUpdateInfo();
+//	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+//	
+//	if (NumSubset > 0)
+//	{
+//		const auto& RenderInfo = GetRenderUpdateInfo();
+//		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+//		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+//	}
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	}
+//}
+//
+//void TestAnimationObject::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
+//		SpTransform)
+//	{
+//		const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
+//		const auto& RenderInfo = GetRenderUpdateInfo();
+//		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+//		_SkeletonMesh->BoneDebugRender(SpTransform->GetWorldMatrix() ,_ImplInfo.Fx);
+//	}
+//}
+//
+//void TestAnimationObject::RenderShadowImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+//
+//	if (NumSubset > 0)
+//	{
+//		const auto& RenderInfo = GetRenderUpdateInfo();
+//		_ImplInfo.Fx->SetMatrix("matWorld", &RenderInfo.World);
+//		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+//	}
+//
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	};
+//}
+//
+//
+//void TestAnimationObject::RenderForwardAlphaBlendImplementation(
+//	const ImplementationInfo& _ImplInfo)
+//{
+//	const uint64 NumSubset = _SkeletonMesh->GetNumSubset();
+//
+//	if (NumSubset > 0)
+//	{
+//		const auto& RenderInfo = GetRenderUpdateInfo();
+//		_ImplInfo.Fx->SetMatrix("World", &RenderInfo.World);
+//		_SkeletonMesh->BindVTF(_ImplInfo.Fx);
+//	}
+//
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = _SkeletonMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			if (SharedSubset->bRender)
+//			{
+//				const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
+//				SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+//				SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+//				SharedSubset->Render(_ImplInfo.Fx);
+//			}
+//		}
+//	}
+//};
+//
 void TestAnimationObject::RenderReady()
 {
 	auto _WeakTransform = GetComponent<ENGINE::Transform>();
@@ -144,7 +144,7 @@ void TestAnimationObject::RenderReady()
 		_RenderProperty.bRender = true;
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
 		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
+		// RenderVariableBind(_UpdateInfo);
 	}
 }
 
@@ -159,14 +159,14 @@ HRESULT TestAnimationObject::Ready()
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	_InitRenderProp.RenderOrders =
+	/*_InitRenderProp.RenderOrders =
 	{
 		RenderProperty::Order::GBufferSK,
 		RenderProperty::Order::ForwardAlphaBlendSK,
 		RenderProperty::Order::ShadowSK,
 		RenderProperty::Order::DebugSK,
 		RenderProperty::Order::DebugBone
-	};
+	};*/
 	RenderInterface::Initialize(_InitRenderProp);
 	/// 
 

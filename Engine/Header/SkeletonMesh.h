@@ -60,6 +60,7 @@ public:
 	// 스켈레톤 메쉬 업데이트 반드시 호출 
 	// EnableToRootMatricies 켜줬는지 확인 (최적화로 인해 기본 옵션이 아님 ) 
 	Matrix* GetToRootMatrixPtr(const std::string & NodeName)&;
+
 	void   PlayAnimation(
 		const std::string & InitAnimName,
 		const bool  bLoop,

@@ -4,6 +4,7 @@
 #pragma once
 #include "GameObject.h"
 #include "RenderInterface.h"
+
 class NeroFSM;
 
 class Nero :   public GameObject ,
@@ -20,9 +21,9 @@ public:
 	static Nero* Create();
 public:
 	virtual void RenderReady() override;
-	virtual void RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
+	/*virtual void RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo)override;
-	virtual void RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override;
+	virtual void RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override;*/
 	virtual void Editor()override;
 public:
 	float Get_PlayingTime();

@@ -29,16 +29,16 @@ HRESULT Nero::Ready()
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	_InitRenderProp.RenderOrders =
+	/*_InitRenderProp.RenderOrders =
 	{
 		RenderProperty::Order::ForwardAlphaBlend,
 		RenderProperty::Order::Debug ,
 		RenderProperty::Order::DebugBone
-	};
+	};*/
 	RenderInterface::Initialize(_InitRenderProp);
 
 	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
-	_ShaderInfo.RegistShader(
+	/*_ShaderInfo.RegistShader(
 		RenderProperty::Order::ForwardAlphaBlend,
 		L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl", {});
 	_ShaderInfo.RegistShader(
@@ -46,14 +46,14 @@ HRESULT Nero::Ready()
 		L"..\\..\\Resource\\Shader\\DebugSK.hlsl", {});
 	_ShaderInfo.RegistShader(
 		RenderProperty::Order::DebugBone,
-		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
+		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});*/
 
 	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Player\\Player.fbx");
 	m_pTransform.lock()->SetScale({ 0.001f,0.001f,0.001f });
 	PushEditEntity(m_pMesh.get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
+	// PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
+	// PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
+	// PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 	PushEditEntity(m_pTransform.lock().get());
 
 	ENGINE::AnimNotify _Notify{};
@@ -121,54 +121,54 @@ void Nero::RenderReady()
 		_RenderProperty.bRender = true;
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
 		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
+		// RenderVariableBind(_UpdateInfo);
 	}
 }
-
-void Nero::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
-{
-	//디버그용 렌더
-	const uint64 NumSubset = m_pMesh->GetNumSubset();
-	m_pMesh->BindVTF(_ImplInfo.Fx);
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = m_pMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-}
-
-void Nero::RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo)
-{
-	//포워드 렌더
-	const uint64 NumSubset = m_pMesh->GetNumSubset();
-	m_pMesh->BindVTF(_ImplInfo.Fx);
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = m_pMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-}
-
-void Nero::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
-{
-	//디버그 뼈 렌더 뼈위치에 구체로 그려짐
-	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
-		SpTransform)
-	{
-		m_pMesh->BoneDebugRender(SpTransform->GetWorldMatrix(), _ImplInfo.Fx);
-	}
-}
+//
+//void Nero::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	//디버그용 렌더
+//	const uint64 NumSubset = m_pMesh->GetNumSubset();
+//	m_pMesh->BindVTF(_ImplInfo.Fx);
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = m_pMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	}
+//}
+//
+//void Nero::RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	//포워드 렌더
+//	const uint64 NumSubset = m_pMesh->GetNumSubset();
+//	m_pMesh->BindVTF(_ImplInfo.Fx);
+//	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
+//	{
+//		auto WeakSubset = m_pMesh->GetSubset(SubsetIdx);
+//		if (auto SharedSubset = WeakSubset.lock();
+//			SharedSubset)
+//		{
+//			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
+//			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
+//			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//		}
+//	}
+//}
+//
+//void Nero::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
+//{
+//	//디버그 뼈 렌더 뼈위치에 구체로 그려짐
+//	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
+//		SpTransform)
+//	{
+//		m_pMesh->BoneDebugRender(SpTransform->GetWorldMatrix(), _ImplInfo.Fx);
+//	}
+//}
 
 void Nero::Editor()
 {

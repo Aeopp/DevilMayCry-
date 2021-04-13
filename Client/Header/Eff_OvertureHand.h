@@ -24,7 +24,7 @@ private:
 public:
 	static Eff_OvertureHand* Create();
 public:
-	virtual void RenderAlphaBlendEffectImplementation(const ImplementationInfo& _ImplInfo) override;
+	// virtual void RenderAlphaBlendEffectImplementation(const ImplementationInfo& _ImplInfo) override;
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

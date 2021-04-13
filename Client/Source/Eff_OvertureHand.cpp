@@ -21,52 +21,52 @@ Eff_OvertureHand* Eff_OvertureHand::Create()
 	return new Eff_OvertureHand{};
 }
 
-
-void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
-	const ImplementationInfo& _ImplInfo)
-{
-	auto WeakSubset = _HandMesh->GetSubset(0u);
-
-	if (auto SharedSubset = WeakSubset.lock();
-		SharedSubset)
-	{
-		//_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
-
-		_ImplInfo.Fx->SetTexture("Color0Map", _GlowTex->GetTexture());
-		_ImplInfo.Fx->SetTexture("Color1Map", _LightningColorTex->GetTexture());
-		_ImplInfo.Fx->SetTexture("AlpMap", _LightningTex->GetTexture());
-		_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
-
-		if (0.3f < _AccumulateTime)
-		{
-			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV0);
-			_ImplInfo.Fx->SetFloat("_SliceAmount", (_AccumulateTime - 0.3f) * 0.8f);
-
-			_ImplInfo.Fx->BeginPass(1);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-
-		if (0.2f > _AccumulateTime)
-		{
-			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
-			_ImplInfo.Fx->SetFloat("_SliceAmount", 1.f - _AccumulateTime * 5.f);
-
-			_ImplInfo.Fx->BeginPass(0);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-		else if (0.6f > _AccumulateTime)
-		{
-			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
-			_ImplInfo.Fx->SetFloat("_SliceAmount", _AccumulateTime);
-
-			_ImplInfo.Fx->BeginPass(0);
-			SharedSubset->Render(_ImplInfo.Fx);
-			_ImplInfo.Fx->EndPass();
-		}
-	}
-}
+//
+//void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
+//	const ImplementationInfo& _ImplInfo)
+//{
+//	auto WeakSubset = _HandMesh->GetSubset(0u);
+//
+//	if (auto SharedSubset = WeakSubset.lock();
+//		SharedSubset)
+//	{
+//		//_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
+//
+//		_ImplInfo.Fx->SetTexture("Color0Map", _GlowTex->GetTexture());
+//		_ImplInfo.Fx->SetTexture("Color1Map", _LightningColorTex->GetTexture());
+//		_ImplInfo.Fx->SetTexture("AlpMap", _LightningTex->GetTexture());
+//		_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
+//
+//		if (0.3f < _AccumulateTime)
+//		{
+//			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV0);
+//			_ImplInfo.Fx->SetFloat("_SliceAmount", (_AccumulateTime - 0.3f) * 0.8f);
+//
+//			_ImplInfo.Fx->BeginPass(1);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//		}
+//
+//		if (0.2f > _AccumulateTime)
+//		{
+//			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
+//			_ImplInfo.Fx->SetFloat("_SliceAmount", 1.f - _AccumulateTime * 5.f);
+//
+//			_ImplInfo.Fx->BeginPass(0);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//		}
+//		else if (0.6f > _AccumulateTime)
+//		{
+//			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
+//			_ImplInfo.Fx->SetFloat("_SliceAmount", _AccumulateTime);
+//
+//			_ImplInfo.Fx->BeginPass(0);
+//			SharedSubset->Render(_ImplInfo.Fx);
+//			_ImplInfo.Fx->EndPass();
+//		}
+//	}
+//}
 
 HRESULT Eff_OvertureHand::Ready()
 {
@@ -78,15 +78,15 @@ HRESULT Eff_OvertureHand::Ready()
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	_InitRenderProp.RenderOrders =
-	{
-		ENGINE::RenderProperty::Order::AlphaBlendEffect,
-		//ENGINE::RenderProperty::Order::Debug
-	};
-	RenderInterface::Initialize(_InitRenderProp);
+	//_InitRenderProp.RenderOrders =
+	//{
+	//	ENGINE::RenderProperty::Order::AlphaBlendEffect,
+	//	//ENGINE::RenderProperty::Order::Debug
+	//};
+	//RenderInterface::Initialize(_InitRenderProp);
 
-	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
-		L"..\\..\\Resource\\Shader\\Effect\\OvertureHand.hlsl", {});
+	//_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
+	//	L"..\\..\\Resource\\Shader\\Effect\\OvertureHand.hlsl", {});
 	
 	auto InitTransform =  GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.01f, 0.01f, 0.01f });

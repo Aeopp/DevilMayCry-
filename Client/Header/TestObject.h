@@ -18,12 +18,12 @@ public:
 	static TestObject* Create();
 public:
 	virtual void    RenderReady()                          override;
-	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
+	/*virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
 	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderShadowImplementation(const
 	   ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderGBufferImplementation(const
-		ImplementationInfo& _ImplInfo)override;
+		ImplementationInfo& _ImplInfo)override;*/
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

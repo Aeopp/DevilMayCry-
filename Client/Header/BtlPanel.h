@@ -66,7 +66,7 @@ private:
 public:
 	static BtlPanel* Create();
 public:
-	virtual void    RenderUIImplementation(const ImplementationInfo&_ImplInfo) override;
+	//virtual void    RenderUIImplementation(const ImplementationInfo&_ImplInfo) override;
 	virtual void    RenderReady() override;
 public:
 	virtual HRESULT Ready() override;

@@ -17,7 +17,7 @@ protected:
 	virtual void Free() override PURE;
 	virtual std::string GetName() override PURE;
 public:
-	virtual void    RenderAlphaBlendEffectImplementation(const ImplementationInfo&_ImplInfo) override PURE;
+	// virtual void    RenderAlphaBlendEffectImplementation(const ImplementationInfo&_ImplInfo) override PURE;
 	virtual void    RenderReady() override;
 public:
 	virtual HRESULT Ready() override PURE;
