@@ -19,6 +19,7 @@ private:
 		HP_GAUGE,
 		TDT_GAUGE,
 		KEYBOARD,
+		RANK_BACK,
 		DESC_END
 	};
 	struct UI_DESC
@@ -73,6 +74,8 @@ private:
 
 	std::shared_ptr<ENGINE::Texture> _KeyBoardTex{};
 
+	std::shared_ptr<ENGINE::Texture> _RingTex{};
+
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
 
@@ -89,6 +92,8 @@ private:
 	float _TDTGauge_CurXPosOrtho = 0.f;
 
 	float _HPGlassDirt = 0.f;
+
+	float _RankBackMaxScale = 3.f;
 
 	enum KEY_INPUT_ID
 	{

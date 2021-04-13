@@ -292,6 +292,23 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
+
+		//
+		CurID = RANK_BACK;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetTexture("ATOS0Map", _RingTex->GetTexture());
+
+			for (int i = 0; i < 5; ++i)
+			{
+				Create_ScreenMat(CurID, ScreenMat, i);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(13);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+		}
 	}
 
 	//
@@ -461,11 +478,13 @@ HRESULT BtlPanel::Ready()
 	_TDTGaugeNRMRTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\TDT_GaugeOut_NRMR.tga");
 
 	_KeyBoardTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\ui8013_01_iam.tga");
+	
+	_RingTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Light\\tex_capcom_light_ring_0007_alpg.tga");
 
 	D3DXMatrixPerspectiveFovLH(&_PerspectiveProjMatrix, D3DXToRadian(2.5f), (float)g_nWndCX / g_nWndCY, 0.1f, 1.f);
 		 
 	Init_UIDescs();
-	
+
 	return S_OK;
 }
 
@@ -537,11 +556,15 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	_TDTGauge_CurXPosOrtho = (TDTGaugeOrthoCenterX - TDTGagueOrthoOffsetToCenter) + (360.f - _TargetHP_Degree) / 360.f * 2.f * TDTGagueOrthoOffsetToCenter;
 	//std::cout << _TDTGauge_CurXPosOrtho << std::endl;
  
+	float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
+	_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
+	_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
+
 	//
 	Check_KeyInput();
 
 	//
-	Imgui_ModifyUI(KEYBOARD);
+	Imgui_ModifyUI(RANK_BACK);
 
 	return 0;
 }
@@ -593,6 +616,7 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[HP_GAUGE] = { true, Vector3(210.f, 50.f, 0.02f), Vector3(0.5f, 0.5f, 1.f) };
 	_UIDescs[TDT_GAUGE] = { true, Vector3(305.f, 75.f, 0.5f), Vector3(3.5f, 3.5f, 1.f) };
 	_UIDescs[KEYBOARD] = { true, Vector3(270.f, 570.f, 0.02f), Vector3(5.f, 1.5f, 1.f) };
+	_UIDescs[RANK_BACK] = { true, Vector3(1100.f, 270.f, 0.02f), Vector3(_RankBackMaxScale, _RankBackMaxScale, 1.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -850,7 +874,6 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			break;
 		default: case 0:
-			//goto DEFAULT;
 			_Out._11 = 5.f; //_UIDescs[_ID].Scale.x;
 			_Out._22 = 1.5f;// _UIDescs[_ID].Scale.y;
 			_Out._33 = _UIDescs[_ID].Scale.z;
@@ -861,7 +884,48 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		}
 		break;
 
-	default: //DEFAULT:
+	case RANK_BACK:
+		switch (_Opt)
+		{
+		case 1:
+			_Out._11 = _UIDescs[_ID].Scale.x * 0.8f;
+			_Out._22 = _UIDescs[_ID].Scale.y * 0.8f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 2:
+			_Out._11 = _UIDescs[_ID].Scale.x * 0.6f;
+			_Out._22 = _UIDescs[_ID].Scale.y * 0.6f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 3:
+			_Out._11 = _UIDescs[_ID].Scale.x * 0.4f;
+			_Out._22 = _UIDescs[_ID].Scale.y * 0.4f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		case 4:
+			_Out._11 = _UIDescs[_ID].Scale.x * 0.2f;
+			_Out._22 = _UIDescs[_ID].Scale.y * 0.2f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			break;
+		default: case 0:
+			goto DEFAULT;
+			break;
+		}
+		break;
+
+	default: DEFAULT:
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.y;
 		_Out._33 = _UIDescs[_ID].Scale.z;

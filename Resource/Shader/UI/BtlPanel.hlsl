@@ -99,7 +99,7 @@ struct VsOut_Clip
     float3 Normal : TEXCOORD1;
     float3 Tangent : TEXCOORD2;
     float3 BiNormal : TEXCOORD3;
-    float2 Clip : TEXCOORD4;
+    float4 Clip : TEXCOORD4;
 };
 
 struct VsOut_NoiseClip
@@ -112,7 +112,7 @@ struct VsOut_NoiseClip
     float2 NoiseCoord0 : TEXCOORD4;
     float2 NoiseCoord1 : TEXCOORD5;
     float2 NoiseCoord2 : TEXCOORD6;
-    float2 Clip : TEXCOORD7;
+    float Clip : TEXCOORD7;
 };
 
 struct VsOut_GUI
@@ -194,7 +194,7 @@ VsOut_NoiseClip VsMain_TargetHP(VsIn In)
      return Out;
 };
 
-VsOut_Clip VsMain_Gauge(VsIn In)
+VsOut_Clip VsMain_ClipPos(VsIn In)
 {
     VsOut_Clip Out = (VsOut_Clip) 0;
 
@@ -203,11 +203,9 @@ VsOut_Clip VsMain_Gauge(VsIn In)
     Out.Normal = normalize(mul(float4(In.Normal.xyz, 0.f), ScreenMat));
     Out.Tangent = normalize(mul(float4(In.BiNormal.xyz, 0.f), ScreenMat));
     Out.BiNormal = normalize(mul(float4(In.Position.xyz, 0.f), ScreenMat));
-    Out.UV = In.UV;
-               
-    Out.Clip.x = Out.Position.x;  // Ps 에서 계산
-    Out.Clip.y = Out.Position.y;
-    
+    Out.UV = In.UV;        
+    Out.Clip = Out.Position;
+
     return Out;
 };
 
@@ -238,7 +236,7 @@ struct PsIn_Clip
     float3 Normal : TEXCOORD1;
     float3 Tangent : TEXCOORD2;
     float3 BiNormal : TEXCOORD3;
-    float2 Clip : TEXCOORD4;
+    float4 Clip : TEXCOORD4;
 };
 
 struct PsIn_NoiseClip
@@ -304,7 +302,7 @@ PsOut PsMain_Mesh(PsIn In)
     float3x3 TBN = float3x3(normalize(In.Tangent),
                             normalize(In.BiNormal),
                             normalize(In.Normal));
-
+    
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
     float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
@@ -351,8 +349,8 @@ PsOut PsMain_TargetHP(PsIn_NoiseClip In)
     Noise2.xy *= float2(0.2f, -0.3f);
     
     float4 FinalNoise = Noise0 + Noise1 + Noise2;
-    FinalNoise *= 0.5f; //scale;
-    float2 NoiseCoord = FinalNoise.xy + In.UV;
+    FinalNoise *= 0.5f; // scale;
+    float2 NoiseCoord = In.UV + FinalNoise.xy;  // 원본 uv를 밀어냄
        
     Out.Color = float4(0.5f, 0.647f, 0.698f, tex2D(ATOS0, NoiseCoord).r);
     Out.Color.a *= ((In.UV.y - 0.8f) * 5.f);
@@ -590,6 +588,35 @@ PsOut PsMain_GUI(PsIn_GUI In)
     return Out;
 };
 
+PsOut PsMain_RankBack(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    float4 Noise0 = tex2D(Noise, In.UV).rrrr;
+    float4 Noise1 = tex2D(Noise, In.UV).gggg;
+    float4 Noise2 = tex2D(Noise, In.UV).bbbb;
+    
+    // -1 ~ 1 범위
+    Noise0 = (Noise0 - 0.5f) * 2.f;
+    Noise1 = (Noise1 - 0.5f) * 2.f;
+    Noise2 = (Noise2 - 0.5f) * 2.f;
+ 
+    // distortion
+    Noise0.xy *= float2(0.2f, 0.1f);
+    Noise1.xy *= float2(-0.1f, 0.2f);
+    Noise2.xy *= float2(0.2f, -0.1f);
+    
+    float4 FinalNoise = Noise0 + Noise1 + Noise2;
+    FinalNoise *= 0.2f; // scale;
+    float2 NoiseCoord = In.UV + FinalNoise.xy; // 원본 uv를 밀어냄
+    
+    float4 ATOSSample = tex2D(ATOS0, NoiseCoord);
+
+    Out.Color = float4(1.f, 1.f, 1.f, saturate((ATOSSample.a - 0.5f) * 1.2f));
+ 
+    return Out;
+};
+
 
 technique Default
 {
@@ -638,7 +665,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Gauge();
+        vertexshader = compile vs_3_0 VsMain_ClipPos();
         pixelshader = compile ps_3_0 PsMain_BossGauge0();
     }
     pass p4
@@ -650,7 +677,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Gauge();
+        vertexshader = compile vs_3_0 VsMain_ClipPos();
         pixelshader = compile ps_3_0 PsMain_BossGauge1();
     }
     pass p5
@@ -662,7 +689,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Gauge();
+        vertexshader = compile vs_3_0 VsMain_ClipPos();
         pixelshader = compile ps_3_0 PsMain_BossGauge2();
     }
     pass p6
@@ -674,7 +701,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Gauge();
+        vertexshader = compile vs_3_0 VsMain_ClipPos();
         pixelshader = compile ps_3_0 PsMain_BossGauge3();
     }
     pass p7
@@ -710,7 +737,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Gauge();
+        vertexshader = compile vs_3_0 VsMain_ClipPos();
         pixelshader = compile ps_3_0 PsMain_HPGauge();
     }
     pass p10
@@ -734,7 +761,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Gauge();
+        vertexshader = compile vs_3_0 VsMain_ClipPos();
         pixelshader = compile ps_3_0 PsMain_TDTGauge1();
     }
     pass p12
@@ -748,5 +775,17 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain_GUI();
         pixelshader = compile ps_3_0 PsMain_GUI();
+    }
+    pass p13
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain();
+        pixelshader = compile ps_3_0 PsMain_RankBack();
     }
 };
