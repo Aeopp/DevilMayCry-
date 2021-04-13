@@ -20,6 +20,7 @@ private:
 		TDT_GAUGE,
 		KEYBOARD,
 		RANK_BACK,
+		RANK,
 		DESC_END
 	};
 	struct UI_DESC
@@ -76,6 +77,17 @@ private:
 
 	std::shared_ptr<ENGINE::Texture> _RingTex{};
 
+	std::shared_ptr<ENGINE::StaticMesh> _RankDMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _RankCMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _RankBMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _RankAMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _RankSMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _RankSSMesh{};
+	std::shared_ptr<ENGINE::StaticMesh> _RankSSSMesh{};
+	std::shared_ptr<ENGINE::Texture> _NullNormalRoughnessTex{};
+	std::shared_ptr<ENGINE::Texture> _RankGradationTex{};
+	std::shared_ptr<ENGINE::Texture> _RankNormalTex{};
+
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
 
@@ -94,6 +106,18 @@ private:
 	float _HPGlassDirt = 0.f;
 
 	float _RankBackMaxScale = 3.f;
+
+	/*
+	  0       X
+	  1 ~ 100 D
+	101 ~ 200 C
+	201 ~ 300 B
+	301 ~ 400 A
+	401 ~ 500 S
+	501 ~ 600 SS
+	601 ~ 700 SSS 
+	*/
+	int _RankScore = 0;
 
 	enum KEY_INPUT_ID
 	{

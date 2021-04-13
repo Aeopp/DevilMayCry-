@@ -617,6 +617,31 @@ PsOut PsMain_RankBack(PsIn In)
     return Out;
 };
 
+PsOut PsMain_Rank(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    float4 ALB0Sample = tex2D(ALB0, In.UV);
+    //float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+    
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+    
+    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+
+    Out.Color = Diffuse * float4(ALB0Sample.rgb * float3(1.f, 1.f, 0.f), 1.f);
+    Out.Color.a = 1.f;
+    
+    return Out;
+};
+
 
 technique Default
 {
@@ -787,5 +812,17 @@ technique Default
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_RankBack();
+    }
+    pass p14
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain_Perspective();
+        pixelshader = compile ps_3_0 PsMain_Rank();
     }
 };

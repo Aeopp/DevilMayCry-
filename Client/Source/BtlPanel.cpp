@@ -410,6 +410,72 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			_ImplInfo.Fx->EndPass();
 		}
 	}
+
+	//
+	CurID = RANK;
+	if (_UIDescs[CurID].Using)
+	{
+		int Rank = _RankScore / 100;
+		std::weak_ptr<ENGINE::StaticMesh> RankMesh;
+		switch (Rank)
+		{
+		case 0:
+			if (_RankScore > 0)
+				RankMesh = _RankDMesh;
+			break;
+		case 1:
+			RankMesh = _RankCMesh;
+			break;
+		case 2:
+			RankMesh = _RankBMesh;
+			break;
+		case 3:
+			RankMesh = _RankAMesh;
+			break;
+		case 4:
+			RankMesh = _RankSMesh;
+			break;
+		case 5:
+			RankMesh = _RankSSMesh;
+			break;
+		case 6: case 7:
+			RankMesh = _RankSSSMesh;
+			break;
+		}
+
+		if (!RankMesh.expired())
+		{
+			auto WeakSubset0 = RankMesh.lock()->GetSubset(0u);
+			if (auto SharedSubset = WeakSubset0.lock();
+				SharedSubset)
+			{
+				_ImplInfo.Fx->SetTexture("ALB0Map", _HPGaugeBaseALBMTex->GetTexture());
+				_ImplInfo.Fx->SetTexture("NRMR0Map", _NullNormalRoughnessTex->GetTexture());
+
+				Create_ScreenMat(CurID, ScreenMat);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(8);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+
+			auto WeakSubset1 = RankMesh.lock()->GetSubset(1u);
+			if (auto SharedSubset = WeakSubset1.lock();
+				SharedSubset)
+			{
+				_ImplInfo.Fx->SetTexture("ALB0Map", _RankGradationTex->GetTexture());
+				_ImplInfo.Fx->SetTexture("NRMR0Map", _RankNormalTex->GetTexture());
+
+				Create_ScreenMat(CurID, ScreenMat);
+				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+				_ImplInfo.Fx->BeginPass(14);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+		}
+	}
 };
 
 void BtlPanel::RenderReady()
@@ -480,6 +546,17 @@ HRESULT BtlPanel::Ready()
 	_KeyBoardTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\ui8013_01_iam.tga");
 	
 	_RingTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Light\\tex_capcom_light_ring_0007_alpg.tga");
+
+	_RankDMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\srt3_d.fbx");
+	_RankCMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\srt3_c.fbx");
+	_RankBMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\srt3_b.fbx");
+	_RankAMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\srt3_a.fbx");
+	_RankSMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\srt3_s.fbx");
+	_RankSSMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\srt3_ss.fbx");
+	_RankSSSMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\UI\\srt3_sss.fbx");
+	_NullNormalRoughnessTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\NullNormalRoughness.tga");
+	_RankGradationTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\SR_Gradation_BM.tga");
+	_RankNormalTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\SR_w_NRM.tga");
 
 	D3DXMatrixPerspectiveFovLH(&_PerspectiveProjMatrix, D3DXToRadian(2.5f), (float)g_nWndCX / g_nWndCY, 0.1f, 1.f);
 		 
@@ -556,6 +633,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	_TDTGauge_CurXPosOrtho = (TDTGaugeOrthoCenterX - TDTGagueOrthoOffsetToCenter) + (360.f - _TargetHP_Degree) / 360.f * 2.f * TDTGagueOrthoOffsetToCenter;
 	//std::cout << _TDTGauge_CurXPosOrtho << std::endl;
  
+	//
 	float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
 	_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
 	_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
@@ -564,7 +642,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	Check_KeyInput();
 
 	//
-	Imgui_ModifyUI(RANK_BACK);
+	Imgui_ModifyUI(RANK);
 
 	return 0;
 }
@@ -616,7 +694,8 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[HP_GAUGE] = { true, Vector3(210.f, 50.f, 0.02f), Vector3(0.5f, 0.5f, 1.f) };
 	_UIDescs[TDT_GAUGE] = { true, Vector3(305.f, 75.f, 0.5f), Vector3(3.5f, 3.5f, 1.f) };
 	_UIDescs[KEYBOARD] = { true, Vector3(270.f, 570.f, 0.02f), Vector3(5.f, 1.5f, 1.f) };
-	_UIDescs[RANK_BACK] = { true, Vector3(1100.f, 270.f, 0.02f), Vector3(_RankBackMaxScale, _RankBackMaxScale, 1.f) };
+	_UIDescs[RANK_BACK] = { false, Vector3(1100.f, 270.f, 0.02f), Vector3(_RankBackMaxScale, _RankBackMaxScale, 1.f) };
+	_UIDescs[RANK] = { true, Vector3(6.5f, 1.3f, 15.f), Vector3(0.08f, 0.08f, 0.08f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -671,7 +750,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		_Out._43 = _UIDescs[_ID].Pos.z;
 		break;
 
-	case HP_GLASS:
+	case HP_GLASS: 
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.z * 0.00001f; // y z Ãà Àß¸ø»ÌÀ½ ¤Ð¤Ð
 		_Out._33 = _UIDescs[_ID].Scale.y;
@@ -925,6 +1004,17 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		}
 		break;
 
+	case RANK:
+		_Out._11 = _UIDescs[_ID].Scale.x;
+		_Out._22 = _UIDescs[_ID].Scale.z; // y z Ãà Àß¸ø»ÌÀ½ ¤Ð¤Ð
+		_Out._33 = _UIDescs[_ID].Scale.y;
+		D3DXMatrixRotationX(&RotMat, D3DXToRadian(-90.f));
+		_Out *= RotMat;
+		_Out._41 = _UIDescs[_ID].Pos.x;
+		_Out._42 = _UIDescs[_ID].Pos.y;
+		_Out._43 = _UIDescs[_ID].Pos.z;
+		break;
+
 	default: DEFAULT:
 		_Out._11 = _UIDescs[_ID].Scale.x;
 		_Out._22 = _UIDescs[_ID].Scale.y;
@@ -1068,4 +1158,8 @@ void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 	Vector2 MaxTexUV = _MaxTexUV;
 	ImGui::InputFloat2("MaxTexUV", MaxTexUV);
 	_MaxTexUV = MaxTexUV;
+
+	int RankScore = _RankScore;
+	ImGui::SliderInt("RankScore", &RankScore, 0, 700);
+	_RankScore = RankScore;
 }
