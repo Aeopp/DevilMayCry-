@@ -44,6 +44,7 @@ public:
 	void    DisablePrevVTF()&;
 	std::tuple<Vector3, Quaternion, Vector3>   
 		Update(const float DeltaTime)&;
+	void TPose();
 	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
 	Node* GetRootNode()&;

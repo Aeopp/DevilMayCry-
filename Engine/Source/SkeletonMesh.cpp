@@ -589,8 +589,8 @@ void SkeletonMesh::DisablePrevVTF()&
 
 std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaTime)&
 {
-	if (bAnimationEnd || bAnimStop)return 
-			{ {0,0,0},{0,0,0,1},{0,0,0} };
+	if (bAnimationEnd || bAnimStop)return
+	{ {0,0,0},{0,0,0,1},{0,0,0} };
 
 	const float CalcDeltaTime = DeltaTime * DeltaTimeFactor;
 
@@ -610,12 +610,17 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaT
 	return AnimationUpdateImplementation();
 };
 
+void SkeletonMesh::TPose()
+{
+
+};
+
 void SkeletonMesh::BoneDebugRender(
 	const Matrix& OwnerTransformWorld,
 	ID3DXEffect* const Fx)&
 {
-	static auto DebugSphereMesh = Resources::Load<ENGINE::StaticMesh>(
-		"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
+	static auto DebugSphereMesh = 
+		Resources::Load<ENGINE::StaticMesh>("..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
 
 	if (!Nodes || !DebugSphereMesh || bAnimationEnd) return;
 

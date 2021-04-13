@@ -229,7 +229,8 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 				{
 					for (const auto& [ShaderKey,Call]: ShaderKeyCallMap)
 					{
-						RenderEntitys[_EntityOrder][ShaderKey].push_back(_SharedRenderEntity.get());
+						RenderEntitys[_EntityOrder][ShaderKey].push_back(
+								RenderEntityType{ _SharedRenderEntity.get(), Call });
 					}
 				}
 			}
@@ -312,7 +313,8 @@ void Renderer::RenderReadyEntitys()&
 		{
 			for (auto& RenderEntity : RenderEntityArr)
 			{
-				RenderEntity->RenderReady();
+				auto& _RenderInterface = RenderEntity.first;
+				_RenderInterface->RenderReady();
 			}
 		}
 	}
@@ -992,52 +994,7 @@ HRESULT Renderer::RenderDeferredShading()&
 	Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
 	return S_OK;
-}
-
-HRESULT Renderer::RenderForwardAlphaBlend()&
-{
-	Device->SetRenderTarget(0u, BackBuffer);
-
-	auto ForwardAlphaBlendImplementation = [this](const RenderProperty::Order& _Order , ID3DXEffect*const Fx) 
-	{
-		if (auto _TargetGroup = RenderEntitys.find(_Order);
-			_TargetGroup != std::end(RenderEntitys))
-		{
-			Fx->SetMatrix("View", &_RenderInfo.View);
-			Fx->SetMatrix("Projection", &_RenderInfo.Projection);
-
-			RenderInterface::ImplementationInfo _ImplInfo{};
-			_ImplInfo.Fx = Fx;
-			_ImplInfo._Device = Device;
-
-			uint32 Passes = 0u;
-			Fx->Begin(&Passes, NULL);
-
-			for (uint32 i = 0; i < Passes; ++i)
-			{
-				_ImplInfo.PassIndex = i;
-				Fx->BeginPass(i);
-				for (auto& _RenderEntity : _TargetGroup->second)
-				{
-					if (_RenderEntity)
-					{
-						if (_RenderEntity->GetRenderProp().bRender)
-						{
-							_RenderEntity->RenderForwardAlphaBlendImplementation(_ImplInfo);
-						}
-					}
-				}
-				Fx->EndPass();
-			}
-			Fx->End();
-		}
-	};
-	
-	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlend, Shaders["ForwardAlphaBlend"]->GetEffect());
-	ForwardAlphaBlendImplementation(RenderProperty::Order::ForwardAlphaBlendSK, Shaders["ForwardAlphaBlendSK"]->GetEffect());
-
-	return S_OK;
-}
+};
 
 HRESULT Renderer::RenderAlphaBlendEffect()&
 {
@@ -1061,108 +1018,8 @@ HRESULT Renderer::RenderAlphaBlendEffect()&
 	//return S_OK;
 
 	return S_OK;
-}
+};
 
-HRESULT Renderer::RenderDebug()&
-{
-	if (g_bDebugRender)
-	{
-		Device->SetRenderTarget(0u, BackBuffer);
-
-		auto DebugRenderImplementation = [this](const RenderProperty::Order & _Order , ID3DXEffect*const Fx) 
-		{
-			if (auto _TargetGroup = RenderEntitys.find(_Order);
-				_TargetGroup != std::end(RenderEntitys))
-			{
-				Fx->SetMatrix("View",
-					&_RenderInfo.View);
-				Fx->SetMatrix("Projection", &_RenderInfo.Projection);
-
-				RenderInterface::ImplementationInfo _ImplInfo{};
-				_ImplInfo.Fx = Fx;
-				_ImplInfo._Device = Device;
-				uint32 Passes = 0u;
-				Fx->Begin(&Passes, NULL);
-
-				for (uint32 i = 0; i < Passes; ++i)
-				{
-					_ImplInfo.PassIndex = i;
-					Fx->BeginPass(i);
-
-					for (auto& _RenderEntity : _TargetGroup->second)
-					{
-						if (_RenderEntity)
-						{
-							if (_RenderEntity->GetRenderProp().bRender)
-							{
-								_RenderEntity->
-									RenderDebugImplementation(_ImplInfo);
-							}
-						}
-					}
-
-					Fx->EndPass();
-				}
-
-				Fx->End();
-			}
-		};
-
-	
-		DebugRenderImplementation(RenderProperty::Order::Debug, Shaders["Debug"]->GetEffect());
-		DebugRenderImplementation(RenderProperty::Order::DebugBone, Shaders["DebugSK"]->GetEffect());
-	}
-
-	return S_OK;
-}
-
-HRESULT Renderer::RenderDebugBone()&
-{
-	if (g_bDebugRender)
-	{
-		if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::DebugBone);
-			_TargetGroup != std::end(RenderEntitys))
-		{
-			Device->SetRenderTarget(0u, BackBuffer);
-			auto* const Fx = Shaders["DebugBone"]->GetEffect();
-
-			Fx->SetMatrix("View",
-				&_RenderInfo.View);
-			Fx->SetMatrix("Projection", &_RenderInfo.Projection);
-			const Matrix ScaleOffset = FMath::Scale({ 0.01 ,0.01,0.01 });
-			Fx->SetMatrix("ScaleOffset", &ScaleOffset);
-
-			RenderInterface::ImplementationInfo _ImplInfo{};
-			_ImplInfo.Fx = Fx;
-			_ImplInfo._Device = Device;
-			uint32 Passes = 0u;
-			Fx->Begin(&Passes, NULL);
-
-			for (uint32 i = 0; i < Passes; ++i)
-			{
-				_ImplInfo.PassIndex = i;
-				Fx->BeginPass(i);
-
-				for (auto& _RenderEntity : _TargetGroup->second)
-				{
-					if (_RenderEntity)
-					{
-						if (_RenderEntity->GetRenderProp().bRender)
-						{
-							_RenderEntity->RenderDebugBoneImplementation(_ImplInfo);
-						}
-					}
-				}
-
-				Fx->EndPass();
-			}
-
-			Fx->End();
-		}
-	}
-
-	return S_OK;
-}
 
 HRESULT Renderer::RenderUI()&
 {
@@ -1198,81 +1055,8 @@ HRESULT Renderer::ImguiRender()&
 	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 
 	return S_OK;
-}
+};
 
-HRESULT Renderer::RenderShadowScene(FLight*const Light)
-{
-	auto ShadowSceneRenderImplementation = [this,&Light](
-		const RenderProperty::Order _Order,
-		ID3DXEffect* const Fx)
-	{
-		if (auto _TargetGroup = RenderEntitys.find(_Order);
-			_TargetGroup != std::end(RenderEntitys))
-		{
-			RenderInterface::ImplementationInfo _ImplInfo{};
-			_ImplInfo.Fx = Fx;
-			_ImplInfo._Device = Device;
-			Matrix matViewProj;
-			Light->CalculateViewProjection(matViewProj);
-			
-			D3DXVECTOR4 clipplanes(
-				Light->GetNearPlane(),
-				Light->GetFarPlane(),
-				0, 0);
-
-			if (FAILED(Fx->SetTechnique("variance")))
-			{
-				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
-			}
-			if (FAILED(Fx->SetVector("clipPlanes", &clipplanes)))
-			{
-				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
-			}
-			if (FAILED(Fx->SetBool("isPerspective", Light->IsPerspective())))
-			{
-				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
-			}
-			if (FAILED(Fx->SetVector("lightPos", &Light->GetPosition())))
-			{
-				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
-			}
-			if (FAILED(Fx->SetMatrix("matViewProj", &matViewProj)))
-			{
-				PRINT_LOG(__FUNCTIONW__, __FUNCTIONW__);
-			}
-
-			uint32 Passes = 0u;
-			Fx->Begin(&Passes, NULL);
-
-			for (uint32 i = 0; i < Passes; ++i)
-			{
-				Fx->BeginPass(i);
-				_ImplInfo.PassIndex = i;
-
-				for (auto& _RenderEntity : _TargetGroup->second)
-				{
-					if (_RenderEntity)
-					{
-						if (_RenderEntity->GetRenderProp().bRender)
-						{
-							_RenderEntity->RenderShadowImplementation(_ImplInfo);
-						}
-					}
-				}
-
-				Fx->EndPass();
-			}
-
-			Fx->End();
-		};
-	};
-
-	Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
-	ShadowSceneRenderImplementation(RenderProperty::Order::Shadow, Shaders["Shadow"]->GetEffect());
-	ShadowSceneRenderImplementation(RenderProperty::Order::ShadowSK, Shaders["ShadowSK"]->GetEffect());
-
-	return S_OK;
-}
 
 HRESULT Renderer::RenderTargetDebugRender()&
 {

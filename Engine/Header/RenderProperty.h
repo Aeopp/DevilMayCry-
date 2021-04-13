@@ -3,10 +3,11 @@
 #include "EngineTypedef.h"
 #include "EngineDefine.h"
 #include <map>
+#include <functional>
 
 BEGIN(ENGINE)
 
-struct ENGINE_DLL ImplementationInfo
+struct ENGINE_DLL RenderInfo
 {
 	IDirect3DDevice9* _Device{};
 	ID3DXEffect* Fx{};
@@ -36,7 +37,7 @@ public :
 		DebugBone,
 	};
 	bool bRender = true;
-	using CallType = std::function<void(const ImplementationInfo&)>;
+	using CallType = std::function<void(const RenderInfo&)>;
 	std::map<Order,std::map<std::string, CallType>> RenderOrders{};
 };  
 

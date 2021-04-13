@@ -69,9 +69,11 @@ private:
 	IDirect3DSurface9* BackBuffer{ nullptr };
 	std::shared_ptr<Frustum> CameraFrustum{};
 	LPDIRECT3DDEVICE9	Device{ nullptr };
-	// 렌더 패스 , 쉐이더 이름으로 오브젝트 나누기 .
+	// 렌더패스와 쉐이더 키 
+	// 쉐이더 키와 해당 쉐이더의 호출함수,객체들
+	using RenderEntityType = std::pair< RenderInterface*, RenderProperty::CallType>;
 	std::map<RenderProperty::Order, 
-		std::unordered_map<std::string,std::vector<std::function<RenderProperty::CallType>>>>
+		std::unordered_map<std::string,std::vector<RenderEntityType>>>
 		RenderEntitys{};
 	std::shared_ptr<Quad> _Quad;
 	std::map<std::string, std::shared_ptr<ENGINE::Shader>> Shaders{};
