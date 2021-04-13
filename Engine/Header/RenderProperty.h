@@ -12,6 +12,12 @@ struct ENGINE_DLL RenderInfo
 	IDirect3DDevice9* _Device{};
 	ID3DXEffect* Fx{};
 	uint32 PassIndex{ 0u };
+	std::any BySituation{};
+};
+
+struct ENGINE_DLL ShadowInfo
+{
+	Matrix ViewProjection = FMath::Identity();
 };
 
 struct ENGINE_DLL RenderProperty

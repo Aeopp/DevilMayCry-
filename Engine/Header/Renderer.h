@@ -61,6 +61,8 @@ private:
 	HRESULT RenderTargetDebugRender()&;
 	HRESULT RenderSky()&;
 	HRESULT Tonemapping()&;
+
+	void RenderShadow();
 public:
 	bool bEdit = false;
 	RenderInformation _RenderInfo{};

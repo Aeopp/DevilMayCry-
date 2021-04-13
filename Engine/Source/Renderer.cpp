@@ -35,7 +35,6 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	ReadyQuad();
 
 	TestShaderInit();
-
 	return S_OK;
 };
 
@@ -295,7 +294,6 @@ void Renderer::RenderReady()&
 	ReadyRenderInfo();
 	Culling();
 
-
 	TestLightRotation();
 	TestLightEdit();
 }
@@ -357,7 +355,7 @@ void Renderer::RenderShadowMaps()
 	auto Blur = Shaders["Blur"]->GetEffect();
 
 	Moonlight->RenderShadowMap(Device, [&](FLight* light) {
-		D3DXMATRIX viewproj;
+		D3DXMATRIX  viewproj;
 		D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
 
 		light->CalculateViewProjection(viewproj);
@@ -368,7 +366,29 @@ void Renderer::RenderShadowMaps()
 
 		Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 		RenderScene(shadowmap, viewproj);
-		});
+
+		RenderInfo _RenderInfo{};
+		_RenderInfo._Device = Device;
+		// 여기까지 했음 . 내일 화이팅
+		_RenderInfo.BySituation; 
+		for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
+		{
+			auto Fx = Shaders[ShaderKey]->GetEffect();
+			_RenderInfo.Fx = Fx;
+			UINT Passes = 0u;
+			Fx->Begin(&Passes, NULL);
+			for (int32 i = 0; i < Passes; ++i)
+			{
+				Fx->BeginPass(i);
+				for (auto& [_Entity,_Call] : EntityArr)
+				{
+					_Call();
+				}
+				Fx->EndPass();
+			}
+			Fx->End();
+		}
+	});
 
 	Moonlight->BlurShadowMap(Device, [&](FLight* light) {
 		D3DXVECTOR4 pixelsize(1.0f / light->GetShadowMapSize(),
@@ -1116,7 +1136,8 @@ HRESULT Renderer::Tonemapping()&
 	tonemap->End();
 
 	return S_OK;
-}
+};
+
 
 bool Renderer::TestShaderInit()
 {
@@ -1136,8 +1157,9 @@ bool Renderer::TestShaderInit()
 	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/wood2.jpg", &wood)))
 		return false;
 
-	/*if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/brick_normal.jpg", &wood_normal)))
-		return false;*/
+	//if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/brick_normal.jpg", &wood_normal)))
+	//	return false;
+
 	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/wood2_normal.tga", &wood_normal)))
 		return false;
 
