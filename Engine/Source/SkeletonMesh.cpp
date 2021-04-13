@@ -303,7 +303,7 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 	{
 		UpdateToRootMatricies();
 	}
-	//
+
 	VTFUpdate();
 
 	if (bTimeBeyondAnimation)

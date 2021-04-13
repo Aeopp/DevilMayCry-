@@ -48,7 +48,6 @@ private:
 	void Culling()&;
 	void ResetState()&;
 private:
-	HRESULT RenderImplementation()&;
 	// HRESULT RenderGBuffer()&;
 	HRESULT RenderDeferredShading()&;
 	HRESULT RenderForwardAlphaBlend()&;
@@ -70,7 +69,10 @@ private:
 	IDirect3DSurface9* BackBuffer{ nullptr };
 	std::shared_ptr<Frustum> CameraFrustum{};
 	LPDIRECT3DDEVICE9	Device{ nullptr };
-	std::map<RenderProperty::Order, std::vector<RenderInterface*>> RenderEntitys{};
+	// 렌더 패스 , 쉐이더 이름으로 오브젝트 나누기 .
+	std::map<RenderProperty::Order, 
+		std::unordered_map<std::string,std::vector<std::function<RenderProperty::CallType>>>>
+		RenderEntitys{};
 	std::shared_ptr<Quad> _Quad;
 	std::map<std::string, std::shared_ptr<ENGINE::Shader>> Shaders{};
 	std::map<std::string, std::shared_ptr<RenderTarget>>   RenderTargets{};
@@ -101,7 +103,7 @@ private:
 	LPD3DXMESH			skull = nullptr;
 	LPD3DXMESH			box = nullptr;
 
-	Vector4 MoonLightTarget{ 0,0,0 , 1 };
+	Vector4 MoonLightTarget{0,0,0,1};
 	Vector4 CurstomEye= { 0,0,0,1 };
 	float DXScreenQuadVerticesFFP[24] = {
 		// NOTE: viewport must be added
@@ -110,7 +112,6 @@ private:
 		-0.5f, -0.5f, 0, 1,		1, 1
 		- 0.5f, -0.5f, 0, 1,		1, 0,
 	};
-
 };
 END
 

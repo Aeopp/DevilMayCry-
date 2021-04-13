@@ -34,8 +34,6 @@ HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 	ReadyFrustum();
 	ReadyQuad();
 
-
-
 	TestShaderInit();
 
 	return S_OK;
@@ -225,9 +223,14 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 						= std::dynamic_pointer_cast<RenderInterface>(_SharedObject);
 				_SharedRenderEntity)
 			{
-				for (const auto& _EntityRenderOrder: _SharedRenderEntity->GetRenderProp().RenderOrders)
+				const auto& _EntityRenderProp = _SharedRenderEntity->GetRenderProp();
+
+				for (const auto& [_EntityOrder,ShaderKeyCallMap] : _EntityRenderProp.RenderOrders)
 				{
-					RenderEntitys[_EntityRenderOrder].push_back(_SharedRenderEntity.get());
+					for (const auto& [ShaderKey,Call]: ShaderKeyCallMap)
+					{
+						RenderEntitys[_EntityOrder][ShaderKey].push_back(_SharedRenderEntity.get());
+					}
 				}
 			}
 		}
@@ -254,7 +257,6 @@ HRESULT Renderer::Render()&
 	// 백버퍼로 백업 . 
 	Device->SetRenderTarget(0, BackBuffer);
 	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-	BackBuffer->Release();
 	RenderSky();
 	Tonemapping();
 	ResetState();
@@ -263,6 +265,7 @@ HRESULT Renderer::Render()&
 	GraphicSystem::GetInstance()->End();
 	RenderEnd();
 	Device->Present(NULL, NULL, NULL, NULL);
+	BackBuffer->Release();
 
 	return S_OK;
 }
@@ -292,8 +295,6 @@ void Renderer::RenderReady()&
 	Culling();
 
 
-
-
 	TestLightRotation();
 	TestLightEdit();
 }
@@ -307,9 +308,12 @@ void Renderer::RenderReadyEntitys()&
 {
 	for (auto& [_Order,RenderEntitys] : RenderEntitys)
 	{
-		for (auto& RenderEntity : RenderEntitys)
+		for (auto& [ShaderKey,RenderEntityArr] : RenderEntitys)
 		{
-			RenderEntity->RenderReady();
+			for (auto& RenderEntity : RenderEntityArr)
+			{
+				RenderEntity->RenderReady();
+			}
 		}
 	}
 }
@@ -342,83 +346,7 @@ void Renderer::RenderEnd()&
 void Renderer::RenderEntityClear()&
 {
 	RenderEntitys.clear();
-}
-
-HRESULT Renderer::RenderImplementation()&
-{
-	//Device->GetRenderTarget(0u, &BackBuffer);
-	//Device->GetViewport(&BackBufViewport);
-	//{
-	//	RenderShadows();
-	//	RenderGBuffer();
-	//    RenderDeferredShading();
-	//	Device->SetRenderTarget(0u, BackBuffer);
-	//	Device->Clear(
-	//		0u, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0, 1.0f, 0);
-	//	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-	//	auto*const screenquad = Shaders["ScreenQuad"]->GetEffect();  
-	//	screenquad->SetTechnique("screenquad");
-	//	screenquad->Begin(NULL, 0);
-	//	screenquad->BeginPass(0);
-	//	{
-	//		Device->SetTexture(0, sky);
-	//		_Quad->Render(Device, 1.f, 1.f, screenquad);
-	//	}
-	//	screenquad->EndPass();
-	//	screenquad->End();
-
-	//	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-	//	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	//	Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	//	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-
-	//	auto* const tonemap = Shaders["ToneMap"]->GetEffect();
-	//	tonemap->SetTechnique("tonemap");
-	//	Vector4 pixelsize{};
-	//	pixelsize.x = 1.0f / static_cast<float> (BackBufViewport.Width);
-	//	pixelsize.y = -1.0f / static_cast<float> (BackBufViewport.Height);
-	//	tonemap->SetVector("pixelSize", &pixelsize);
-
-	//	tonemap->Begin(NULL, 0);
-	//	tonemap->BeginPass(0);
-	//	{
-	//		Device->SetTexture(0, RenderTargets["SceneTarget"]->GetTexture());
-	//		_Quad->Render(Device, 1.f, 1.f, tonemap);
-	//	}
-	//	tonemap->EndPass();
-	//	tonemap->End();
-
-	//	D3DVIEWPORT9 viewport = BackBufViewport;
-	//	viewport.Width = 1024;
-	//	viewport.Height = 256;
-	//	viewport.X = viewport.Y = 10;
-
-
-	//	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-	//	Device->SetViewport(&viewport);
-
-
-	//	/*screenquad->Begin(NULL, 0);
-	//	screenquad->BeginPass(0);
-	//	{
-	//		Device->SetTexture()
-	//	}*/
-
-
-	//	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	//	Device->SetViewport(&BackBufViewport);
-	//	/*RenderForwardAlphaBlend();
-	//	RenderAlphaBlendEffect();
-	//	RenderUI();
-	//	RenderDebug();
-	//	RenderDebugBone();*/
-	//}
-	//// Device->SetRenderTarget(0u, BackBuffer);
-	//BackBuffer->Release();
-
-	return S_OK;
-}
+};
 
 void Renderer::RenderShadowMaps()
 {
@@ -443,7 +371,7 @@ void Renderer::RenderShadowMaps()
 	Moonlight->BlurShadowMap(Device, [&](FLight* light) {
 		D3DXVECTOR4 pixelsize(1.0f / light->GetShadowMapSize(),
 			1.0f / light->GetShadowMapSize(), 0, 0);
-		D3DXVECTOR4 TexelSize = 4.0f * pixelsize;	// make it more blurry
+		D3DXVECTOR4 TexelSize = Moonlight->BlurIntencity * pixelsize;	// make it more blurry
 		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 		Blur->SetTechnique("boxblur3x3");
 		Blur->SetVector("pixelSize", &pixelsize);
@@ -983,8 +911,12 @@ HRESULT Renderer::RenderDeferredShading()&
 		Fx->SetVector("lightColor", (D3DXVECTOR4*)&Moonlight->GetColor());
 		Fx->SetVector("lightPos", &Moonlight->GetPosition());
 		Fx->SetFloat("specularPower", 200.0f);
+		Fx->SetFloat("lightFlux", Moonlight->lightFlux);
+		Fx->SetFloat("lightIlluminance", Moonlight->lightIlluminance);
+		Fx->SetFloat("specularPower",Moonlight->specularPower);
+		Fx->SetFloat("sinAngularRadius",Moonlight->sinAngularRadius);
+		Fx->SetFloat("cosAngularRadius", Moonlight->cosAngularRadius);
 		
-
 		Device->SetTexture(3, Moonlight->GetShadowMap());
 		Fx->CommitChanges();
 
@@ -994,7 +926,7 @@ HRESULT Renderer::RenderDeferredShading()&
 
 	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 	RECT scissorrect;
-	static constexpr float POINT_LIGHT_RADIUS = 3.0f;
+	
 	for (int i = 0; i < 3; ++i)
 	{
 		clipplanes.x = PointLights[i]->GetNearPlane();
@@ -1004,15 +936,20 @@ HRESULT Renderer::RenderDeferredShading()&
 		(
 			scissorrect, (const D3DXMATRIX&)_RenderInfo.View,
 			(const D3DXMATRIX&)_RenderInfo.Projection,
-			POINT_LIGHT_RADIUS, g_nWndCX, g_nWndCY);
+			PointLights[i]->GetPointRadius(), g_nWndCX, g_nWndCY);
 
 		Device->SetScissorRect(&scissorrect);
 
 		Fx->SetVector("clipPlanes", &clipplanes);
 		Fx->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
 		Fx->SetVector("lightPos", &PointLights[i]->GetPosition());
-		Fx->SetFloat("specularPower", 80.0f);
-		Fx->SetFloat("lightRadius", POINT_LIGHT_RADIUS);
+		Fx->SetFloat("specularPower", PointLights[0]->specularPower);
+		Fx->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
+		Fx->SetFloat("lightFlux",PointLights[0]->lightFlux);
+		Fx->SetFloat("lightIlluminance", PointLights[0]->lightIlluminance);
+		Fx->SetFloat("sinAngularRadius", PointLights[0]->sinAngularRadius);
+		Fx->SetFloat("cosAngularRadius", PointLights[0]->cosAngularRadius);
+		
 		Device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
 		Fx->CommitChanges();
 		_Quad->Render(Device, 1.f, 1.f, Fx);

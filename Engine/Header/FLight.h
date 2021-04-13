@@ -19,23 +19,7 @@ public:
 		Spot,
 	};
 private:
-	D3DXVECTOR4				Position;	// or direction
-	D3DXVECTOR4				Projparams;
-	D3DXVECTOR3				Spotdirection;
-	D3DXVECTOR2				Spotparams;	// cos(inner), cos(outer)
 
-
-	float				    PointRadius;
-	D3DXCOLOR				Color;
-	LPDIRECT3DCUBETEXTURE9	Cubeshadowmap;
-	LPDIRECT3DCUBETEXTURE9	Blurredcubeshadowmap;
-	LPDIRECT3DTEXTURE9		Shadowmap;
-	LPDIRECT3DTEXTURE9		Blurredshadowmap;
-	Type				    _Type;
-	int						Currentface;
-	uint16_t				ShadowMapSize;
-	bool					Blurred;
-	float                   BlurIntencity;
 public:
 	FLight(Type _Type, 
 		const D3DXVECTOR4& position, const D3DXCOLOR& color,
@@ -71,6 +55,29 @@ public:
 	inline bool IsPerspective()const& {return _Type!=Directional;};
 	inline LPDIRECT3DTEXTURE9 GetShadowMap() { return (Blurred ? Blurredshadowmap : Shadowmap); }
 	inline LPDIRECT3DCUBETEXTURE9 GetCubeShadowMap() { return (Blurred ? Blurredcubeshadowmap : Cubeshadowmap); }
+
+private:
+	D3DXVECTOR4				Position;	// or direction
+	D3DXVECTOR4				Projparams;
+	D3DXVECTOR3				Spotdirection;
+	D3DXVECTOR2				Spotparams;	// cos(inner), cos(outer)
+	float				    PointRadius;
+	D3DXCOLOR				Color;
+	LPDIRECT3DCUBETEXTURE9	Cubeshadowmap;
+	LPDIRECT3DCUBETEXTURE9	Blurredcubeshadowmap;
+	LPDIRECT3DTEXTURE9		Shadowmap;
+	LPDIRECT3DTEXTURE9		Blurredshadowmap;
+	Type				    _Type;
+	int						Currentface;
+	uint16_t				ShadowMapSize;
+	bool					Blurred;
+public:
+	float                   BlurIntencity;
+	float  lightFlux = 10.f;
+	float  lightIlluminance = 1.5f;
+	float  specularPower = 80.f;
+	float  cosAngularRadius = 0.9999893; 
+	float  sinAngularRadius = 0.0046251;
 public:
 	void Edit(const uint32 Idx);
 private:

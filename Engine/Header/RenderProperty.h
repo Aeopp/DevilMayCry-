@@ -2,10 +2,18 @@
 #define __RENDERPROPERTY_H__
 #include "EngineTypedef.h"
 #include "EngineDefine.h"
-#include <set>
+#include <map>
 
 BEGIN(ENGINE)
-struct RenderProperty
+
+struct ENGINE_DLL ImplementationInfo
+{
+	IDirect3DDevice9* _Device{};
+	ID3DXEffect* Fx{};
+	uint32 PassIndex{ 0u };
+};
+
+struct ENGINE_DLL RenderProperty
 {
 public : 
 	enum class Order : uint8
@@ -28,8 +36,9 @@ public :
 		DebugBone,
 	};
 	bool bRender = true;
-	std::set<Order> RenderOrders{};
-};
+	using CallType = std::function<void(const ImplementationInfo&)>;
+	std::map<Order,std::map<std::string, CallType>> RenderOrders{};
+};  
 
 END
 #endif // !__RENDERPROPERTY_H__

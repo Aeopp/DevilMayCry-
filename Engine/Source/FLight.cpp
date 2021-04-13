@@ -120,7 +120,7 @@ void FLight::EditImplementation(const uint32 Idx)
 	{
 		ImGui::Text("BlurIntencity %3.3f",BlurIntencity);
 		static float BlurIntencitySliderPower = 0.01f;
-		ImGui::SliderFloat("BlurIntencitySliderPower", &BlurIntencitySliderPower, -1.f, 1.f);
+		ImGui::SliderFloat("BlurIntencitySliderPower", &BlurIntencitySliderPower, FLT_MIN, 1.f);
 		ImGui::InputFloat("In BlurIntencity", &BlurIntencity);
 		float AddBlurIntencity = 0.0f;
 		if (ImGui::SliderFloat("Add BlurIntencity", &AddBlurIntencity, -1.f, +1.f, "%3.3f"))
@@ -133,7 +133,7 @@ void FLight::EditImplementation(const uint32 Idx)
 	{
 		ImGui::Text("Position : %4.3f, %4.3f, %4.3f", Position.x, Position.y, Position.z);
 		static float PositionSliderPower = 0.01f;
-		ImGui::SliderFloat("PositionSliderPower", &PositionSliderPower, -1.f, 1.f);
+		ImGui::SliderFloat("PositionSliderPower", &PositionSliderPower, FLT_MIN, 1.f);
 		ImGui::InputFloat3("In Position", Position);
 		Vector3 AddPosition{ 0,0,0 };
 		if (ImGui::SliderFloat3("Add Position", AddPosition, -1.f, 1.f, "%3.3f"))
@@ -148,29 +148,110 @@ void FLight::EditImplementation(const uint32 Idx)
 	{
 		ImGui::Text("Projection Size : %4.4f , %4.4f", Projparams.x, Projparams.y);
 		static float ProjectionSizeSliderPower = 0.01f;
-		ImGui::SliderFloat("PositionSliderPower", &ProjectionSizeSliderPower, FLT_MIN, 0.99999f);
+		ImGui::SliderFloat("PositionSliderPower", &ProjectionSizeSliderPower, FLT_MIN, 1.f);
 		Vector2 AddProjectionSize = { 0.f ,0.f };
 		if (ImGui::SliderFloat2("Add ProjectionSize", AddProjectionSize, -1.f, 1.f))
 		{
-
+			AddProjectionSize *= ProjectionSizeSliderPower;
 		}
-		ImGui::SliderFloat2("ProjectionSize", Projparams, -500.f, 500.f , "%4.3f",ProjectionSizeSliderPower);
+		Projparams.x += AddProjectionSize.x;
+		Projparams.y += AddProjectionSize.y;
 		ImGui::InputFloat2("In ProjectionSize", Projparams);
-
-
 	}
 
 	{
+		ImGui::Text("Near Far SliderPower %4.4f , %4.4f ", Projparams.z, Projparams.w);
 		static float NearFarSliderPower = 0.01f;
-		ImGui::SliderFloat("NearFarSliderPower", &NearFarSliderPower, FLT_MIN, 0.99999f);
-		ImGui::SliderFloat("Near", &Projparams.z, -500.f, 500.f,"%4.5f", NearFarSliderPower);
-		ImGui::InputFloat("In Near", &Projparams.z);
-		ImGui::SliderFloat("Far", &Projparams.w, -500.f, 500.f , "%4.5f", NearFarSliderPower);
-		ImGui::InputFloat("In Far", &Projparams.w);
+		ImGui::SliderFloat("NearFarSliderPower", &NearFarSliderPower, FLT_MIN, 1.f);
+
+		{
+			float AddNear = 0.0f;
+			if (ImGui::SliderFloat("Add Near", &AddNear, -1.f, 1.f))
+			{
+				AddNear *= NearFarSliderPower;
+			}
+			Projparams.z += AddNear;
+			ImGui::InputFloat("In Near", &Projparams.z);
+		}
+
+		{
+			float AddFar = 0.0f;
+			if (ImGui::SliderFloat("Add Far", &AddFar, -1.f, 1.f))
+			{
+				AddFar *= NearFarSliderPower;
+			}
+			Projparams.w += AddFar;
+			ImGui::InputFloat("In Far", &Projparams.w);
+		}
 	}
 
 	{
 		ImGui::ColorEdit4("Light Color", Color);
+	}
+
+	{
+		ImGui::Text("lightFlux : %4.4f", lightFlux);
+		static float lightFluxSliderPower = 0.01f;
+		ImGui::SliderFloat("lightFluxSliderPower", &lightFluxSliderPower, FLT_MIN, 1.f);
+		float AddlightFlux = 0.0f;
+		if (ImGui::SliderFloat("Add lightFlux", &AddlightFlux, -1.f, 1.f))
+		{
+			AddlightFlux *= lightFluxSliderPower;
+		}
+		lightFlux += AddlightFlux;
+		ImGui::InputFloat2("lightFlux", &lightFlux);
+	}
+
+	{
+		ImGui::Text("lightIlluminance : %4.4f", lightIlluminance);
+		static float lightIlluminanceSliderPower = 0.01f;
+		ImGui::SliderFloat("lightIlluminanceSliderPower", &lightIlluminanceSliderPower, FLT_MIN, 1.f);
+		float AddlightIlluminance = 0.0f;
+		if (ImGui::SliderFloat("Add lightFlux", &AddlightIlluminance, -1.f, 1.f))
+		{
+			AddlightIlluminance *= lightIlluminanceSliderPower;
+		}
+		lightIlluminance += AddlightIlluminance;
+		ImGui::InputFloat2("lightFlux", &lightIlluminance);
+	}
+
+	{
+		ImGui::Text("specularPower : %4.4f", specularPower);
+		static float specularPowerSliderPower = 0.01f;
+		ImGui::SliderFloat("specularPowerSliderPower", &specularPowerSliderPower, FLT_MIN, 1.f);
+		float AddspecularPower = 0.0f;
+		if (ImGui::SliderFloat("Add specularPower", &AddspecularPower, -1.f, 1.f))
+		{
+			AddspecularPower *= specularPowerSliderPower;
+		}
+		specularPower += AddspecularPower;
+		ImGui::InputFloat2("specularPower", &specularPower);
+	}
+
+	{
+		ImGui::Text("cosAngularRadius : %4.4f", cosAngularRadius);
+		static float AddcosAngularRadiusSliderPower = 0.01f;
+		ImGui::SliderFloat("AddcosAngularRadiusSliderPower", &AddcosAngularRadiusSliderPower, FLT_MIN, 1.f);
+		float AddcosAngularRadius = 0.0f;
+		if (ImGui::SliderFloat("Add cosAngularRadius", &AddcosAngularRadius, -1.f, 1.f))
+		{
+			AddcosAngularRadius *= AddcosAngularRadiusSliderPower;
+		}
+		cosAngularRadius += AddcosAngularRadius;
+		ImGui::InputFloat2("cosAngularRadius", &cosAngularRadius);
+	}
+
+	{
+		ImGui::Text("sinAngularRadius : %4.4f", sinAngularRadius);
+		static float sinAngularRadiusSliderPower = 0.01f;
+		ImGui::SliderFloat("AddsinAngularRadiusSliderPower", &sinAngularRadiusSliderPower, FLT_MIN, 1.f);
+		float AddsinAngularRadius = 0.0f;
+		if (ImGui::SliderFloat("Add sinAngularRadius", &AddsinAngularRadius, -1.f, 1.f))
+		{
+			AddsinAngularRadius *= sinAngularRadiusSliderPower;
+		}
+		sinAngularRadius += AddsinAngularRadius;
+		ImGui::InputFloat2("sinAngularRadius", &sinAngularRadius);
 	}
 }
 	
