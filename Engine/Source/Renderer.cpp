@@ -260,6 +260,10 @@ HRESULT Renderer::Render()&
 	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
 	RenderSky();
 	Tonemapping();
+	AlphaBlendEffectRender();
+	UIRender();
+
+
 	ResetState();
 	RenderTargetDebugRender();
 	RenderDebug();
@@ -1157,7 +1161,66 @@ HRESULT Renderer::Tonemapping()&
 	tonemap->End();
 
 	return S_OK;
-};
+}
+HRESULT Renderer::AlphaBlendEffectRender()&
+{
+	auto& _Group = RenderEntitys[RenderProperty::Order::AlphaBlendEffect];
+	DrawInfo _DrawInfo{};
+	_DrawInfo.BySituation.reset();
+	_DrawInfo._Device = Device;
+	for (auto& [ShaderKey, Entitys] : _Group)
+	{
+		auto Fx = Shaders[ShaderKey]->GetEffect();
+		Fx->SetMatrix("ViewProjection", &_RenderInfo.ViewProjection);
+		_DrawInfo.Fx = Fx;
+		for (auto& [Entity, Call] : Entitys)
+		{
+			UINT Passes{ 0u };
+			Fx->Begin(&Passes, NULL);
+			for (int32 i = 0; i < Passes; ++i)
+			{
+				_DrawInfo.PassIndex = i;
+				Fx->BeginPass(i);
+				{
+					Call(_DrawInfo);
+				}
+				Fx->EndPass();
+			}
+			Fx->End();
+		}
+	}
+	return S_OK;
+}
+HRESULT Renderer::UIRender()&
+{
+	auto& _Group = RenderEntitys[RenderProperty::Order::UI];
+	DrawInfo _DrawInfo{};
+	_DrawInfo.BySituation.reset();
+	_DrawInfo._Device = Device;
+	for (auto& [ShaderKey, Entitys] : _Group)
+	{
+		auto Fx = Shaders[ShaderKey]->GetEffect();
+		Fx->SetMatrix("ScreenMat", &_RenderInfo.Ortho);
+		_DrawInfo.Fx = Fx;
+		for (auto& [Entity, Call] : Entitys)
+		{
+			UINT Passes{ 0u };
+			Fx->Begin(&Passes, NULL);
+			for (int32 i = 0; i < Passes; ++i)
+			{
+				_DrawInfo.PassIndex = i;
+				Fx->BeginPass(i);
+				{
+					Call(_DrawInfo);
+				}
+				Fx->EndPass();
+			}
+			Fx->End();
+		}
+	}
+	return S_OK;
+}
+;
 
 
 bool Renderer::TestShaderInit()

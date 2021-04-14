@@ -58,6 +58,8 @@ private:
 	HRESULT RenderTargetDebugRender()&;
 	HRESULT RenderSky()&;
 	HRESULT Tonemapping()&;
+	HRESULT AlphaBlendEffectRender()&;
+	HRESULT UIRender()&;
 public:
 	bool bEdit = false;
 	RenderInformation _RenderInfo{};
