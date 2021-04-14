@@ -36,15 +36,7 @@ HRESULT TestScene::LoadScene()
 	AddGameObject<Camera>();
 
 	//AddGameObject<ShaderTester>();
-
 	AddGameObject<TestObject>();
-	AddGameObject<TestObject>();
-	AddGameObject<TestObject>(); 
-	AddGameObject<TestObject>();
-
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>();
-	AddGameObject<TestAnimationObject>(); 
 	AddGameObject<TestAnimationObject>();
 
 	//AddGameObject<Nero>();

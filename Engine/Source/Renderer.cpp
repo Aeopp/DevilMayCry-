@@ -246,7 +246,7 @@ HRESULT Renderer::Render()&
 	// 쉐도우 패스 
 	RenderShadowMaps();
 	// 기하 패스
-	RenderGBuffer(_RenderInfo.ViewProjection);
+	RenderGBuffer();
 	// 디퍼드 렌더링 .
 	DeferredShading(
 		_RenderInfo.View,
@@ -372,26 +372,26 @@ void Renderer::RenderShadowMaps()
 
 
 		// 렌더 시작 ... 
-		RenderInfo _RenderInfo{};
-		_RenderInfo._Device = Device;
+		DrawInfo _DrawInfo{};
+		_DrawInfo._Device = Device;
 		// 여기까지 했음 . 내일 화이팅
 		ShadowInfo _ShadowInfo{};
 		_ShadowInfo.ViewProjection = viewproj;
-		_RenderInfo.BySituation = _ShadowInfo;
+		_DrawInfo.BySituation = _ShadowInfo;
 		for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
 		{
 			auto Fx = Shaders[ShaderKey]->GetEffect();
-			_RenderInfo.Fx = Fx;
+			_DrawInfo.Fx = Fx;
 			UINT Passes = 0u;
 			Fx->SetMatrix("matViewProj", &viewproj);
 			Fx->Begin(&Passes, NULL);
 			for (int32 i = 0; i < Passes; ++i)
 			{
-				_RenderInfo.PassIndex = i;
+				_DrawInfo.PassIndex = i;
 				Fx->BeginPass(i);
 				for (auto& [_Entity,_Call] : EntityArr)
 				{
-					_Call(_RenderInfo);
+					_Call(_DrawInfo);
 				}
 				Fx->EndPass();
 			}
@@ -441,26 +441,25 @@ void Renderer::RenderShadowMaps()
 
 
 			// 렌더 시작 ... 
-			RenderInfo _RenderInfo{};
-			_RenderInfo._Device = Device;
+			DrawInfo _DrawInfo{};
+			_DrawInfo._Device = Device;
 			// 여기까지 했음 . 내일 화이팅
 			ShadowInfo _ShadowInfo{};
-			_ShadowInfo.ViewProjection = viewproj;
-			_RenderInfo.BySituation = _ShadowInfo;
+			_DrawInfo.BySituation = _ShadowInfo;
 			for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
 			{
 				auto Fx = Shaders[ShaderKey]->GetEffect();
-				_RenderInfo.Fx = Fx;
+				_DrawInfo.Fx = Fx;
 				UINT Passes = 0u;
 				Fx->SetMatrix("matViewProj", &_ShadowInfo.ViewProjection);
 				Fx->Begin(&Passes, NULL);
 				for (int32 i = 0; i < Passes; ++i)
 				{
-					_RenderInfo.PassIndex = i;
+					_DrawInfo.PassIndex = i;
 					Fx->BeginPass(i);
 					for (auto& [_Entity, _Call] : EntityArr)
 					{
-						_Call(_RenderInfo);
+						_Call(_DrawInfo);
 					}
 					Fx->EndPass();
 				}
@@ -477,7 +476,7 @@ void Renderer::RenderShadowMaps()
 
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 }
-void Renderer::RenderGBuffer(const Matrix& ViewProjection)
+void Renderer::RenderGBuffer()
 {
 	auto* const device = Device;
 
@@ -500,39 +499,36 @@ void Renderer::RenderGBuffer(const Matrix& ViewProjection)
 	device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
 	device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
-	// auto viewproj2 = FMath::Transpose( (Matrix&)viewproj);
-	auto gbuffer = Shaders["gbuffer_ds"]->GetEffect();
 	device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+
+	auto& GBufferGroup = RenderEntitys[RenderProperty::Order::GBuffer];
+	DrawInfo _DrawInfo{};
+	_DrawInfo.BySituation.reset();
+	_DrawInfo._Device = Device;
+	for (auto&  [ ShaderKey , Entitys ] : GBufferGroup)
 	{
-		gbuffer->SetTechnique("gbuffer");
-		RenderScene(gbuffer, (const D3DXMATRIX&)ViewProjection);
-
-
-		// 렌더 시작 ... 
-		RenderInfo _RenderInfo{};
-		_RenderInfo._Device = Device;
-		// 여기까지 했음 . 내일 화이팅
-		_RenderInfo.BySituation.reset();
-		for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::GBuffer])
+		auto Fx = Shaders[ShaderKey]->GetEffect();
+		Fx->SetMatrix("matViewProj", &_RenderInfo.ViewProjection);
+		_DrawInfo.Fx = Fx;
+		for (auto&  [ Entity ,Call ] : Entitys)
 		{
-			auto Fx = Shaders[ShaderKey]->GetEffect();
-			_RenderInfo.Fx = Fx;
-			UINT Passes = 0u;
-			Fx->Begin(&Passes, NULL);
+			UINT Passes{ 0u }; 
+			Fx->Begin(&Passes, NULL); 
 			for (int32 i = 0; i < Passes; ++i)
 			{
-				_RenderInfo.PassIndex = i;
+				_DrawInfo.PassIndex = i;
 				Fx->BeginPass(i);
-				for (auto& [_Entity, _Call] : EntityArr)
 				{
-					_Call(_RenderInfo);
+					Call(_DrawInfo);
 				}
 				Fx->EndPass();
 			}
 			Fx->End();
 		}
-		// 렌더 엔드 ... 
 	}
+
+	RenderScene(Shaders["gbuffer_ds"]->GetEffect() , _RenderInfo.ViewProjection);
+
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
 	device->SetRenderTarget(1, NULL);
@@ -853,6 +849,8 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 		Device->SetTexture(1, wood_normal);
 
 		box->DrawSubset(0);
+		uv = Vector4(1, 1, 0, 0);
+		effect->SetVector("uv", &uv);
 	}
 	effect->EndPass();
 	effect->End();
@@ -1018,9 +1016,9 @@ HRESULT Renderer::RenderDebug()&
 {
 	if (g_bDebugRender == false)return S_OK;
 
-	RenderInfo _Info;
-	_Info._Device = Device;
-	_Info.BySituation = {};
+	DrawInfo _DrawInfo;
+	_DrawInfo._Device = Device;
+	_DrawInfo.BySituation = {};
 	
 	for (auto& [ShaderKey, _EntityArr] : RenderEntitys[RenderProperty::Order::Debug])
 	{
@@ -1028,16 +1026,16 @@ HRESULT Renderer::RenderDebug()&
 		auto DebugColor = Vector4(0.7f, 0.0f, 0.3f, 0.5f);
 		Fx->SetVector("DebugColor", &DebugColor); 
 		Fx->SetMatrix("ViewProjection", &_RenderInfo.ViewProjection);
-		_Info.Fx = Fx;
+		_DrawInfo.Fx = Fx;
 		UINT Passes{ 0u };
 		Fx->Begin(&Passes, NULL);
 		for (uint32 i = 0; i < Passes; ++i)
 		{
-			_Info.PassIndex = i;
+			_DrawInfo.PassIndex = i;
 			Fx->BeginPass(i);
 			for (auto& [_Entity,Call]: _EntityArr)
 			{
-				Call(_Info);
+				Call(_DrawInfo);
 			}
 			Fx->EndPass();
 		}

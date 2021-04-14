@@ -96,7 +96,7 @@ void vs_variance(
         }
     }
     
-    wpos = mul(float4(pos.xyz, 1), matWorld);
+    wpos = mul(float4(AnimPos.xyz, 1), matWorld);
     pos = mul(wpos, matViewProj);
 
     zw.xy = pos.zw;

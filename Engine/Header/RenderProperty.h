@@ -8,7 +8,7 @@
 
 BEGIN(ENGINE)
 
-struct ENGINE_DLL RenderInfo
+struct ENGINE_DLL DrawInfo
 {
 	IDirect3DDevice9* _Device{};
 	ID3DXEffect* Fx{};
@@ -40,7 +40,7 @@ public :
 		DebugBone,
 	};
 	bool bRender = true;
-	using CallType = std::function<void(const RenderInfo&)>;
+	using CallType = std::function<void(const DrawInfo&)>;
 	std::map<Order,std::map<std::string, CallType>> RenderOrders{};
 };  
 

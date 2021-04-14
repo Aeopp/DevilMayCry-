@@ -49,7 +49,7 @@ void TestObject::RenderInit()
 	_InitRenderProp.RenderOrders[RenderProperty::Order::GBuffer] =
 	{
 		{"gbuffer_ds",
-		[this](const RenderInfo& _Info)
+		[this](const DrawInfo& _Info)
 			{
 				RenderGBuffer(_Info);
 			}
@@ -59,7 +59,7 @@ void TestObject::RenderInit()
 		=
 	{
 		{"Shadow" ,
-		[this](const RenderInfo& _Info)
+		[this](const DrawInfo& _Info)
 		{
 			RenderShadow(_Info);
 		}
@@ -69,7 +69,7 @@ void TestObject::RenderInit()
 		=
 	{
 		{"Debug" ,
-		[this](const RenderInfo& _Info)
+		[this](const DrawInfo& _Info)
 		{
 			RenderDebug(_Info);
 		}
@@ -81,13 +81,13 @@ void TestObject::RenderInit()
 		 // L"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx"
 	// 스태틱 메쉬 로딩
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		"C:\\WorkingDirectory\\TestResource\\Em0001\\Em0001.fbx");
+		"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx");
 
 	PushEditEntity(_StaticMesh.get());
 }
 
 
-void TestObject::RenderGBuffer(const RenderInfo& _Info)
+void TestObject::RenderGBuffer(const DrawInfo& _Info)
 {
 	const Matrix World = _RenderUpdateInfo.World;
 	_Info.Fx->SetMatrix("matWorld", &World);
@@ -103,7 +103,7 @@ void TestObject::RenderGBuffer(const RenderInfo& _Info)
 		};
 	};
 }
-void TestObject::RenderShadow(const RenderInfo& _Info)
+void TestObject::RenderShadow(const DrawInfo& _Info)
 {
 	const Matrix World = _RenderUpdateInfo.World;
 	_Info.Fx->SetMatrix("matWorld", &World);
@@ -119,7 +119,7 @@ void TestObject::RenderShadow(const RenderInfo& _Info)
 }
 
 
-void TestObject::RenderDebug(const RenderInfo& _Info)
+void TestObject::RenderDebug(const DrawInfo& _Info)
 {
 	const Matrix World = _RenderUpdateInfo.World;
 	_Info.Fx->SetMatrix("World", &World);

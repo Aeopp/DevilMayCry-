@@ -29,8 +29,8 @@ public:
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
 public:
-	void RenderDebug(const RenderInfo& _Info);
-	void RenderGBuffer(const RenderInfo& _Info);
-	void RenderShadow(const RenderInfo& _Info);
+	void RenderDebug(const DrawInfo& _Info);
+	void RenderGBuffer(const DrawInfo& _Info);
+	void RenderShadow(const DrawInfo& _Info);
 };
 #endif //

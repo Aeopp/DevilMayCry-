@@ -85,8 +85,7 @@ private:
 	void TestLightEdit();
 	bool bCurstomEye = false;
 	void RenderShadowMaps();
-	void RenderGBuffer(
-		const Matrix & ViewProjection);
+	void RenderGBuffer();
 	void DeferredShading(
 		const Matrix & View, 
 		const Matrix & Projection, 

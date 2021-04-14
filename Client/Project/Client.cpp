@@ -24,8 +24,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 {
 	srand((unsigned int)time(NULL));
 
-	g_nWndCX = 1280;
-	g_nWndCY = 720;
+	g_nWndCX = 1600;
+	g_nWndCY = 900;
 
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);

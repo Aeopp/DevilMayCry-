@@ -35,7 +35,7 @@ void TestAnimationObject::RenderInit()
 	_InitRenderProp.RenderOrders[RenderProperty::Order::GBuffer] =
 	{
 		{"gbuffer_dsSK",
-		[this](const RenderInfo& _Info)
+		[this](const DrawInfo& _Info)
 			{
 				RenderGBufferSK(_Info);
 			}
@@ -45,7 +45,7 @@ void TestAnimationObject::RenderInit()
 		=
 	{
 		{"ShadowSK" ,
-		[this](const RenderInfo& _Info)
+		[this](const DrawInfo& _Info)
 		{
 			RenderShadowSK(_Info);
 		}
@@ -55,7 +55,7 @@ void TestAnimationObject::RenderInit()
 		=
 	{
 		{"DebugBone" ,
-		[this](const RenderInfo& _Info)
+		[this](const DrawInfo& _Info)
 		{
 			RenderDebugBone(_Info);
 		}
@@ -66,7 +66,7 @@ void TestAnimationObject::RenderInit()
 		=
 	{
 		{"DebugSK" ,
-		[this](const RenderInfo& _Info)
+		[this](const DrawInfo& _Info)
 		{
 			RenderDebugSK(_Info);
 		}
@@ -81,7 +81,7 @@ void TestAnimationObject::RenderInit()
 	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
 	_InitInfo.bLocalVertexLocationsStorage = false;
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
-		("C:\\WorkingDirectory\\TestResource\\Em0001\\Em0001.fbx", _InitInfo);
+		("C:\\WorkingDirectory\\TestResource\\Boss\\Em5300\\Em5300.X", _InitInfo);
 	_SkeletonMesh->LoadAnimationFromDirectory
 	(L"..\\..\\Resource\\Mesh\\Dynamic\\_AnimationFBX_C4D");
 
@@ -124,7 +124,7 @@ void TestAnimationObject::RenderReady()
 	}
 }
 
-void TestAnimationObject::RenderGBufferSK(const RenderInfo& _Info)
+void TestAnimationObject::RenderGBufferSK(const DrawInfo& _Info)
 {
 	const Matrix World = _RenderUpdateInfo.World;
 	_Info.Fx->SetMatrix("matWorld", &World);
@@ -144,7 +144,7 @@ void TestAnimationObject::RenderGBufferSK(const RenderInfo& _Info)
 		}; 
 	};
 }
-void TestAnimationObject::RenderShadowSK(const RenderInfo& _Info)
+void TestAnimationObject::RenderShadowSK(const DrawInfo& _Info)
 {
 	const Matrix World = _RenderUpdateInfo.World;
 	_Info.Fx->SetMatrix("matWorld", &World);
@@ -163,13 +163,13 @@ void TestAnimationObject::RenderShadowSK(const RenderInfo& _Info)
 	};
 }
 
-void TestAnimationObject::RenderDebugBone(const RenderInfo& _Info)
+void TestAnimationObject::RenderDebugBone(const DrawInfo& _Info)
 {
 	const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
 	_SkeletonMesh->BoneDebugRender(_RenderUpdateInfo.World, _Info.Fx);
 };
 
-void TestAnimationObject::RenderDebugSK(const RenderInfo& _Info)
+void TestAnimationObject::RenderDebugSK(const DrawInfo& _Info)
 {
 	const Matrix World = _RenderUpdateInfo.World;
 	_Info.Fx->SetMatrix("World", &World);

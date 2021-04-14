@@ -18,18 +18,12 @@ private:
 public:
 	static TestAnimationObject* Create();
 public:
-	//virtual void    RenderGBufferImplementation(const ImplementationInfo& _ImplInfo)override;
-	//virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
-	//virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
-	//virtual void    RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override;
-	//virtual void    RenderShadowImplementation(const 
-	//	ImplementationInfo& _ImplInfo)override;
 	void RenderInit();
 	virtual void    RenderReady()override;
-	void RenderGBufferSK(const RenderInfo& _Info);
-	void RenderShadowSK(const RenderInfo& _Info);
-	void RenderDebugBone(const RenderInfo& _Info);
-	void RenderDebugSK(const RenderInfo& _Info);
+	void RenderGBufferSK(const DrawInfo& _Info);
+	void RenderShadowSK(const DrawInfo& _Info);
+	void RenderDebugBone(const DrawInfo& _Info);
+	void RenderDebugSK(const DrawInfo& _Info);
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;
