@@ -77,9 +77,11 @@ void TestObject::RenderInit()
 
 	RenderInterface::Initialize(_InitRenderProp);
 
+	
+		 // L"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx"
 	// 스태틱 메쉬 로딩
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx");
+		"C:\\WorkingDirectory\\TestResource\\Em0001\\Em0001.fbx");
 
 	PushEditEntity(_StaticMesh.get());
 }

@@ -37,6 +37,7 @@ public:
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
+	
 	bool    IsAnimationEnd();
 	void    EnableToRootMatricies();
 	void    DisableToRootMatricies();
@@ -144,6 +145,7 @@ public:
 	// 노드 정보는 클론들끼리 공유하므로 하나의 클론이 설정한 값으로 모든 클론이 작동.
 	void    EnableScaleRootMotion(const std::string & ScalingRootName = "");
 	void    EnableRotationRootMotion(const std::string & RotationRootName = "");
+	void    EnableSetQuatOffset(const Vector3& Euler)&;
 	void    EnableTransitionRootMotion(const std::string & TransitionRootName = "");
 	void    DisableScaleRootMotion();
 	void    DisableRotationRootMotion();
@@ -194,6 +196,9 @@ public:
 	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
 	//              노드 이름과 ToRoot 매트릭스 매핑 ... 
 	std::optional<std::unordered_map<std::string, Matrix>> ToRoots{};
+
+	Vector3    EulerOffset{0,0,0};
+	Quaternion tOffset{ 0,0,0,1 };
 };
 END
 #endif // !_SKELETONMESH_H_

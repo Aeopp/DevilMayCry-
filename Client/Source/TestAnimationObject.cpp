@@ -81,7 +81,7 @@ void TestAnimationObject::RenderInit()
 	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
 	_InitInfo.bLocalVertexLocationsStorage = false;
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
-		("C:\\WorkingDirectory\\TestResource\\Em5300\\Em5300.X", _InitInfo);
+		("C:\\WorkingDirectory\\TestResource\\Em0001\\Em0001.fbx", _InitInfo);
 	_SkeletonMesh->LoadAnimationFromDirectory
 	(L"..\\..\\Resource\\Mesh\\Dynamic\\_AnimationFBX_C4D");
 

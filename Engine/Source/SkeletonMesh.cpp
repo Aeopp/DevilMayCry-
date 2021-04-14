@@ -26,10 +26,13 @@ SkeletonMesh::SkeletonMesh(const SkeletonMesh& _rOther)
 	AnimIndexNameMap{ _rOther.AnimIndexNameMap },
 	RootMotionScaleName{ _rOther.RootMotionScaleName },
 	RootMotionTransitionName{ _rOther.RootMotionTransitionName },
+	RootMotionRotationName   {_rOther.RootMotionRotationName} ,
 	bRootMotionScale{ _rOther.bRootMotionScale },
 	bRootMotionRotation{ _rOther.bRootMotionRotation },
 	bRootMotionTransition{ _rOther.bRootMotionTransition },
-	RootMotionDeltaFactor{ _rOther.RootMotionDeltaFactor }
+	RootMotionDeltaFactor{ _rOther.RootMotionDeltaFactor },
+	tOffset{ _rOther .tOffset} ,
+	EulerOffset  { _rOther.EulerOffset }
 {
 	BoneSkinningMatries.resize(_rOther.BoneSkinningMatries.size());
 }
@@ -99,6 +102,18 @@ void SkeletonMesh::AnimationEditor()&
 				}
 			}
 
+
+			// 에디터에서 오일러로 설정하고  쿼터니언으로 바꿔서 저장.  
+			if (bRootMotionRotation)
+			{
+				ImGui::SliderFloat3("Quat Offset", EulerOffset, -360.f, +360.f);
+				// 세이브 부터 하면0됨 !! 
+				if (ImGui::Button("Quat Offset Save"))
+				{
+					EnableSetQuatOffset(EulerOffset);
+				}
+			}
+			
 			if (ImGui::Checkbox("RootMotionTransition", &bRootMotionTransition))
 			{
 				if (bRootMotionTransition)
@@ -336,6 +351,15 @@ void SkeletonMesh::AnimationSave(
 		Writer.Key("RootMotion_DeltaFactor");
 		Writer.Double(RootMotionDeltaFactor);
 
+		
+		Writer.Key("Offset Euler Yaw"); 
+		Writer.Double(EulerOffset.y);
+		Writer.Key("Offset Euler Pitch");
+		Writer.Double(EulerOffset.x);
+		Writer.Key("Offset Euler Roll");
+		Writer.Double(EulerOffset.z);
+		
+
 		if (bRootMotionScale)
 		{
 			Writer.Key("RootMotion_ScaleName");
@@ -444,6 +468,23 @@ void SkeletonMesh::AnimationDataLoadFromJsonTable(
 
 
 		{
+			if (AnimJsonTable.HasMember("Offset Euler Yaw"))
+			{
+				EulerOffset.y = AnimJsonTable.FindMember("Offset Euler Yaw")->value.GetDouble();
+			};
+
+			if (AnimJsonTable.HasMember("Offset Euler Pitch"))
+			{
+				EulerOffset.x = AnimJsonTable.FindMember("Offset Euler Pitch")->value.GetDouble();
+			};
+
+			if (AnimJsonTable.HasMember("Offset Euler Roll"))
+			{
+				EulerOffset.z = AnimJsonTable.FindMember("Offset Euler Roll")->value.GetDouble();
+			};
+
+			EnableSetQuatOffset(EulerOffset);
+
 			if (AnimJsonTable.HasMember("RootMotion_DeltaFactor"))
 			{
 				RootMotionDeltaFactor = AnimJsonTable.FindMember("RootMotion_DeltaFactor")->value.GetDouble();
@@ -1228,7 +1269,15 @@ Vector3 SkeletonMesh::CalcRootMotionDeltaPos(
 				const Vector3 PrevPos = Node::CurrentAnimationPosition(RootAnimTrack, AnimPrevFrameMotionTime);
 				const Vector3 StartPos = Node::CurrentAnimationPosition(RootAnimTrack, 0.0f);
 				const Vector3 CurPos = Node::CurrentAnimationPosition(RootAnimTrack, bTimeBeyondAnimation.value());
-				return (EndPos - PrevPos) + (CurPos - StartPos);
+				
+				Quaternion Quat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimMotionTime);
+				Quat = tOffset * Quat;
+				
+				Matrix Rot = FMath::Inverse(FMath::Rotation(Quat)); 
+				
+				Vector3 DeltaDir = (EndPos - PrevPos) + (CurPos - StartPos);
+				D3DXVec3TransformNormal(&DeltaDir, &DeltaDir, &Rot);
+				return DeltaDir;
 				// 0.9 1.3 일 경우   1.0 - 0.9 0.3 - 0.0.하고 0.3으로 프리 초기화
 			}
 			else
@@ -1236,7 +1285,15 @@ Vector3 SkeletonMesh::CalcRootMotionDeltaPos(
 				const Vector3 CurPos = Node::CurrentAnimationPosition(RootAnimTrack, AnimMotionTime);
 				const Vector3 PrevPos = Node::CurrentAnimationPosition(RootAnimTrack, AnimPrevFrameMotionTime);
 
-				return CurPos - PrevPos;
+				Quaternion Quat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimMotionTime);
+				Quat = tOffset * Quat;
+
+				Matrix Rot = FMath::Inverse(FMath::Rotation(Quat));
+
+				Vector3 DeltaDir = CurPos - PrevPos; 
+				D3DXVec3TransformNormal(&DeltaDir, &DeltaDir, &Rot);
+
+				return DeltaDir;
 			}
 		}
 	}
@@ -1289,19 +1346,44 @@ Quaternion SkeletonMesh::CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyon
 
 			if (bTimeBeyondAnimation)
 			{
-				const Quaternion EndQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimDuraion);
-				const Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
-				const Quaternion StartQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, 0.0f);
-				const Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, bTimeBeyondAnimation.value());
-				
-				return (EndQuat - PrevQuat) + (CurQuat - StartQuat);
+				Quaternion EndQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimDuraion);
+				Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
+				Quaternion StartQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, 0.0f);
+				Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, bTimeBeyondAnimation.value());
+
+				// 쿼터니언은 곱셈이 교환법칙 성립 안함
+
+				// 까먹으면 재밌어짐 
+				// D3DXQuaternionConjugate(&tOffset, &tOffset);
+				EndQuat = tOffset * EndQuat;
+				PrevQuat = tOffset * PrevQuat;
+				StartQuat = tOffset * StartQuat; 
+				CurQuat = tOffset * CurQuat; 
+
+				// 쿼터니언에서의 델타 = A - B =  A * ( B^-1 ) 
+				Quaternion tInvPrev;
+				D3DXQuaternionInverse(&tInvPrev, &PrevQuat);
+
+				Quaternion tInvStart;
+				D3DXQuaternionInverse(&tInvStart, &StartQuat);
+
+				EndQuat = EndQuat * tInvPrev;
+				CurQuat = CurQuat * tInvStart;
+				return EndQuat = (EndQuat * CurQuat);
+				// 쿼터니언에서의 덧셈 = A + B = A * B
 			}
 			else
 			{
-				const Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimMotionTime);
-				const Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
+				Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimMotionTime);
+				Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
 
-				return CurQuat - PrevQuat;
+				CurQuat = tOffset * CurQuat;
+				PrevQuat = tOffset * PrevQuat; 
+				// 까먹으면 재밌어짐 
+				// D3DXQuaternionConjugate(&tOffset, &tOffset);
+				D3DXQuaternionInverse(&PrevQuat, &PrevQuat);
+				
+				return  (CurQuat * PrevQuat); 
 			}
 		}
 	}
@@ -1531,12 +1613,21 @@ void SkeletonMesh::EnableRotationRootMotion(const std::string& RotationRootName)
 					RootMotionRotationName = NodeName;
 					_Node->RootMotionFlag.set(1, true);
 					bRootMotionRotation = true;
-
 				}
 			}
 		}
 
 	}
+}
+
+void SkeletonMesh::EnableSetQuatOffset(const Vector3& Euler)&
+{
+	// 오일러를 쿼터니언으로  
+	D3DXQuaternionRotationYawPitchRoll(&tOffset, FMath::ToRadian( Euler.y ) , 
+												 FMath::ToRadian( Euler.x ) , 
+												 FMath::ToRadian( Euler.z ) );
+	// 쿼터니언 역함수 
+	D3DXQuaternionConjugate(&tOffset, &tOffset);
 }
 
 void SkeletonMesh::EnableTransitionRootMotion(const std::string& TransitionRootName)

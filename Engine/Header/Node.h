@@ -28,6 +28,9 @@ public:
 	int32 Index{ -1 };
 	std::bitset<3> RootMotionFlag{};
 
+	
+
+
 	inline bool IsBone() { return Index >=0; };
 
 	std::unordered_map<std::string,AnimationTrack> _AnimationTrack{};

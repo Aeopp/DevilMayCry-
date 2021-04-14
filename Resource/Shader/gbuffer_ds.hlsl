@@ -11,8 +11,9 @@ uniform float handedness = -1.0f;
 
 void vs_gbuffer(
 	in out float4 pos : POSITION,
-	in float3 norm : NORMAL,
+	in float3 norm : NORMAL, 
 	in out float2 tex : TEXCOORD0,
+    in out float2 tex2 : TEXCOORD3,
 	out float2 zw : TEXCOORD1,
 	out float3 wnorm : TEXCOORD2)
 {
@@ -27,6 +28,7 @@ void vs_gbuffer(
 
 void ps_gbuffer(
 	in float2 tex : TEXCOORD0,
+    in float2 tex2 : TEXCOORD3,
 	in float2 zw : TEXCOORD1,
 	in float3 wnorm : TEXCOORD2,
 	out float4 color0 : COLOR0, // albedo
@@ -50,6 +52,7 @@ void vs_gbuffer_tbn(
 	in float3 tang : TANGENT,
 	in float3 bin : BINORMAL,
 	in out float2 tex : TEXCOORD0,
+    in out float2 tex2 : TEXCOORD5,
 	out float2 zw : TEXCOORD1,
 	out float3 wnorm : TEXCOORD2,
 	out float3 wtan : TEXCOORD3,
@@ -69,6 +72,7 @@ void vs_gbuffer_tbn(
 
 void ps_gbuffer_tbn(
 	in float2 tex : TEXCOORD0,
+    in float2 tex2 : TEXCOORD5,
 	in float2 zw : TEXCOORD1,
 	in float3 wnorm : TEXCOORD2,
 	in float3 wtan : TEXCOORD3,
