@@ -565,5 +565,8 @@
     <None Include="..\..\Resource\Shader\gbuffer_ds.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
+    <None Include="..\..\Resource\Shader\gbuffer_dsSK.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
+    </None>
   </ItemGroup>
 </Project>

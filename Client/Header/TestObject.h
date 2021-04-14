@@ -18,13 +18,8 @@ public:
 	static TestObject* Create();
 public:
 	virtual void    RenderReady()                          override;
-	/*virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
-	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
-	virtual void    RenderShadowImplementation(const
-	   ImplementationInfo& _ImplInfo)override;
-	virtual void    RenderGBufferImplementation(const
-		ImplementationInfo& _ImplInfo)override;*/
 public:
+	void RenderInit();
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;
 	virtual HRESULT Start() override;
@@ -33,5 +28,9 @@ public:
 	virtual void    Editor()override;
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
+public:
+	void RenderDebug(const RenderInfo& _Info);
+	void RenderGBuffer(const RenderInfo& _Info);
+	void RenderShadow(const RenderInfo& _Info);
 };
 #endif //

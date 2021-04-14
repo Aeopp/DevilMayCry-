@@ -622,7 +622,7 @@ void SkeletonMesh::BoneDebugRender(
 	static auto DebugSphereMesh = 
 		Resources::Load<ENGINE::StaticMesh>("..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
 
-	if (!Nodes || !DebugSphereMesh || bAnimationEnd) return;
+	if (!Nodes || !DebugSphereMesh) return;
 
 	Log("Bone Debug Render : Uninitialized nodes !");
 
@@ -1457,6 +1457,12 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 		std::unordered_map<std::string, std::tuple<Vector3, Quaternion, Vector3>>Table{};
 		GetNodeTransform(AiScene->mRootNode, Table);
 
+		AnimationInformation CurAnimInfo{};
+		CurAnimInfo.TickPerSecond = 30.f;
+		CurAnimInfo.SetAcceleration(1.0f);
+		CurAnimInfo.Name = FilePath.filename().stem().string();
+		CurAnimInfo.Duration = 1000.f;
+
 		for (auto& [NodeName, _Node] : *Nodes)
 		{
 			auto& CurNodeAnimTrack = _Node->_AnimationTrack[CurAnimInfo.Name];
@@ -1476,18 +1482,14 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 		}
 
 		AnimInfoTable->insert({ CurAnimInfo.Name , CurAnimInfo });
-
-		AnimationInformation CurAnimInfo{};
-		CurAnimInfo.TickPerSecond = _AiAnimation->mTicksPerSecond;
-		CurAnimInfo.SetAcceleration(1.0f);
-		CurAnimInfo.Name = FilePath.filename().stem().string();
-		CurAnimInfo.Duration = _AiAnimation->mDuration;
 	}
 };
 
 void SkeletonMesh::LoadAnimationFromDirectory(
 	const std::filesystem::path& Directory)&
 {
+	if (false == std::filesystem::is_directory(Directory))return;
+
 	std::filesystem::directory_iterator itr(Directory);
 	while (itr != std::filesystem::end(itr)) {
 		const std::filesystem::directory_entry& entry = *itr;
@@ -1507,7 +1509,7 @@ void SkeletonMesh::EnableScaleRootMotion(const std::string& ScalingRootName)
 				if (NodeName == ScalingRootName)
 				{
 					RootMotionScaleName = NodeName;
-					_Node->RootMotionFlag = 1;
+					_Node->RootMotionFlag.set(0, true);
 					bRootMotionScale = true;
 				}
 			}
@@ -1527,7 +1529,7 @@ void SkeletonMesh::EnableRotationRootMotion(const std::string& RotationRootName)
 				if (NodeName == RotationRootName)
 				{
 					RootMotionRotationName = NodeName;
-					_Node->RootMotionFlag = 2;
+					_Node->RootMotionFlag.set(1, true);
 					bRootMotionRotation = true;
 
 				}
@@ -1548,7 +1550,7 @@ void SkeletonMesh::EnableTransitionRootMotion(const std::string& TransitionRootN
 				if (NodeName == TransitionRootName)
 				{
 					RootMotionTransitionName = NodeName;
-					_Node->RootMotionFlag = 3;
+					_Node->RootMotionFlag.set(2, true);
 					bRootMotionTransition = true;
 				}
 			}
@@ -1565,10 +1567,9 @@ void SkeletonMesh::DisableScaleRootMotion()
 		{
 			if (_Node)
 			{
-				if (_Node->RootMotionFlag == 1)
+				if (_Node->RootMotionFlag.test(0))
 				{
-					_Node->RootMotionFlag = -1;
-
+					_Node->RootMotionFlag.set(0, false);
 				}
 			}
 		}
@@ -1584,9 +1585,10 @@ void SkeletonMesh::DisableRotationRootMotion()
 		{
 			if (_Node)
 			{
-				if (_Node->RootMotionFlag == 2)
+				if (_Node->RootMotionFlag.test(1))
 				{
-					_Node->RootMotionFlag = -1;
+					_Node->RootMotionFlag.set(1,false );
+					
 				}
 			}
 		}
@@ -1603,9 +1605,9 @@ void SkeletonMesh::DisableTransitionRootMotion()
 		{
 			if (_Node)
 			{
-				if (_Node->RootMotionFlag == 3)
+				if (_Node->RootMotionFlag.test(2))
 				{
-					_Node->RootMotionFlag = -1;
+					_Node->RootMotionFlag.set(2, false);
 				}
 			}
 		}

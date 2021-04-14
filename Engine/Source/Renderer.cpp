@@ -23,7 +23,6 @@ void Renderer::Free()
 };
 
 
-
 HRESULT Renderer::ReadyRenderSystem(LPDIRECT3DDEVICE9 const _pDevice)
 {
 	Device = _pDevice;
@@ -222,6 +221,8 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 						= std::dynamic_pointer_cast<RenderInterface>(_SharedObject);
 				_SharedRenderEntity)
 			{
+				if (false == _SharedRenderEntity->GetRenderProp().bRender)return;
+
 				const auto& _EntityRenderProp = _SharedRenderEntity->GetRenderProp();
 
 				for (const auto& [_EntityOrder,ShaderKeyCallMap] : _EntityRenderProp.RenderOrders)
@@ -261,6 +262,8 @@ HRESULT Renderer::Render()&
 	Tonemapping();
 	ResetState();
 	RenderTargetDebugRender();
+	RenderDebug();
+	RenderDebugBone();
 	ImguiRender();
 	GraphicSystem::GetInstance()->End();
 	RenderEnd();
@@ -272,7 +275,7 @@ HRESULT Renderer::Render()&
 
 void Renderer::Editor()&
 {
-	if (ImGui::Begin("Render Editor"))
+	ImGui::Begin("Render Editor");
 	{
 		if (ImGui::CollapsingHeader("Lights"))
 		{
@@ -284,8 +287,8 @@ void Renderer::Editor()&
 			}
 			Moonlight->Edit(Idx);
 		}
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 void Renderer::RenderReady()&
@@ -367,27 +370,35 @@ void Renderer::RenderShadowMaps()
 		Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 		RenderScene(shadowmap, viewproj);
 
+
+		// 렌더 시작 ... 
 		RenderInfo _RenderInfo{};
 		_RenderInfo._Device = Device;
 		// 여기까지 했음 . 내일 화이팅
-		_RenderInfo.BySituation; 
+		ShadowInfo _ShadowInfo{};
+		_ShadowInfo.ViewProjection = viewproj;
+		_RenderInfo.BySituation = _ShadowInfo;
 		for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
 		{
 			auto Fx = Shaders[ShaderKey]->GetEffect();
 			_RenderInfo.Fx = Fx;
 			UINT Passes = 0u;
+			Fx->SetMatrix("matViewProj", &viewproj);
 			Fx->Begin(&Passes, NULL);
 			for (int32 i = 0; i < Passes; ++i)
 			{
+				_RenderInfo.PassIndex = i;
 				Fx->BeginPass(i);
 				for (auto& [_Entity,_Call] : EntityArr)
 				{
-					_Call();
+					_Call(_RenderInfo);
 				}
 				Fx->EndPass();
 			}
 			Fx->End();
 		}
+		// 렌더 엔드 ... 
+
 	});
 
 	Moonlight->BlurShadowMap(Device, [&](FLight* light) {
@@ -427,6 +438,40 @@ void Renderer::RenderShadowMaps()
 
 			Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 			RenderScene(shadowmap, viewproj);
+
+
+			// 렌더 시작 ... 
+			RenderInfo _RenderInfo{};
+			_RenderInfo._Device = Device;
+			// 여기까지 했음 . 내일 화이팅
+			ShadowInfo _ShadowInfo{};
+			_ShadowInfo.ViewProjection = viewproj;
+			_RenderInfo.BySituation = _ShadowInfo;
+			for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
+			{
+				auto Fx = Shaders[ShaderKey]->GetEffect();
+				_RenderInfo.Fx = Fx;
+				UINT Passes = 0u;
+				Fx->SetMatrix("matViewProj", &_ShadowInfo.ViewProjection);
+				Fx->Begin(&Passes, NULL);
+				for (int32 i = 0; i < Passes; ++i)
+				{
+					_RenderInfo.PassIndex = i;
+					Fx->BeginPass(i);
+					for (auto& [_Entity, _Call] : EntityArr)
+					{
+						_Call(_RenderInfo);
+					}
+					Fx->EndPass();
+				}
+				Fx->End();
+			}
+			// 렌더 엔드 ... 
+
+
+
+
+
 			});
 	}
 
@@ -461,6 +506,32 @@ void Renderer::RenderGBuffer(const Matrix& ViewProjection)
 	{
 		gbuffer->SetTechnique("gbuffer");
 		RenderScene(gbuffer, (const D3DXMATRIX&)ViewProjection);
+
+
+		// 렌더 시작 ... 
+		RenderInfo _RenderInfo{};
+		_RenderInfo._Device = Device;
+		// 여기까지 했음 . 내일 화이팅
+		_RenderInfo.BySituation.reset();
+		for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::GBuffer])
+		{
+			auto Fx = Shaders[ShaderKey]->GetEffect();
+			_RenderInfo.Fx = Fx;
+			UINT Passes = 0u;
+			Fx->Begin(&Passes, NULL);
+			for (int32 i = 0; i < Passes; ++i)
+			{
+				_RenderInfo.PassIndex = i;
+				Fx->BeginPass(i);
+				for (auto& [_Entity, _Call] : EntityArr)
+				{
+					_Call(_RenderInfo);
+				}
+				Fx->EndPass();
+			}
+			Fx->End();
+		}
+		// 렌더 엔드 ... 
 	}
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
@@ -788,81 +859,8 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 
 	if (tech)
 		effect->SetTechnique(oldtech);
-}
-//
-//HRESULT Renderer::RenderGBuffer()&
-//{
-//	/*Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
-//
-//	Device->SetRenderTarget(0u, RenderTargets["ALBM"]->GetSurface());
-//	Device->SetRenderTarget(1u, RenderTargets["NRMR"]->GetSurface());
-//	Device->SetRenderTarget(2u, RenderTargets["Depth"]->GetSurface());
-//
-//	Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-//	Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-//	Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-//	Device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-//	Device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-//
-//	Device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-//	Device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-//	Device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-//	Device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-//	Device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-//
-//	Device->Clear(0u, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
-//
-//	auto GBufferRenderImplementation = [this](
-//		const RenderProperty::Order _Order,
-//		ID3DXEffect*const Fx
-//		) 
-//	{
-//			if (auto _TargetGroup = RenderEntitys.find(_Order);
-//				_TargetGroup != std::end(RenderEntitys))
-//			{
-//				RenderInterface::ImplementationInfo _ImplInfo{};
-//				_ImplInfo.Fx = Fx;
-//				_ImplInfo._Device = Device;
-//				Fx->SetMatrix("ViewProjection", &CurrentRenderInfo.ViewProjection);
-//
-//				uint32 Passes = 0u;
-//				Fx->Begin(&Passes, NULL);
-//
-//				for (uint32 i = 0; i < Passes; ++i)
-//				{
-//					Fx->BeginPass(i);
-//					_ImplInfo.PassIndex = i;
-//
-//					for (auto& _RenderEntity : _TargetGroup->second)
-//					{
-//						if (_RenderEntity)
-//						{
-//							if (_RenderEntity->GetRenderProp().bRender)
-//							{
-//								_RenderEntity->RenderGBufferImplementation(_ImplInfo);
-//							}
-//						}
-//					}
-//
-//					Fx->EndPass();
-//				}
-//
-//				Fx->End();
-//			};
-//	};
-//
-//	
-//	GBufferRenderImplementation(RenderProperty::Order::GBuffer, Shaders["GBuffer"]->GetEffect());
-//	GBufferRenderImplementation(RenderProperty::Order::GBufferSK, Shaders["GBufferSK"]->GetEffect() );
-//
-//	Device->SetRenderTarget(1u, nullptr);
-//	Device->SetRenderTarget(2u, nullptr);
-//
-//	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-//	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-//
-//	return S_OK;*/
-//}
+};
+
 
 
 HRESULT Renderer::RenderDeferredShading()&
@@ -1016,51 +1014,58 @@ HRESULT Renderer::RenderDeferredShading()&
 	return S_OK;
 };
 
-HRESULT Renderer::RenderAlphaBlendEffect()&
+HRESULT Renderer::RenderDebug()&
 {
-	//if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::AlphaBlendEffect);
-	//	_TargetGroup != std::end(RenderEntitys))
-	//{
-	//	Device->SetRenderTarget(0u, BackBuffer);
+	if (g_bDebugRender == false)return S_OK;
 
-	//	for (auto& _RenderEntity : _TargetGroup->second)
-	//	{
-	//		if (_RenderEntity)
-	//		{
-	//			if (_RenderEntity->GetRenderProp().bRender)
-	//			{
-	//				_RenderEntity->RenderAlphaBlendEffect();
-	//			}
-	//		}
-	//	}
-	//}
-
-	//return S_OK;
-
+	RenderInfo _Info;
+	_Info._Device = Device;
+	_Info.BySituation = {};
+	
+	for (auto& [ShaderKey, _EntityArr] : RenderEntitys[RenderProperty::Order::Debug])
+	{
+		auto Fx = Shaders[ShaderKey]->GetEffect();
+		auto DebugColor = Vector4(0.7f, 0.0f, 0.3f, 0.5f);
+		Fx->SetVector("DebugColor", &DebugColor); 
+		Fx->SetMatrix("ViewProjection", &_RenderInfo.ViewProjection);
+		_Info.Fx = Fx;
+		UINT Passes{ 0u };
+		Fx->Begin(&Passes, NULL);
+		for (uint32 i = 0; i < Passes; ++i)
+		{
+			_Info.PassIndex = i;
+			Fx->BeginPass(i);
+			for (auto& [_Entity,Call]: _EntityArr)
+			{
+				Call(_Info);
+			}
+			Fx->EndPass();
+		}
+		Fx->End(); 
+	}
 	return S_OK;
 };
 
 
-HRESULT Renderer::RenderUI()&
+HRESULT Renderer::RenderDebugBone()&
 {
-	/*Device->SetRenderTarget(0u, BackBuffer);
-	if (auto _TargetGroup = RenderEntitys.find(ENGINE::RenderProperty::Order::UI);
-		_TargetGroup != std::end(RenderEntitys))
+	if (g_bDebugBoneToRoot)return S_OK;
+
+	auto& _Order = RenderEntitys[RenderProperty::Order::DebugBone];
+	for (auto& [ShaderKey, _EntityArr] : _Order)
 	{
-		for (auto& _RenderEntity : _TargetGroup->second)
-		{
-			if (_RenderEntity)
-			{
-				if (_RenderEntity->GetRenderProp().bRender)
-				{
-					_RenderEntity->RenderUI();
-				}
-			}
-		}
-	}*/
+		auto Fx = Shaders[ShaderKey]->GetEffect();
+		Vector4 DebugColor {0.3f,0.7f,0.1f,0.5f};
+		const Matrix ScaleOffset = FMath::Scale({ 0.01f,0.01f,0.01f });
+		const Matrix ViewProjection = _RenderInfo.ViewProjection;
+		Fx->SetVector("DebugColor", &DebugColor);
+		Fx->SetMatrix("ScaleOffset", &ScaleOffset);
+		Fx->SetMatrix("ViewProjection", &ViewProjection);
+	}
 
 	return S_OK;
 }
+
 
 HRESULT Renderer::ImguiRender()&
 {
@@ -1156,9 +1161,6 @@ bool Renderer::TestShaderInit()
 
 	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/wood2.jpg", &wood)))
 		return false;
-
-	//if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/brick_normal.jpg", &wood_normal)))
-	//	return false;
 
 	if (FAILED(D3DXCreateTextureFromFileA(Device, "../../Media/Textures/wood2_normal.tga", &wood_normal)))
 		return false;

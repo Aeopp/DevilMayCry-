@@ -15,6 +15,9 @@
 #include "Quad.h"
 #include "basiccamera.h"
 
+
+// TODO :: 절두체 컬링 (포인트 라이트도 ) 
+// TODO :: 시저렉트 계산 
 BEGIN(ENGINE)
 class ENGINE_DLL Renderer final : public Object
 {
@@ -48,21 +51,13 @@ private:
 	void Culling()&;
 	void ResetState()&;
 private:
-	// HRESULT RenderGBuffer()&;
 	HRESULT RenderDeferredShading()&;
-	HRESULT RenderForwardAlphaBlend()&;
-	// HRESULT RenderShadows();
-	HRESULT RenderAlphaBlendEffect()&;
 	HRESULT RenderDebug()&;
 	HRESULT RenderDebugBone()&;
-	HRESULT RenderUI()&;
 	HRESULT ImguiRender()&;
-	HRESULT RenderShadowScene(FLight*const  Light);
 	HRESULT RenderTargetDebugRender()&;
 	HRESULT RenderSky()&;
 	HRESULT Tonemapping()&;
-
-	void RenderShadow();
 public:
 	bool bEdit = false;
 	RenderInformation _RenderInfo{};

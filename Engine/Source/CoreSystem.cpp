@@ -237,6 +237,7 @@ static void GlobalVariableEditor()
 		{
 			ImGui::Checkbox("CollisionVisible", &g_bCollisionVisible);
 			ImGui::Checkbox("Render", &g_bDebugRender);
+			ImGui::Checkbox("RenderBoneToRoot", &g_bDebugBoneToRoot);
 			ImGui::Checkbox("RenderTargetVisible", &g_bRenderTargetVisible);
 			ImGui::Checkbox("RenderEdit",&g_bRenderEdit);
 		}

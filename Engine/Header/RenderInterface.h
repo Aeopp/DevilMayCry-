@@ -38,12 +38,9 @@ public:
 public:
 	///<객체마다 준비해야 하는 행동을 하며 그렇지 않다면 RenderReadyUpdate 호출...>
 	virtual void    RenderReady()      PURE;
-protected:
-	// void RenderVariableBind(const UpdateInfo& CurUpdateInfo);
-	// UpdateInfo _UpdateInfo{};
-	///  
 public:
 	// ShaderInfo     _ShaderInfo{};
+	UpdateInfo _RenderUpdateInfo{};
 	RenderProperty _RenderProperty{};
 };
 END

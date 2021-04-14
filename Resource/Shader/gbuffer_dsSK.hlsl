@@ -1,10 +1,12 @@
+uniform sampler2D baseColor : register(s0);
+uniform sampler2D normalMap : register(s1);
 
 uniform matrix matWorld;
+uniform matrix matWorldInv;
 uniform matrix matViewProj;
 
-uniform float4 lightPos;
-uniform float2 clipPlanes;
-uniform bool isPerspective; // can't decide from LH matrices
+uniform float2 uv = { 1, 1 };
+uniform float handedness = -1.0f;
 
 int nMaxBonesRefPerVtx = 4;
 int VTFPitch;
@@ -19,25 +21,34 @@ sampler VTFSampler = sampler_state
     sRGBTexture = false;
 };
 
-void vs_variance(
-	in out float4 pos : POSITION, 
+void vs_gbuffer_tbn(
+	in out float4 pos : POSITION,
+	in float3 Normal: NORMAL,
+	in float3 Tangent : TANGENT,
+	in float3 BiNormal : BINORMAL,
 
+	in out float2 tex : TEXCOORD0, 
     in float4 BoneIds0 : BLENDINDICES0,
     in float4 BoneIds1 : BLENDINDICES1,
     in float4 Weights0 : BLENDWEIGHT0,
     in float4 Weights1 : BLENDWEIGHT1,
 
-	out float2 zw : TEXCOORD0,
-	out float4 wpos : TEXCOORD1)
+	out float2 zw : TEXCOORD1,
+    out float3 WNormal : TEXCOORD2 ,
+    out float3 WTangent : TEXCOORD3  ,
+    out float3 WBiNormal : TEXCOORD4         )
 {
     float4 AnimPos = float4(0, 0, 0, 1);
     
     pos.w = 1.0f;
+    float4 AnimNormal = float4(0, 0, 0, 0);
+    float4 AnimTanget = float4(0, 0, 0, 0);
+    float4 AnimBiNormal = float4(0, 0, 0, 0);
+    
     
     const float UVCorrection = 0.5f;
     float FVTFPitch = float(VTFPitch);
     int IVTFPitch = int(VTFPitch);
-
     
     for (int i = 0; i < 4; ++i)
     {
@@ -62,7 +73,9 @@ void vs_variance(
             tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
             tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
         };
-      
+        AnimTanget += (mul(float4(Tangent, 0.f), AnimMatrix) * Weights0[i]);
+        AnimNormal += (mul(float4(Normal, 0.f), AnimMatrix) * Weights0[i]);
+        AnimBiNormal += (mul(float4(BiNormal, 0.f), AnimMatrix) * Weights0[i]);
         AnimPos += (mul(pos, AnimMatrix) * Weights0[i]);
     }
     
@@ -87,42 +100,67 @@ void vs_variance(
             float4x4 AnimMatrix =
             {
                 tex2Dlod(VTFSampler, float4(VTFUVRow0, 0.f, 0.f)),
-             tex2Dlod(VTFSampler, float4(VTFUVRow1, 0.f, 0.f)),
-             tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
+                 tex2Dlod(VTFSampler, float4(VTFUVRow1, 0.f, 0.f)),
+                  tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
                 tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
             };
-        
             AnimPos += (mul(pos, AnimMatrix) * Weights1[i]);
+            AnimTanget += (mul(float4(Tangent, 0.f), AnimMatrix) * Weights1[i]);
+            AnimNormal += (mul(float4(Normal, 0.f), AnimMatrix) * Weights1[i]);
+            AnimBiNormal += (mul(float4(BiNormal, 0.f), AnimMatrix) * Weights1[i]);
+            
         }
     }
     
-    wpos = mul(float4(pos.xyz, 1), matWorld);
-    pos = mul(wpos, matViewProj);
+    pos = mul(float4(AnimPos.xyz, 1), matWorld);
+    WNormal= mul(AnimNormal, matWorld).xyz;
+    WTangent = mul(AnimTanget, matWorld).xyz;
+    WBiNormal = mul(AnimBiNormal, matWorld).xyz;
+    
+    pos = mul(pos, matViewProj);
+    zw = pos.zw;
 
-    zw.xy = pos.zw;
+    tex *= uv;
 }
 
-void ps_variance(
-	in float2 zw : TEXCOORD0,
-	in float4 wpos : TEXCOORD1,
-	out float4 color : COLOR0)
+void ps_gbuffer_tbn(
+	in float2 tex : TEXCOORD0,
+	in float2 zw : TEXCOORD1,
+    in float3 WNormal : TEXCOORD2,
+    in float3 WTangent : TEXCOORD3,
+    in float3 WBiNormal : TEXCOORD4 ,
+	
+	out float4 color0 : COLOR0, // albedo
+	out float4 color1 : COLOR1, // normals
+	out float4 color2 : COLOR2)	// depth
 {
-    float d = zw.x;
+    float3x3 tbn =
+                float3x3(normalize(float3(WTangent)),
+                         normalize(float3(WBiNormal)),
+                         normalize(float3(WNormal)));
+    
+    tbn = transpose(tbn);
+    
+    float3 tnorm = tex2D(normalMap, tex).rgb * 2.0f - 1.0f;
+    //노말맵 g채널 뒤집어주자 . 
+     //tnorm.y *= -1.f;
+    ////tnorm.x *= -1.f;
+    //float temp = tnorm.z;
+    //tnorm.z = tnorm.x;
+    //tnorm.x = temp;
+    
+    float3 n = normalize(mul(tbn, tnorm));
+    
+    color0 = tex2D(baseColor, tex);
+    color1 = float4(n * 0.5f + 0.5f, 1);
+    color2 = float4(zw.x / zw.y, 0, 0, 0);
+};
 
-    if (isPerspective)
-    {
-        float z = length(lightPos.xyz - wpos.xyz);
-        d = (z - clipPlanes.x) / (clipPlanes.y - clipPlanes.x);
-    }
-
-    color = float4(d, d * d, 0, 1);
-}
-
-technique variance
+technique gbuffer_tbn
 {
     pass p0
     {
-        vertexshader = compile vs_3_0 vs_variance();
-        pixelshader = compile ps_3_0 ps_variance();
+        vertexshader = compile vs_3_0 vs_gbuffer_tbn();
+        pixelshader = compile ps_3_0 ps_gbuffer_tbn();
     }
 }

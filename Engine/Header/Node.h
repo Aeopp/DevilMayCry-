@@ -6,6 +6,8 @@
 #include "AnimationBlendInfo.h"
 #include <unordered_map>
 #include <vector>
+#include <bitset>
+
 #include <memory>
 #include <map>
 #include "AnimationTrack.h"
@@ -24,7 +26,7 @@ public:
 	Matrix Offset{ FMath::Identity() };
 	std::string Name{};
 	int32 Index{ -1 };
-	int32 RootMotionFlag{ -1 };
+	std::bitset<3> RootMotionFlag{};
 
 	inline bool IsBone() { return Index >=0; };
 

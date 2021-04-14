@@ -4,6 +4,7 @@
 #include "EngineDefine.h"
 #include <map>
 #include <functional>
+#include <any>
 
 BEGIN(ENGINE)
 
@@ -17,7 +18,7 @@ struct ENGINE_DLL RenderInfo
 
 struct ENGINE_DLL ShadowInfo
 {
-	Matrix ViewProjection = FMath::Identity();
+	Matrix ViewProjection;
 };
 
 struct ENGINE_DLL RenderProperty
@@ -26,19 +27,15 @@ public :
 	enum class Order : uint8
 	{
 		GBuffer = 0u,
-		GBufferSK,
 
 		ForwardAlphaBlend,
-		ForwardAlphaBlendSK,
 
 		Shadow,
-		ShadowSK,
 
 		AlphaBlendEffect,
 		UI,
-		
+
 		Debug,
-		DebugSK,
 
 		DebugBone,
 	};

@@ -18,6 +18,7 @@ ENGINE_DLL bool                 g_bEditMode;
 ENGINE_DLL bool                 g_bCollisionVisible;
 ENGINE_DLL bool					g_bRenderTargetVisible;
 ENGINE_DLL bool					g_bDebugRender;
+ENGINE_DLL bool		            g_bDebugBoneToRoot;
 ENGINE_DLL bool                 g_bRenderEdit;
 ENGINE_DLL ID3DXMesh*		    g_pSphereMesh;
 

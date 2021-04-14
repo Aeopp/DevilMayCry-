@@ -24,7 +24,12 @@ public:
 	//virtual void    RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override;
 	//virtual void    RenderShadowImplementation(const 
 	//	ImplementationInfo& _ImplInfo)override;
+	void RenderInit();
 	virtual void    RenderReady()override;
+	void RenderGBufferSK(const RenderInfo& _Info);
+	void RenderShadowSK(const RenderInfo& _Info);
+	void RenderDebugBone(const RenderInfo& _Info);
+	void RenderDebugSK(const RenderInfo& _Info);
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

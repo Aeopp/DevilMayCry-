@@ -241,18 +241,18 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 		}
 
 		// 포지션
-		if (RootMotionFlag == 3 /*"root_$AssimpFbx$_Transition"*/)
+		if (RootMotionFlag.test(2)/*"root_$AssimpFbx$_Transition"*/)
 		{
 			Pos = { 0,0,0 };
 		}
 		 // 로테이션 .. 
-		else if (RootMotionFlag == 2)
+		else if (RootMotionFlag.test(1))
 		{
 			Quat = { 0,0,0,1 };
 			// Quat = UnitQuat !! 
 		}
 		 // 스케일링
-		else if (RootMotionFlag==1 /*"root_$AssimpFbx$_Scaling"*/)
+		else if (RootMotionFlag.test(0)/*"root_$AssimpFbx$_Scaling"*/)
 		{
 			Scale = { 1,1,1 };
 		}
