@@ -661,7 +661,8 @@ void SkeletonMesh::BoneDebugRender(
 	ID3DXEffect* const Fx)&
 {
 	static auto DebugSphereMesh = 
-		Resources::Load<ENGINE::StaticMesh>("..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
+		Resources::Load<ENGINE::StaticMesh>(
+			"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
 
 	if (!Nodes || !DebugSphereMesh) return;
 

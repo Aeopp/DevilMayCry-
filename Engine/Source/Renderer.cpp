@@ -404,7 +404,8 @@ void Renderer::RenderShadowMaps()
 	Moonlight->BlurShadowMap(Device, [&](FLight* light) {
 		D3DXVECTOR4 pixelsize(1.0f / light->GetShadowMapSize(),
 			1.0f / light->GetShadowMapSize(), 0, 0);
-		D3DXVECTOR4 TexelSize = Moonlight->BlurIntencity * pixelsize;	// make it more blurry
+		D3DXVECTOR4 TexelSize = Moonlight->BlurIntencity * pixelsize;	
+		// make it more blurry
 		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 		Blur->SetTechnique("boxblur3x3");
 		Blur->SetVector("pixelSize", &pixelsize);
@@ -797,24 +798,24 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 	{
 		// skull 1
 		Device->SetTexture(0, marble);
-		skull->DrawSubset(0);
+		//skull->DrawSubset(0);
 
-		// skull 2
-		D3DXMatrixInverse(&inv, NULL, &world[1]);
+		//// skull 2
+		//D3DXMatrixInverse(&inv, NULL, &world[1]);
 
-		effect->SetMatrix("matWorld", &world[1]);
-		effect->SetMatrix("matWorldInv", &inv);
-		effect->CommitChanges();
+		//effect->SetMatrix("matWorld", &world[1]);
+		//effect->SetMatrix("matWorldInv", &inv);
+		//effect->CommitChanges();
 
-		skull->DrawSubset(0);
+		//skull->DrawSubset(0);
 
-		// skull 3
-		D3DXMatrixInverse(&inv, NULL, &world[2]);
+		//// skull 3
+		//D3DXMatrixInverse(&inv, NULL, &world[2]);
 
-		effect->SetMatrix("matWorld", &world[2]);
-		effect->SetMatrix("matWorldInv", &inv);
-		effect->CommitChanges();
-		skull->DrawSubset(0);
+		//effect->SetMatrix("matWorld", &world[2]);
+		//effect->SetMatrix("matWorldInv", &inv);
+		//effect->CommitChanges();
+		//skull->DrawSubset(0);
 
 		Matrix targetscale,targettranslation ,targetworld,targetinverseworld;
  		D3DXMatrixScaling(&targetscale, 0.15f, 0.15f, 0.15f) ;
@@ -1019,7 +1020,6 @@ HRESULT Renderer::RenderDebug()&
 	DrawInfo _DrawInfo;
 	_DrawInfo._Device = Device;
 	_DrawInfo.BySituation = {};
-	
 	for (auto& [ShaderKey, _EntityArr] : RenderEntitys[RenderProperty::Order::Debug])
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
@@ -1050,15 +1050,33 @@ HRESULT Renderer::RenderDebugBone()&
 	if (g_bDebugBoneToRoot)return S_OK;
 
 	auto& _Order = RenderEntitys[RenderProperty::Order::DebugBone];
+	DrawInfo _DrawInfo{};
+	_DrawInfo._Device = Device;
+	_DrawInfo.BySituation.reset();
+	
 	for (auto& [ShaderKey, _EntityArr] : _Order)
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
+		_DrawInfo.Fx = Fx;
 		Vector4 DebugColor {0.3f,0.7f,0.1f,0.5f};
 		const Matrix ScaleOffset = FMath::Scale({ 0.01f,0.01f,0.01f });
 		const Matrix ViewProjection = _RenderInfo.ViewProjection;
 		Fx->SetVector("DebugColor", &DebugColor);
 		Fx->SetMatrix("ScaleOffset", &ScaleOffset);
 		Fx->SetMatrix("ViewProjection", &ViewProjection);
+		UINT Passes = 0u;
+		Fx->Begin(&Passes, NULL);
+		for (int32 i = 0; i < Passes; ++i)
+		{
+			Fx->BeginPass(i);
+			_DrawInfo.PassIndex = i;
+			for (auto& [Entity ,Call]: _EntityArr)
+			{
+				Call(_DrawInfo);
+			}
+			Fx->EndPass();
+		}
+		Fx->End();
 	}
 
 	return S_OK;

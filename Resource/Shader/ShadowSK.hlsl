@@ -87,8 +87,8 @@ void vs_variance(
             float4x4 AnimMatrix =
             {
                 tex2Dlod(VTFSampler, float4(VTFUVRow0, 0.f, 0.f)),
-             tex2Dlod(VTFSampler, float4(VTFUVRow1, 0.f, 0.f)),
-             tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
+                 tex2Dlod(VTFSampler, float4(VTFUVRow1, 0.f, 0.f)),
+                tex2Dlod(VTFSampler, float4(VTFUVRow2, 0.f, 0.f)),
                 tex2Dlod(VTFSampler, float4(VTFUVRow3, 0.f, 0.f))
             };
         
