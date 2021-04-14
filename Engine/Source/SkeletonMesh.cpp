@@ -596,9 +596,12 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaT
 
 	CurrentAnimPrevFrameMotionTime = CurrentAnimMotionTime;
 
-	CurrentAnimMotionTime +=
-		(CalcDeltaTime *
-			CurPlayAnimInfo.CalcAcceleration(CurrentAccelerationFactor));
+	const float AddTime = (CalcDeltaTime *
+		CurPlayAnimInfo.CalcAcceleration(CurrentAccelerationFactor)); 
+
+	CurAccAnimMotionTime += AddTime; 
+	CurrentAnimMotionTime += AddTime; 
+		
 
 	PrevAnimPrevFrameMotionTime = PrevAnimMotionTime;
 
@@ -731,6 +734,8 @@ void SkeletonMesh::PlayAnimation(
 	{
 		return;
 	}
+
+	CurAccAnimMotionTime = 0.0f;
 	bAnimStop = false;
 	bAnimationEnd = false;
 	this->bLoop = bLoop;
@@ -806,6 +811,11 @@ float SkeletonMesh::PlayingTime()
 	return CurrentAnimMotionTime / CurPlayAnimInfo.Duration;
 }
 
+float SkeletonMesh::PlayingAccTime()
+{
+	return CurAccAnimMotionTime;
+}
+
 void SkeletonMesh::SetPlayingTime(float NewTime)
 {
 	if (bAnimationEnd)return;
@@ -813,7 +823,11 @@ void SkeletonMesh::SetPlayingTime(float NewTime)
 	const float AnimDelta = NewTime - PlayingTime();
 	const float SetTime = NewTime * CurPlayAnimInfo.Duration;
 	CurrentAnimPrevFrameMotionTime = CurrentAnimMotionTime;
+	
 	CurrentAnimMotionTime = SetTime;
+	int32 iAccTime = CurAccAnimMotionTime;
+	CurAccAnimMotionTime = iAccTime + CurrentAnimMotionTime;
+
 	PrevAnimPrevFrameMotionTime = PrevAnimMotionTime;
 	PrevAnimMotionTime += AnimDelta * PrevPlayAnimInfo.CalcAcceleration();
 	TransitionRemainTime -= AnimDelta;

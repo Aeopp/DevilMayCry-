@@ -1,8 +1,6 @@
 {
     "AnimationData": {
         "RootMotion_DeltaFactor": 1.0,
-        "RootMotion_ScaleName": "NULL_SCALING",
-        "RootMotion_RotationName": "NULL_ROTATION",
         "RootMotion_TransitionName": "root",
         "AnimInfoTable": [
             {
@@ -541,6 +539,11 @@
                 "TransitionTime": 0.10000000149011612
             },
             {
+                "Name": "Overture_Idle",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
                 "Name": "Overture_Shoot",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
@@ -793,7 +796,7 @@
             {
                 "Name": "Wire_Snatch_Pull",
                 "Acceleration": 1.0,
-                "TransitionTime": 0.10000000149011612
+                "TransitionTime": 0.008999999612569809
             },
             {
                 "Name": "Wire_Snatch_Pull_Air",
@@ -813,12 +816,12 @@
             {
                 "Name": "Wire_Snatch_Pull_D",
                 "Acceleration": 1.0,
-                "TransitionTime": 0.10000000149011612
+                "TransitionTime": 0.008999999612569809
             },
             {
                 "Name": "Wire_Snatch_Pull_U",
                 "Acceleration": 1.0,
-                "TransitionTime": 0.10000000149011612
+                "TransitionTime": 0.008999999612569809
             }
         ]
     }

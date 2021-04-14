@@ -222,6 +222,11 @@ float Nero::Get_PlayingTime()
 	return m_pMesh->PlayingTime();
 }
 
+float Nero::Get_PlayingAccTime()
+{
+	return m_pMesh->PlayingAccTime();
+}
+
 optional<Matrix> Nero::Get_BoneMatrix_ByName(std::string _BoneName)
 {
 	return m_pMesh->GetNodeToRoot(_BoneName);

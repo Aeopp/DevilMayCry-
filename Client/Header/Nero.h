@@ -167,8 +167,10 @@ public:
 		ANI_STUN_LOOP,
 		ANI_STUN_START,
 		ANI_WIRE_HELLHOUND_AIR_END,
+		ANI_WIRE_HELLHOUND_AIR_LOOP,
 		ANI_WIRE_HELLHOUND_AIR_F,
 		ANI_WIRE_HELLHOUND_END,
+		ANI_WIRE_HELLHOUND_LOOP,
 		ANI_WIRE_HELLHOUND_F,
 		ANI_WIRE_SNATCH_PULL,
 		ANI_WIRE_SNATCH_PULL_AIR,
@@ -179,6 +181,7 @@ public:
 		ANI_CBS_RUNSTOP,
 		ANI_CBS_DASHSTOP,
 		ANI_JUMP_LOOP,
+		ANI_OVERTURE_IDLE,
 		ANI_END
 	};
 
@@ -224,6 +227,7 @@ public:
 public:
 	virtual std::string GetName() override;
 	float Get_PlayingTime();
+	float Get_PlayingAccTime();
 	UINT Get_CurAnimationIndex() { return m_iCurAnimationIndex; }
 	UINT Get_PreAnimationIndex() { return m_iPreAnimationIndex; }
 	UINT Get_CurWeaponIndex() { return m_iCurWeaponIndex; }
@@ -232,11 +236,15 @@ public:
 	std::optional<Matrix> Get_BoneMatrix_ByName(std::string _BoneName);
 	Matrix* Get_BoneMatrixPtr(std::string _BoneName);
 	Matrix Get_NeroWorldMatrix() { return m_pTransform.lock()->GetWorldMatrix(); }
+	UINT Get_RQ_Gage() { return (UINT)m_fRedQueenGage; }
 public:
 	void Reset_JumpCount() { m_iJumpCount = 1; }
 	void Set_JumpDir(UINT _iJumpDir) { m_iJumpDirIndex = _iJumpDir; }
 public:
 	void DecreaseJumpCount() { --m_iJumpCount; }
+	void DecreaseRQ_Gage() { m_fRedQueenGage -= 1; }
+	//테스트
+	void IncreaseRQ_Gage() { m_fRedQueenGage += 1; }
 public:
 	//애니메이션 관련
 	void  StopAnimation();
@@ -267,6 +275,8 @@ private:
 
 	bool	m_bDebugButton = true;
 	UINT	m_iJumpCount = 0;
+
+	float	m_fRedQueenGage = 0.f;
 };
 
 

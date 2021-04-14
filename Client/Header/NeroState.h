@@ -112,39 +112,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Jump_Landing : public NeroState
-{
-private:
-	explicit Jump_Landing(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Landing();
-
-public:
-	static Jump_Landing* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-
-class Jump_Landing_High : public NeroState
-{
-private:
-	explicit Jump_Landing_High(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Landing_High();
-
-public:
-	static Jump_Landing_High* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class Jump_Twice : public NeroState
 {
 private:
@@ -161,22 +128,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Jump_Front : public NeroState
-{
-private:
-	explicit Jump_Front(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Front();
-
-public:
-	static Jump_Front* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class Jump_Front_Landing : public NeroState
 {
 private:
@@ -186,54 +137,6 @@ public:
 
 public:
 	static Jump_Front_Landing* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Front_Twice : public NeroState
-{
-private:
-	explicit Jump_Front_Twice(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Front_Twice();
-
-public:
-	static Jump_Front_Twice* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Back : public NeroState
-{
-private:
-	explicit Jump_Back(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Back();
-
-public:
-	static Jump_Back* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Back_Twice : public NeroState
-{
-private:
-	explicit Jump_Back_Twice(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Back_Twice();
-
-public:
-	static Jump_Back_Twice* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -271,6 +174,9 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	
 };
 
 class RunStartLeft : public NeroState
@@ -1227,70 +1133,6 @@ public:
 
 public:
 	static BT_Air_ComboB* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_To_RunStart : public NeroState
-{
-private:
-	explicit BT_Att1_To_RunStart(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_RunStart();
-
-public:
-	static BT_Att1_To_RunStart* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_To_Idle_End : public NeroState
-{
-private:
-	explicit BT_Att1_To_Idle_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_Idle_End();
-
-public:
-	static BT_Att1_To_Idle_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att2_To_RunStart : public NeroState
-{
-private:
-	explicit BT_Att2_To_RunStart(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att2_To_RunStart();
-
-public:
-	static BT_Att2_To_RunStart* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_Dash : public NeroState
-{
-private:
-	explicit BT_Att1_Dash(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_Dash();
-
-public:
-	static BT_Att1_Dash* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -2471,6 +2313,9 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	int	m_iLoopCount = 0;
 };
 
 class Hr_Ex_Air_Roll_End : public NeroState
@@ -2482,22 +2327,6 @@ public:
 
 public:
 	static Hr_Ex_Air_Roll_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Hr_Ex_Air_Finish : public NeroState
-{
-private:
-	explicit Hr_Ex_Air_Finish(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Hr_Ex_Air_Finish();
-
-public:
-	static Hr_Ex_Air_Finish* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;

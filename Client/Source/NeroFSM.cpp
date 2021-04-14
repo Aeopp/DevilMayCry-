@@ -135,7 +135,6 @@ HRESULT NeroFSM::ReadyFSM()
 	m_vecState.emplace_back(Air_Dive_Slash_Start::Create(this, SKILL_AIR_DIVE_SLASH_START, m_pNero));
 	m_vecState.emplace_back(Air_Dive_Slash_Loop::Create(this, SKILL_AIR_DIVE_SLASH_LOOP, m_pNero));
 	m_vecState.emplace_back(Air_Dive_Slash_End::Create(this, SKILL_AIR_DIVE_SLASH_END, m_pNero));
-	m_vecState.emplace_back(Hr_Ex_Air_Finish::Create(this, SKILL_HR_EX_AIR_FINISH, m_pNero));
 	m_vecState.emplace_back(Hr_Ex_Air_Roll_Start::Create(this, SKILL_HR_EX_AIR_ROLL_START, m_pNero));
 	m_vecState.emplace_back(Hr_Ex_Air_Roll_Loop::Create(this, SKILL_HR_EX_AIR_ROLL_LOOP, m_pNero));
 	m_vecState.emplace_back(Hr_Ex_Air_Roll_End::Create(this, SKILL_HR_EX_AIR_ROLL_END, m_pNero));
@@ -156,7 +155,14 @@ HRESULT NeroFSM::ReadyFSM()
 	m_vecState.emplace_back(Overture_Shoot_Air_Up::Create(this, OVERTURE_SHOOT_AIR_UP,m_pNero));
 	m_vecState.emplace_back(Overture_Shoot_Air_Down::Create(this,OVERTURE_SHOOT_AIR_DOWN, m_pNero));
 
+	m_vecState.emplace_back(Wire_Pull::Create(this, WIRE_SNATCH_PULL, m_pNero));
+	m_vecState.emplace_back(Wire_Pull_Air::Create(this, WIRE_SNATCH_PULL_AIR, m_pNero));
+	m_vecState.emplace_back(Wire_Fly_End::Create(this, WIRE_HELLHOUND_END, m_pNero));
+	m_vecState.emplace_back(Wire_Fly_Start::Create(this, WIRE_HELLHOUND_START, m_pNero));
+	m_vecState.emplace_back(Wire_Fly_Loop::Create(this, WIRE_HELLHOUND_LOOP, m_pNero));
+	
 
+	m_vecState.emplace_back(Hr_Ex_Start::Create(this, SKILL_HR_EX_START, m_pNero));
 	return S_OK;						
 }
 
