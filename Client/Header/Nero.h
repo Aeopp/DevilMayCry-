@@ -5,7 +5,7 @@
 #include "GameObject.h"
 #include "RenderInterface.h"
 class NeroFSM;
-
+class RedQueen;
 class Nero :   public GameObject ,
 	public ENGINE::RenderInterface
 
@@ -178,23 +178,38 @@ public:
 		ANI_WIRE_SNATCH_PULL_U,
 		ANI_CBS_RUNSTOP,
 		ANI_CBS_DASHSTOP,
+		ANI_JUMP_LOOP,
 		ANI_END
 	};
 
-	enum WeaponState
+	enum WeaponList
 	{
 		RQ , // 검
 		Cbs // 삼절곤
 
 	};
 
+	enum JumpDir
+	{
+		Basic,
+		Front,
+		Back,
+	};
+
+	enum WeaponState
+	{
+		WS_Idle,
+		WS_Battle
+	};
+	
+
 private:
 	explicit Nero();
 	virtual ~Nero() = default;
 	// GameObject을(를) 통해 상속됨
 	virtual void Free() override;
-	virtual std::string GetName() override;
 public:
+
 	static Nero* Create();
 public:
 	virtual void RenderReady() override;
@@ -203,19 +218,33 @@ public:
 	virtual void RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void Editor()override;
 public:
+/// <For RedQueen>
+	void Set_RQ_State(UINT _StateIndex);
+	void Set_PlayingTime(float NewTime);
+public:
+	virtual std::string GetName() override;
 	float Get_PlayingTime();
 	UINT Get_CurAnimationIndex() { return m_iCurAnimationIndex; }
 	UINT Get_PreAnimationIndex() { return m_iPreAnimationIndex; }
 	UINT Get_CurWeaponIndex() { return m_iCurWeaponIndex; }
 	UINT Get_JumpCount() { return m_iJumpCount; }
+	UINT Get_JumpDir() { return m_iJumpDirIndex; }
+	std::optional<Matrix> Get_BoneMatrix_ByName(std::string _BoneName);
+	Matrix* Get_BoneMatrixPtr(std::string _BoneName);
+	Matrix Get_NeroWorldMatrix() { return m_pTransform.lock()->GetWorldMatrix(); }
 public:
-	void Set_JumpCount() { m_iJumpCount = 1; }
+	void Reset_JumpCount() { m_iJumpCount = 1; }
+	void Set_JumpDir(UINT _iJumpDir) { m_iJumpDirIndex = _iJumpDir; }
 public:
 	void DecreaseJumpCount() { --m_iJumpCount; }
 public:
+	//애니메이션 관련
+	void  StopAnimation();
+	void  ContinueAnimiation();
 	bool  IsAnimationEnd();
 public:
 	void ChangeAnimation(const std::string& InitAnimName, const bool  bLoop, const UINT AnimationIndex,const AnimNotify& _Notify = {});
+	void ChangeAnimationIndex(const UINT AnimationIndex);
 	void ChangeWeapon(UINT _iWeaponIndex);
 public:
 	virtual HRESULT Ready() override;
@@ -229,10 +258,12 @@ public:
 private:
 	std::shared_ptr<ENGINE::SkeletonMesh> m_pMesh;
 	std::shared_ptr<NeroFSM> m_pFSM;
+	std::weak_ptr<RedQueen> m_pRedQueen;
 
 	UINT	m_iCurAnimationIndex;
 	UINT	m_iPreAnimationIndex;
 	UINT	m_iCurWeaponIndex;
+	UINT	m_iJumpDirIndex;
 
 	bool	m_bDebugButton = true;
 	UINT	m_iJumpCount = 0;

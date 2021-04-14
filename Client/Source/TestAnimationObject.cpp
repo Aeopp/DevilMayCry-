@@ -157,8 +157,8 @@ HRESULT TestAnimationObject::Ready()
 	//_InitInfo.bRootMotionRotation = false;
 	//_InitInfo.bRootMotionTransition = false;
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
-		(L"..\\..\\Resource\\TestDummy\\Em100\\Em100.fbx" , _InitInfo);
-
+		(L"..\\..\\Resource\\Mesh\\Dynamic\\XFile\\Test_Dante.X" , _InitInfo);
+	_SkeletonMesh->EnableToRootMatricies();
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)

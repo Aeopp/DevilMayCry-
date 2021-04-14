@@ -3,15 +3,28 @@
 #include "Renderer.h"
 #include "Subset.h"
 #include "NeroFSM.h"
+#include "RedQueen.h"
+
 Nero::Nero()
 	:m_iCurAnimationIndex(ANI_END)
 	, m_iPreAnimationIndex(ANI_END)
 	, m_iCurWeaponIndex(RQ)
+	, m_iJumpDirIndex(Basic)
 {
 }
 void Nero::Free()
 {
 	m_pFSM = nullptr;
+}
+
+void Nero::Set_RQ_State(UINT _StateIndex)
+{
+	m_pRedQueen.lock()->SetWeaponState(_StateIndex);
+}
+
+void Nero::Set_PlayingTime(float NewTime)
+{
+	m_pMesh->SetPlayingTime(NewTime);
 }
 
 std::string Nero::GetName()
@@ -52,8 +65,12 @@ HRESULT Nero::Ready()
 		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
 
 	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.fbx");
+
+
 	m_pMesh->LoadAnimationFromDirectory(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Animation");
 	m_pMesh->AnimationDataLoadFromJsonTable(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.Animation");
+
+	m_pMesh->EnableToRootMatricies();
 	m_pTransform.lock()->SetScale({ 0.03f,0.03f,0.03f });
 	PushEditEntity(m_pMesh.get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
@@ -75,11 +92,15 @@ HRESULT Nero::Ready()
 	//m_pMesh->PlayAnimation("RunLoop", true , _Notify);
 	//m_pMesh->PlayAnimation(IDLE, true, _Notify);
 	//FSM ¡ÿ∫Ò
+
+	m_pRedQueen = AddGameObject<RedQueen>();
 	m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
-	
 
 	m_iCurAnimationIndex = ANI_END;
 	m_iPreAnimationIndex = ANI_END;
+
+	m_nTag = 100;
+
 	return S_OK;
 }
 
@@ -100,7 +121,7 @@ UINT Nero::Update(const float _fDeltaTime)
 	//GameObject::Update(_fDeltaTime);
 	if (Input::GetKeyDown(DIK_0))
 		m_bDebugButton = !m_bDebugButton;
-
+	
 	if (nullptr != m_pFSM && m_bDebugButton)
 		m_pFSM->UpdateFSM(_fDeltaTime);
 
@@ -179,6 +200,9 @@ void Nero::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
 	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
 		SpTransform)
 	{
+		const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
+
+		_ImplInfo.Fx->SetMatrix("ScaleOffset", &ScaleOffset);
 		m_pMesh->BoneDebugRender(SpTransform->GetWorldMatrix(), _ImplInfo.Fx);
 	}
 }
@@ -198,6 +222,26 @@ float Nero::Get_PlayingTime()
 	return m_pMesh->PlayingTime();
 }
 
+optional<Matrix> Nero::Get_BoneMatrix_ByName(std::string _BoneName)
+{
+	return m_pMesh->GetNodeToRoot(_BoneName);
+}
+
+Matrix* Nero::Get_BoneMatrixPtr(std::string _BoneName)
+{
+	return m_pMesh->GetToRootMatrixPtr(_BoneName);;
+}
+
+void Nero::StopAnimation()
+{
+	m_pMesh->StopAnimation();
+}
+
+void Nero::ContinueAnimiation()
+{
+	m_pMesh->ContinueAnimation();
+}
+
 bool Nero::IsAnimationEnd()
 {
 	return m_pMesh->IsAnimationEnd();
@@ -208,6 +252,12 @@ void Nero::ChangeAnimation(const std::string& InitAnimName, const bool bLoop, co
 	m_iPreAnimationIndex = m_iCurAnimationIndex;
 	m_iCurAnimationIndex = AnimationIndex;
 	m_pMesh->PlayAnimation(InitAnimName, bLoop, _Notify);
+}
+
+void Nero::ChangeAnimationIndex(const UINT AnimationIndex)
+{
+	m_iPreAnimationIndex = m_iCurAnimationIndex;
+	m_iCurAnimationIndex = AnimationIndex;
 }
 
 void Nero::ChangeWeapon(UINT _iWeaponIndex)

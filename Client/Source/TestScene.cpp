@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Nero.h"
 #include <iostream>
+#include "RedQueen.h"
 
 using namespace std;
 
@@ -40,6 +41,7 @@ HRESULT TestScene::LoadScene()
 	// AddGameObject<TestObject>();
 	//AddGameObject<TestAnimationObject>();
 	AddGameObject<Nero>();
+
 	/*AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();

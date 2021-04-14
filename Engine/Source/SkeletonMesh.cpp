@@ -183,6 +183,7 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 	std::optional<float> bTimeBeyondAnimation;
 	const float TimeBeyondAnimation = 
 		(CurrentAnimMotionTime - CurPlayAnimInfo.Duration);
+
 	if (TimeBeyondAnimation > 0.0f)
 	{
 		bTimeBeyondAnimation = TimeBeyondAnimation;
@@ -217,8 +218,8 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 	if (bRootMotionTransition)
 	{
-		RootMotionLastCalcDeltaPos = CalcRootMotionDeltaPos(
-			bTimeBeyondAnimation,
+		RootMotionLastCalcDeltaPos = 
+			CalcRootMotionDeltaPos(bTimeBeyondAnimation,
 			AnimName, CurPlayAnimInfo.Duration, CurrentAnimPrevFrameMotionTime, CurrentAnimMotionTime);
 
 		if (IsAnimationBlend)
@@ -288,9 +289,6 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 
 #pragma endregion ROOT_MOTION
-
-
-
 	// 루트모션 종료.....
 	auto* const Root = GetRootNode();
 	// 노드 정보를 클론들끼리 공유하기 때문에 업데이트 직후 반드시 VTF Update 수행...
@@ -300,7 +298,12 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 
 	Root->NodeUpdate(FMath::Identity(),
 		CurPlayAnimMotionTime, AnimName, IsAnimationBlend);
-	//
+
+	if (ToRoots.has_value())
+	{
+		UpdateToRootMatricies();
+	}
+
 	VTFUpdate();
 
 	if (bTimeBeyondAnimation)
@@ -333,14 +336,23 @@ void SkeletonMesh::AnimationSave(
 		Writer.Key("RootMotion_DeltaFactor");
 		Writer.Double(RootMotionDeltaFactor);
 
-		Writer.Key("RootMotion_ScaleName");
-		Writer.String(RootMotionScaleName.c_str());
+		if (bRootMotionScale)
+		{
+			Writer.Key("RootMotion_ScaleName");
+			Writer.String(RootMotionScaleName.c_str());
+		}
 
-		Writer.Key("RootMotion_RotationName");
-		Writer.String(RootMotionRotationName.c_str());
+		if (bRootMotionRotation)
+		{
+			Writer.Key("RootMotion_RotationName");
+			Writer.String(RootMotionRotationName.c_str());
+		}
 
-		Writer.Key("RootMotion_TransitionName");
-		Writer.String(RootMotionTransitionName.c_str());
+		if (bRootMotionTransition)
+		{
+			Writer.Key("RootMotion_TransitionName");
+			Writer.String(RootMotionTransitionName.c_str());
+		}
 
 		Writer.Key("AnimInfoTable");
 		Writer.StartArray();
@@ -374,7 +386,7 @@ void SkeletonMesh::AnimationSave(
 	AnimPath.replace_extension("Animation");
 	std::ofstream Of{ AnimPath };
 	Of << StrBuf.GetString();
-}
+};
 
 void SkeletonMesh::AnimationDataLoadFromJsonTable(
 	const std::filesystem::path& FullPath)&
@@ -411,17 +423,20 @@ void SkeletonMesh::AnimationDataLoadFromJsonTable(
 			{
 				if (iter->HasMember("Name"))
 				{
-					if (false == AnimInfoTable->contains(AnimName))
-					{
-						Log("No model animation name and no data table name occur. Check if the animation has been renamed");
-						// PRINT_LOG(L"Warning!!",L".")
-					}
-
 					const std::string AnimName =
 						iter->FindMember("Name")->value.GetString();
 
-					(*AnimInfoTable)[AnimName].SetAcceleration(iter->FindMember("Acceleration")->value.GetFloat());
-					(*AnimInfoTable)[AnimName].TransitionTime = iter->FindMember("TransitionTime")->value.GetFloat();
+					if (false == AnimInfoTable->contains(AnimName))
+					{
+						Log("No model animation name and no data table name occur. Check if the animation has been renamed");
+						continue;
+						// PRINT_LOG(L"Warning!!",L".")
+					}
+
+					(*AnimInfoTable)[AnimName].SetAcceleration(
+						iter->FindMember("Acceleration")->value.GetFloat());
+					(*AnimInfoTable)[AnimName].TransitionTime = 
+						iter->FindMember("TransitionTime")->value.GetFloat();
 				}
 			}
 		}
@@ -505,6 +520,19 @@ void SkeletonMesh::Editor()
 	{
 		AnimationEditor();
 		NodeEditor();
+
+		/*if (Nodes)
+		{
+			for (auto& [NodeName, _Node] : *Nodes)
+			{
+				ImGui::Text(NodeName.c_str());
+				if (_Node)
+				{
+					ImGui::Text("Pos : %3.3f , %3.3f , %3.3f", _Node->Transform._41, _Node->Transform._42, _Node->Transform._43);
+				}
+				ImGui::Separator();
+			}
+		}*/
 	}
 
 	Mesh::Editor();
@@ -524,6 +552,17 @@ void SkeletonMesh::BindVTF(ID3DXEffect* Fx)&
 bool SkeletonMesh::IsAnimationEnd()
 {
 	return bAnimationEnd;
+}
+
+void SkeletonMesh::EnableToRootMatricies()
+{
+	ToRoots.emplace(std::unordered_map<std::string, Matrix>());
+	UpdateToRootMatricies();
+}
+
+void SkeletonMesh::DisableToRootMatricies()
+{
+	ToRoots.reset();
 }
 
 void SkeletonMesh::EnablePrevVTF()&
@@ -550,7 +589,8 @@ void SkeletonMesh::DisablePrevVTF()&
 
 std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaTime)&
 {
-	if (bAnimationEnd || bAnimStop)return { {0,0,0},{0,0,0,1},{0,0,0} };
+	if (bAnimationEnd || bAnimStop)return
+	{ {0,0,0},{0,0,0,1},{0,0,0} };
 
 	const float CalcDeltaTime = DeltaTime * DeltaTimeFactor;
 
@@ -570,12 +610,17 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::Update(const float DeltaT
 	return AnimationUpdateImplementation();
 };
 
+void SkeletonMesh::TPose()
+{
+
+};
+
 void SkeletonMesh::BoneDebugRender(
 	const Matrix& OwnerTransformWorld,
 	ID3DXEffect* const Fx)&
 {
-	static auto DebugSphereMesh = Resources::Load<ENGINE::StaticMesh>(
-		"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
+	static auto DebugSphereMesh = 
+		Resources::Load<ENGINE::StaticMesh>("..\\..\\Resource\\Mesh\\Static\\Sphere.fbx", {});
 
 	if (!Nodes || !DebugSphereMesh || bAnimationEnd) return;
 
@@ -644,25 +689,30 @@ Node* SkeletonMesh::GetNode(const std::string& NodeName)&
 	}
 
 	return nullptr;
-}
+};
 
 std::optional<Matrix> SkeletonMesh::GetNodeToRoot(const std::string& NodeName)&
 {
-	if (Nodes)
+	auto ToRootMatricPtr = GetToRootMatrixPtr(NodeName);
+	if (ToRootMatricPtr)
 	{
-		auto iter = Nodes->find(NodeName);
-		if (iter != std::end(*Nodes))
-		{
-			auto SpNode = iter->second;
-			const uint32 NodeIndex = SpNode->Index;
-			if (SpNode->IsBone())
-			{
-				return   FMath::Inverse(SpNode->Offset) * BoneSkinningMatries[NodeIndex];
-			}
-		}
+		return { *ToRootMatricPtr };
 	}
 
 	return std::nullopt;
+}
+
+Matrix* SkeletonMesh::GetToRootMatrixPtr(const std::string& NodeName)&
+{
+	if (ToRoots)
+	{
+		if (auto iter = ToRoots->find(NodeName);
+			iter != std::end(*ToRoots))
+		{
+			return &iter->second;
+		}
+	}
+	return nullptr;
 }
 
 void SkeletonMesh::PlayAnimation(
@@ -810,6 +860,19 @@ static aiNode* FindBone(aiNode* AiNode,
 	return nullptr;
 };
 
+void SkeletonMesh::UpdateToRootMatricies()
+{
+	if (Nodes)
+	{
+		for (auto& [NodeName, spNode] : *Nodes)
+		{
+			if (spNode)
+			{
+				(*ToRoots)[NodeName] = spNode->ToRoot;
+			}
+		}
+	}
+}
 
 HRESULT SkeletonMesh::LoadMeshImplementation(
 	const aiScene* AiScene,
@@ -1230,7 +1293,7 @@ Quaternion SkeletonMesh::CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyon
 				const Quaternion PrevQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, AnimPrevFrameMotionTime);
 				const Quaternion StartQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, 0.0f);
 				const Quaternion CurQuat = Node::CurrentAnimationQuaternion(RootAnimTrack, bTimeBeyondAnimation.value());
-
+				
 				return (EndQuat - PrevQuat) + (CurQuat - StartQuat);
 			}
 			else
@@ -1243,8 +1306,27 @@ Quaternion SkeletonMesh::CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyon
 		}
 	}
 
-	return { 0,0,0 ,1 };
-}
+    return { 0,0,0 ,1 };
+};
+
+ void GetNodeTransform(aiNode* const _Node ,
+	std::unordered_map<std::string,std::tuple<Vector3,Quaternion,Vector3>>& Table)
+{	
+	 if (_Node == nullptr)return;
+
+
+	const std::string CurNodeName = _Node->mName.C_Str();
+	auto TargetMatrix = AssimpHelper::ConvertMatrix(_Node->mTransformation);
+	Vector3 Scale, Pos;
+	Quaternion Quat;
+	D3DXMatrixDecompose(&Scale, &Quat, &Pos, &TargetMatrix);
+	Table[CurNodeName] = {Scale,Quat,Pos};
+
+	for (int i = 0; i < _Node->mNumChildren; ++i)
+	{
+		GetNodeTransform(_Node->mChildren[i], Table);
+	}
+};
 
 void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 {
@@ -1269,6 +1351,7 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 		aiProcess_SplitLargeMeshes |
 		aiProcess_JoinIdenticalVertices
 	);
+
 	if (AiScene == nullptr)return;
 
 	bHasAnimation = AiScene->HasAnimations();
@@ -1342,6 +1425,27 @@ void SkeletonMesh::LoadAnimation(const std::filesystem::path& FilePath)&
 						CurPosKey.mTime,
 						AssimpHelper::ConvertVec3(CurPosKey.mValue)
 						});
+				}
+			}
+
+			std::unordered_map<std::string, std::tuple<Vector3, Quaternion, Vector3>>Table{};
+			GetNodeTransform(AiScene->mRootNode, Table);
+
+			for (auto& [NodeName, _Node] : *Nodes)
+			{
+				auto& CurNodeAnimTrack =  _Node->_AnimationTrack[CurAnimInfo.Name];
+
+				if (CurNodeAnimTrack.ScaleTimeLine.empty())
+				{
+					CurNodeAnimTrack.ScaleTimeLine.insert({ 0.0f,std::get<0>(Table[NodeName]) });
+				}
+				if (CurNodeAnimTrack.QuatTimeLine.empty())
+				{
+					CurNodeAnimTrack.QuatTimeLine.insert({ 0.0f,std::get<1>(Table[NodeName]) });
+				}
+				if (CurNodeAnimTrack.PosTimeLine.empty())
+				{
+					CurNodeAnimTrack.PosTimeLine.insert({ 0.0f,std::get<2>(Table[NodeName]) });
 				}
 			}
 

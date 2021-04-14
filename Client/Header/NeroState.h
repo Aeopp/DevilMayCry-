@@ -4,7 +4,7 @@
 
 #include "FSMState.h"
 class Nero;
-
+class RedQueen;
 class NeroState :    public FSMState
 {
 protected:
@@ -19,14 +19,14 @@ public:
 	virtual HRESULT StateEnter()							PURE;
 	virtual HRESULT StateExit()								PURE;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	PURE;
-
+protected:
+	virtual void	ResetAnimation(float fResetTiming,UINT _CheckIndex);
 protected:
 	virtual HRESULT KeyInput_Idle(const int _nIndex = -1);
 	virtual HRESULT KeyInput_Run(const int _nIndex = -1);
 	virtual HRESULT KeyInput_Cbs_Idle(const int _nIndex = -1);
 	virtual HRESULT KeyInput_Jump(const int _nIndex = -1);
 	virtual HRESULT KeyInput_Cbs_Jump(const int _nIndex = -1);
-	virtual HRESULT PutWeapon();
 };
 
 class Idle : public NeroState
@@ -1729,6 +1729,54 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
+class Overture_Shoot_Air : public NeroState
+{
+private:
+	explicit Overture_Shoot_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Overture_Shoot_Air();
+
+public:
+	static Overture_Shoot_Air* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Overture_Shoot_Air_Up : public NeroState
+{
+private:
+	explicit Overture_Shoot_Air_Up(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Overture_Shoot_Air_Up();
+
+public:
+	static Overture_Shoot_Air_Up* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Overture_Shoot_Air_Down : public NeroState
+{
+private:
+	explicit Overture_Shoot_Air_Down(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Overture_Shoot_Air_Down();
+
+public:
+	static Overture_Shoot_Air_Down* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
 class Cbs_Idle : public NeroState
 {
 private:
@@ -2537,6 +2585,7 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
 };
 
 class Air_Dive_Slash_End : public NeroState

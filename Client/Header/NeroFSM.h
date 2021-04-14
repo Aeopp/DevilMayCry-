@@ -110,10 +110,17 @@ public:
 		AIR_COMBOA3,
 		AIR_COMBOB,
 		ATT1_DASH,
+		OVERTURE_SHOOT_AIR,
+		OVERTURE_SHOOT_AIR_UP,
+		OVERTURE_SHOOT_AIR_DOWN,
 
 		STATE_END
 	};
-
+	enum Air_State
+	{
+		AirState_Attack,
+		AirState_Falling,
+	};
 
 
 private:

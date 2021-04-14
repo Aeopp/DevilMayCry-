@@ -101,6 +101,7 @@
     <ClInclude Include="..\Header\Effect.h">
       <Filter>02.GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\RedQueen.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -154,5 +155,6 @@
     <ClCompile Include="..\Source\Effect.cpp">
       <Filter>02.GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\RedQueen.cpp" />
   </ItemGroup>
 </Project>

@@ -13,8 +13,11 @@
 #include <functional>
 #include <set>
 #include "AnimNotify.h"
+#include <optional>
+
 
 class aiNode;
+
 BEGIN(ENGINE)
 class ENGINE_DLL SkeletonMesh final : public StaticMesh
 {
@@ -35,9 +38,13 @@ public:
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
 	bool    IsAnimationEnd();
+	void    EnableToRootMatricies();
+	void    DisableToRootMatricies();
 	void    EnablePrevVTF()&;
 	void    DisablePrevVTF()&;
-	std::tuple<Vector3, Quaternion, Vector3>    Update(const float DeltaTime)&;
+	std::tuple<Vector3, Quaternion, Vector3>   
+		Update(const float DeltaTime)&;
+	void TPose();
 	void    BoneDebugRender(const Matrix & OwnerTransformWorld,ID3DXEffect* const Fx)&;
 	void    VTFUpdate()&;
 	Node* GetRootNode()&;
@@ -47,7 +54,12 @@ public:
 	//      해당 반환값이 존재 하지 않는다면 유효한 노드가 없는 것.
 	//      해당 반환값은 해당 노드(뼈)의 애니메이션 된 행렬
 	//      반환값 * World 하면 해당 오브젝트의 해당 뼈의 행렬을 구함.
-	std::optional<Matrix> GetNodeToRoot(const std::string & NodeName)&;
+	std::optional<Matrix> GetNodeToRoot
+					(const std::string & NodeName)&;
+	// 노드가 존재하지 않는다면 널 포인터 . ToRoot 매트릭스가 계속 업데이트 되길 기대한다면
+	// 스켈레톤 메쉬 업데이트 반드시 호출 
+	// EnableToRootMatricies 켜줬는지 확인 (최적화로 인해 기본 옵션이 아님 ) 
+	Matrix* GetToRootMatrixPtr(const std::string & NodeName)&;
 
 	void   PlayAnimation(
 		const std::string & InitAnimName,
@@ -71,13 +83,13 @@ public:
 	void    SetPlayingTime(float NewTime);
 	std::optional<AnimationInformation> GetAnimInfo(const std::string & AnimName) const&;
 
+	void UpdateToRootMatricies();
 	void SetDeltaTimeFactor(const float DeltaTimeFactor);
 private:
 	void	AnimationEditor()&;
 	void	NodeEditor();
 	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
-	void    AnimationSave(const std::filesystem::path & FullPath)&;
-	
+	void AnimationSave(const std::filesystem::path & FullPath)&;
 private:
 	virtual HRESULT LoadMeshImplementation(
 		const aiScene * AiScene,
@@ -175,10 +187,13 @@ public:
 	std::vector<Matrix> BoneSkinningMatries{};
 	std::vector<Matrix> PrevBoneSkinningMatries{};
 	bool bHasAnimation = false;
+
 	std::string RootNodeName{};
 	std::shared_ptr<std::map<uint32, std::string>>				AnimIndexNameMap{};
 	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
 	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
+	//              노드 이름과 ToRoot 매트릭스 매핑 ... 
+	std::optional<std::unordered_map<std::string, Matrix>> ToRoots{};
 };
 END
 #endif // !_SKELETONMESH_H_
