@@ -80,6 +80,7 @@ public:
 	void	AnimationEnd()&;
 	// 0 ~ 1 정규화 
 	float   PlayingTime();
+	float   PlayingAccTime();
 	//  정규화된 시간으로 넘겨주세요 범위를 벗어나면 Clamp
 	void    SetPlayingTime(float NewTime);
 	std::optional<AnimationInformation> GetAnimInfo(const std::string & AnimName) const&;
@@ -162,7 +163,8 @@ public:
 
 	float  CurrentAccelerationFactor = 1.0f;
 	float  CurrentTransitionTimeFactor = 1.0f;
-	float  CurrentAnimMotionTime{ 0.0 };
+	float  CurrentAnimMotionTime{ 0.0f };
+	float  CurAccMotionTime{ 0.0f };
 	float  CurrentAnimPrevFrameMotionTime{ 0.0f };
 
 	float  PrevAnimMotionTime     { 0.0f };
