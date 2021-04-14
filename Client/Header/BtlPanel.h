@@ -128,7 +128,11 @@ private:
 	600 ~ 699 SSS
 	*/
 	int _RankScore = 0;
+	int _PreRank = 0;
+	int _CurRank = -999;
 	float _RankGauge_CurYPosOrtho = 0.f;
+	float _RankGauge_DecreaseTick = 0.f;
+	float _RankLetter_GoalXPos = 0.f;
 
 	enum KEY_INPUT_ID
 	{
@@ -176,7 +180,8 @@ public:
 	virtual void    OnDisable() override;
 public:
 	void SetTargetActive(bool IsActive);
-	void SetTargetPos(const Vector3& pos) { _TargetPos = pos; }
+	void SetTargetPos(const Vector3& Pos) { _TargetPos = Pos; }
 	void SetKeyInputActive(bool IsActive);
+	void AddRankScore(int Score);
 };
 #endif // !__UI_BTL_PANEL__

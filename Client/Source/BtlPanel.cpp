@@ -432,17 +432,13 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 	CurID = RANK;
 	if (_UIDescs[CurID].Using)
 	{
-		int Rank = _RankScore / 100;
 		std::weak_ptr<ENGINE::StaticMesh> RankMesh;
 		std::weak_ptr<ENGINE::Texture> RankTex;
-		switch (Rank)
+		switch (_CurRank)
 		{
 		case 0:
-			if (_RankScore > 0)
-			{
-				RankMesh = _RankDMesh;
-				RankTex = _RankDCAlbTex;
-			}
+			RankMesh = _RankDMesh;
+			RankTex = _RankDCAlbTex;
 			break;
 		case 1:
 			RankMesh = _RankCMesh;
@@ -464,7 +460,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 			RankMesh = _RankSSMesh;
 			RankTex = _RankSAlbTex;
 			break;
-		case 6: case 7:
+		case 6:
 			RankMesh = _RankSSSMesh;
 			RankTex = _RankSAlbTex;
 			break;
@@ -479,7 +475,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				_ImplInfo.Fx->SetTexture("ALB0Map", _HPGaugeBaseALBMTex->GetTexture());
 				_ImplInfo.Fx->SetTexture("NRMR0Map", _NullNormalRoughnessTex->GetTexture());
 
-				Create_ScreenMat(CurID, ScreenMat, Rank);
+				Create_ScreenMat(CurID, ScreenMat, _CurRank);
 				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
 				_ImplInfo.Fx->BeginPass(8);
@@ -497,7 +493,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				_ImplInfo.Fx->SetFloat("_RankGaugeCurYPosOrtho", _RankGauge_CurYPosOrtho);
 				_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.1f);
 
-				Create_ScreenMat(CurID, ScreenMat, Rank);
+				Create_ScreenMat(CurID, ScreenMat, _CurRank);
 				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
 				_ImplInfo.Fx->BeginPass(14);
@@ -617,18 +613,18 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 
 	////////////////////////////
 	// 임시
-	if (Input::GetKey(DIK_LEFTARROW))
-	{
-		_TargetHP_Degree += 150.f * _fDeltaTime;
-		if (360.f < _TargetHP_Degree)
-			_TargetHP_Degree = 360.f;
-	}
-	if (Input::GetKey(DIK_RIGHTARROW))
-	{
-		_TargetHP_Degree -= 150.f * _fDeltaTime;
-		if (0.f > _TargetHP_Degree)
-			_TargetHP_Degree = 0.f;
-	}
+	//if (Input::GetKey(DIK_LEFTARROW))
+	//{
+	//	_TargetHP_Degree += 150.f * _fDeltaTime;
+	//	if (360.f < _TargetHP_Degree)
+	//		_TargetHP_Degree = 360.f;
+	//}
+	//if (Input::GetKey(DIK_RIGHTARROW))
+	//{
+	//	_TargetHP_Degree -= 150.f * _fDeltaTime;
+	//	if (0.f > _TargetHP_Degree)
+	//		_TargetHP_Degree = 0.f;
+	//}
 	if (Input::GetKeyDown(DIK_F1))
 	{
 		static bool bActive = _UIDescs[TARGET_CURSOR].Using;
@@ -640,6 +636,10 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 		static bool bActive = _UIDescs[KEYBOARD].Using;
 		bActive = !bActive;
 		SetKeyInputActive(bActive);
+	}
+	if (Input::GetKeyDown(DIK_F3))
+	{
+		AddRankScore(20);
 	}
 	////////////////////////////
 
@@ -663,22 +663,66 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	_TDTGauge_CurXPosOrtho = (TDTGaugeOrthoCenterX - TDTGagueOrthoOffsetToCenter) + (360.f - _TargetHP_Degree) / 360.f * 2.f * TDTGagueOrthoOffsetToCenter;
  
 	//
+	_CurRank = _RankScore / 100;
 	if (0 >= _RankScore)
 	{
-		_UIDescs[RANK_BACK].Using = false;
-		_UIDescs[RANK].Using = false;
-		_UIDescs[RANK_LETTER].Using = false;
-		_RankCurRotY = 45.f;
+		_CurRank = -1;
+		_RankScore = 0;
 	}
-	else
+	else if (700 <= _RankScore)
 	{
-		if (700 <= _RankScore)
-			_RankScore = 699;
+		_CurRank = 6;
+		_RankScore = 699;
+	}
 
-		_UIDescs[RANK_BACK].Using = true;
-		_UIDescs[RANK].Using = true;
-		_UIDescs[RANK_LETTER].Using = true;
+	if (_PreRank != _CurRank)
+	{
+		if (-1 == _CurRank)
+		{
+			_UIDescs[RANK_BACK].Using = false;
+			_UIDescs[RANK].Using = false;
+			_UIDescs[RANK_LETTER].Using = false;
+		}
+		else
+		{
+			_UIDescs[RANK_BACK].Using = true;
+			_UIDescs[RANK].Using = true;
+			_UIDescs[RANK_LETTER].Using = true;
+			_UIDescs[RANK_BACK].Using = true;
+			_UIDescs[RANK].Using = true;
+			_UIDescs[RANK_LETTER].Using = true;
+		}
 
+		_RankCurRotY = 45.f;
+		_UIDescs[RANK_LETTER].Pos.x = 2000.f;
+
+		switch (_CurRank)
+		{
+		case -1:
+			_RankLetter_GoalXPos = 2000.f;
+			break;
+		case 0:
+			_RankLetter_GoalXPos = 1120.f;
+			break;
+		case 1:
+			_RankLetter_GoalXPos = 1115.f;
+			break;
+		case 2: case 3: case 4:
+			_RankLetter_GoalXPos = 1125.f;
+			break;
+		case 5:
+			_RankLetter_GoalXPos = 1135.f;
+			break;
+		case 6:
+			_RankLetter_GoalXPos = 1115.f;
+			break;
+		}
+
+		_PreRank = _CurRank;
+	}
+
+	if (0 <= _PreRank)
+	{
 		float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
 		_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
 		_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
@@ -688,6 +732,20 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 		float RankGaugeStartYPos = 0.816f;
 		float RankGaugeEndYPos = 7.224f;
 		_RankGauge_CurYPosOrtho = RankGaugeStartYPos + (_RankScore % 100) / 100.f * (RankGaugeEndYPos - RankGaugeStartYPos);
+
+		if (_UIDescs[RANK_LETTER].Pos.x > _RankLetter_GoalXPos)
+		{
+			_UIDescs[RANK_LETTER].Pos.x -= _fDeltaTime * 1500.f;
+			if (_UIDescs[RANK_LETTER].Pos.x < _RankLetter_GoalXPos)
+				_UIDescs[RANK_LETTER].Pos.x = _RankLetter_GoalXPos;
+		}
+
+		_RankGauge_DecreaseTick += _fDeltaTime;
+		if (0.1f < _RankGauge_DecreaseTick)
+		{
+			--_RankScore;
+			_RankGauge_DecreaseTick = 0.f;
+		}
 	}
 
 	//
@@ -735,6 +793,16 @@ void BtlPanel::SetTargetActive(bool IsActive)
 void BtlPanel::SetKeyInputActive(bool IsActive)
 {
 	_UIDescs[KEYBOARD].Using = IsActive;
+}
+
+void BtlPanel::AddRankScore(int Score)
+{
+	int AddScoreAmount = Score;
+
+	if (_PreRank < (_RankScore + Score) / 100)
+		AddScoreAmount += 10;	// 바로 랭크 떨어지게 하지 않기 위함
+
+	_RankScore += AddScoreAmount;
 }
 
 void BtlPanel::Init_UIDescs()
@@ -1150,7 +1218,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = 1.2f;
 			_Out._22 = 0.6f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = 1120.f - (g_nWndCX >> 1);
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(415.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.f, 0.f);
@@ -1160,7 +1228,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = 1.2f;
 			_Out._22 = 0.6f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = 1115.f - (g_nWndCX >> 1);
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(420.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.f, 0.115f);
@@ -1170,7 +1238,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = 1.4f;
 			_Out._22 = 0.6f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = 1125.f - (g_nWndCX >> 1);
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(415.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.23f, 0.f);
@@ -1180,7 +1248,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = 2.23f;
 			_Out._22 = 0.6f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = 1125.f - (g_nWndCX >> 1);
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(415.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.23f, 0.115f);
@@ -1190,7 +1258,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = 1.5f;
 			_Out._22 = 0.9f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = 1125.f - (g_nWndCX >> 1);
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(410.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.f, 0.25f);
@@ -1200,7 +1268,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = 1.8f;
 			_Out._22 = 1.2f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = 1125.f - (g_nWndCX >> 1);
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(425.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.f, 0.4f);
@@ -1210,7 +1278,7 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._11 = 2.2f;
 			_Out._22 = 1.22f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = 1115.f - (g_nWndCX >> 1);
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(430.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.3f, 0.25f);
