@@ -21,6 +21,7 @@ private:
 		KEYBOARD,
 		RANK_BACK,
 		RANK,
+		RANK_LETTER,
 		DESC_END
 	};
 	struct UI_DESC
@@ -87,6 +88,8 @@ private:
 	std::shared_ptr<ENGINE::Texture> _NullNormalRoughnessTex{};
 	std::shared_ptr<ENGINE::Texture> _RankGradationTex{};
 	std::shared_ptr<ENGINE::Texture> _RankNormalTex{};
+	std::shared_ptr<ENGINE::Texture> _RankLetterTex{};
+	std::shared_ptr<ENGINE::Texture> _RankLetterGlintTex{};
 
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
@@ -105,7 +108,7 @@ private:
 
 	float _HPGlassDirt = 0.f;
 
-	float _RankBackMaxScale = 3.f;
+	float _RankBackMaxScale = 1.5f;
 
 	/*
 	  0       X

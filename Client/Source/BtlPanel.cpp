@@ -299,7 +299,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _RingTex->GetTexture());
 
-			for (int i = 0; i < 5; ++i)
+			for (int i = 0; i < 3; ++i)
 			{
 				Create_ScreenMat(CurID, ScreenMat, i);
 				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
@@ -308,6 +308,23 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				SharedSubset->Render(_ImplInfo.Fx);
 				_ImplInfo.Fx->EndPass();
 			}
+		}
+
+		//
+		CurID = RANK_LETTER;
+		if (_UIDescs[CurID].Using)
+		{
+			_ImplInfo.Fx->SetTexture("ALB0Map", _RankLetterTex->GetTexture());
+
+			Create_ScreenMat(CurID, ScreenMat, _RankScore / 100);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->SetFloatArray("_MinTexUV", _MinTexUV, 2u);	// Create_ScreenMat() 에서 셋팅
+			_ImplInfo.Fx->SetFloatArray("_MaxTexUV", _MaxTexUV, 2u);
+
+			_ImplInfo.Fx->BeginPass(12);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
 		}
 	}
 
@@ -557,6 +574,8 @@ HRESULT BtlPanel::Ready()
 	_NullNormalRoughnessTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\NullNormalRoughness.tga");
 	_RankGradationTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\SR_Gradation_BM.tga");
 	_RankNormalTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\SR_w_NRM.tga");
+	_RankLetterTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\ui1014_iam.tga");
+	_RankLetterGlintTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\ui1012_iam.tga");
 
 	D3DXMatrixPerspectiveFovLH(&_PerspectiveProjMatrix, D3DXToRadian(2.5f), (float)g_nWndCX / g_nWndCY, 0.1f, 1.f);
 		 
@@ -634,15 +653,28 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	//std::cout << _TDTGauge_CurXPosOrtho << std::endl;
  
 	//
-	float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
-	_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
-	_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
+	if (0 >= _RankScore)
+	{
+		_UIDescs[RANK_BACK].Using = false;
+		_UIDescs[RANK].Using = false;
+		_UIDescs[RANK_LETTER].Using = false;
+	}
+	else
+	{
+		_UIDescs[RANK_BACK].Using = true;
+		_UIDescs[RANK].Using = true;
+		_UIDescs[RANK_LETTER].Using = true;
+
+		float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
+		_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
+		_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
+	}
 
 	//
 	Check_KeyInput();
 
 	//
-	Imgui_ModifyUI(RANK);
+	Imgui_ModifyUI(RANK_LETTER);
 
 	return 0;
 }
@@ -694,8 +726,9 @@ void BtlPanel::Init_UIDescs()
 	_UIDescs[HP_GAUGE] = { true, Vector3(210.f, 50.f, 0.02f), Vector3(0.5f, 0.5f, 1.f) };
 	_UIDescs[TDT_GAUGE] = { true, Vector3(305.f, 75.f, 0.5f), Vector3(3.5f, 3.5f, 1.f) };
 	_UIDescs[KEYBOARD] = { true, Vector3(270.f, 570.f, 0.02f), Vector3(5.f, 1.5f, 1.f) };
-	_UIDescs[RANK_BACK] = { false, Vector3(1100.f, 270.f, 0.02f), Vector3(_RankBackMaxScale, _RankBackMaxScale, 1.f) };
-	_UIDescs[RANK] = { true, Vector3(6.5f, 1.3f, 15.f), Vector3(0.08f, 0.08f, 0.08f) };
+	_UIDescs[RANK_BACK] = { false, Vector3(1120.f, 270.f, 0.02f), Vector3(_RankBackMaxScale, _RankBackMaxScale, 1.f) };
+	_UIDescs[RANK] = { false, Vector3(6.5f, 1.3f, 15.f), Vector3(0.08f, 0.08f, 0.08f) };
+	_UIDescs[RANK_LETTER] = { false, Vector3(1120.f, 330.f, 0.02f), Vector3(1.5f, 1.5f, 1.f) };
 }
 
 void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
@@ -967,37 +1000,37 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		switch (_Opt)
 		{
 		case 1:
-			_Out._11 = _UIDescs[_ID].Scale.x * 0.8f;
-			_Out._22 = _UIDescs[_ID].Scale.y * 0.8f;
+			_Out._11 = _UIDescs[_ID].Scale.x * 0.666f;
+			_Out._22 = _UIDescs[_ID].Scale.y * 0.666f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
 			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			break;
 		case 2:
-			_Out._11 = _UIDescs[_ID].Scale.x * 0.6f;
-			_Out._22 = _UIDescs[_ID].Scale.y * 0.6f;
+			_Out._11 = _UIDescs[_ID].Scale.x * 0.333f;
+			_Out._22 = _UIDescs[_ID].Scale.y * 0.333f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
 			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
 			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			break;
-		case 3:
-			_Out._11 = _UIDescs[_ID].Scale.x * 0.4f;
-			_Out._22 = _UIDescs[_ID].Scale.y * 0.4f;
-			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
-			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
-			_Out._43 = _UIDescs[_ID].Pos.z;
-			break;
-		case 4:
-			_Out._11 = _UIDescs[_ID].Scale.x * 0.2f;
-			_Out._22 = _UIDescs[_ID].Scale.y * 0.2f;
-			_Out._33 = _UIDescs[_ID].Scale.z;
-			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
-			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
-			_Out._43 = _UIDescs[_ID].Pos.z;
-			break;
+		//case 3:
+		//	_Out._11 = _UIDescs[_ID].Scale.x * 0.4f;
+		//	_Out._22 = _UIDescs[_ID].Scale.y * 0.4f;
+		//	_Out._33 = _UIDescs[_ID].Scale.z;
+		//	_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+		//	_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+		//	_Out._43 = _UIDescs[_ID].Pos.z;
+		//	break;
+		//case 4:
+		//	_Out._11 = _UIDescs[_ID].Scale.x * 0.2f;
+		//	_Out._22 = _UIDescs[_ID].Scale.y * 0.2f;
+		//	_Out._33 = _UIDescs[_ID].Scale.z;
+		//	_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+		//	_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1));
+		//	_Out._43 = _UIDescs[_ID].Pos.z;
+		//	break;
 		default: case 0:
 			goto DEFAULT;
 			break;
@@ -1013,6 +1046,83 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		_Out._41 = _UIDescs[_ID].Pos.x;
 		_Out._42 = _UIDescs[_ID].Pos.y;
 		_Out._43 = _UIDescs[_ID].Pos.z;
+		break;
+
+	case RANK_LETTER:
+		switch (_Opt)
+		{
+		case 0:	// D
+			_Out._11 = 1.2f;
+			_Out._22 = 0.6f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 1120.f - (g_nWndCX >> 1);
+			_Out._42 = -(415.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			_MinTexUV = Vector2(0.f, 0.f);
+			_MaxTexUV = Vector2(0.23f, 0.115f);
+			break;
+		case 1:	// C
+			_Out._11 = 1.2f;
+			_Out._22 = 0.6f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 1115.f - (g_nWndCX >> 1);
+			_Out._42 = -(420.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			_MinTexUV = Vector2(0.f, 0.115f);
+			_MaxTexUV = Vector2(0.23f, 0.23f);
+			break;
+		case 2: // B
+			_Out._11 = 1.4f;
+			_Out._22 = 0.6f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 1125.f - (g_nWndCX >> 1);
+			_Out._42 = -(415.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			_MinTexUV = Vector2(0.23f, 0.f);
+			_MaxTexUV = Vector2(0.5f, 0.115f);
+			break;
+		case 3: // A
+			_Out._11 = 2.23f;
+			_Out._22 = 0.6f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 1120.f - (g_nWndCX >> 1);
+			_Out._42 = -(415.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			_MinTexUV = Vector2(0.23f, 0.115f);
+			_MaxTexUV = Vector2(0.67f, 0.23f);
+			break;
+		case 4: // S
+			_Out._11 = 1.5f;
+			_Out._22 = 0.9f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 1125.f - (g_nWndCX >> 1);
+			_Out._42 = -(410.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			_MinTexUV = Vector2(0.f, 0.25f);
+			_MaxTexUV = Vector2(0.3f, 0.4f);
+			break;
+		case 5: // SS
+			_Out._11 = 1.8f;
+			_Out._22 = 1.2f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 1125.f - (g_nWndCX >> 1);
+			_Out._42 = -(425.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			_MinTexUV = Vector2(0.f, 0.4f);
+			_MaxTexUV = Vector2(0.3f, 0.62f);
+			break;
+		case 6:
+		case 7:
+			_Out._11 = 2.2f;
+			_Out._22 = 1.22f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = 1115.f - (g_nWndCX >> 1);
+			_Out._42 = -(430.f - (g_nWndCY >> 1));
+			_Out._43 = _UIDescs[_ID].Pos.z;
+			_MinTexUV = Vector2(0.3f, 0.25f);
+			_MaxTexUV = Vector2(0.75f, 0.5f);
+			break;
+		}
 		break;
 
 	default: DEFAULT:

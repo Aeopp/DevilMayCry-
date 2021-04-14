@@ -617,7 +617,7 @@ PsOut PsMain_RankBack(PsIn In)
     return Out;
 };
 
-PsOut PsMain_Rank(PsIn In)
+PsOut PsMain_Rank0(PsIn In)
 {
     PsOut Out = (PsOut) 0;
     
@@ -634,9 +634,9 @@ PsOut PsMain_Rank(PsIn In)
     
     float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
     
-    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection))) * 0.5f;
 
-    Out.Color = Diffuse * float4(ALB0Sample.rgb * float3(1.f, 1.f, 0.f), 1.f);
+    Out.Color = Diffuse * float4(ALB0Sample.rgb, 1.f);
     Out.Color.a = 1.f;
     
     return Out;
@@ -823,6 +823,6 @@ technique Default
         sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain_Perspective();
-        pixelshader = compile ps_3_0 PsMain_Rank();
+        pixelshader = compile ps_3_0 PsMain_Rank0();
     }
 };
