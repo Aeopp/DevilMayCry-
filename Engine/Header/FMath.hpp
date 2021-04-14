@@ -42,6 +42,9 @@ public:
 		IDirect3DDevice9* const _Device, const float Width, const float Height);
 	static inline bool InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face);
 
+	static inline Vector2 ScreenCoordToNDC(const float x, const float y , const float Width, const float Height);
+	static inline Vector2 NDCToScreenCoord(const float x, const float y , const float Width, const float Height);
+
 	// 임의의 위치 벡터를 평면에 투영시킨 위치 벡터를 반환.
 	static inline Vector3 ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point);
 
@@ -229,6 +232,25 @@ auto& FMath::GetGenerator()
 };
 
 
+
+inline Vector2 FMath::ScreenCoordToNDC(const float x, const float y,
+	const float Width, const float Height)
+{
+	const float XTransform = (2.f / Width);
+	const float YTransform = -(2.f / Height);
+	return Vector2{ x * XTransform - 1.f  ,  y * YTransform + 1.f };
+};
+
+inline Vector2 FMath::NDCToScreenCoord(
+	const float x, const float y ,
+	const float Width, const float Height)
+{
+	return Vector2
+	{
+		x * (Width / 2) + (Width / 2) ,
+		y * -(Height / 2) + (Height / 2)
+	};
+}
 
 inline Matrix FMath::Rotation(const Quaternion& Rotation)
 {

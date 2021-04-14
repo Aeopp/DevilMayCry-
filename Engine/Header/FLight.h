@@ -55,7 +55,7 @@ public:
 	inline bool IsPerspective()const& {return _Type!=Directional;};
 	inline LPDIRECT3DTEXTURE9 GetShadowMap() { return (Blurred ? Blurredshadowmap : Shadowmap); }
 	inline LPDIRECT3DCUBETEXTURE9 GetCubeShadowMap() { return (Blurred ? Blurredcubeshadowmap : Cubeshadowmap); }
-
+	RECT LastScissorRect{ 0,0,0,0 };
 private:
 	D3DXVECTOR4				Position;	// or direction
 	D3DXVECTOR4				Projparams;

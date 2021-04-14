@@ -1,5 +1,7 @@
 #include "FLight.h"
 #include "imgui.h"
+#include "FMath.hpp"
+
 
 USING(ENGINE)
 
@@ -290,97 +292,123 @@ void FLight::CalculateViewProjection(D3DXMATRIX& out)
 
 void FLight::CalculateScissorRect(RECT& out, const D3DXMATRIX& view, const D3DXMATRIX& proj, float radius, int32_t width, int32_t height)
 {
-	if (_Type != Point)
-		return;
+	// 카메라의 right 벡터를 얻어온다 . 
+	/*
+	std::memcpy(&camera_right, &viewinv._11, sizeof(Vector3));*/
 
-	D3DXVECTOR4 Q;
-	D3DXVECTOR3 L, P1, P2;
-	float u, v;
+	static const Vector3 to_RT = FMath::RotationVecNormal({ 1,0,0 }, { 0,0,1 }, FMath::ToRadian(45.f));
+	static const Vector3 to_LB = FMath::RotationVecNormal({ 1,0,0 }, { 0,0,1 }, FMath::ToRadian(225.f));
 
-	out.left = 0;
-	out.right = width;
-	out.top = 0;
-	out.bottom = height;
+	Vector3 view_position{};
+	D3DXVec3TransformCoord(&view_position,(Vector3*)&Position, &view);
 
-	D3DXVec3TransformCoord(&L, (D3DXVECTOR3*)&Position, &view);
+	Vector3 RT = view_position + (to_RT * PointRadius);
+	Vector3 LB = view_position + (to_LB * PointRadius);
 
-	float D = 4 * (radius * radius * L.x * L.x - (L.x * L.x + L.z * L.z) * (radius * radius - L.z * L.z));
+	RT = FMath::Mul(RT, proj);
+	LB = FMath::Mul(LB, proj);
 
-	if (D > 0.0f) {
-		float Nx1 = (radius * L.x + sqrtf(D * 0.25f)) / (L.x * L.x + L.z * L.z);
-		float Nx2 = (radius * L.x - sqrtf(D * 0.25f)) / (L.x * L.x + L.z * L.z);
-		float Nz1 = (radius - Nx1 * L.x) / L.z;
-		float Nz2 = (radius - Nx2 * L.x) / L.z;
+	
+	Vector2 RTScreenPos = FMath::NDCToScreenCoord(RT.x, RT.y, (float)width, (float)height);
+	Vector2 LBScreenPos = FMath::NDCToScreenCoord(LB.x, LB.y, (float)width, (float)height);
 
-		P1.x = L.x - Nx1 * radius;
-		P1.y = 0.0f;
-		P1.z = L.z - Nz1 * radius;
+	out.left = LBScreenPos.x;
+	out.bottom = LBScreenPos.y;
 
-		P2.x = L.x - Nx2 * radius;
-		P2.y = 0.0f;
-		P2.z = L.z - Nz2 * radius;
+	out.right = RTScreenPos.x;
+	out.top = RTScreenPos.y;
+	LastScissorRect = out;
+	//if (_Type != Point)
+	//	return;
 
-		// left-handed: >
-		if (P1.z < 0.0f && P2.z < 0.0f) {
-			D3DXVec3Transform(&Q, &P1, &proj);
+	//D3DXVECTOR4 Q;
+	//D3DXVECTOR3 L, P1, P2;
+	//float u, v;
 
-			Q /= Q.w;
-			u = (Q.x * 0.5f + 0.5f) * width;
+	//out.left = 0;
+	//out.right = width;
+	//out.top = 0;
+	//out.bottom = height;
 
-			D3DXVec3Transform(&Q, &P2, &proj);
+	//D3DXVec3TransformCoord(&L, (D3DXVECTOR3*)&Position, &view);
 
-			Q /= Q.w;
-			v = (Q.x * 0.5f + 0.5f) * width;
+	//float D = 4 * (radius * radius * L.x * L.x - (L.x * L.x + L.z * L.z) * (radius * radius - L.z * L.z));
 
-			if (P2.x < L.x) {
-				out.left = (LONG)max(v, 0.0f);
-				out.right = (LONG)min(u, width);
-			}
-			else {
-				out.left = (LONG)max(u, 0.0f);
-				out.right = (LONG)min(v, width);
-			}
-		}
-	}
+	//if (D > 0.0f) {
+	//	float Nx1 = (radius * L.x + sqrtf(D * 0.25f)) / (L.x * L.x + L.z * L.z);
+	//	float Nx2 = (radius * L.x - sqrtf(D * 0.25f)) / (L.x * L.x + L.z * L.z);
+	//	float Nz1 = (radius - Nx1 * L.x) / L.z;
+	//	float Nz2 = (radius - Nx2 * L.x) / L.z;
 
-	D = 4 * (radius * radius * L.y * L.y - (L.y * L.y + L.z * L.z) * (radius * radius - L.z * L.z));
+	//	P1.x = L.x - Nx1 * radius;
+	//	P1.y = 0.0f;
+	//	P1.z = L.z - Nz1 * radius;
 
-	if (D >= 0.0f) {
-		float Ny1 = (radius * L.y + sqrtf(D * 0.25f)) / (L.y * L.y + L.z * L.z);
-		float Ny2 = (radius * L.y - sqrtf(D * 0.25f)) / (L.y * L.y + L.z * L.z);
-		float Nz1 = (radius - Ny1 * L.y) / L.z;
-		float Nz2 = (radius - Ny2 * L.y) / L.z;
+	//	P2.x = L.x - Nx2 * radius;
+	//	P2.y = 0.0f;
+	//	P2.z = L.z - Nz2 * radius;
 
-		P1.x = 0.0f;
-		P1.y = L.y - Ny1 * radius;
-		P1.z = L.z - Nz1 * radius;
+	//	// left-handed: >
+	//	if (P1.z < 0.0f && P2.z < 0.0f) {
+	//		D3DXVec3Transform(&Q, &P1, &proj);
 
-		P2.x = 0.0f;
-		P2.y = L.y - Ny2 * radius;
-		P2.z = L.z - Nz2 * radius;
+	//		Q /= Q.w;
+	//		u = (Q.x * 0.5f + 0.5f) * width;
 
-		// left-handed: >
-		if (P1.z < 0.0f && P2.z < 0.0f) {
-			D3DXVec3Transform(&Q, &P1, &proj);
+	//		D3DXVec3Transform(&Q, &P2, &proj);
 
-			Q /= Q.w;
-			u = (Q.y * -0.5f + 0.5f) * height;
+	//		Q /= Q.w;
+	//		v = (Q.x * 0.5f + 0.5f) * width;
 
-			D3DXVec3Transform(&Q, &P2, &proj);
+	//		if (P2.x < L.x) {
+	//			out.left = (LONG)max(v, 0.0f);
+	//			out.right = (LONG)min(u, width);
+	//		}
+	//		else {
+	//			out.left = (LONG)max(u, 0.0f);
+	//			out.right = (LONG)min(v, width);
+	//		}
+	//	}
+	//}
 
-			Q /= Q.w;
-			v = (Q.y * -0.5f + 0.5f) * height;
+	//D = 4 * (radius * radius * L.y * L.y - (L.y * L.y + L.z * L.z) * (radius * radius - L.z * L.z));
 
-			if (P2.y < L.y) {
-				out.top = (LONG)max(u, 0.0f);
-				out.bottom = (LONG)min(v, height);
-			}
-			else {
-				out.top = (LONG)max(v, 0.0f);
-				out.bottom = (LONG)min(u, height);
-			}
-		}
-	}
+	//if (D >= 0.0f) {
+	//	float Ny1 = (radius * L.y + sqrtf(D * 0.25f)) / (L.y * L.y + L.z * L.z);
+	//	float Ny2 = (radius * L.y - sqrtf(D * 0.25f)) / (L.y * L.y + L.z * L.z);
+	//	float Nz1 = (radius - Ny1 * L.y) / L.z;
+	//	float Nz2 = (radius - Ny2 * L.y) / L.z;
+
+	//	P1.x = 0.0f;
+	//	P1.y = L.y - Ny1 * radius;
+	//	P1.z = L.z - Nz1 * radius;
+
+	//	P2.x = 0.0f;
+	//	P2.y = L.y - Ny2 * radius;
+	//	P2.z = L.z - Nz2 * radius;
+
+	//	// left-handed: >
+	//	if (P1.z < 0.0f && P2.z < 0.0f) {
+	//		D3DXVec3Transform(&Q, &P1, &proj);
+
+	//		Q /= Q.w;
+	//		u = (Q.y * -0.5f + 0.5f) * height;
+
+	//		D3DXVec3Transform(&Q, &P2, &proj);
+
+	//		Q /= Q.w;
+	//		v = (Q.y * -0.5f + 0.5f) * height;
+
+	//		if (P2.y < L.y) {
+	//			out.top = (LONG)max(u, 0.0f);
+	//			out.bottom = (LONG)min(v, height);
+	//		}
+	//		else {
+	//			out.top = (LONG)max(v, 0.0f);
+	//			out.bottom = (LONG)min(u, height);
+	//		}
+	//	}
+	//}
 }
 
 void FLight::CreateShadowMap(LPDIRECT3DDEVICE9 device, uint16_t size)

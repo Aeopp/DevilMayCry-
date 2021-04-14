@@ -85,16 +85,10 @@ private:
 	void TestShaderRelease();
 	void TestLightRotation();
 	void TestLightEdit();
-	bool bCurstomEye = false;
 	void RenderShadowMaps();
 	void RenderGBuffer();
-	void DeferredShading(
-		const Matrix & View, 
-		const Matrix & Projection, 
-		const Matrix & ViewProjectionInverse, 
-		const Vector4 & Eye);
+	void DeferredShading();
 	void RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX & viewproj);
-
 	
 	LPDIRECT3DTEXTURE9	marble = nullptr;
 	LPDIRECT3DTEXTURE9	wood = nullptr;

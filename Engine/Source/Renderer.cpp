@@ -82,12 +82,12 @@ void Renderer::ReadyLights()
 	PointLights[2]->SetPointRadius(7.1f);
 
 	// 그림자맵 512 로 생성
-	Moonlight->CreateShadowMap(Device, 512);
+	Moonlight->CreateShadowMap(Device, 1024);
 	Moonlight->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
 
-	PointLights[0]->CreateShadowMap(Device, 256);
-	PointLights[1]->CreateShadowMap(Device, 256);
-	PointLights[2]->CreateShadowMap(Device, 256);
+	PointLights[0]->CreateShadowMap(Device, 512);
+	PointLights[1]->CreateShadowMap(Device, 512);
+	PointLights[2]->CreateShadowMap(Device, 512);
 
 	PointLights[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
 	PointLights[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
@@ -248,13 +248,7 @@ HRESULT Renderer::Render()&
 	// 기하 패스
 	RenderGBuffer();
 	// 디퍼드 렌더링 .
-	DeferredShading(
-		_RenderInfo.View,
-		_RenderInfo.ViewProjection,
-		_RenderInfo.ViewProjectionInverse,
-		Vector4{ _RenderInfo.Eye.x,
-		_RenderInfo.Eye.y ,
-		_RenderInfo.Eye.z ,1.f });
+	DeferredShading();
 	// 백버퍼로 백업 . 
 	Device->SetRenderTarget(0, BackBuffer);
 	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
@@ -540,11 +534,7 @@ void Renderer::RenderGBuffer()
 	device->SetRenderTarget(2, NULL);
 }
 
-void Renderer::DeferredShading(
-	const Matrix& View,
-	const Matrix& Projection,
-	const Matrix& ViewProjectionInverse,
-	const Vector4& Eye)
+void Renderer::DeferredShading()
 {
 	D3DXVECTOR4			pixelsize(1, 1, 1, 1);
 
@@ -555,7 +545,7 @@ void Renderer::DeferredShading(
 	// Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
-	RECT scissorrect;
+	
 
 	auto device = Device;
 
@@ -591,19 +581,11 @@ void Renderer::DeferredShading(
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
+	
 	deferred->SetTechnique("deferred");
-	deferred->SetMatrix("matViewProjInv", &ViewProjectionInverse);
+	deferred->SetMatrix("matViewProjInv", &_RenderInfo.ViewProjectionInverse);
 	deferred->SetVector("pixelSize", &pixelsize);
-
-	if (bCurstomEye)
-	{
-		deferred->SetVector("eyePos", &CurstomEye);
-	}
-	else
-	{
-		deferred->SetVector("eyePos", &Eye);
-	}
+	deferred->SetVector("eyePos", &_RenderInfo.Eye);
 	
 
 	deferred->Begin(NULL, 0);
@@ -632,82 +614,49 @@ void Renderer::DeferredShading(
 			device->SetTexture(3, Moonlight->GetShadowMap());
 			deferred->CommitChanges();
 			_Quad->Render(Device);
-
 		}
 		// 여기서부터 ..
 		// point lights
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < 3; ++i) 
+		{
 			clipplanes.x = PointLights[i]->GetNearPlane();
 			clipplanes.y = PointLights[i]->GetFarPlane();
+			Math::Matrix viewtranspose, projtranspose ,view,proj; 
+			std::memcpy(&view, &_RenderInfo.View, sizeof(Matrix));
+			std::memcpy(&proj, &_RenderInfo.Projection, sizeof(Matrix));
+			Math::MatrixTranspose(viewtranspose, view);   
+			Math::MatrixTranspose(projtranspose, proj);
+			RECT scissorrect;
+			PointLights[i]->CalculateScissorRect(
+				scissorrect, _RenderInfo.View, _RenderInfo.Projection,
+				PointLights[i]->GetPointRadius(), g_nWndCX, g_nWndCY);
 
-			 {
-				/*Matrix viewtranspose , projtranspose;
+			Vector4 PtPos = PointLights[i]->GetPosition();
+			PtPos.w = 1.f;
+			D3DXVec4Transform(&PtPos, &PtPos, &_RenderInfo.ViewProjection);
+			PtPos.x /= PtPos.w;
+			PtPos.y /= PtPos.w;
+			PtPos.z /= PtPos.w;
+			PtPos.w /= PtPos.w;
+			ImGui::Text("Pt Idx %d , %3.3f, %3.3f , %3.3f , %3.3f", i, PtPos.x, PtPos.y, PtPos.z, PtPos.w);
+			const Vector2 ScreenPos = FMath::NDCToScreenCoord(PtPos.x, PtPos.y,
+				(float)_RenderInfo.Viewport.Width,
+				(float)_RenderInfo.Viewport.Height);
+			ImGui::Text("ScreenPos %d , %3.3f, %3.3f",
+				i, ScreenPos.x, ScreenPos.y);
+			Device->SetScissorRect(&scissorrect);
 
-				D3DXMatrixTranspose(&viewtranspose, (Matrix*)&view);
-				D3DXMatrixTranspose(&projtranspose, (Matrix*)&proj);*/
-				Math::Matrix viewtranspose, projtranspose ,view,proj; 
-				std::memcpy(&view, &View, sizeof(Matrix));
-				std::memcpy(&proj, &Projection, sizeof(Matrix)); 
-				Math::MatrixTranspose(viewtranspose, view);   
-				Math::MatrixTranspose(projtranspose, proj);
-
-				PointLights[i]->CalculateScissorRect(
-					scissorrect, (const D3DXMATRIX&)viewtranspose, (const D3DXMATRIX&)projtranspose,
-					PointLights[i]->GetPointRadius(), g_nWndCX, g_nWndCY);
-				Vector4 PtPos = PointLights[i]->GetPosition();
-				PtPos.w = 1.f;
-				D3DXVec4Transform(&PtPos, &PtPos, &_RenderInfo.ViewProjection);
-				PtPos.x /= PtPos.w;
-				PtPos.y /= PtPos.w;
-				PtPos.z /= PtPos.w;
-				PtPos.w /= PtPos.w;
-				ImGui::Text("Pt Idx %d , %3.3f, %3.3f , %3.3f , %3.3f", i, PtPos.x, PtPos.y, PtPos.z, PtPos.w);
-
-				//Matrix dxview, dxproj;
-				//std::memcpy(&dxview, &view, sizeof(Matrix));
-				//std::memcpy(&dxproj, &proj, sizeof(Matrix));
-				//Matrix dxviewproj = dxview* dxproj;
-				//Vector3 pointposition;
-				//std::memcpy(&pointposition, &PointLights[i]->GetPosition(), sizeof(Vector3));
-				//Vector3 pointposition2 = pointposition + Vector3{ 1,0,0 } *POINT_LIGHT_RADIUS;
-				//D3DXVec3TransformCoord(&pointposition, &pointposition, &dxviewproj);
-				//D3DXVec3TransformCoord(&pointposition2, &pointposition2, &dxviewproj);
-
-				//Matrix viewporttransform =
-				//{
-				//	g_nWndCX / 2.f , 0, 0, 0  ,
-				//	0 ,          g_nWndCY / -2.f ,0,0,
-				//		0,0,1.0f - 0.f ,0,
-				//0 + g_nWndCX / 2.f , 0 + g_nWndCY / 2.f , 0.f,1 };
-
-				//D3DXVec3TransformCoord(&pointposition, &pointposition, &viewporttransform);
-				//D3DXVec3TransformCoord(&pointposition2, &pointposition2, &viewporttransform);
-				//Vector3 distance = pointposition2 - pointposition;
-				//const float _dist = D3DXVec3Length(&distance) / 2.f;
-				//const Vector3 center = (pointposition + pointposition2) / 2.f;
-				//
-				//scissorrect.left = center.x - _dist;
-				//scissorrect.right = center.x + _dist;
-				//scissorrect.top = center.y  - _dist;
-				//scissorrect.bottom = center.y + _dist;
-
-				//device->SetScissorRect(&scissorrect);
-
-				deferred->SetVector("clipPlanes", &clipplanes);
-				deferred->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
-				deferred->SetVector("lightPos", &PointLights[i]->GetPosition());
-				deferred->SetFloat("specularPower", 80.0f);
-				deferred->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
-				deferred->CommitChanges();
-
-				device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
-				_Quad->Render(Device);				
-
-			}
+			deferred->SetVector("clipPlanes", &clipplanes);
+			deferred->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
+			deferred->SetVector("lightPos", &PointLights[i]->GetPosition());
+			deferred->SetFloat("specularPower", 80.0f);
+			deferred->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
+			device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
+			deferred->CommitChanges();
+			_Quad->Render(Device);
 		}
-
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 	}
 	deferred->EndPass();
@@ -718,27 +667,27 @@ void Renderer::DeferredShading(
 
 	auto screenquad = Shaders["ScreenQuad"]->GetEffect();
 	{
-		// draw some outline around scissor rect
-		float rectvertices[24];
-		uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
-
-		memcpy(rectvertices, DXScreenQuadVerticesFFP, 24 * sizeof(float));
-
-		rectvertices[0] += scissorrect.left;
-		rectvertices[1] += scissorrect.top;
-		rectvertices[6] += scissorrect.left;
-		rectvertices[7] += scissorrect.bottom;
-		rectvertices[12] += scissorrect.right;
-		rectvertices[13] += scissorrect.bottom;
-		rectvertices[18] += scissorrect.right;
-		rectvertices[19] += scissorrect.top;
-
 		device->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
-
 		screenquad->SetTechnique("rect");
 		screenquad->Begin(NULL, 0);
 		screenquad->BeginPass(0);
+		for(auto& PtLt : PointLights)
 		{
+			
+			// draw some outline around scissor rect
+			float rectvertices[24];
+			uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
+			memcpy(rectvertices, DXScreenQuadVerticesFFP, 24 * sizeof(float));
+
+			rectvertices[0] += PtLt->LastScissorRect.left;
+			rectvertices[1] += PtLt->LastScissorRect.top;
+			rectvertices[6] += PtLt->LastScissorRect.left;
+			rectvertices[7] += PtLt->LastScissorRect.bottom;
+			rectvertices[12] += PtLt->LastScissorRect.right;
+			rectvertices[13] += PtLt->LastScissorRect.bottom;
+			rectvertices[18] += PtLt->LastScissorRect.right;
+			rectvertices[19] += PtLt->LastScissorRect.top;
+
 			device->DrawIndexedPrimitiveUP(
 				D3DPT_LINESTRIP, 0, 4, 4, rectindices, D3DFMT_INDEX16, rectvertices, 6 * sizeof(float));
 		}
@@ -909,16 +858,8 @@ HRESULT Renderer::RenderDeferredShading()&
 	Fx->SetTechnique("deferred");
 	Fx->SetMatrix("matViewProjInv", (D3DXMATRIX*)&_RenderInfo.ViewProjectionInverse);
 	Fx->SetVector("pixelSize", &pixelsize);
+	Fx->SetVector("eyePos", (D3DXVECTOR4*)&_RenderInfo.Eye);
 
-	if (bCurstomEye)
-	{
-		Fx->SetVector("eyePos",&CurstomEye);
-	}
-	else
-	{
-		Fx->SetVector("eyePos", (D3DXVECTOR4*)&_RenderInfo.Eye);
-	}
-	
 
 	Fx->Begin(NULL, 0);
 	Fx->BeginPass(0);
@@ -1309,11 +1250,5 @@ void Renderer::TestLightEdit()
 			&_RenderInfo.ViewInverse);
 		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
 	}
-
-	ImGui::Checkbox("bCustomEye", &bCurstomEye);
-	if (bCurstomEye)
-	{
-		ImGui::SliderFloat3("CurstomEye", CurstomEye, -5.f, 5.f);
-	};
 };
 
