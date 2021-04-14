@@ -15,6 +15,7 @@ float2 _HP_Normal1;
 float _HPGaugeCurXPosOrtho;
 float _BossGaugeCurXPosOrtho;
 float _TDTGaugeCurXPosOrtho;
+float _RankGaugeCurYPosOrtho;
 
 float _HPGlassDirt = 0.f;
 
@@ -124,7 +125,7 @@ struct VsOut_GUI
 
 VsOut VsMain(VsIn In)
 {
-    VsOut Out = (VsIn) 0;
+    VsOut Out = (VsOut) 0;
 
     Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMat);
     Out.Position = mul(float4(Out.Position.xyz, 1.f), Ortho);
@@ -138,7 +139,7 @@ VsOut VsMain(VsIn In)
 
 VsOut VsMain_Perspective(VsIn In)
 {
-    VsOut Out = (VsIn) 0;
+    VsOut Out = (VsOut) 0;
 
     Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMat);
     Out.Position = mul(float4(Out.Position.xyz, 1.f), Perspective);
@@ -220,6 +221,23 @@ VsOut_GUI VsMain_GUI(VsIn In)
 
     return Out;
 }
+
+VsOut_Clip VsMain_Rank(VsIn In)
+{
+    VsOut_Clip Out = (VsOut_Clip) 0;
+
+    Out.Position = mul(float4(In.Position.xyz, 1.f), ScreenMat);
+    Out.Position = mul(float4(Out.Position.xyz, 1.f), Perspective);
+    Out.Position.xyz /= Out.Position.w;
+    
+    Out.Normal = normalize(mul(float4(In.Normal.xyz, 0.f), ScreenMat));
+    Out.Tangent = normalize(mul(float4(In.BiNormal.xyz, 0.f), ScreenMat));
+    Out.BiNormal = normalize(mul(float4(In.Position.xyz, 0.f), ScreenMat));
+    Out.UV = In.UV;
+    Out.Clip = Out.Position;
+    
+    return Out;
+};
 
 
 struct PsIn
@@ -617,7 +635,7 @@ PsOut PsMain_RankBack(PsIn In)
     return Out;
 };
 
-PsOut PsMain_Rank0(PsIn In)
+PsOut PsMain_Rank(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
     
@@ -636,9 +654,13 @@ PsOut PsMain_Rank0(PsIn In)
     
     float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection))) * 0.5f;
 
-    Out.Color = Diffuse * float4(ALB0Sample.rgb, 1.f);
-    Out.Color.a = 1.f;
+    float3 Albedo = ALB0Sample.rgb;
+    if (In.Clip.y < _RankGaugeCurYPosOrtho)
+        Albedo = tex2D(ALB1, tex2D(Noise, (In.UV - float2(_AccumulationTexU, 0.f))).xy).rgb * 1.2f;
     
+    Out.Color = Diffuse * float4(Albedo, 1.f);
+    Out.Color.a = 1.f;
+  
     return Out;
 };
 
@@ -822,7 +844,7 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
-        vertexshader = compile vs_3_0 VsMain_Perspective();
-        pixelshader = compile ps_3_0 PsMain_Rank0();
+        vertexshader = compile vs_3_0 VsMain_Rank();
+        pixelshader = compile ps_3_0 PsMain_Rank();
     }
 };

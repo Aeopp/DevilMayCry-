@@ -90,6 +90,9 @@ private:
 	std::shared_ptr<ENGINE::Texture> _RankNormalTex{};
 	std::shared_ptr<ENGINE::Texture> _RankLetterTex{};
 	std::shared_ptr<ENGINE::Texture> _RankLetterGlintTex{};
+	std::shared_ptr<ENGINE::Texture> _RankDCAlbTex{};
+	std::shared_ptr<ENGINE::Texture> _RankBAAlbTex{};
+	std::shared_ptr<ENGINE::Texture> _RankSAlbTex{};
 
 	float _AccumulateTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
@@ -108,24 +111,28 @@ private:
 
 	float _HPGlassDirt = 0.f;
 
+	Vector2 _InputUIOffset = Vector2(0.f, 0.f);
+
 	float _RankBackMaxScale = 1.5f;
 	float _RankMaxRotY = 15.f;
 	float _RankCurRotY = 0.f;
+
 	/*
-	  0       X
-	  1 ~ 100 D
-	101 ~ 200 C
-	201 ~ 300 B
-	301 ~ 400 A
-	401 ~ 500 S
-	501 ~ 600 SS
-	601 ~ 700 SSS 
+	0 X
+	1 ~ 99 D
+	100 ~ 199 C
+	200 ~ 300 B
+	300 ~ 399 A
+	400 ~ 499 S
+	500 ~ 599 SS
+	600 ~ 699 SSS
 	*/
 	int _RankScore = 0;
+	float _RankGauge_CurYPosOrtho = 0.f;
 
 	enum KEY_INPUT_ID
 	{
-		Q = 0, W, E, A, S, D, F, Z,
+		Q = 0, W, E, R, A, S, D, F, Z, X, C, V,
 		SHIFT, CTRL, SPACE, LBUTTON, MBUTTON, RBUTTON,
 		KEY_INPUT_END
 	};
