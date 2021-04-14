@@ -109,7 +109,8 @@ private:
 	float _HPGlassDirt = 0.f;
 
 	float _RankBackMaxScale = 1.5f;
-
+	float _RankMaxRotY = 15.f;
+	float _RankCurRotY = 0.f;
 	/*
 	  0       X
 	  1 ~ 100 D

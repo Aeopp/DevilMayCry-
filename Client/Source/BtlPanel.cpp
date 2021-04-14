@@ -658,6 +658,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 		_UIDescs[RANK_BACK].Using = false;
 		_UIDescs[RANK].Using = false;
 		_UIDescs[RANK_LETTER].Using = false;
+		_RankCurRotY = 45.f;
 	}
 	else
 	{
@@ -668,6 +669,8 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 		float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
 		_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
 		_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
+
+		_RankCurRotY = 45.f + _RankMaxRotY * sinf(_TotalAccumulateTime);
 	}
 
 	//
@@ -1042,6 +1045,8 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 		_Out._22 = _UIDescs[_ID].Scale.z; // y z Ãà Àß¸ø»ÌÀ½ ¤Ð¤Ð
 		_Out._33 = _UIDescs[_ID].Scale.y;
 		D3DXMatrixRotationX(&RotMat, D3DXToRadian(-90.f));
+		_Out *= RotMat;
+		D3DXMatrixRotationY(&RotMat, D3DXToRadian(_RankCurRotY));
 		_Out *= RotMat;
 		_Out._41 = _UIDescs[_ID].Pos.x;
 		_Out._42 = _UIDescs[_ID].Pos.y;
