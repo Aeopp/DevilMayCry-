@@ -59,7 +59,8 @@ public:
 		const Matrix& ParentToRoot,
 		const double CurrentAnimationTime,
 		const std::string& AnimationName,
-		const std::optional<AnimationBlendInfo>& IsAnimationBlend)&;
+		const std::optional<AnimationBlendInfo>& IsAnimationBlend ,
+		const Quaternion& QuatOffset)&;
 
 	void Editor(std::string& RefRootMotionScaleName,
 				std::string& RefRootMotionRotationName,

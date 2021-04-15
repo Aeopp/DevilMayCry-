@@ -312,7 +312,7 @@ std::tuple<Vector3, Quaternion, Vector3> SkeletonMesh::AnimationUpdateImplementa
 		? bTimeBeyondAnimation.value() : CurrentAnimMotionTime;
 
 	Root->NodeUpdate(FMath::Identity(),
-		CurPlayAnimMotionTime, AnimName, IsAnimationBlend);
+		CurPlayAnimMotionTime, AnimName, IsAnimationBlend ,tOffset);
 
 	if (ToRoots.has_value())
 	{
