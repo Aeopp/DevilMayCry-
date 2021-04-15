@@ -7,6 +7,7 @@ float3 LightDirection = float3(0.f, 0.f, 1.f);
 float _TotalAccumulateTime;
 float _AccumulationTexU;
 float _AccumulationTexV;
+float _SliceAmount = 0.f;
 
 float _HP_Degree = 0.f; // 0 ~ 360 범위
 float2 _HP_StartPt;
@@ -342,6 +343,37 @@ PsOut PsMain_Mesh(PsIn In)
     return Out;
 };
 
+PsOut PsMain_Mesh_Dissolve(PsIn In)
+{
+    PsOut Out = (PsOut) 0;
+    
+    float4 NoiseSample = tex2D(Noise, In.UV).bbbb; // r,g,b 각각 다른 노이즈. 그 중 하나만 사용
+    NoiseSample.rgb -= _SliceAmount;
+    clip(NoiseSample);
+    
+    
+    float4 ALB0Sample = tex2D(ALB0, In.UV);
+    //float4 ATOSSample = tex2D(ATOS0, In.UV);
+    float4 NRMRSample = tex2D(NRMR0, In.UV);
+    
+    float2 NormalXY = NRMRSample.xy * 2.f - 1.f;
+    float NormalZ = sqrt(1 - dot(NormalXY, NormalXY));
+   
+    float3x3 TBN = float3x3(normalize(In.Tangent),
+                            normalize(In.BiNormal),
+                            normalize(In.Normal));
+    
+    float3 WorldNormal = normalize(mul(float3(NormalXY, NormalZ), TBN));
+    
+    float Diffuse = saturate(dot(WorldNormal, -normalize(LightDirection)));
+
+    Out.Color = Diffuse * float4(ALB0Sample.rgb, 1.f);
+    Out.Color.a = 1.f;
+    
+    return Out;
+};
+
+
 PsOut PsMain_TargetCursor(PsIn In)
 {
     PsOut Out = (PsOut) 0;
@@ -617,6 +649,19 @@ PsOut PsMain_GUI(PsIn_GUI In)
     return Out;
 };
 
+PsOut PsMain_GUI_Dissolve(PsIn_GUI In)
+{
+    PsOut Out = (PsOut) 0;
+
+    float4 NoiseSample = tex2D(Noise, In.UV).rrrr; // r,g,b 각각 다른 노이즈. 그 중 하나만 사용
+    NoiseSample.rgb -= _SliceAmount;
+    clip(NoiseSample);
+    
+    Out.Color = tex2D(ALB0, In.UV);
+
+    return Out;
+};
+
 PsOut PsMain_RankBack(PsIn In)
 {
     PsOut Out = (PsOut) 0;
@@ -649,6 +694,10 @@ PsOut PsMain_RankBack(PsIn In)
 PsOut PsMain_Rank(PsIn_Clip In)
 {
     PsOut Out = (PsOut) 0;
+    
+    float4 NoiseSample = tex2D(Noise, In.UV).rrrr; // r,g,b 각각 다른 노이즈. 그 중 하나만 사용
+    NoiseSample.rgb -= _SliceAmount;
+    clip(NoiseSample);
     
     float4 ALB0Sample = tex2D(ALB0, In.UV);
     //float4 ATOSSample = tex2D(ATOS0, In.UV);
@@ -855,7 +904,31 @@ technique Default
         zwriteenable = false;
         sRGBWRITEENABLE = true;
 
+        vertexshader = compile vs_3_0 VsMain_Perspective();
+        pixelshader = compile ps_3_0 PsMain_Mesh_Dissolve();
+    }
+    pass p15
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+        
         vertexshader = compile vs_3_0 VsMain_Rank();
         pixelshader = compile ps_3_0 PsMain_Rank();
+    }
+    pass p16
+    {
+        alphablendenable = true;
+        srcblend = srcalpha;
+        destblend = invsrcalpha;
+        zenable = false;
+        zwriteenable = false;
+        sRGBWRITEENABLE = true;
+
+        vertexshader = compile vs_3_0 VsMain_GUI();
+        pixelshader = compile ps_3_0 PsMain_GUI_Dissolve();
     }
 };

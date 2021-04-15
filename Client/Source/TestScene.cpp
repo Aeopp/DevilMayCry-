@@ -61,8 +61,9 @@ HRESULT TestScene::LoadScene()
 	//AddGameObject<Em5000>();
 
 	AddGameObject<BtlPanel>();
-	AddGameObject<Glint>();
-	AddGameObject<OvertureHand>();
+	
+	//AddGameObject<Glint>();
+	//AddGameObject<OvertureHand>();
 	
 	// 수정 필요
 	//AddGameObject<DashImpact>();
