@@ -41,10 +41,10 @@ HRESULT Camera::Awake()
 	m_pPlayer = std::static_pointer_cast<TestObject>(FindGameObjectWithTag(Player).lock());
  	//m_pPlayerTrans = m_pPlayer.lock()->GetComponent<ENGINE::Transform>();
 
-    m_pBtlPanel = std::static_pointer_cast<BtlPanel>(FindGameObjectWithTag(Btl_Panel).lock());
+    //m_pBtlPanel = std::static_pointer_cast<BtlPanel>(FindGameObjectWithTag(BTLPANEL).lock());
 
 
-	m_pEm100 = std::static_pointer_cast<Em100>(FindGameObjectWithTag(Monster100).lock());
+	//m_pEm100 = std::static_pointer_cast<Em100>(FindGameObjectWithTag(Monster100).lock());
 	//m_pEm100Trans = m_pEm100.lock()->GetComponent<ENGINE::Transform>();
     return S_OK;
 }
@@ -68,11 +68,11 @@ UINT Camera::Update(const float _fDeltaTime)
 		Mouse_Fix();
 		Move_Mouse(_fDeltaTime);
     }
-    Move(_fDeltaTime);
+   Move(_fDeltaTime);
     
 
 
-    ////////LockOn////////////////
+    //////LockOn////////////////
     //if(m_bLockon)
     //    LockOn();
 
@@ -87,7 +87,7 @@ UINT Camera::Update(const float _fDeltaTime)
     //    {
     //        m_bLockon = true;
     //        m_pBtlPanel.lock()->SetTargetActive(true);
-    //        m_pBtlPanel.lock()->SetTargetPos(m_pEm100Trans.lock()->GetPosition() + Vector3(0.f,1.f,0.f));
+    //        m_pBtlPanel.lock()->SetTargetPos(m_pEm100Trans.lock()->GetPosition() + Vector3(0.f,3.f,0.f));
     //    }
     //}
     ////////////////////////////

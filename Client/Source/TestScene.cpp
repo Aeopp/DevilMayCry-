@@ -13,6 +13,7 @@
 #include "Em101.h"
 #include "Em0000.h"
 #include "Em0000_Weapon.h"
+#include "Em5000.h"
 #include <iostream>
 
 using namespace std;
@@ -37,16 +38,16 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 	
 	AddGameObject<Camera>();
+	AddGameObject<Em5000>();
 
-	//AddGameObject<Em100>();
-	//AddGameObject<TestObject>();
-	//AddGameObject<Em0000Weapon>();
-	//AddGameObject<TestObject>();
+
+
+	AddGameObject<TestObject>();
 	//AddGameObject<TestAnimationObject>();
 	//AddGameObject<Nero>();
-
-	AddGameObject<BtlPanel>();
+	//AddGameObject<BtlPanel>();
 	//AddGameObject<Eff_OvertureHand>();
+	//AddGameObject<BtlPanel>();
 	//AddGameObject<Eff_Glint>();
 
 	//AddGameObject<DashImpact>();

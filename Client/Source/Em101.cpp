@@ -95,90 +95,32 @@ void Em101::Fight(const float _fDeltaTime)
 	float	 fDir = D3DXVec3Length(&vDir);
 	
 
-	//몬스터 움직이는 방향 정해주는 놈
-	int iRandom = FMath::Random<int>(1, 6);
-	if (m_bMove && m_bIng == false)
-	{
-		m_bIng = true;
-		//플레이어 방향으로 돌게 만듬
-		m_bInteraction = true;
-		Update_Angle();
-		////////////////////////////
-		
-		if (iRandom == 1)
-			m_eState = Walk_Left_Start;
-		else if (iRandom == 2)
-			m_eState = Walk_Right_Start;
-		else
-			m_eState = Walk_Front_Start;
-	}
-	if (m_bMove && m_bIng == true)
-	{
-		m_bInteraction = true;
-		Update_Angle();
-		//플레이어 앞으로 오면 움직임 멈춤.
-		if(fDir <= 6.f && iRandom == 1)
-			m_eState = Walk_Front_End;
 
-
-	}
-	//플레이어랑 어느정도 가까워 졌으면 공격.	
-	if (fDir <= 6.f)
-	{
-		if (m_bAttack && m_bIng == false)
-		{
-			//체력이50% 이상일땐 Attack_A, Attack_D 둘중 하나 이거 두개는 그냥 넉백 히트
-			//50%보다 떨어지면 Attack_Hard 추가해서 플레이어 넘어트리는 공격 추가
-			int iRandom = FMath::Random<int>(1, 2);
-			m_bIng = true;
-			if (iRandom == 1)
-				m_eState = Attack_A;
-			else if (iRandom == 2)
-				m_eState = Attack_D;
-		}
-	}
 }
 
 void Em101::State_Change(const float _fDeltaTime)
 {
-
 	switch (m_eState)
 	{
-	case Em101::Air_End:
-		break;
-	case Em101::Air_Loop:
-		break;
-	case Em101::Air_Start:
-		break;
 	case Em101::Attack_A:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Attack_A", false, {} , 1.f , 50.f);
-			{
-				if (m_pMesh->CurPlayAnimInfo.Name == "Attack_A" && m_pMesh->PlayingTime() >= 0.9f)
-				{
-					m_eState = idle;
-					m_bIng = false;
-					m_bAttack = false;
-				}
-			}
-		}
 		break;
-	case Em101::Attack_D:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Attack_D", false, {}, 1.f, 50.f);
-			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_D" && m_pMesh->PlayingTime() >= 0.9f)
-			{
-				m_eState = idle;
-				m_bIng = false;
-				m_bAttack = false;
-			}
-		}
+	case Em101::Attack_B:
 		break;
-	case Em101::Attack_Hard:
+	case Em101::Attack_Front:
 		break;
 	case Em101::Dead:
+		break;
+	case Em101::Down_Back_Loop:
+		break;
+	case Em101::Down_Back_Start:
+		break;
+	case Em101::Down_Front_End:
+		break;
+	case Em101::Down_Front_Loop:
+		break;
+	case Em101::Down_Front_Start:
+		break;
+	case Em101::Down_Stand_Up:
 		break;
 	case Em101::Hit_Air:
 		break;
@@ -186,108 +128,24 @@ void Em101::State_Change(const float _fDeltaTime)
 		break;
 	case Em101::Hit_End:
 		break;
-	case Em101::Hit_Finish:
-		break;
 	case Em101::Hit_Front:
 		break;
 	case Em101::Hit_L:
 		break;
 	case Em101::Hit_R:
 		break;
-	case Em101::Walk_Front_End:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Front_End", false, {} , 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Front_End" && m_pMesh->PlayingTime() >= 0.9f)
-			{
-				m_eState = idle;
-				m_bMove = false;
-				m_bIng = false;
-			}
-		}
+	case Em101::Move_End:
 		break;
-	case Em101::Walk_Front_Loop:
-		if (m_bIng == true)
-			m_pMesh->PlayAnimation("Walk_Front_Loop", true, {}, 1.f, 50.f);
+	case Em101::Move_Loop:
 		break;
-	case Em101::Walk_Front_Start:
-		//m_bIng == 행동중이다. m_bInteraction == false면 다 돌았다. 다돌고 움직이자.
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Front_Start", false, {}, 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Front_Start" && m_pMesh->PlayingTime() >= 0.9f)
-				m_eState = Walk_Front_Loop;
-		}
+	case Em101::Move_Start:
 		break;
-	case Em101::Walk_Left_End:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Left_End", false, {}, 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Left_End" && m_pMesh->PlayingTime() >= 0.9f)
-			{
-				m_eState = idle;
-				m_bMove = false;
-				m_bIng = false;
-			}
-		}
-		break;
-	case Em101::Walk_Left_Loop:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Left_Loop", false, {}, 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Left_Loop" && m_pMesh->PlayingTime() >= 0.9f)
-				m_eState = Walk_Left_End;
-		}
-		break;
-	case Em101::Walk_Left_Start:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Left_Start", false, {}, 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Left_Start" && m_pMesh->PlayingTime() >= 0.9f)
-				m_eState = Walk_Left_Loop;
-		}
-		break;
-	case Em101::Walk_Right_Stop:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Right_Stop", false, {}, 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Right_Stop" && m_pMesh->PlayingTime() >= 0.9f)
-			{
-				m_eState = idle;
-				m_bMove = false;
-				m_bIng = false;
-			}
-		}
-		break;
-	case Em101::Walk_Right_Loop:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Right_Loop", false, {}, 1.f, 50.f);
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Right_Loop" && m_pMesh->PlayingTime() >= 0.9f)
-				m_eState = Walk_Right_Stop;
-		}
-		break;
-	case Em101::Walk_Right_Start:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Walk_Right_Start", false, {}, 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Walk_Right_Start" && m_pMesh->PlayingTime() >= 0.9f)
-				m_eState = Walk_Right_Loop;
-		}
-		break;
-	case Em101::idle:
-		m_pMesh->PlayAnimation("idle", true, {} , 1.f , 50.f);
+	case Em101::State_END:
 		break;
 	default:
 		break;
 	}
+	
 
 
 }

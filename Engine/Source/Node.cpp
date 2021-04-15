@@ -240,19 +240,23 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 			}
 		}
 
+		// 어나니머스 ..
+		
 		// 포지션
-		if (RootMotionFlag == 3 /*"root_$AssimpFbx$_Transition"*/)
+		
+		if (RootMotionFlag.test(2))
 		{
 			Pos = { 0,0,0 };
 		}
 		 // 로테이션 .. 
-		else if (RootMotionFlag == 2)
+		if (RootMotionFlag.test(1))
 		{
-			Quat = { 0,0,0,1 };
+			Quat = { -0.7071068, 0, 0, 0.7071068 };
+			//Quat = { 0,0,0,1 };
 			// Quat = UnitQuat !! 
 		}
 		 // 스케일링
-		else if (RootMotionFlag==1 /*"root_$AssimpFbx$_Scaling"*/)
+		if (RootMotionFlag.test(0))
 		{
 			Scale = { 1,1,1 };
 		}

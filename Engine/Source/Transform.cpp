@@ -244,8 +244,11 @@ void Transform::Translate(const D3DXVECTOR3 _vTranslate)
 
 void Transform::Rotate(const D3DXVECTOR3 _vRotate)
 {
-	m_vWorldRotation += _vRotate;
-	D3DXQuaternionRotationYawPitchRoll(&m_tWorldQuaternion, D3DXToRadian(m_vWorldRotation.y), D3DXToRadian(m_vWorldRotation.x), D3DXToRadian(m_vWorldRotation.z));
+	D3DXQUATERNION tQuatAdd;
+	D3DXQuaternionRotationYawPitchRoll(&tQuatAdd, D3DXToRadian(_vRotate.y), D3DXToRadian(_vRotate.x), D3DXToRadian(_vRotate.z));
+
+	m_tWorldQuaternion = m_tWorldQuaternion * tQuatAdd;
+
 	D3DXMatrixRotationQuaternion(&m_matRotation, &m_tWorldQuaternion);
 	m_bUpdated = true;
 }

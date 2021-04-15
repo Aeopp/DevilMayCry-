@@ -7,6 +7,8 @@
 #include "TestObject.h"
 #include <filesystem>
 
+#include "Em0000_Weapon.h"
+
 void Em0000::Free()
 {
 }
@@ -26,7 +28,7 @@ void Em0000::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
 	const uint64 NumSubset = m_pMesh->GetNumSubset();
 	m_pMesh->BindVTF(_ImplInfo.Fx);
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
+	{ 
 		auto WeakSubset = m_pMesh->GetSubset(SubsetIdx);
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
@@ -90,10 +92,46 @@ void Em0000::Fight(const float _fDeltaTime)
 			m_fAttackTime = 0.f;
 		}
 	}
-
 	Vector3	 vDir = m_pPlayerTrans.lock()->GetPosition() - m_pTransform.lock()->GetPosition();
 	float	 fDir = D3DXVec3Length(&vDir);
 	
+	/////이놈은 움직임이 한방향 밖에 없어서. 앞으로 갈지 아니면 백스탭 이후에 강한 공격할지
+	//Move가 On일때 1/4 확률로 백스텝을 하고 백스텝을 한 이후에는 바로 달려가면서 강한 공격
+	int iRandom = FMath::Random<int>(1, 4);
+
+	if (m_bMove && m_bIng == false)
+	{
+		m_bIng = true;	
+		m_bInteraction = true;
+		Update_Angle();
+		///////////////////////
+		if (iRandom == 1)
+			m_eState = Step_Back;
+		else
+			m_eState = Move_Front_Start;
+		//////////////////////
+	}
+	if (m_bMove && m_bIng == true)
+	{
+		m_bInteraction = true;
+		Update_Angle();
+
+		if (fDir <= 6.f)
+			m_eState = Move_Front_End;
+	}
+
+	if (fDir <= 6.f)
+	{
+		if (m_bAttack && m_bIng == false)
+		{
+			int iRandom = FMath::Random<int>(1, 2);
+			m_bIng = true;
+			if (iRandom == 1)
+				m_eState = Attack_1;
+			else
+				m_eState = Attack_2;
+		}
+	}
 
 }
 
@@ -102,10 +140,46 @@ void Em0000::State_Change(const float _fDeltaTime)
 	switch (m_eState)
 	{
 	case Em0000::Attack_1:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_1", false, {}, 1.f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_1" && m_pMesh->PlayingTime() >= 0.9f)
+			{
+				m_eState = idle;
+				m_bIng = false;
+				m_bAttack = false;
+			}
+		}
 		break;
 	case Em0000::Attack_2:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_2", false, {}, 1.f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_2" && m_pMesh->PlayingTime() >= 0.9f)
+			{
+				m_eState = idle;
+				m_bIng = false;
+				m_bAttack = false;
+			}
+		}
 		break;
 	case Em0000::Attack_Hard:
+		if (m_bIng == true)
+		{
+			//이건 마지막 피니시 모션까지 계속 플레이어를 향해서 뜀.
+			m_bInteraction = true;
+			Update_Angle();
+			m_pMesh->PlayAnimation("Attack_Hard", false, {}, 1.f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Hard" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_bIng = false;
+				m_bAttack = false;
+				m_eState = idle;
+			}
+		}
 		break;
 	case Em0000::Buster_End:
 		break;
@@ -132,18 +206,60 @@ void Em0000::State_Change(const float _fDeltaTime)
 	case Em0000::Hit_R:
 		break;
 	case Em0000::Move_Front_End:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Front_End", false, {}, 1.f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Front_End" && m_pMesh->PlayingTime() >= 0.9f)
+			{
+				m_eState = idle;
+				m_bIng = false;
+				m_bMove = false;
+			}
+		}
 		break;
 	case Em0000::Move_Front_Loop:
+		if (m_bIng == true)
+			m_pMesh->PlayAnimation("Move_Front_Loop", true, {}, 1.f, 50.f);
 		break;
 	case Em0000::Move_Front_Start:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Front_Start", false, {}, 1.f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Front_Start" && m_pMesh->PlayingTime() >= 0.9f)
+				m_eState = Move_Front_Loop;
+		}
 		break;
 	case Em0000::Step_Back:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Step_Back", false, {}, 1.f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Step_Back" && m_pMesh->PlayingTime() >= 0.9f)
+			{
+				m_eState = Attack_Hard;
+				m_bMove = false;
+			}
+
+		}
 		break;
 	case Em0000::Stun_End:
 		break;
 	case Em0000::Stun_Start:
 		break;
 	case Em0000::idle:
+		m_pMesh->PlayAnimation("idle", true, {}, 1.f, 50.f);
+		break;
+	case Em0000::Snatch_Start:
+		break;
+	case Em0000::Snatch_End:
+		break;
+	case Em0000::Air_Start:
+		break;
+	case Em0000::Air_Loop:
+		break;
+	case Em0000::Air_End:
 		break;
 	case Em0000::State_END:
 		break;
@@ -232,6 +348,8 @@ HRESULT Em0000::Ready()
 
 	//몬스터 회전 기본 속도
 	m_fAngleSpeed = D3DXToRadian(100.f);
+
+	m_pMesh->EnableToRootMatricies();
 	return S_OK;
 }
 
@@ -240,6 +358,10 @@ HRESULT Em0000::Awake()
 	m_pPlayer = std::static_pointer_cast<TestObject>(FindGameObjectWithTag(Player).lock());
 	m_pPlayerTrans = m_pPlayer.lock()->GetComponent<ENGINE::Transform>();
 
+	auto pWeapon = AddGameObject<Em0000Weapon>();
+
+	pWeapon.lock()->SetMesh(m_pMesh);
+	pWeapon.lock()->SetOwner(std::static_pointer_cast<Em0000>(m_pGameObject.lock()));
 
 	return S_OK;
 }

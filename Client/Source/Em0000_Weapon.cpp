@@ -123,17 +123,13 @@ HRESULT Em0000Weapon::Ready()
 
 HRESULT Em0000Weapon::Awake()
 {
-	m_pEm0000 = std::static_pointer_cast<Em0000>(FindGameObjectWithTag(Monster0000).lock());
-	m_pEm0000Mesh = m_pEm0000.lock()->Get_Mesh();
-	m_pEm0000Trasform = m_pEm0000.lock()->GetComponent<ENGINE::Transform>();
+	m_pParentBone = m_pEm0000Mesh.lock()->GetToRootMatrixPtr("R_WeaponHand");
 
-	
 	return S_OK;
 }
 
 HRESULT Em0000Weapon::Start()
 {
-	
 	return S_OK;
 }
 
@@ -141,11 +137,11 @@ UINT Em0000Weapon::Update(const float _fDeltaTime)
 {
 	//////////////무기 붙이기////////////////////////////
 	//오른손에만 붙였는데 왼손도 딱 맞게 붙음.
-	m_ParentBone = m_pEm0000Mesh.lock()->GetNodeToRoot("R_WeaponHand");
-	if (!m_ParentBone)
-		return 0;
+	//m_ParentBone = m_pEm0000Mesh.lock()->GetNodeToRoot("R_WeaponHand");
+	//if (!m_ParentBone)
+	//	return 0;
 	m_ParentWorld = m_pEm0000Trasform.lock()->GetWorldMatrix();
-	m_Result = (*m_ParentBone * m_ParentWorld);
+	m_Result = (*m_pParentBone * m_ParentWorld);
 	m_pTransform.lock()->SetWorldMatrix(m_Result);
 	//////////////////////////////////////////////////
 	
@@ -172,4 +168,15 @@ void Em0000Weapon::OnEnable()
 void Em0000Weapon::OnDisable()
 {
 
+}
+
+void Em0000Weapon::SetMesh(std::weak_ptr<ENGINE::SkeletonMesh> _pMesh)
+{
+	m_pEm0000Mesh = _pMesh;
+}
+
+void Em0000Weapon::SetOwner(std::weak_ptr<Em0000> _pOwner)
+{
+	m_pEm0000 = _pOwner;
+	m_pEm0000Trasform = m_pEm0000.lock()->GetComponent<Transform>();
 }

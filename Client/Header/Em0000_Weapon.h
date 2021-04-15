@@ -42,9 +42,12 @@ private:
 	std::weak_ptr<ENGINE::Transform>	  m_pEm0000Trasform;
 
 	std::optional<Matrix>				  m_ParentBone;
+	Matrix*								  m_pParentBone;
 	Matrix								  m_ParentWorld;
 	Matrix								  m_Result;
 
-		
+public:
+	void SetMesh(std::weak_ptr<ENGINE::SkeletonMesh> _pMesh);
+	void SetOwner(std::weak_ptr<Em0000> _pOwner);
 };
 #endif //__Em0000_Weapon_h__

@@ -32,6 +32,11 @@ private:
 		Stun_End,
 		Stun_Start,
 		idle,
+		Snatch_Start,
+		Snatch_End,
+		Air_Start,
+		Air_Loop,
+		Air_End,
 		State_END
 	};
 
@@ -81,12 +86,13 @@ private:
 	bool		m_bAttack = false;	
 	float		m_fAttackTime = 0.f;
 
+	//잠깐, 막기!
+	bool		m_bGuard = false;
+	float		m_fGuardTime = 0.f;
+	
+
 	//전투 시작 테스트 용
 	bool		m_bTest = false;
-
-	//Rotate함수 통제
-	bool		m_bRotate = false;
-	float		m_fTest = 0.f;
 };
 
 #endif // Em0000_h__

@@ -73,6 +73,9 @@
     <Filter Include="02.GameObject\02. Monster\02.Em0000\Weapon">
       <UniqueIdentifier>{c02369c1-af29-46dd-852c-dedcb84e3a5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\02. Monster\03.Em5000">
+      <UniqueIdentifier>{a76a460f-8b96-4594-aebb-ce10380608c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="..\Header\Em0000_Weapon.h">
       <Filter>02.GameObject\02. Monster\02.Em0000\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Em5000.h">
+      <Filter>02.GameObject\02. Monster\03.Em5000</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -216,6 +222,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\Em0000_Weapon.cpp">
       <Filter>02.GameObject\02. Monster\02.Em0000\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Em5000.cpp">
+      <Filter>02.GameObject\02. Monster\03.Em5000</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

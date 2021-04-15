@@ -55,7 +55,7 @@ private:
 	int		m_iTest = -7;
 	bool	m_bLockon = false;
 
-	long	m_fCameraAngle = -19;
+	long	m_fCameraAngle = 3;
 	
 
 	
