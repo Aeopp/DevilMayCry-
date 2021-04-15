@@ -1,6 +1,7 @@
 matrix Ortho;
 matrix Perspective;  // 메시, xy 회전이 필요한 경우 
 matrix ScreenMat;    // (-width/2 ~ +width/2, +height/2 ~ -height/2)
+
 float3 LightDirection = float3(0.f, 0.f, 1.f);
 
 float _TotalAccumulateTime;
@@ -30,6 +31,8 @@ sampler Noise = sampler_state
     magfilter = linear;
     mipfilter = linear;
     sRGBTexture = false;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 texture ALB0Map;
@@ -41,6 +44,8 @@ sampler ALB0 = sampler_state
     mipfilter = anisotropic;
     sRGBTexture = true;
     MaxAnisotropy = 4;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 texture ALB1Map;
@@ -52,6 +57,8 @@ sampler ALB1 = sampler_state
     mipfilter = anisotropic;
     sRGBTexture = true;
     MaxAnisotropy = 4;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 texture NRMR0Map;
@@ -62,6 +69,8 @@ sampler NRMR0 = sampler_state
     magfilter = point;
     mipfilter = point;
     sRGBTexture = false;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 texture ATOS0Map;
@@ -72,6 +81,8 @@ sampler ATOS0 = sampler_state
     magfilter = point;
     mipfilter = point;
     sRGBTexture = false;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 
@@ -660,7 +671,7 @@ PsOut PsMain_Rank(PsIn_Clip In)
     
     Out.Color = Diffuse * float4(Albedo, 1.f);
     Out.Color.a = 1.f;
-  
+
     return Out;
 };
 

@@ -164,7 +164,7 @@
     <ClInclude Include="..\Header\Camera.h" />
     <ClInclude Include="..\Header\DashImpact.h" />
     <ClInclude Include="..\Header\Effect.h" />
-    <ClInclude Include="..\Header\Eff_Glint.h" />
+    <ClInclude Include="..\Header\Glint.h" />
     <ClInclude Include="..\Header\Em0000.h" />
     <ClInclude Include="..\Header\Em0000_Weapon.h" />
     <ClInclude Include="..\Header\Em100.h" />
@@ -194,7 +194,7 @@
     <ClCompile Include="..\Source\Camera.cpp" />
     <ClCompile Include="..\Source\DashImpact.cpp" />
     <ClCompile Include="..\Source\Effect.cpp" />
-    <ClCompile Include="..\Source\Eff_Glint.cpp" />
+    <ClCompile Include="..\Source\Glint.cpp" />
     <ClCompile Include="..\Source\Em0000.cpp" />
     <ClCompile Include="..\Source\Em0000_Weapon.cpp" />
     <ClCompile Include="..\Source\Em100.cpp" />
