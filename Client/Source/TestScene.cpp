@@ -12,7 +12,7 @@
 #include "Em0000.h"
 #include "Em0000_Weapon.h"
 #include "Em5000.h"
-#include "Eff_OvertureHand.h"
+#include "OvertureHand.h"
 #include "Glint.h"
 #include "BtlPanel.h"
 
@@ -62,9 +62,9 @@ HRESULT TestScene::LoadScene()
 
 	//AddGameObject<BtlPanel>();
 	//AddGameObject<Glint>();
+	//AddGameObject<OvertureHand>();
 	
 	// 수정 필요
-	//AddGameObject<Eff_OvertureHand>();
 	//AddGameObject<DashImpact>();
 	//AddGameObject<Blood>();
 

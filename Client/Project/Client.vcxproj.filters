@@ -90,7 +90,7 @@
     <ClInclude Include="..\Header\Camera.h">
       <Filter>02.GameObject\00.Camera</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\Eff_OvertureHand.h">
+    <ClInclude Include="..\Header\OvertureHand.h">
       <Filter>02.GameObject\Effect\Weapon</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\Glint.h">
@@ -180,7 +180,7 @@
     <ClCompile Include="..\Source\Camera.cpp">
       <Filter>02.GameObject\00.Camera</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Eff_OvertureHand.cpp">
+    <ClCompile Include="..\Source\OvertureHand.cpp">
       <Filter>02.GameObject\Effect\Weapon</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\BtlPanel.cpp">

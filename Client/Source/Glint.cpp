@@ -64,11 +64,10 @@ HRESULT Glint::Ready()
 	auto InitTransform = GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 1.f, 1.f, 1.f });
 
+	_PlayingSpeed = 3.5f;
+
 	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Primitive\\plane00.fbx");
 	_GlintTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Light\\tex_capcom_light_glint_0017_alpg.tga");
-
-	//
-	_PlayingSpeed = 3.5f;
 
 	return S_OK;
 }

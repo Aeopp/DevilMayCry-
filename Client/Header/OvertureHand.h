@@ -2,7 +2,7 @@
 #define __EFF_OVERTUREHAND__
 #include "Effect.h"
 
-class Eff_OvertureHand final : public Effect
+class OvertureHand final : public Effect
 {
 private:
 	std::shared_ptr<ENGINE::StaticMesh> _HandMesh{};
@@ -16,15 +16,15 @@ private:
 	float _RandTexV1 = 0.6f;
 
 private:
-	explicit Eff_OvertureHand() = default;
-	virtual ~Eff_OvertureHand() = default;
+	explicit OvertureHand() = default;
+	virtual ~OvertureHand() = default;
 	// Effect을(를) 통해 상속됨
 	virtual void Free() override;
 	virtual std::string GetName() override;
+private:
+	void RenderAlphaBlendEffect(const DrawInfo& _ImplInfo);
 public:
-	static Eff_OvertureHand* Create();
-public:
-	void RenderAlphaBlendEffectImplementation(const DrawInfo& _ImplInfo) ;
+	static OvertureHand* Create();
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

@@ -1,26 +1,14 @@
 matrix World;
-matrix View;
-matrix Projection;
+matrix ViewProjection;
 //float3 LightDirection = float3(0, -1, 0);
 
 float _SliceAmount = 0.f;
 float _TexV = 0.5f;  // 0 ~ 1
 
-texture ALB0Map; // 처음에 띄울 하얀색
+texture ALB0Map;
 sampler ALB0 = sampler_state
 {
     texture = ALB0Map;
-    minfilter = anisotropic;
-    magfilter = anisotropic;
-    mipfilter = anisotropic;
-    sRGBTexture = true;
-    MaxAnisotropy = 4;
-};
-
-texture ALB1Map; // 그 다음에 띄울 번개색(보라)
-sampler ALB1 = sampler_state
-{
-    texture = ALB1Map;
     minfilter = anisotropic;
     magfilter = anisotropic;
     mipfilter = anisotropic;
@@ -63,8 +51,9 @@ struct VsOut
 VsOut VsMain(VsIn In)
 {
     VsOut Out = (VsOut) 0;
-    matrix WVP = mul(World, View);
-    WVP = mul(WVP, Projection);
+    
+    matrix WVP = World;
+    WVP = mul(WVP, ViewProjection);
     
     Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     Out.UV = In.UV;
@@ -75,9 +64,10 @@ VsOut VsMain(VsIn In)
 VsOut VsMain_Lightning(VsIn In)
 {
     VsOut Out = (VsOut) 0;
-    matrix WVP = mul(World, View);
-    WVP = mul(WVP, Projection);
-        
+    
+    matrix WVP = World;
+    WVP = mul(WVP, ViewProjection);
+    
     if (_SliceAmount > 0.45f)
         Out.Position = mul(float4((15.f * In.Normal.xyz) + In.Position.xyz, 1.f), WVP);
     else
@@ -131,7 +121,7 @@ PsOut PsMain_Lightning(PsIn In)
     NewUV.y = _TexV;
     
     float4 AlphaSample = tex2D(Alpha, NewUV);
-    float4 AlbSample = tex2D(ALB1, NewUV);
+    float4 AlbSample = tex2D(ALB0, NewUV);
     float4 NoiseSample = tex2D(Noise, NewUV);
     
     float4 Noise = NoiseSample.rrrr;
@@ -146,7 +136,7 @@ PsOut PsMain_Lightning(PsIn In)
 
 technique Default
 {
-	pass
+	pass p0
 	{
 		alphablendenable = true;
 		srcblend = srcalpha;
@@ -158,7 +148,7 @@ technique Default
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_White();
     }
-    pass
+    pass p1
     {
         alphablendenable = true;
         srcblend = srcalpha;

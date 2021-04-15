@@ -178,7 +178,7 @@
     <ClInclude Include="..\Header\NeroState.h" />
     <ClInclude Include="..\Header\RedQueen.h" />
     <ClInclude Include="..\Header\TestAnimationObject.h" />
-    <ClInclude Include="..\Header\Eff_OvertureHand.h" />
+    <ClInclude Include="..\Header\OvertureHand.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
     <ClInclude Include="Client.h" />
@@ -208,7 +208,7 @@
     <ClCompile Include="..\Source\NeroState.cpp" />
     <ClCompile Include="..\Source\RedQueen.cpp" />
     <ClCompile Include="..\Source\TestAnimationObject.cpp" />
-    <ClCompile Include="..\Source\Eff_OvertureHand.cpp" />
+    <ClCompile Include="..\Source\OvertureHand.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
     <ClCompile Include="Client.cpp" />

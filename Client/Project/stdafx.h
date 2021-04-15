@@ -34,5 +34,6 @@ enum GAMEOBJECTTAG
 	Monster5000,
 	UI_BtlPanel,
 	Eff_Glint,
+	Eff_OvertureHand,
 	Tag_END
 };

@@ -372,17 +372,20 @@
     <ClInclude Include="..\Header\SkeletonMesh.h">
       <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
-      <Filter>04.HLSL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
-      <Filter>04.HLSL</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
       <Filter>04.HLSL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
       <Filter>04.HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
+      <Filter>04.HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
+      <Filter>04.HLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Quad.h">
+      <Filter>98.UnLabeld</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\_3Dmath.h">
       <Filter>98.UnLabeld</Filter>
@@ -397,9 +400,6 @@
       <Filter>98.UnLabeld</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\FLight.h">
-      <Filter>98.UnLabeld</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Quad.h">
       <Filter>98.UnLabeld</Filter>
     </ClInclude>
   </ItemGroup>
@@ -559,13 +559,14 @@
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
+    <None Include="..\..\Resource\Shader\Debug.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\DebugSK.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\Debug.hlsl">
+    <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\Blur.hlsl">
@@ -591,9 +592,6 @@
     </None>
     <None Include="..\..\Resource\Shader\ToneMap.hlsl">
       <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
     </None>
   </ItemGroup>
 </Project>
