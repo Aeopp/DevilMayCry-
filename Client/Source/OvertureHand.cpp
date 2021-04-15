@@ -51,17 +51,19 @@ void OvertureHand::RenderAlphaBlendEffect(const DrawInfo& _ImplInfo)
 
 				SharedSubset->Render(_ImplInfo.Fx);
 			}
-
 		}
 		else if (1 == _ImplInfo.PassIndex)
 		{
-			_ImplInfo.Fx->SetMatrix("World", &_RenderUpdateInfo.World);
-			_ImplInfo.Fx->SetTexture("ALB0Map", _LightningColorTex->GetTexture());
-			_ImplInfo.Fx->SetTexture("AlphaMap", _LightningTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV0);
-			_ImplInfo.Fx->SetFloat("_SliceAmount", (_AccumulateTime - 0.3f) * 0.8f);
-			
-			SharedSubset->Render(_ImplInfo.Fx);
+			if (0.3f < _AccumulateTime)
+			{
+				_ImplInfo.Fx->SetMatrix("World", &_RenderUpdateInfo.World);
+				_ImplInfo.Fx->SetTexture("ALB0Map", _LightningColorTex->GetTexture());
+				_ImplInfo.Fx->SetTexture("AlphaMap", _LightningTex->GetTexture());
+				_ImplInfo.Fx->SetFloat("_TexV", _RandTexV0);
+				_ImplInfo.Fx->SetFloat("_SliceAmount", (_AccumulateTime - 0.3f) * 0.8f);
+
+				SharedSubset->Render(_ImplInfo.Fx);
+			}
 		}
 	}
 }
