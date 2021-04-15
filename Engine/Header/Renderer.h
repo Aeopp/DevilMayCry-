@@ -77,7 +77,7 @@ private:
 	std::shared_ptr<Quad> _Quad;
 	std::map<std::string, std::shared_ptr<ENGINE::Shader>> Shaders{};
 	std::map<std::string, std::shared_ptr<RenderTarget>>   RenderTargets{};
-	std::shared_ptr<FLight> Moonlight{};
+	std::vector< std::shared_ptr<FLight> > DirLights{};
 	std::vector<std::shared_ptr<FLight>> PointLights{};
 
 	// 쉐이더 테스트 시작 ....

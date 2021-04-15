@@ -57,7 +57,8 @@ void Renderer::ReadyShader(const std::filesystem::path& TargetPath)
 void Renderer::ReadyLights()
 {
 	// ´Þºû
-	Moonlight = std::make_shared<FLight>
+	DirLights.resize(0);
+	DirLights[0] = std::make_shared<FLight>
 		(FLight(FLight::Type::Directional,
 		{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
 	PointLights.resize(3u);
@@ -82,12 +83,12 @@ void Renderer::ReadyLights()
 	PointLights[2]->SetPointRadius(7.1f);
 
 	// ±×¸²ÀÚ¸Ê 512 ·Î »ý¼º
-	Moonlight->CreateShadowMap(Device, 1024);
-	Moonlight->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
+	DirLights[0]->CreateShadowMap(Device, 512);
+	DirLights[0]->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
 
-	PointLights[0]->CreateShadowMap(Device, 512);
-	PointLights[1]->CreateShadowMap(Device, 512);
-	PointLights[2]->CreateShadowMap(Device, 512);
+	PointLights[0]->CreateShadowMap(Device, 256);
+	PointLights[1]->CreateShadowMap(Device, 256);
+	PointLights[2]->CreateShadowMap(Device, 256);
 
 	PointLights[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
 	PointLights[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
@@ -283,7 +284,11 @@ void Renderer::Editor()&
 				_Light->Edit(Idx);
 				++Idx;
 			}
-			Moonlight->Edit(Idx);
+			for (auto& _Light : DirLights)
+			{
+				_Light->Edit(Idx);
+				++Idx;
+			}			
 		}
 	}
 	ImGui::End();

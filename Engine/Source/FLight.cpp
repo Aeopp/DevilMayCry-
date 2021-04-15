@@ -102,16 +102,16 @@ void FLight::EditImplementation(const uint32 Idx)
 	case Directional:
 		TypeString = "Directional";
 		ImGui::Text("ShadowMap");
-		ImGui::Image(reinterpret_cast<void**>(Shadowmap), { 256,256 });
+		ImGui::Image(reinterpret_cast<void**>(Shadowmap), { 128,128 });
 		ImGui::Text("BlurShadowMap");
-		ImGui::Image(reinterpret_cast<void**>(Blurredshadowmap), { 256,256 });
+		ImGui::Image(reinterpret_cast<void**>(Blurredshadowmap), { 128,128 });
 		break;
 	case Point:
 		TypeString = "Point";
 		ImGui::Text("CubeShadowMap");
-		ImGui::Image(reinterpret_cast<void**>(Cubeshadowmap), { 256,256 });
+		ImGui::Image(reinterpret_cast<void**>(Cubeshadowmap), { 128,128 });
 		ImGui::Text("CubeBlurShadowMap");
-		ImGui::Image(reinterpret_cast<void**>(Blurredcubeshadowmap), { 256,256 });
+		ImGui::Image(reinterpret_cast<void**>(Blurredcubeshadowmap), { 128,128 });
 		break;
 	default:
 		break;
@@ -130,6 +130,9 @@ void FLight::EditImplementation(const uint32 Idx)
 			AddBlurIntencity *= BlurIntencitySliderPower;
 		}
 		BlurIntencity += AddBlurIntencity;
+		ImGui::Separator();
+
+
 	}
 
 	{
@@ -145,12 +148,14 @@ void FLight::EditImplementation(const uint32 Idx)
 		Position.x += AddPosition.x;
 		Position.y += AddPosition.y;
 		Position.z += AddPosition.z;
+		ImGui::Separator();
 	}
 
 	{
 		ImGui::Text("Projection Size : %4.4f , %4.4f", Projparams.x, Projparams.y);
 		static float ProjectionSizeSliderPower = 0.01f;
-		ImGui::SliderFloat("PositionSliderPower", &ProjectionSizeSliderPower, FLT_MIN, 1.f);
+		ImGui::SliderFloat("ProjectionSliderPower", &ProjectionSizeSliderPower, FLT_MIN, 1.f);
+		ImGui::InputFloat2("In ProjectionSize", Projparams);
 		Vector2 AddProjectionSize = { 0.f ,0.f };
 		if (ImGui::SliderFloat2("Add ProjectionSize", AddProjectionSize, -1.f, 1.f))
 		{
@@ -158,14 +163,14 @@ void FLight::EditImplementation(const uint32 Idx)
 		}
 		Projparams.x += AddProjectionSize.x;
 		Projparams.y += AddProjectionSize.y;
-		ImGui::InputFloat2("In ProjectionSize", Projparams);
+		ImGui::Separator();
 	}
 
 	{
-		ImGui::Text("Near Far SliderPower %4.4f , %4.4f ", Projparams.z, Projparams.w);
+		ImGui::Text("Near Far %4.4f , %4.4f ", Projparams.z, Projparams.w);
 		static float NearFarSliderPower = 0.01f;
 		ImGui::SliderFloat("NearFarSliderPower", &NearFarSliderPower, FLT_MIN, 1.f);
-
+		ImGui::InputFloat("In Near", &Projparams.z);
 		{
 			float AddNear = 0.0f;
 			if (ImGui::SliderFloat("Add Near", &AddNear, -1.f, 1.f))
@@ -173,22 +178,26 @@ void FLight::EditImplementation(const uint32 Idx)
 				AddNear *= NearFarSliderPower;
 			}
 			Projparams.z += AddNear;
-			ImGui::InputFloat("In Near", &Projparams.z);
+	
 		}
 
 		{
 			float AddFar = 0.0f;
+			ImGui::InputFloat("In Far", &Projparams.w);
 			if (ImGui::SliderFloat("Add Far", &AddFar, -1.f, 1.f))
 			{
 				AddFar *= NearFarSliderPower;
 			}
 			Projparams.w += AddFar;
-			ImGui::InputFloat("In Far", &Projparams.w);
+			ImGui::Separator();
+			
+			ImGui::Separator();
 		}
 	}
 
 	{
 		ImGui::ColorEdit4("Light Color", Color);
+		ImGui::Separator();
 	}
 
 	{
@@ -196,12 +205,15 @@ void FLight::EditImplementation(const uint32 Idx)
 		static float lightFluxSliderPower = 0.01f;
 		ImGui::SliderFloat("lightFluxSliderPower", &lightFluxSliderPower, FLT_MIN, 1.f);
 		float AddlightFlux = 0.0f;
+		ImGui::InputFloat2("In lightFlux", &lightFlux);
 		if (ImGui::SliderFloat("Add lightFlux", &AddlightFlux, -1.f, 1.f))
 		{
 			AddlightFlux *= lightFluxSliderPower;
 		}
 		lightFlux += AddlightFlux;
-		ImGui::InputFloat2("lightFlux", &lightFlux);
+		
+		ImGui::Separator();
+
 	}
 
 	{
@@ -209,12 +221,15 @@ void FLight::EditImplementation(const uint32 Idx)
 		static float lightIlluminanceSliderPower = 0.01f;
 		ImGui::SliderFloat("lightIlluminanceSliderPower", &lightIlluminanceSliderPower, FLT_MIN, 1.f);
 		float AddlightIlluminance = 0.0f;
-		if (ImGui::SliderFloat("Add lightFlux", &AddlightIlluminance, -1.f, 1.f))
+		ImGui::InputFloat2("lightIlluminance", &lightIlluminance);
+		if (ImGui::SliderFloat("Add lightIlluminance", &AddlightIlluminance, -1.f, 1.f))
 		{
 			AddlightIlluminance *= lightIlluminanceSliderPower;
 		}
 		lightIlluminance += AddlightIlluminance;
-		ImGui::InputFloat2("lightFlux", &lightIlluminance);
+		
+		ImGui::Separator();
+
 	}
 
 	{
@@ -222,12 +237,16 @@ void FLight::EditImplementation(const uint32 Idx)
 		static float specularPowerSliderPower = 0.01f;
 		ImGui::SliderFloat("specularPowerSliderPower", &specularPowerSliderPower, FLT_MIN, 1.f);
 		float AddspecularPower = 0.0f;
+		ImGui::InputFloat2("In specularPower", &specularPower);
+
 		if (ImGui::SliderFloat("Add specularPower", &AddspecularPower, -1.f, 1.f))
 		{
 			AddspecularPower *= specularPowerSliderPower;
 		}
 		specularPower += AddspecularPower;
-		ImGui::InputFloat2("specularPower", &specularPower);
+		
+
+		ImGui::Separator();
 	}
 
 	{
@@ -235,25 +254,29 @@ void FLight::EditImplementation(const uint32 Idx)
 		static float AddcosAngularRadiusSliderPower = 0.01f;
 		ImGui::SliderFloat("AddcosAngularRadiusSliderPower", &AddcosAngularRadiusSliderPower, FLT_MIN, 1.f);
 		float AddcosAngularRadius = 0.0f;
+		ImGui::InputFloat2("In cosAngularRadius", &cosAngularRadius);
+
 		if (ImGui::SliderFloat("Add cosAngularRadius", &AddcosAngularRadius, -1.f, 1.f))
 		{
 			AddcosAngularRadius *= AddcosAngularRadiusSliderPower;
 		}
 		cosAngularRadius += AddcosAngularRadius;
-		ImGui::InputFloat2("cosAngularRadius", &cosAngularRadius);
+		ImGui::Separator();
+
 	}
 
 	{
 		ImGui::Text("sinAngularRadius : %4.4f", sinAngularRadius);
 		static float sinAngularRadiusSliderPower = 0.01f;
 		ImGui::SliderFloat("AddsinAngularRadiusSliderPower", &sinAngularRadiusSliderPower, FLT_MIN, 1.f);
+		ImGui::InputFloat2("In sinAngularRadius", &sinAngularRadius);
 		float AddsinAngularRadius = 0.0f;
 		if (ImGui::SliderFloat("Add sinAngularRadius", &AddsinAngularRadius, -1.f, 1.f))
 		{
 			AddsinAngularRadius *= sinAngularRadiusSliderPower;
 		}
 		sinAngularRadius += AddsinAngularRadius;
-		ImGui::InputFloat2("sinAngularRadius", &sinAngularRadius);
+		ImGui::Separator();
 	}
 }
 	
