@@ -108,15 +108,9 @@ void TestObject::RenderGBuffer(const DrawInfo& _Info)
 		{
 			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
 			{
-				const std::string msg = std::to_string(i) + " : 컬링 !! ";
-				std::cout << msg << std::endl;
 				continue; 
 			}
-			else
-			{
-				const std::string msg = std::to_string(i) + " : 드로우 !! ";
-				std::cout << msg << std::endl;
-			}
+			
 
 			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
 			SpSubset->BindProperty(TextureType::NORMALS, 0, 1, _Info._Device);
@@ -136,14 +130,7 @@ void TestObject::RenderShadow(const DrawInfo& _Info)
 		{
 			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
 			{
-				const std::string msg = std::to_string(i) + " : 쉐도우 컬링 !! ";
-				std::cout << msg << std::endl;
 				continue;
-			}
-			else
-			{
-				const std::string msg = std::to_string(i) + " : 쉐도우 드로우 !! ";
-				std::cout << msg << std::endl;
 			}
 
 			SpSubset->Render(_Info.Fx);
@@ -178,8 +165,9 @@ HRESULT TestObject::Ready()
 {
 	// 트랜스폼 초기화 .. 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.0005,0.0005,0.0005 });
-	InitTransform.lock()->SetPosition(FMath::Random(Vector3{ -10,-10,-10},Vector3 { 10,10,10}));
+	InitTransform.lock()->SetScale({ 0.001,0.001,0.001 });
+	InitTransform.lock()->SetPosition(FMath::Random(
+		Vector3{ -10,0.f,-10},Vector3 { +10,0.f,+10}));
 	PushEditEntity(InitTransform.lock().get());
 	RenderInit();
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
@@ -202,14 +190,14 @@ UINT TestObject::Update(const float _fDeltaTime)
 	Vector3 vDir = m_pTransform.lock()->GetLook();
 
 	D3DXVec3Normalize(&vDir, &vDir);
-	if (Input::GetKey(DIK_UP))
+	/*if (Input::GetKey(DIK_UP))
 		m_pTransform.lock()->Translate(vDir * _fDeltaTime * 10.f);
 	if (Input::GetKey(DIK_DOWN))
 		m_pTransform.lock()->Translate(-vDir * _fDeltaTime * 10.f);
 	if (Input::GetKey(DIK_LEFT))
 		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * -_fDeltaTime * 50.f), 0.f });
 	if (Input::GetKey(DIK_RIGHT))
-		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });
+		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });*/
 		
 
 	

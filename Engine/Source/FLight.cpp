@@ -306,9 +306,9 @@ void FLight::CalculateViewProjection(D3DXMATRIX& out)
 			up = D3DXVECTOR3(1, 0, 0);
 		
 		D3DXMatrixLookAtLH(&out, &eye, &look, &up);
-		D3DXMatrixOrthoLH(&this->proj, Projparams.x, Projparams.y, Projparams.z, Projparams.w);
+		D3DXMatrixOrthoLH(&this->proj, 
+			Projparams.x, Projparams.y, Projparams.z, Projparams.w);
 		D3DXMatrixInverse(&this->viewinv, nullptr, &out);
-
 		D3DXMatrixMultiply(&out, &out, &this->proj);
 	}
 	else if (_Type == Point) {

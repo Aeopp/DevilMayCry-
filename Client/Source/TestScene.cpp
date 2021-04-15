@@ -41,10 +41,10 @@ HRESULT TestScene::LoadScene()
 	
 	AddGameObject<Camera>();
 	// AddGameObject<Nero>();
-	/*for (int32 i = 0; i < 10; ++i)
+	for (int32 i = 0; i < 10; ++i)
 	{
 		AddGameObject<TestObject>();
-	}*/
+	}
 	
 	// AddGameObject<Em5000>();
 

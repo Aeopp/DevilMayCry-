@@ -88,7 +88,7 @@ HRESULT GraphicSystem::ReadyGraphicSystem(
 	tD3DPP.AutoDepthStencilFormat = D3DFMT_D24S8;
 	tD3DPP.Flags = 0;
 	tD3DPP.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-	tD3DPP.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+	tD3DPP.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	if (FAILED(m_pSDK->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,
 		g_hWnd, dwVertexProcessing, &tD3DPP, &m_pDevice)))

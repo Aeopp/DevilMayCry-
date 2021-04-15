@@ -83,12 +83,12 @@ void Renderer::ReadyLights()
 	PointLights[2]->SetPointRadius(7.1f);
 
 	// 그림자맵 512 로 생성
-	DirLights[0]->CreateShadowMap(Device, 512);
+	DirLights[0]->CreateShadowMap(Device, 1024);
 	DirLights[0]->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
 
-	PointLights[0]->CreateShadowMap(Device, 256);
-	PointLights[1]->CreateShadowMap(Device, 256);
-	PointLights[2]->CreateShadowMap(Device, 256);
+	PointLights[0]->CreateShadowMap(Device, 512);
+	PointLights[1]->CreateShadowMap(Device, 512);
+	PointLights[2]->CreateShadowMap(Device, 512);
 
 	PointLights[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
 	PointLights[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
@@ -426,6 +426,11 @@ void Renderer::RenderShadowMaps()
 
 	for (auto& PointLight : PointLights)
 	{
+		Sphere PtlightSphere{};
+		PtlightSphere.Center = (D3DXVECTOR3&)PointLight->GetPosition();
+		PtlightSphere.Radius = PointLight->GetFarPlane();
+		if (false == CameraFrustum->IsIn(PtlightSphere))continue;
+
 		PointLight->RenderShadowMap(Device, [&](FLight* light) {
 			D3DXMATRIX viewproj;
 			D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
@@ -616,6 +621,12 @@ void Renderer::DeferredShading()
 
 		for (auto& PointLight : PointLights)
 		{
+			Sphere PtLtSp{};
+
+			PtLtSp.Center = (D3DXVECTOR3&)PointLight->GetPosition();
+			PtLtSp.Radius = PointLight->GetPointRadius();
+			if (false == CameraFrustum->IsIn(PtLtSp))continue;
+
 			clipplanes.x = PointLight->GetNearPlane();
 			clipplanes.y = PointLight->GetFarPlane();
 			RECT scissorrect;
@@ -697,22 +708,8 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 	D3DXMatrixScaling(&world[0], 0.15f, 0.15f, 0.15f);
 	D3DXMatrixScaling(&world[1], 0.15f, 0.15f, 0.15f);
 	D3DXMatrixScaling(&world[2], 0.15f, 0.15f, 0.15f);
-	D3DXMatrixScaling(&world[3], 5, 0.1f, 5);
+	D3DXMatrixScaling(&world[3], 75.f, 0.1f, 75.f);
 
-
-	static Vector3 allrotationeuler{ 0,0,0 };
-	ImGui::SliderFloat3("allrotationeuler", allrotationeuler, -360.f, 360.f);
-	D3DXMATRIX Allrotation{};
-
-	D3DXMatrixRotationYawPitchRoll(&Allrotation, 
-		FMath::ToRadian( allrotationeuler.y  ) ,  
-		FMath::ToRadian( allrotationeuler.x ) ,
-		FMath::ToRadian( allrotationeuler.z  )  );
-
-	world[0] *= Allrotation;
-	world[1] *= Allrotation;
-	world[2] *= Allrotation;
-	world[3] *= Allrotation;
 
 	world[0]._41 = -1.5;
 	world[0]._43 = 1.5;
@@ -777,7 +774,7 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 		effect->SetTechnique(tech);
 
 	D3DXMatrixInverse(&inv, NULL, &world[3]);
-	uv = D3DXVECTOR4(2, 2, 0, 0);
+	uv = D3DXVECTOR4(30, 30, 0, 0);
 
 	effect->SetMatrix("matWorldInv", &inv);
 	effect->SetMatrix("matWorld", &world[3]);
@@ -952,6 +949,7 @@ HRESULT Renderer::RenderDebug()&
 	DrawInfo _DrawInfo;
 	_DrawInfo._Device = Device;
 	_DrawInfo.BySituation = {};
+	_DrawInfo._Frustum = CameraFrustum.get();
 	for (auto& [ShaderKey, _EntityArr] : RenderEntitys[RenderProperty::Order::Debug])
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
@@ -985,7 +983,7 @@ HRESULT Renderer::RenderDebugBone()&
 	DrawInfo _DrawInfo{};
 	_DrawInfo._Device = Device;
 	_DrawInfo.BySituation.reset();
-	
+	_DrawInfo._Frustum = CameraFrustum.get();
 	for (auto& [ShaderKey, _EntityArr] : _Order)
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
@@ -1096,6 +1094,7 @@ HRESULT Renderer::AlphaBlendEffectRender()&
 	DrawInfo _DrawInfo{};
 	_DrawInfo.BySituation.reset();
 	_DrawInfo._Device = Device;
+	_DrawInfo._Frustum = CameraFrustum.get();
 	for (auto& [ShaderKey, Entitys] : _Group)
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
