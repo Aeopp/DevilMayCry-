@@ -25,18 +25,19 @@ private:
 	explicit SkeletonMesh(LPDIRECT3DDEVICE9 const _pDevice);
 	explicit SkeletonMesh(const SkeletonMesh& _rOther);
 	virtual ~SkeletonMesh() = default;
-	// MeshÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Meshì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	virtual void Free() override;
 public:
 	static SkeletonMesh* Create(LPDIRECT3DDEVICE9 const _pDevice,
 								const std::filesystem::path _Path,
 								const std::any & InitParams);
-	// MeshÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// Meshì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	virtual Resource* Clone() override;
 	virtual void      Editor()override;
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
+	void UpdateToRootMatricies();
 	bool    IsAnimationEnd();
 	void    EnableToRootMatricies();
 	void    DisableToRootMatricies();
@@ -49,16 +50,16 @@ public:
 	void    VTFUpdate()&;
 	Node* GetRootNode()&;
 	Node* GetNode(const std::string & NodeName)&;
-	//      º» ½ºÅ°´× ¸ÅÆ®¸¯½º¿¡¼­ ToRoot ¸ÅÆ®¸¯½º¸¦ °è»ê 
-	//      (ÇöÀç ½ºÅ°´× ¾÷µ¥ÀÌÆ®¸¦ ÇÏÁö ¾Ê´Â´Ù¸é ¹İÈ¯°ªÀº ¸¶Áö¸· ½ºÅ°´× ÇßÀ»½ÃÀÇ Á¤º¸)
-	//      ÇØ´ç ¹İÈ¯°ªÀÌ Á¸Àç ÇÏÁö ¾Ê´Â´Ù¸é À¯È¿ÇÑ ³ëµå°¡ ¾ø´Â °Í.
-	//      ÇØ´ç ¹İÈ¯°ªÀº ÇØ´ç ³ëµå(»À)ÀÇ ¾Ö´Ï¸ŞÀÌ¼Ç µÈ Çà·Ä
-	//      ¹İÈ¯°ª * World ÇÏ¸é ÇØ´ç ¿ÀºêÁ§Æ®ÀÇ ÇØ´ç »ÀÀÇ Çà·ÄÀ» ±¸ÇÔ.
+	//      ë³¸ ìŠ¤í‚¤ë‹ ë§¤íŠ¸ë¦­ìŠ¤ì—ì„œ ToRoot ë§¤íŠ¸ë¦­ìŠ¤ë¥¼ ê³„ì‚° 
+	//      (í˜„ì¬ ìŠ¤í‚¤ë‹ ì—…ë°ì´íŠ¸ë¥¼ í•˜ì§€ ì•ŠëŠ”ë‹¤ë©´ ë°˜í™˜ê°’ì€ ë§ˆì§€ë§‰ ìŠ¤í‚¤ë‹ í–ˆì„ì‹œì˜ ì •ë³´)
+	//      í•´ë‹¹ ë°˜í™˜ê°’ì´ ì¡´ì¬ í•˜ì§€ ì•ŠëŠ”ë‹¤ë©´ ìœ íš¨í•œ ë…¸ë“œê°€ ì—†ëŠ” ê²ƒ.
+	//      í•´ë‹¹ ë°˜í™˜ê°’ì€ í•´ë‹¹ ë…¸ë“œ(ë¼ˆ)ì˜ ì• ë‹ˆë©”ì´ì…˜ ëœ í–‰ë ¬
+	//      ë°˜í™˜ê°’ * World í•˜ë©´ í•´ë‹¹ ì˜¤ë¸Œì íŠ¸ì˜ í•´ë‹¹ ë¼ˆì˜ í–‰ë ¬ì„ êµ¬í•¨.
 	std::optional<Matrix> GetNodeToRoot
 					(const std::string & NodeName)&;
-	// ³ëµå°¡ Á¸ÀçÇÏÁö ¾Ê´Â´Ù¸é ³Î Æ÷ÀÎÅÍ . ToRoot ¸ÅÆ®¸¯½º°¡ °è¼Ó ¾÷µ¥ÀÌÆ® µÇ±æ ±â´ëÇÑ´Ù¸é
-	// ½ºÄÌ·¹Åæ ¸Ş½¬ ¾÷µ¥ÀÌÆ® ¹İµå½Ã È£Ãâ 
-	// EnableToRootMatricies ÄÑÁá´ÂÁö È®ÀÎ (ÃÖÀûÈ­·Î ÀÎÇØ ±âº» ¿É¼ÇÀÌ ¾Æ´Ô ) 
+	// ë…¸ë“œê°€ ì¡´ì¬í•˜ì§€ ì•ŠëŠ”ë‹¤ë©´ ë„ í¬ì¸í„° . ToRoot ë§¤íŠ¸ë¦­ìŠ¤ê°€ ê³„ì† ì—…ë°ì´íŠ¸ ë˜ê¸¸ ê¸°ëŒ€í•œë‹¤ë©´
+	// ìŠ¤ì¼ˆë ˆí†¤ ë©”ì‰¬ ì—…ë°ì´íŠ¸ ë°˜ë“œì‹œ í˜¸ì¶œ 
+	// EnableToRootMatricies ì¼œì¤¬ëŠ”ì§€ í™•ì¸ (ìµœì í™”ë¡œ ì¸í•´ ê¸°ë³¸ ì˜µì…˜ì´ ì•„ë‹˜ ) 
 	Matrix* GetToRootMatrixPtr(const std::string & NodeName)&;
 
 	void   PlayAnimation(
@@ -77,14 +78,13 @@ public:
 	void    ContinueAnimation()&;
 	void    StopAnimation();
 	void	AnimationEnd()&;
-	// 0 ~ 1 Á¤±ÔÈ­ 
+	// 0 ~ 1 ì •ê·œí™” 
 	float   PlayingTime();
 	float   PlayingAccTime();
-	//  Á¤±ÔÈ­µÈ ½Ã°£À¸·Î ³Ñ°ÜÁÖ¼¼¿ä ¹üÀ§¸¦ ¹ş¾î³ª¸é Clamp
+	//  ì •ê·œí™”ëœ ì‹œê°„ìœ¼ë¡œ ë„˜ê²¨ì£¼ì„¸ìš” ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ë©´ Clamp
 	void    SetPlayingTime(float NewTime);
 	std::optional<AnimationInformation> GetAnimInfo(const std::string & AnimName) const&;
 
-	void UpdateToRootMatricies();
 	void SetDeltaTimeFactor(const float DeltaTimeFactor);
 private:
 	void	AnimationEditor()&;
@@ -92,6 +92,7 @@ private:
 	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
 	void AnimationSave(const std::filesystem::path & FullPath)&;
 private:
+	
 	virtual HRESULT LoadMeshImplementation(
 		const aiScene * AiScene,
 		const std::filesystem::path _Path,
@@ -127,7 +128,7 @@ private:
 		const float AnimPrevFrameMotionTime,
 		const float AnimMotionTime)&;
 
-	// ¾ÆÁ÷ È¸ÀüÀº Å×½ºÆ® ÇÏÁö ¾Ê¾ÒÀ½.
+	// ì•„ì§ íšŒì „ì€ í…ŒìŠ¤íŠ¸ í•˜ì§€ ì•Šì•˜ìŒ.
 	Quaternion CalcRootMotionDeltaQuat(std::optional<float> bTimeBeyondAnimation,
 		const std::string & _TargetAnimName,
 		const float AnimDuraion,
@@ -137,14 +138,15 @@ private:
 public:
 	void    AnimationDataLoadFromJsonTable(const std::filesystem::path& FullPath)&;
 
-	// fbx ÆÄÀÏ·ÎºÎÅÍ ¾Ö´Ï¸ŞÀÌ¼Ç¸¸ ·Îµù . ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌ¸§Àº fbx ÆÄÀÏ ÀÌ¸§¿¡¼­ È®ÀåÀÚ¸¦ Á¦°Å ÇÑ °Í
+	// fbx íŒŒì¼ë¡œë¶€í„° ì• ë‹ˆë©”ì´ì…˜ë§Œ ë¡œë”© . ì• ë‹ˆë©”ì´ì…˜ ì´ë¦„ì€ fbx íŒŒì¼ ì´ë¦„ì—ì„œ í™•ì¥ìë¥¼ ì œê±° í•œ ê²ƒ
 	void    LoadAnimation(const std::filesystem::path & FilePath)&;
-	// À§ÀÇ ÇÔ¼öÀÇ Æú´õ ¹öÀü . »ç¾çÀº ¶È°°À½ . 
+	// ìœ„ì˜ í•¨ìˆ˜ì˜ í´ë” ë²„ì „ . ì‚¬ì–‘ì€ ë˜‘ê°™ìŒ . 
 	void    LoadAnimationFromDirectory(const std::filesystem::path & Directory)&;
 
-	// ³ëµå Á¤º¸´Â Å¬·Ğµé³¢¸® °øÀ¯ÇÏ¹Ç·Î ÇÏ³ªÀÇ Å¬·ĞÀÌ ¼³Á¤ÇÑ °ªÀ¸·Î ¸ğµç Å¬·ĞÀÌ ÀÛµ¿.
+	// ë…¸ë“œ ì •ë³´ëŠ” í´ë¡ ë“¤ë¼ë¦¬ ê³µìœ í•˜ë¯€ë¡œ í•˜ë‚˜ì˜ í´ë¡ ì´ ì„¤ì •í•œ ê°’ìœ¼ë¡œ ëª¨ë“  í´ë¡ ì´ ì‘ë™.
 	void    EnableScaleRootMotion(const std::string & ScalingRootName = "");
 	void    EnableRotationRootMotion(const std::string & RotationRootName = "");
+	void    EnableSetQuatOffset(const Vector3& Euler)&;
 	void    EnableTransitionRootMotion(const std::string & TransitionRootName = "");
 	void    DisableScaleRootMotion();
 	void    DisableRotationRootMotion();
@@ -155,7 +157,6 @@ public:
 	bool  bRootMotionScale = false;
 	bool  bRootMotionRotation = false;
 	bool  bRootMotionTransition = false;
-	
 
 	std::string PrevAnimName{};
 	std::string AnimName{};
@@ -163,14 +164,13 @@ public:
 	float  CurrentAccelerationFactor = 1.0f;
 	float  CurrentTransitionTimeFactor = 1.0f;
 	float  CurrentAnimMotionTime{ 0.0f };
-	float  CurAccAnimMotionTime{ 0.0f };
+	float  CurAccMotionTime{ 0.0f };
 	float  CurrentAnimPrevFrameMotionTime{ 0.0f };
 
 	float  PrevAnimMotionTime     { 0.0f };
 	float  PrevAnimPrevFrameMotionTime{ 0.0f };
 	float  PrevAccelerationFactor{ 1.0f };
 
-	
 	float  TransitionRemainTime = -1.0;
 	float  TransitionDuration = 0.0;
 	bool   bLoop = false;
@@ -196,8 +196,11 @@ public:
 	std::shared_ptr<std::map<uint32, std::string>>				AnimIndexNameMap{};
 	std::shared_ptr<std::map<std::string,AnimationInformation>> AnimInfoTable{};
 	std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<Node>>> Nodes{};
-	//              ³ëµå ÀÌ¸§°ú ToRoot ¸ÅÆ®¸¯½º ¸ÅÇÎ ... 
+	//              ë…¸ë“œ ì´ë¦„ê³¼ ToRoot ë§¤íŠ¸ë¦­ìŠ¤ ë§¤í•‘ ... 
 	std::optional<std::unordered_map<std::string, Matrix>> ToRoots{};
+
+	Vector3    EulerOffset{0,0,0};
+	Quaternion tOffset{ 0,0,0,1 };
 };
 END
 #endif // !_SKELETONMESH_H_

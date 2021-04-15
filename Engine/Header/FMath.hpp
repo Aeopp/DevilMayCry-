@@ -15,6 +15,17 @@
 class FMath
 {
 public:
+
+	D3DXVECTOR3 ElementProduct(D3DXVECTOR3 _vFirst, D3DXVECTOR3 _vSecond)
+	{
+		D3DXVECTOR3 vResult;
+		vResult.x = _vFirst.x * _vSecond.x;
+		vResult.y = _vFirst.y * _vSecond.y;
+		vResult.z = _vFirst.z * _vSecond.z;
+		return vResult;
+	}
+
+
 	static constexpr auto PI = std::numbers::pi_v<float>;
 
 	inline static bool Equal(const Vector3& Lhs, const Vector3& Rhs);

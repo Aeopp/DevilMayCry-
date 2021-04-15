@@ -355,6 +355,9 @@ call Engine.bat</Command>
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
       <FileType>Document</FileType>
     </None>
+    <ClInclude Include="..\..\Resource\Shader\Effect\DashImpact.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

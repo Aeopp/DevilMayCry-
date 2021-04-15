@@ -210,12 +210,12 @@ HRESULT CoreSystem::ReadyEngine(const bool bWindowed,
 		return E_FAIL;
 	}
 
-	m_pPhysicsSystem = PhysicsSystem::GetInstance();
-	if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
-	{
-		PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
-		return E_FAIL;
-	}
+	//m_pPhysicsSystem = PhysicsSystem::GetInstance();
+	//if (nullptr == m_pRenderer.lock() || FAILED(m_pPhysicsSystem.lock()->ReadyPhysicsSystem()))
+	//{
+	//	PRINT_LOG(TEXT("Error"), TEXT("Failed to ReadyEngine."));
+	//	return E_FAIL;
+	//}
 
 	GlobalVariableSetup();
 	ImGuiSetUp();
@@ -274,12 +274,10 @@ HRESULT CoreSystem::UpdateEngine()
 		ImGui::End();
 
 		ImGui::Begin("Log");
-		{
-			/*for (const auto& CurLog : g_Logs)
-			{
-				ImGui::Text(CurLog.c_str());
-			}*/
-		}
+		//for (const auto& CurLog : g_Logs)
+		//{
+		//	ImGui::Text(CurLog.c_str());
+		//}
 		ImGui::End();
 	}
 	//g_Logs.clear();

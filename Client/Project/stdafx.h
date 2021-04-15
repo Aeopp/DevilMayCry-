@@ -23,3 +23,15 @@
 USING(ENGINE)
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
+
+
+enum GAMEOBJECTTAG
+{
+	Player = 1,
+	Monster100,
+	Monster101,
+	Monster0000,
+	Monster5000,
+	Btl_Panel,
+	Tag_END
+};

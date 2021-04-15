@@ -117,6 +117,7 @@ HRESULT TestAnimationObject::Ready()
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
+
 	_InitRenderProp.RenderOrders =
 	{
 		RenderProperty::Order::GBuffer,
@@ -126,6 +127,8 @@ HRESULT TestAnimationObject::Ready()
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 	/// 
+
+
 
 	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
 	_ShaderInfo.RegistShader(
@@ -159,6 +162,10 @@ HRESULT TestAnimationObject::Ready()
 	_SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>
 		(L"..\\..\\Resource\\Mesh\\Dynamic\\XFile\\Test_Dante.X" , _InitInfo);
 	_SkeletonMesh->EnableToRootMatricies();
+	_InitInfo.bRootMotionScale = false;
+	_InitInfo.bRootMotionRotation= false;
+	_InitInfo.bRootMotionTransition = false;
+	// _SkeletonMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Monster\\Em100\\Em100.fbx" , _InitInfo);
 
 	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
 	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)

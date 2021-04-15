@@ -28,6 +28,9 @@ protected:
 	std::vector<Object*> m_pEditObjects{};
 	std::weak_ptr<GameObject>	m_pGameObject;
 	std::weak_ptr<Transform>	m_pTransform;
+
+	//전투 관련된 변수
+	BT_INFO		m_BattleInfo;
 protected:
 	explicit GameObject();
 	virtual ~GameObject() = default;
@@ -68,6 +71,8 @@ public:
 	bool	IsStatic();
 	void	SetStatic(const bool _bStatic);
 	void    PushEditEntity(Object * _EditObject);
+
+	BT_INFO Get_BattleInfo();
 private:
 	void	SetScene(Scene* const _pScene);
 	void	SetGameObject(std::weak_ptr<GameObject> _pGameObject);

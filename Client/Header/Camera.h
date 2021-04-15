@@ -1,5 +1,9 @@
 #pragma once
 #include "GameObject.h"
+
+class TestObject;
+class Em100;
+class BtlPanel;
 class Camera : public GameObject
 {
 private:
@@ -19,6 +23,9 @@ public:
 	virtual void OnDisable() override;
 
 
+private:
+	void	LockOn();
+
 public:
 	void	Move(const float& _fTimeDelta);
 	void	Move_Mouse(const float& _fTimeDelta);
@@ -32,6 +39,24 @@ private:
 
 	bool	m_bFix = false;
 	bool	m_bClick = false;
+
+
+
+	//플레이어
+	std::weak_ptr<ENGINE::Transform> m_pPlayerTrans;
+	std::weak_ptr<TestObject>		 m_pPlayer;
+
+	std::weak_ptr<ENGINE::Transform> m_pEm100Trans;
+	std::weak_ptr<Em100>			 m_pEm100;
+
+	std::weak_ptr<BtlPanel>			 m_pBtlPanel;
+
+
+	int		m_iTest = -7;
+	bool	m_bLockon = false;
+
+	long	m_fCameraAngle = 3;
+	
 
 	
 

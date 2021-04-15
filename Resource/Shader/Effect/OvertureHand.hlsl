@@ -6,31 +6,35 @@ matrix Projection;
 float _SliceAmount = 0.f;
 float _TexV = 0.5f;  // 0 ~ 1
 
-texture Color0Map; // 처음에 띄울 하얀색
-sampler Color0 = sampler_state
+texture ALB0Map; // 처음에 띄울 하얀색
+sampler ALB0 = sampler_state
 {
-    texture = Color0Map;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    texture = ALB0Map;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    sRGBTexture = true;
+    MaxAnisotropy = 4;
 };
 
-texture Color1Map; // 그 다음에 띄울 번개색(보라)
-sampler Color1 = sampler_state
+texture ALB1Map; // 그 다음에 띄울 번개색(보라)
+sampler ALB1 = sampler_state
 {
-    texture = Color1Map;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    texture = ALB1Map;
+    minfilter = anisotropic;
+    magfilter = anisotropic;
+    mipfilter = anisotropic;
+    sRGBTexture = true;
+    MaxAnisotropy = 4;
 };
 
-texture AlpMap; // 번개모양을 알파로 사용하기 위함
+texture AlphaMap; // 번개모양을 알파로 사용하기 위함
 sampler Alpha = sampler_state
 {
-    texture = AlpMap;
-    minfilter = linear;
-    magfilter = linear;
-    mipfilter = linear;
+    texture = AlphaMap;
+    minfilter = point;
+    magfilter = point;
+    mipfilter = point;
 };
 
 texture NoiseMap;
@@ -105,14 +109,14 @@ PsOut PsMain_White(PsIn In)
     float2 NewUV = In.UV;
     NewUV.y = _TexV;
     
-    float4 ColorSample = tex2D(Color0, NewUV);
+    float4 AlbSample = tex2D(ALB0, NewUV);
     float4 NoiseSample = tex2D(Noise, NewUV);
     
     float4 Noise = NoiseSample.rrrr;    // r,g,b 각각 다른 노이즈. 그 중 하나만 사용
     Noise.rgb -= _SliceAmount;
     clip(Noise);
  
-    Out.Color = ColorSample;
+    Out.Color = AlbSample;
     Out.Color.a *= 0.4f;    // 밝기 보정
 
     return Out;
@@ -126,15 +130,15 @@ PsOut PsMain_Lightning(PsIn In)
     float2 NewUV = In.UV;
     NewUV.y = _TexV;
     
-    float4 AlpSample = tex2D(Alpha, NewUV);
-    float4 ColorSample = tex2D(Color1, NewUV);
+    float4 AlphaSample = tex2D(Alpha, NewUV);
+    float4 AlbSample = tex2D(ALB1, NewUV);
     float4 NoiseSample = tex2D(Noise, NewUV);
     
     float4 Noise = NoiseSample.rrrr;
     Noise.rgb -= _SliceAmount;
     clip(Noise);
  
-    Out.Color = float4(ColorSample.rgb, AlpSample.r);
+    Out.Color = float4(AlbSample.rgb, AlphaSample.r);
     //Out.Color = float4(In.UV.x, In.UV.y, 0.f, 1.f);
     
     return Out;
@@ -149,6 +153,7 @@ technique Default
 		destblend = invsrcalpha;
         //zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain_White();
@@ -160,6 +165,7 @@ technique Default
         destblend = invsrcalpha;
         //zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain_Lightning();
         pixelshader = compile ps_3_0 PsMain_Lightning();

@@ -219,3 +219,8 @@ void PhysicsSystem::RemoveActor(physx::PxActor& _rActor)
 		return;
 	m_pScene->removeActor(_rActor);
 }
+
+bool PhysicsSystem::IsSimulate()
+{
+	return m_bSimulate;
+}
