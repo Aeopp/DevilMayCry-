@@ -57,7 +57,7 @@ void Renderer::ReadyShader(const std::filesystem::path& TargetPath)
 void Renderer::ReadyLights()
 {
 	// 달빛
-	DirLights.resize(0);
+	DirLights.resize(1u);
 	DirLights[0] = std::make_shared<FLight>
 		(FLight(FLight::Type::Directional,
 		{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
@@ -203,6 +203,8 @@ void Renderer::ReadyFrustum()
 {
 	CameraFrustum = std::make_shared<Frustum>();
 	CameraFrustum->Initialize(Device);
+	CurShadowFrustum = std::make_shared<Frustum>();
+	CurShadowFrustum->Initialize(Device);
 }
 
 void Renderer::ReadyQuad()
@@ -363,20 +365,19 @@ void Renderer::RenderShadowMaps()
 
 			Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 			RenderScene(shadowmap, viewproj);
-
+			
 			// 렌더 시작 ... 
 			DrawInfo _DrawInfo{};
 			_DrawInfo._Device = Device;
-			// 여기까지 했음 . 내일 화이팅
-			ShadowInfo _ShadowInfo{};
-			_ShadowInfo.ViewProjection = viewproj;
-			_DrawInfo.BySituation = _ShadowInfo;
+			CurShadowFrustum->Make(light->viewinv, light->proj); 
+			_DrawInfo._Frustum = CurShadowFrustum.get();
+			_DrawInfo.BySituation.reset();
 			for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
 			{
 				auto Fx = Shaders[ShaderKey]->GetEffect();
+				Fx->SetMatrix("matViewProj", &viewproj);
 				_DrawInfo.Fx = Fx;
 				UINT Passes = 0u;
-				Fx->SetMatrix("matViewProj", &viewproj);
 				Fx->Begin(&Passes, NULL);
 				for (int32 i = 0; i < Passes; ++i)
 				{
@@ -423,48 +424,48 @@ void Renderer::RenderShadowMaps()
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	shadowmap->SetBool("isPerspective", TRUE);
 
-	for (auto& PointLight : PointLights)
-	{
-		PointLight->RenderShadowMap(Device, [&](FLight* light) {
-			D3DXMATRIX viewproj;
-			D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
+	//for (auto& PointLight : PointLights)
+	//{
+	//	PointLight->RenderShadowMap(Device, [&](FLight* light) {
+	//		D3DXMATRIX viewproj;
+	//		D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
 
-			light->CalculateViewProjection(viewproj);
+	//		light->CalculateViewProjection(viewproj);
 
-			shadowmap->SetTechnique("variance");
-			shadowmap->SetVector("lightPos", &light->GetPosition());
-			shadowmap->SetVector("clipPlanes", &clipplanes);
+	//		shadowmap->SetTechnique("variance");
+	//		shadowmap->SetVector("lightPos", &light->GetPosition());
+	//		shadowmap->SetVector("clipPlanes", &clipplanes);
 
-			Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
-			RenderScene(shadowmap, viewproj);
+	//		Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+	//		RenderScene(shadowmap, viewproj);
 
-			// 렌더 시작 ... 
-			DrawInfo _DrawInfo{};
-			_DrawInfo._Device = Device;
-			// 여기까지 했음 . 내일 화이팅
-			ShadowInfo _ShadowInfo{};
-			_DrawInfo.BySituation = _ShadowInfo;
-			for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
-			{
-				auto Fx = Shaders[ShaderKey]->GetEffect();
-				_DrawInfo.Fx = Fx;
-				UINT Passes = 0u;
-				Fx->SetMatrix("matViewProj", &_ShadowInfo.ViewProjection);
-				Fx->Begin(&Passes, NULL);
-				for (int32 i = 0; i < Passes; ++i)
-				{
-					_DrawInfo.PassIndex = i;
-					Fx->BeginPass(i);
-					for (auto& [_Entity, _Call] : EntityArr)
-					{
-						_Call(_DrawInfo);
-					}
-					Fx->EndPass();
-				}
-				Fx->End();
-			}
-		});
-	}
+	//		// 렌더 시작 ... 
+	//		DrawInfo _DrawInfo{};
+	//		_DrawInfo._Device = Device;
+	//		// 여기까지 했음 . 내일 화이팅
+	//		ShadowInfo _ShadowInfo{};
+	//		_DrawInfo.BySituation = _ShadowInfo;
+	//		for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
+	//		{
+	//			auto Fx = Shaders[ShaderKey]->GetEffect();
+	//			_DrawInfo.Fx = Fx;
+	//			UINT Passes = 0u;
+	//			Fx->SetMatrix("matViewProj", &_ShadowInfo.ViewProjection);
+	//			Fx->Begin(&Passes, NULL);
+	//			for (int32 i = 0; i < Passes; ++i)
+	//			{
+	//				_DrawInfo.PassIndex = i;
+	//				Fx->BeginPass(i);
+	//				for (auto& [_Entity, _Call] : EntityArr)
+	//				{
+	//					_Call(_DrawInfo);
+	//				}
+	//				Fx->EndPass();
+	//			}
+	//			Fx->End();
+	//		}
+	//	});
+	//}
 
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 }
@@ -495,6 +496,7 @@ void Renderer::RenderGBuffer()
 	DrawInfo _DrawInfo{};
 	_DrawInfo.BySituation.reset();
 	_DrawInfo._Device = Device;
+	_DrawInfo._Frustum = CameraFrustum.get();
 	for (auto&  [ ShaderKey , Entitys ] : GBufferGroup)
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
@@ -612,7 +614,7 @@ void Renderer::DeferredShading()
 		// point lights
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
-		for (auto& PointLight : PointLights)
+		/*for (auto& PointLight : PointLights)
 		{
 			clipplanes.x = PointLight->GetNearPlane();
 			clipplanes.y = PointLight->GetFarPlane();
@@ -636,7 +638,7 @@ void Renderer::DeferredShading()
 			device->SetTexture(4, PointLight->GetCubeShadowMap());
 			deferred->CommitChanges();
 			_Quad->Render(Device);
-		}
+		}*/
 
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 	}

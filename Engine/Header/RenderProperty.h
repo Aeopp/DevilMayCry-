@@ -14,14 +14,8 @@ struct ENGINE_DLL DrawInfo
 	IDirect3DDevice9* _Device{};
 	ID3DXEffect* Fx{};
 	uint32 PassIndex{ 0u };
+	Frustum* _Frustum{ nullptr };
 	std::any BySituation{};
-};
-
-
-struct ENGINE_DLL ShadowInfo
-{
-	Matrix ViewProjection;
-	Frustum* _Frustum{};
 };
 
 struct ENGINE_DLL RenderProperty

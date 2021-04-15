@@ -278,35 +278,35 @@ void FLight::EditImplementation(const uint32 Idx)
 		sinAngularRadius += AddsinAngularRadius;
 		ImGui::Separator();
 	}
-}
-	
+};
 
 void FLight::CalculateViewProjection(D3DXMATRIX& out)
 {
 	if (_Type == Directional) {
-		D3DXMATRIX proj;
 		D3DXVECTOR3 eye = { Position.x , Position.y , Position.z };
 		D3DXVECTOR3 look(0, 0, 0);
 		D3DXVECTOR3 up(0, 1, 0);
 
 		if (fabs(Position.y) > 0.999f)
 			up = D3DXVECTOR3(1, 0, 0);
-
+		
 		D3DXMatrixLookAtLH(&out, &eye, &look, &up);
-		D3DXMatrixOrthoLH(&proj, Projparams.x, Projparams.y, Projparams.z, Projparams.w);
-		D3DXMatrixMultiply(&out, &out, &proj);
+		D3DXMatrixOrthoLH(&this->proj, Projparams.x, Projparams.y, Projparams.z, Projparams.w);
+		D3DXMatrixInverse(&this->viewinv, nullptr, &out);
+
+		D3DXMatrixMultiply(&out, &out, &this->proj);
 	}
 	else if (_Type == Point) {
-		D3DXMATRIX proj;
 		D3DXVECTOR3 eye = { 
-			Position.x , Position.y , Position.z };;
+			Position.x , Position.y , Position.z }; 
 
-		D3DXMatrixPerspectiveFovLH(&proj, 
+		D3DXMatrixPerspectiveFovLH(&this->proj, 
 			D3DX_PI / 2.f, 1.f, Projparams.z, Projparams.w);
 		const Vector3 At = eye + DXCubeForward[Currentface];
 
 		D3DXMatrixLookAtLH(&out, &eye, &At, &DXCubeUp[Currentface]);
-		D3DXMatrixMultiply(&out, &out, &proj);
+		D3DXMatrixInverse(&this->viewinv, nullptr, &out);
+		D3DXMatrixMultiply(&out, &out, &this->proj);
 	}
 	else if (_Type == Spot) {
 		// TODO:

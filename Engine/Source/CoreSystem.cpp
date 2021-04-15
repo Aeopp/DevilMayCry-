@@ -301,6 +301,11 @@ void CoreSystem::Editor()
 		{
 			m_pRenderer.lock()->Editor();
 		}
+
+		if (g_bEditMode)
+		{
+			m_pTimeSystem.lock()->Editor();
+		}
 		
 
 		ImGui::Begin("Log");

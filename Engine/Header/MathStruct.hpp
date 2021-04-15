@@ -6,6 +6,13 @@ struct Sphere
 {
 	float Radius;
 	Vector3 Center;
+	Sphere Transform(const Matrix& _Transform, const float RadiusScale)const& 
+	{
+		Sphere TransformSphere{}; 
+		D3DXVec3TransformCoord(&TransformSphere.Center, &this->Center, &_Transform);
+		TransformSphere.Radius = this->Radius * RadiusScale;
+		return TransformSphere;
+	};
 };
 
 struct Ray

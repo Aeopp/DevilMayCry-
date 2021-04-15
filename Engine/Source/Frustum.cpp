@@ -132,7 +132,7 @@ bool Frustum::IsIn(const Vector3& Point)&
 		{
 			return D3DXPlaneDotCoord(&Plane, &Point) > 0.f;
 		});
-}
+};
 
 bool Frustum::IsIn(const Sphere& _Sphere)&
 {
@@ -142,7 +142,7 @@ bool Frustum::IsIn(const Sphere& _Sphere)&
 			const float Distance = D3DXPlaneDotCoord(&Plane, &_Sphere.Center);
 			return  (Distance >= _Sphere.Radius) || (std::fabsf(Distance) <= _Sphere.Radius);
 		});
-}
+};
 
 void Frustum::DebugRender(IDirect3DDevice9* const Device)&
 {

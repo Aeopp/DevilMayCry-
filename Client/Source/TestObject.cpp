@@ -18,8 +18,7 @@ std::string TestObject::GetName()
 TestObject* TestObject::Create()
 {
 	return new TestObject{};
-}
-
+};
 
 void TestObject::RenderReady()
 {
@@ -27,8 +26,22 @@ void TestObject::RenderReady()
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
+		const Vector3 Scale = _SpTransform->GetScale();
 		_RenderProperty.bRender = true;
 		_RenderUpdateInfo.World = _SpTransform->GetWorldMatrix();
+		if (_StaticMesh)
+		{
+			const uint32  Numsubset = _StaticMesh->GetNumSubset();  
+			_RenderUpdateInfo.SubsetCullingSphere.resize(Numsubset);
+
+			for (uint32 i = 0; i < Numsubset ;  ++i)
+			{
+				const auto& _Subset = _StaticMesh->GetSubset(i); 
+				const auto& _CurBS =_Subset.lock()->GetVertexBufferDesc().BoundingSphere;
+
+				_RenderUpdateInfo.SubsetCullingSphere[i]= _CurBS.Transform(_RenderUpdateInfo.World, Scale.x); 
+			}
+		}
 	}
 }
 
@@ -76,14 +89,12 @@ void TestObject::RenderInit()
 
 	RenderInterface::Initialize(_InitRenderProp);
 
-	
-		 // L"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx"
+	// 
 	// 스태틱 메쉬 로딩
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx");
+		L"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx");
 	PushEditEntity(_StaticMesh.get());
-}
-
+};
 
 void TestObject::RenderGBuffer(const DrawInfo& _Info)
 {
@@ -95,6 +106,18 @@ void TestObject::RenderGBuffer(const DrawInfo& _Info)
 		if (auto SpSubset = _StaticMesh->GetSubset(i).lock();
 			SpSubset)
 		{
+			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+			{
+				/*const std::string msg = std::to_string(i) + " : 컬링 !! ";
+				std::cout << msg << std::endl;*/
+				continue; 
+			}
+			else
+			{
+				/*const std::string msg = std::to_string(i) + " : 드로우 !! ";
+				std::cout << msg << std::endl;*/
+			}
+
 			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
 			SpSubset->BindProperty(TextureType::NORMALS, 0, 1, _Info._Device);
 			SpSubset->Render(_Info.Fx);
@@ -111,6 +134,18 @@ void TestObject::RenderShadow(const DrawInfo& _Info)
 		if (auto SpSubset = _StaticMesh->GetSubset(i).lock();
 			SpSubset)
 		{
+			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+			{
+				/*const std::string msg = std::to_string(i) + " : 컬링 !! ";
+				std::cout << msg << std::endl;*/
+				continue;
+			}
+			else
+			{
+				/*const std::string msg = std::to_string(i) + " : 드로우 !! ";
+				std::cout << msg << std::endl;*/
+			}
+
 			SpSubset->Render(_Info.Fx);
 		};
 	};
@@ -135,14 +170,13 @@ void TestObject::RenderDebug(const DrawInfo& _Info)
 
 HRESULT TestObject::Ready()
 {
-	
 	// 트랜스폼 초기화 .. 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.0005,0.0005,0.0005 });
+	InitTransform.lock()->SetPosition(FMath::Random(Vector3{ -10,-10,-10},Vector3 { 10,10,10}));
 	PushEditEntity(InitTransform.lock().get());
 	RenderInit();
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
-
 	return S_OK;
 };
 

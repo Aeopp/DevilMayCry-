@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include "TextureType.h"
+#include "MathStruct.hpp"
 
 BEGIN(ENGINE)
 typedef struct tagVertexBufferDesc

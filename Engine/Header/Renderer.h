@@ -65,6 +65,7 @@ public:
 private:
 	IDirect3DSurface9* BackBuffer{ nullptr };
 	std::shared_ptr<Frustum> CameraFrustum{};
+	std::shared_ptr<Frustum> CurShadowFrustum{};
 	LPDIRECT3DDEVICE9	Device{ nullptr };
 	// 렌더패스와 쉐이더 키 
 	// 쉐이더 키와 해당 쉐이더의 호출함수,객체들

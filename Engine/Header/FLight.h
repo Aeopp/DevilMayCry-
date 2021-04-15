@@ -78,6 +78,9 @@ public:
 	float  specularPower = 80.f;
 	float  cosAngularRadius = 0.9999893; 
 	float  sinAngularRadius = 0.0046251;
+
+	Matrix viewinv;
+	Matrix proj;
 public:
 	void Edit(const uint32 Idx);
 private:
