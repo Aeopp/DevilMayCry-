@@ -195,6 +195,7 @@ void Renderer::ReadyRenderInfo()
 	{ _RenderInfo.ViewInverse._41  , _RenderInfo.ViewInverse._42,_RenderInfo.ViewInverse._43,1.f };
 	_RenderInfo.Ortho = Ortho;
 
+	CameraFrustum->Make(_RenderInfo.ViewInverse, _RenderInfo.Projection);
 	Device->GetViewport(&_RenderInfo.Viewport);
 }
 
@@ -298,7 +299,6 @@ void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
 	ReadyRenderInfo();
-	Culling();
 
 	TestLightRotation();
 	TestLightEdit();
@@ -324,24 +324,13 @@ void Renderer::RenderReadyEntitys()&
 	}
 }
 
-void Renderer::Culling()&
-{
-	FrustumCulling();
-}
-
 void Renderer::ResetState()&
 {
 	Device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
 	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 	Device->SetViewport(&_RenderInfo.Viewport);
-}
-
-void Renderer::FrustumCulling()&
-{
-	CameraFrustum->Make(_RenderInfo.ViewInverse, _RenderInfo.Projection);
-	// 절두체에서 검사해서 Entity 그룹에서 지우기 ....
-}
+};
 
 void Renderer::RenderEnd()&
 {
@@ -360,77 +349,83 @@ void Renderer::RenderShadowMaps()
 	auto shadowmap = Shaders["Shadow"]->GetEffect();
 	auto Blur = Shaders["Blur"]->GetEffect();
 
-	Moonlight->RenderShadowMap(Device, [&](FLight* light) {
-		D3DXMATRIX  viewproj;
-		D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
+	for (auto& DirLight : DirLights)
+	{
+		DirLight->RenderShadowMap(Device, [&](FLight* light) {
+			D3DXMATRIX  viewproj;
+			D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
 
-		light->CalculateViewProjection(viewproj);
+			light->CalculateViewProjection(viewproj);
 
-		shadowmap->SetTechnique("variance");
-		shadowmap->SetVector("clipPlanes", &clipplanes);
-		shadowmap->SetBool("isPerspective", FALSE);
+			shadowmap->SetTechnique("variance");
+			shadowmap->SetVector("clipPlanes", &clipplanes);
+			shadowmap->SetBool("isPerspective", FALSE);
 
-		Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
-		RenderScene(shadowmap, viewproj);
+			Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+			RenderScene(shadowmap, viewproj);
 
-
-		// 렌더 시작 ... 
-		DrawInfo _DrawInfo{};
-		_DrawInfo._Device = Device;
-		// 여기까지 했음 . 내일 화이팅
-		ShadowInfo _ShadowInfo{};
-		_ShadowInfo.ViewProjection = viewproj;
-		_DrawInfo.BySituation = _ShadowInfo;
-		for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
-		{
-			auto Fx = Shaders[ShaderKey]->GetEffect();
-			_DrawInfo.Fx = Fx;
-			UINT Passes = 0u;
-			Fx->SetMatrix("matViewProj", &viewproj);
-			Fx->Begin(&Passes, NULL);
-			for (int32 i = 0; i < Passes; ++i)
+			// 렌더 시작 ... 
+			DrawInfo _DrawInfo{};
+			_DrawInfo._Device = Device;
+			// 여기까지 했음 . 내일 화이팅
+			ShadowInfo _ShadowInfo{};
+			_ShadowInfo.ViewProjection = viewproj;
+			_DrawInfo.BySituation = _ShadowInfo;
+			for (auto& [ShaderKey, EntityArr] : RenderEntitys[RenderProperty::Order::Shadow])
 			{
-				_DrawInfo.PassIndex = i;
-				Fx->BeginPass(i);
-				for (auto& [_Entity,_Call] : EntityArr)
+				auto Fx = Shaders[ShaderKey]->GetEffect();
+				_DrawInfo.Fx = Fx;
+				UINT Passes = 0u;
+				Fx->SetMatrix("matViewProj", &viewproj);
+				Fx->Begin(&Passes, NULL);
+				for (int32 i = 0; i < Passes; ++i)
 				{
-					_Call(_DrawInfo);
+					_DrawInfo.PassIndex = i;
+					Fx->BeginPass(i);
+					for (auto& [_Entity, _Call] : EntityArr)
+					{
+						_Call(_DrawInfo);
+					}
+					Fx->EndPass();
 				}
-				Fx->EndPass();
+				Fx->End();
 			}
-			Fx->End();
-		}
-		// 렌더 엔드 ... 
+			// 렌더 엔드 ... 
 
-	});
+			});
+	};
 
-	Moonlight->BlurShadowMap(Device, [&](FLight* light) {
-		D3DXVECTOR4 pixelsize(1.0f / light->GetShadowMapSize(),
-			1.0f / light->GetShadowMapSize(), 0, 0);
-		D3DXVECTOR4 TexelSize = Moonlight->BlurIntencity * pixelsize;	
-		// make it more blurry
-		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
-		Blur->SetTechnique("boxblur3x3");
-		Blur->SetVector("pixelSize", &pixelsize);
-		Blur->SetVector("texelSize", &TexelSize);
+	for (auto& DirLight : DirLights)
+	{
+		DirLight->BlurShadowMap(Device, [&](FLight* light) {
+			D3DXVECTOR4 pixelsize(1.0f / light->GetShadowMapSize(),
+				1.0f / light->GetShadowMapSize(), 0, 0);
+			D3DXVECTOR4 TexelSize = DirLight->BlurIntencity * pixelsize;
+			// make it more blurry
+			Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+			Blur->SetTechnique("boxblur3x3");
+			Blur->SetVector("pixelSize", &pixelsize);
+			Blur->SetVector("texelSize", &TexelSize);
 
-		Blur->Begin(NULL, 0);
-		Blur->BeginPass(0);
-		{
-			_Quad->Render(Device);
-		}
-		Blur->EndPass();
-		Blur->End();
+			Blur->Begin(NULL, 0);
+			Blur->BeginPass(0);
+			{
+				_Quad->Render(Device);
+			}
+			Blur->EndPass();
+			Blur->End();
 
-		Device->SetRenderState(D3DRS_ZENABLE, TRUE);
+			Device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		});
+	}
 
 	// point lights
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	shadowmap->SetBool("isPerspective", TRUE);
 
-	for (int i = 0; i < 3; ++i) {
-		PointLights[i]->RenderShadowMap(Device, [&](FLight* light) {
+	for (auto& PointLight : PointLights)
+	{
+		PointLight->RenderShadowMap(Device, [&](FLight* light) {
 			D3DXMATRIX viewproj;
 			D3DXVECTOR4 clipplanes(light->GetNearPlane(), light->GetFarPlane(), 0, 0);
 
@@ -442,7 +437,6 @@ void Renderer::RenderShadowMaps()
 
 			Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 			RenderScene(shadowmap, viewproj);
-
 
 			// 렌더 시작 ... 
 			DrawInfo _DrawInfo{};
@@ -469,13 +463,7 @@ void Renderer::RenderShadowMaps()
 				}
 				Fx->End();
 			}
-			// 렌더 엔드 ... 
-
-
-
-
-
-			});
+		});
 	}
 
 	Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
@@ -483,8 +471,6 @@ void Renderer::RenderShadowMaps()
 void Renderer::RenderGBuffer()
 {
 	auto* const device = Device;
-
-	// device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
 
 	device->SetRenderTarget(0, RenderTargets["ALBM"]->GetSurface());
@@ -597,81 +583,64 @@ void Renderer::DeferredShading()
 		D3DXMATRIX lightviewproj;
 		D3DXVECTOR4 clipplanes(0, 0, 0, 0);
 
-		
-		Moonlight->CalculateViewProjection(lightviewproj);
-
+		for (auto& DirLight : DirLights)
 		{
-			// directional light
-			deferred->SetMatrix("lightViewProj", &lightviewproj);
-			deferred->SetVector("lightColor", (D3DXVECTOR4*)&Moonlight->GetColor());
-			deferred->SetVector("lightPos", &Moonlight->GetPosition());
-			deferred->SetFloat("lightFlux", Moonlight->lightFlux);
-			deferred->SetFloat("lightIlluminance", Moonlight->lightIlluminance);
-			deferred->SetFloat("lightRadius", Moonlight->GetPointRadius());
-			deferred->SetFloat("specularPower", Moonlight->specularPower);
+			DirLight->CalculateViewProjection(lightviewproj);
+			{
+				// directional light
+				deferred->SetMatrix("lightViewProj", &lightviewproj);
+				deferred->SetVector("lightColor", (D3DXVECTOR4*)&DirLight->GetColor());
+				deferred->SetVector("lightPos", &DirLight->GetPosition());
+				deferred->SetFloat("lightFlux", DirLight->lightFlux);
+				deferred->SetFloat("lightIlluminance", DirLight->lightIlluminance);
+				deferred->SetFloat("lightRadius", DirLight->GetPointRadius());
+				deferred->SetFloat("specularPower", DirLight->specularPower);
 
-			deferred->SetFloat("sinAngularRadius", Moonlight->sinAngularRadius);
-			deferred->SetFloat("cosAngularRadius", Moonlight->cosAngularRadius);
+				deferred->SetFloat("sinAngularRadius", DirLight->sinAngularRadius);
+				deferred->SetFloat("cosAngularRadius", DirLight->cosAngularRadius);
 
-			clipplanes.x = Moonlight->GetNearPlane();
-			clipplanes.y = Moonlight->GetFarPlane();
-			deferred->SetVector("clipPlanes", &clipplanes);
-			device->SetTexture(3, Moonlight->GetShadowMap());
-			deferred->CommitChanges();
-			_Quad->Render(Device);
+				clipplanes.x = DirLight->GetNearPlane();
+				clipplanes.y = DirLight->GetFarPlane();
+				deferred->SetVector("clipPlanes", &clipplanes);
+				device->SetTexture(3, DirLight->GetShadowMap());
+				deferred->CommitChanges();
+				_Quad->Render(Device);
+			}
 		}
+
 		// 여기서부터 ..
 		// point lights
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
-		for (int i = 0; i < 3; ++i) 
+		for (auto& PointLight : PointLights)
 		{
-			clipplanes.x = PointLights[i]->GetNearPlane();
-			clipplanes.y = PointLights[i]->GetFarPlane();
-			Math::Matrix viewtranspose, projtranspose ,view,proj; 
-			std::memcpy(&view, &_RenderInfo.View, sizeof(Matrix));
-			std::memcpy(&proj, &_RenderInfo.Projection, sizeof(Matrix));
-			Math::MatrixTranspose(viewtranspose, view);   
-			Math::MatrixTranspose(projtranspose, proj);
+			clipplanes.x = PointLight->GetNearPlane();
+			clipplanes.y = PointLight->GetFarPlane();
 			RECT scissorrect;
-			PointLights[i]->CalculateScissorRect(
+			PointLight->CalculateScissorRect(
 				scissorrect, _RenderInfo.View, _RenderInfo.Projection,
-				PointLights[i]->GetPointRadius(), g_nWndCX, g_nWndCY);
+				PointLight->GetPointRadius(), g_nWndCX, g_nWndCY);
 
-			Vector4 PtPos = PointLights[i]->GetPosition();
-			PtPos.w = 1.f;
-			D3DXVec4Transform(&PtPos, &PtPos, &_RenderInfo.ViewProjection);
-			PtPos.x /= PtPos.w;
-			PtPos.y /= PtPos.w;
-			PtPos.z /= PtPos.w;
-			PtPos.w /= PtPos.w;
-			ImGui::Text("Pt Idx %d , %3.3f, %3.3f , %3.3f , %3.3f", i, PtPos.x, PtPos.y, PtPos.z, PtPos.w);
-			const Vector2 ScreenPos = FMath::NDCToScreenCoord(PtPos.x, PtPos.y,
-				(float)_RenderInfo.Viewport.Width,
-				(float)_RenderInfo.Viewport.Height);
-			ImGui::Text("ScreenPos %d , %3.3f, %3.3f",
-				i, ScreenPos.x, ScreenPos.y);
 			Device->SetScissorRect(&scissorrect);
 
-
-
-
-			deferred->SetFloat("lightFlux", PointLights[i]->lightFlux);
-			deferred->SetFloat("lightIlluminance", PointLights[i]->lightIlluminance);
-			deferred->SetFloat("specularPower", PointLights[i]->specularPower);
-			deferred->SetFloat("sinAngularRadius", PointLights[i]->sinAngularRadius);
-			deferred->SetFloat("cosAngularRadius", PointLights[i]->cosAngularRadius);
+			deferred->SetFloat("lightFlux", PointLight->lightFlux);
+			deferred->SetFloat("lightIlluminance", PointLight->lightIlluminance);
+			deferred->SetFloat("specularPower", PointLight->specularPower);
+			deferred->SetFloat("sinAngularRadius", PointLight->sinAngularRadius);
+			deferred->SetFloat("cosAngularRadius", PointLight->cosAngularRadius);
 
 			deferred->SetVector("clipPlanes", &clipplanes);
-			deferred->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
-			deferred->SetVector("lightPos", &PointLights[i]->GetPosition());
-			deferred->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
-			device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
+			deferred->SetVector("lightColor", (D3DXVECTOR4*)&PointLight->GetColor());
+			deferred->SetVector("lightPos", &PointLight->GetPosition());
+			deferred->SetFloat("lightRadius", PointLight->GetPointRadius());
+			device->SetTexture(4, PointLight->GetCubeShadowMap());
 			deferred->CommitChanges();
 			_Quad->Render(Device);
 		}
+
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 	}
+
 	deferred->EndPass();
 	deferred->End();
 
@@ -688,7 +657,7 @@ void Renderer::DeferredShading()
 			screenquad->BeginPass(0);
 			for (auto& PtLt : PointLights)
 			{
-				// draw some outline around scissor rect
+				// 시저렉트 외곽 렌더 ... 
 				float rectvertices[24];
 				uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
 				memcpy(rectvertices, DXScreenQuadVerticesFFP, 24 * sizeof(float));
@@ -1230,35 +1199,3 @@ void Renderer::TestLightRotation()
 
 	time += TimeSystem::GetInstance()->DeltaTime();
 };
-
-void Renderer::TestLightEdit()
-{
-	static Math::Vector4 originmoondir = { -0.25f,-0.65f, -1, 0 };
-	ImGui::SliderFloat3("originmoondir ", (float*)&originmoondir, -1.f, 1.f);
-	Math::Vector4 moondir;
-
-	D3DXVec4Normalize((Vector4*)&moondir, (Vector4*)&originmoondir);
-	Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
-
-	static bool bMoonLightTarget = false;
-	ImGui::Checkbox("bMoonLightTarget", &bMoonLightTarget);
-	if (bMoonLightTarget)
-	{
-		ImGui::SliderFloat3("MoonLightTarget", MoonLightTarget, -5.f, 5.f);
-		Vector4 Targetdir = MoonLightTarget - Vector4{ 0, 0, 0, 1 };
-		D3DXVec4Normalize(&Targetdir, &Targetdir);
-		moondir = { Targetdir.x , Targetdir.y ,Targetdir.z , 0.f };
-		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
-	}
-
-	static bool TransformViewSpace = false;
-	ImGui::Checkbox("Transform View Space", &TransformViewSpace);
-	if (TransformViewSpace)
-	{
-		// 달빛을 카메라 공간으로 변환 . 
-		D3DXVec4Transform((Vector4*)&moondir, (Vector4*)&moondir,
-			&_RenderInfo.ViewInverse);
-		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
-	}
-};
-

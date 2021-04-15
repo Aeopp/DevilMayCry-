@@ -47,8 +47,6 @@ private:
 	void RenderEnd()&;
 	void RenderEntityClear()&;
 private:
-	void FrustumCulling()&;
-	void Culling()&;
 	void ResetState()&;
 private:
 	// HRESULT RenderDeferredShading()&;
@@ -84,7 +82,6 @@ private:
 	bool TestShaderInit();
 	void TestShaderRelease();
 	void TestLightRotation();
-	void TestLightEdit();
 	void RenderShadowMaps();
 	void RenderGBuffer();
 	void DeferredShading();
