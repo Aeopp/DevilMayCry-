@@ -251,7 +251,8 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 		 // 로테이션 .. 
 		if (RootMotionFlag.test(1))
 		{
-			Quat = QuatOffset;
+			// 오프셋 쿼터니언 켤레 사원수로 . 
+			D3DXQuaternionConjugate(&Quat, &QuatOffset);
 			// Quat = UnitQuat !! 
 		}
 		 // 스케일링
