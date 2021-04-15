@@ -40,6 +40,7 @@ public :
 	void    Editor()&;
 	// 오브젝트의 렌더 세팅이 켜져있다면 RenderInterface 인터페이스를 검사하고 엔티티에 추가 .
 	void Push(const std::weak_ptr<GameObject>&_RenderEntity)&;
+	const Frustum * GetCameraFrustum()const& { return CameraFrustum.get();  };
 private:
 	void RenderReady()&;
 	void RenderBegin()&;
@@ -49,7 +50,6 @@ private:
 private:
 	void ResetState()&;
 private:
-	// HRESULT RenderDeferredShading()&;
 	HRESULT RenderDebug()&;
 	HRESULT RenderDebugBone()&;
 	HRESULT ImguiRender()&;

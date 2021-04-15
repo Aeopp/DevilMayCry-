@@ -289,11 +289,11 @@ void Renderer::Editor()&
 			{
 				_Light->Edit(Idx);
 				++Idx;
-			}			
+			}
 		}
 	}
 	ImGui::End();
-}
+};
 
 void Renderer::RenderReady()&
 {
@@ -301,8 +301,8 @@ void Renderer::RenderReady()&
 	ReadyRenderInfo();
 
 	TestLightRotation();
-	TestLightEdit();
-}
+};
+
 void Renderer::RenderBegin()&
 {
 	GraphicSystem::GetInstance()->Begin();

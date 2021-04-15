@@ -23,6 +23,7 @@ typedef struct tagVertexBufferDesc
 	bool									  bHasBone;
 	std::shared_ptr<std::vector<D3DXVECTOR3>> LocalVertexLocation;
 	LPDIRECT3DVERTEXDECLARATION9	          pVertexDecl;
+	Sphere BoundingSphere{};
 public:
 	tagVertexBufferDesc()
 	{
@@ -30,7 +31,8 @@ public:
 			nBufferSize = nStride = nNumFaces = nNumVertices = nNumUVChannel = 0u;
 		pVertexDecl = nullptr;
 		bHasBone = bHasPosition = bHasNormal = bHasTangentBiNormal = false;
-		
+		BoundingSphere.Radius = 0.0f;
+		BoundingSphere.Center = Vector3{ 0  ,  0 , 0 };
 	}
 	~tagVertexBufferDesc()
 	{

@@ -27,5 +27,4 @@ BEGIN(ENGINE)
 	};
 END
 
-
 #endif // Frustum

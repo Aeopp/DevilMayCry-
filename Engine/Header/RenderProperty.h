@@ -5,6 +5,7 @@
 #include <map>
 #include <functional>
 #include <any>
+#include "Frustum.h"
 
 BEGIN(ENGINE)
 
@@ -20,6 +21,7 @@ struct ENGINE_DLL DrawInfo
 struct ENGINE_DLL ShadowInfo
 {
 	Matrix ViewProjection;
+	Frustum* _Frustum{};
 };
 
 struct ENGINE_DLL RenderProperty
