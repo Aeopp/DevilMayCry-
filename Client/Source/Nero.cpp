@@ -10,6 +10,7 @@ Nero::Nero()
 	, m_iPreAnimationIndex(ANI_END)
 	, m_iCurWeaponIndex(RQ)
 	, m_iJumpDirIndex(Basic)
+	, m_fRedQueenGage(0.f)
 {
 }
 void Nero::Free()

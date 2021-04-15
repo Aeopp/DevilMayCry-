@@ -51,7 +51,7 @@ void NeroState::ResetAnimation(float fResetTiming, UINT _CheckIndex)
 
 HRESULT NeroState::KeyInput_Idle(const int _nIndex)
 {
-
+	UINT RQ_Gage = m_pNero.lock()->Get_RQ_Gage();
 	if (Input::GetKey(DIK_LSHIFT))
 	{
 		//락온
@@ -65,12 +65,18 @@ HRESULT NeroState::KeyInput_Idle(const int _nIndex)
 			if (Input::GetKey(DIK_S) && Input::GetMouse(DIM_L))
 			{
 				m_pNero.lock()->Set_RQ_State(Nero::WS_Battle);
-				m_pFSM->ChangeState(NeroFSM::SKILL_SHUFFLE);
+				if(RQ_Gage > 0)
+					m_pFSM->ChangeState(NeroFSM::SKILL_SHUFFLE_EX);
+				else
+					m_pFSM->ChangeState(NeroFSM::SKILL_SHUFFLE);
 			}
 			else if (Input::GetMouse(DIM_L))
 			{
 				m_pNero.lock()->Set_RQ_State(Nero::WS_Battle);
-				m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
+				if (RQ_Gage > 0)
+					m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3);
+				else
+					m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
 			}
 			else if (Input::GetMouse(DIM_R))
 			{
@@ -241,6 +247,7 @@ HRESULT NeroState::KeyInput_Idle(const int _nIndex)
 
 HRESULT NeroState::KeyInput_Run(const int _nIndex)
 {
+	UINT RQ_Gage = m_pNero.lock()->Get_RQ_Gage();
 	if (Input::GetKey(DIK_LSHIFT))
 	{
 		//락온
@@ -254,7 +261,10 @@ HRESULT NeroState::KeyInput_Run(const int _nIndex)
 			if (Input::GetKey(DIK_S) && Input::GetMouse(DIM_L))
 			{
 				m_pNero.lock()->Set_RQ_State(Nero::WS_Battle);
-				m_pFSM->ChangeState(NeroFSM::SKILL_SHUFFLE);
+				if (RQ_Gage > 0)
+					m_pFSM->ChangeState(NeroFSM::SKILL_SHUFFLE_EX);
+				else
+					m_pFSM->ChangeState(NeroFSM::SKILL_SHUFFLE);
 			}
 			else if (Input::GetMouse(DIM_L))
 			{
@@ -280,7 +290,8 @@ HRESULT NeroState::KeyInput_Run(const int _nIndex)
 			}
 			else if (Input::GetMouse(DIM_R))
 			{
-
+				m_pNero.lock()->Set_RQ_State(Nero::WS_Battle);
+				m_pFSM->ChangeState(NeroFSM::SKILL_HR_EX_START);
 			}
 			else if (Input::GetMouse(DIM_M))
 			{
@@ -3875,6 +3886,8 @@ HRESULT Skill_Shuffle::StateEnter()
 	NeroState::StateEnter();
 	//EX게이지에 따라서 분기
 	//게이지없을때
+
+	
 	m_pNero.lock()->ChangeAnimation("Shuffle", false, Nero::ANI_SHUFFLE);
 	//게이지 있을때
 	//m_pNero.lock()->ChangeAnimation("Shuffle_Ex", false, Nero::ANI_SHUFFLE_EX);
@@ -3955,16 +3968,25 @@ Skill_Streak_Ex3* Skill_Streak_Ex3::Create(FSMBase* const _pFSM, const UINT _nIn
 
 HRESULT Skill_Streak_Ex3::StateEnter()
 {
+	NeroState::StateEnter();
+
+	m_pNero.lock()->ChangeAnimation("Streak_Ex_Start", false, Nero::ANI_STREAK_EX_START);
+	m_pNero.lock()->DecreaseRQ_Gage();
 	return S_OK;
 }
 
 HRESULT Skill_Streak_Ex3::StateExit()
 {
+	NeroState::StateExit();
 	return S_OK;
 }
 
 HRESULT Skill_Streak_Ex3::StateUpdate(const float _fDeltaTime)
 {
+	float fCurAnimationTime = m_pNero.lock()->Get_PlayingTime();
+
+	if (0.95 <= fCurAnimationTime)
+		m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3_RUSH);
 	return S_OK;
 }
 
@@ -4059,7 +4081,7 @@ Skill_Streak_Ex3_Rush* Skill_Streak_Ex3_Rush::Create(FSMBase* const _pFSM, const
 HRESULT Skill_Streak_Ex3_Rush::StateEnter()
 {
 	NeroState::StateEnter();
-	m_pNero.lock()->ChangeAnimation("Streak_Ex_Start", false, Nero::ANI_STREAK_EX_START);
+	m_pNero.lock()->ChangeAnimation("Streak_Ex_Rush", false, Nero::ANI_STREAK_EX_RUSH);
 
 	return S_OK;
 }
@@ -4075,8 +4097,8 @@ HRESULT Skill_Streak_Ex3_Rush::StateUpdate(const float _fDeltaTime)
 {
 	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
 
-	if(0.96 <= fCurrAnimationTime)
-		m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3_RUSH);
+	if(0.65 <= fCurrAnimationTime)
+		m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3_ROLL_LOOP);
 
 	return S_OK;
 }
@@ -4113,16 +4135,11 @@ HRESULT Skill_Streak_Ex3_Roll_Loop::StateExit()
 
 HRESULT Skill_Streak_Ex3_Roll_Loop::StateUpdate(const float _fDeltaTime)
 {
-	float fCurrAnimationTime = m_pNero.lock()->Get_PlayingTime();
+	float fAccTime = m_pNero.lock()->Get_PlayingAccTime();
 
-	if (m_pNero.lock()->IsAnimationEnd())
-		--m_iLoopCount;
 
-	if (m_iLoopCount <= 0)
-	{
-		if(0.96 <= fCurrAnimationTime)
-			m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3_ROLL_END);
-	}
+	if (3.96 <= fAccTime)
+		m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3_ROLL_END);
 
 	return S_OK;
 }
@@ -6218,6 +6235,9 @@ HRESULT Skill_Caliber_End::StateUpdate(const float _fDeltaTime)
 {
 	float fCurAnimationTime = m_pNero.lock()->Get_PlayingTime();
 
+	if (0.8 <= fCurAnimationTime)
+		m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
+
 	if (0.96 <= fCurAnimationTime)
 	{
 		m_pFSM->ChangeState(NeroFSM::JUMP_LOOP);
@@ -6766,4 +6786,82 @@ HRESULT Air_Dive_Slash_End::StateUpdate(const float _fDeltaTime)
 	return S_OK;
 }
 
+Skill_Shuffle_Ex::Skill_Shuffle_Ex(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM,_nIndex,_pNero)
+{
+}
 
+Skill_Shuffle_Ex::~Skill_Shuffle_Ex()
+{
+}
+
+Skill_Shuffle_Ex* Skill_Shuffle_Ex::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Skill_Shuffle_Ex(_pFSM,_nIndex,_pNero);
+}
+
+HRESULT Skill_Shuffle_Ex::StateEnter()
+{
+	NeroState::StateEnter();
+
+	m_pNero.lock()->ChangeAnimation("Shuffle_Ex", false, Nero::ANI_SHUFFLE_EX);
+	m_pNero.lock()->DecreaseRQ_Gage();
+	return S_OK;
+}
+
+HRESULT Skill_Shuffle_Ex::StateExit()
+{
+	NeroState::StateExit();
+	return S_OK;
+}
+
+HRESULT Skill_Shuffle_Ex::StateUpdate(const float _fDeltaTime)
+{
+	float fCurAnimationTime = m_pNero.lock()->Get_PlayingTime();
+
+	if (0.96 <= fCurAnimationTime)
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+	return S_OK;
+}
+
+Skill_Float_Ground_Ex3_Start::Skill_Float_Ground_Ex3_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM,_nIndex,_pNero)
+{
+}
+
+Skill_Float_Ground_Ex3_Start::~Skill_Float_Ground_Ex3_Start()
+{
+}
+
+Skill_Float_Ground_Ex3_Start* Skill_Float_Ground_Ex3_Start::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Skill_Float_Ground_Ex3_Start(_pFSM,_nIndex,_pNero);
+}
+
+HRESULT Skill_Float_Ground_Ex3_Start::StateEnter()
+{
+	NeroState::StateEnter();
+
+
+	m_pNero.lock()->ChangeAnimation("Hr_Ex_Start", false, Nero::ANI_HR_EX_2);
+
+	return S_OK;
+}
+
+HRESULT Skill_Float_Ground_Ex3_Start::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Skill_Float_Ground_Ex3_Start::StateUpdate(const float _fDeltaTime)
+{
+	float fCurAnimationTime = m_pNero.lock()->Get_PlayingTime();
+
+	if (0.95 <= fCurAnimationTime)
+	{
+		m_pFSM->ChangeState(NeroFSM::SKILL_FLOAT_GROUND_EX3);
+	}
+	return S_OK;
+}
