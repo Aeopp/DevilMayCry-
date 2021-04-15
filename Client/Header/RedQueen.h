@@ -28,7 +28,13 @@ public:
 public:
 	// RenderInterface을(를) 통해 상속됨
 	virtual void RenderReady() override;
-	
+	// 렌더링 함수 ...
+	void RenderGBufferSK(const DrawInfo& _Info);
+	void RenderShadowSK(const DrawInfo& _Info);
+	void RenderDebugBone(const DrawInfo& _Info);
+	void RenderDebugSK(const DrawInfo& _Info);
+	void RenderInit();
+
 	virtual void Editor()override;
 
 private:

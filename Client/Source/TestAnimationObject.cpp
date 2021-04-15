@@ -50,7 +50,6 @@ void TestAnimationObject::RenderInit()
 			RenderShadowSK(_Info);
 		}
 	} };
-
 	_InitRenderProp.RenderOrders[RenderProperty::Order::DebugBone]
 		=
 	{
@@ -60,8 +59,6 @@ void TestAnimationObject::RenderInit()
 			RenderDebugBone(_Info);
 		}
 	} };
-
-	
 	_InitRenderProp.RenderOrders[RenderProperty::Order::Debug]
 		=
 	{
@@ -71,9 +68,6 @@ void TestAnimationObject::RenderInit()
 			RenderDebugSK(_Info);
 		}
 	} };
-
-	
-
 	RenderInterface::Initialize(_InitRenderProp);
 	
 	// ½ºÄÌ·¹Åæ ¸Þ½¬ ·Îµù ... 

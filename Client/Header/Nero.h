@@ -263,6 +263,13 @@ public:
 	virtual UINT LateUpdate(const float _fDeltaTime) override;
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
+public:
+	// ·»´õ¸µ ÇÔ¼ö....
+	void RenderGBufferSK(const DrawInfo& _Info);
+	void RenderShadowSK(const DrawInfo& _Info);
+	void RenderDebugBone(const DrawInfo& _Info);
+	void RenderDebugSK(const DrawInfo& _Info);
+	void RenderInit();
 
 private:
 	std::shared_ptr<ENGINE::SkeletonMesh> m_pMesh;

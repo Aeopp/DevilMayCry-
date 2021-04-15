@@ -606,6 +606,7 @@ void SkeletonMesh::DisableToRootMatricies()
 	ToRoots.reset();
 }
 
+// Prev VTF 켜기 . (모션블러등 이전 스키닝 정보가 필요할 경우
 void SkeletonMesh::EnablePrevVTF()&
 {
 	if (!PrevBoneAnimMatrixInfo)

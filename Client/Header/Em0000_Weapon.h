@@ -29,6 +29,11 @@ public:
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
 
+	// ·»´õ¸µ ÇÔ¼ö
+	void RenderInit();
+	void RenderDebug(const DrawInfo& _Info);
+	void RenderGBuffer(const DrawInfo& _Info);
+	void RenderShadow(const DrawInfo& _Info);
 private:
 	std::shared_ptr<ENGINE::StaticMesh> m_pStaticMesh{};
 

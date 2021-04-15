@@ -16,9 +16,7 @@ void Monster::RenderReady()
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
-		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
+		_RenderUpdateInfo.World = _SpTransform->GetWorldMatrix();
 	}
 }
 

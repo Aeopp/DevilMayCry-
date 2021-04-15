@@ -40,26 +40,9 @@ Nero* Nero::Create()
 
 HRESULT Nero::Ready()
 {
-	SetRenderEnable(true);
+	RenderInit();
 
-	ENGINE::RenderProperty _InitRenderProp;
-	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
-	_InitRenderProp.bRender = true;
-	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	
-	RenderInterface::Initialize(_InitRenderProp);
-
-
-	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.fbx");
-
-
-	m_pMesh->LoadAnimationFromDirectory(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Animation");
-	m_pMesh->AnimationDataLoadFromJsonTable(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.Animation");
-
-	m_pMesh->EnableToRootMatricies();
 	m_pTransform.lock()->SetScale({ 0.03f,0.03f,0.03f });
-	PushEditEntity(m_pMesh.get());
-	
 	PushEditEntity(m_pTransform.lock().get());
 
 	//ENGINE::AnimNotify _Notify{};
@@ -129,15 +112,141 @@ void Nero::OnDisable()
 {
 }
 
+void Nero::RenderGBufferSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
+			SpSubset->BindProperty(TextureType::NORMALS, 0, 1, _Info._Device);
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Nero::RenderShadowSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Nero::RenderDebugBone(const DrawInfo& _Info)
+{
+	const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
+	m_pMesh->BoneDebugRender(_RenderUpdateInfo.World, _Info.Fx);
+}
+
+void Nero::RenderDebugSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("World", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Nero::RenderInit()
+{
+	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능) 알림.
+    // 렌더 인터페이스 상속받지 않았다면 키지마세요.
+	SetRenderEnable(true);
+
+	// 렌더 속성 전체 초기화 
+	ENGINE::RenderProperty _InitRenderProp;
+	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
+	_InitRenderProp.bRender = true;
+	_InitRenderProp.RenderOrders[RenderProperty::Order::GBuffer] =
+	{
+		{"gbuffer_dsSK",
+		[this](const DrawInfo& _Info)
+			{
+				RenderGBufferSK(_Info);
+			}
+		},
+	};
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Shadow]
+		=
+	{
+		{"ShadowSK" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderShadowSK(_Info);
+		}
+	} };
+	_InitRenderProp.RenderOrders[RenderProperty::Order::DebugBone]
+		=
+	{
+		{"DebugBone" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebugBone(_Info);
+		}
+	} };
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Debug]
+		=
+	{
+		{"DebugSK" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebugSK(_Info);
+		}
+	} };
+	RenderInterface::Initialize(_InitRenderProp);
+
+	// 스켈레톤 메쉬 로딩 ... 
+	Mesh::InitializeInfo _InitInfo{};
+	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
+	_InitInfo.bLocalVertexLocationsStorage = false;
+	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.fbx", _InitInfo);
+
+	m_pMesh->LoadAnimationFromDirectory(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Animation");
+	m_pMesh->AnimationDataLoadFromJsonTable(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.Animation");
+
+	m_pMesh->EnableToRootMatricies();
+
+	PushEditEntity(m_pMesh.get());
+}
+
 void Nero::RenderReady()
 {
 	auto _WeakTransform = GetComponent<ENGINE::Transform>();
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
-		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
+		_RenderUpdateInfo.World = _SpTransform->GetWorldMatrix();
 	}
 }
 

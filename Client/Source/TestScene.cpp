@@ -40,8 +40,8 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 	
 	AddGameObject<Camera>();
+	AddGameObject<Nero>();
 	// AddGameObject<Em5000>();
-
 
 	//AddGameObject<ShaderTester>();
 	/*AddGameObject<TestObject>();

@@ -31,38 +31,13 @@ void Em0000Weapon::RenderReady()
 		_SpTransform)
 	{
 		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
+		_RenderUpdateInfo.World = _SpTransform->GetWorldMatrix();
 	}
 }
 
 HRESULT Em0000Weapon::Ready()
 {
-	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
-	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
-	SetRenderEnable(true);
-
-	// 렌더 정보 초기화 ...
-	ENGINE::RenderProperty _InitRenderProp;
-	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
-	_InitRenderProp.bRender = true;
-	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	/*_InitRenderProp.RenderOrders = 
-	{ 
-		RenderProperty::Order::ForwardAlphaBlend,
-		RenderProperty::Order::Debug 
-	};*/
-	RenderInterface::Initialize(_InitRenderProp);
-	// 
-
-
-	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
-
-
-	// 스태틱 메쉬 로딩
-	m_pStaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"..\\..\\Resource\\Mesh\\Dynamic\\Monster\\Em0000\\Weapon\\Weapon.fbx");
-	PushEditEntity(m_pStaticMesh.get());
+	RenderInit();
 
 	// 트랜스폼 초기화 .. 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
@@ -71,9 +46,6 @@ HRESULT Em0000Weapon::Ready()
 
 
 	m_pTransform = GetComponent<ENGINE::Transform>();
-
-	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
-	// PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
 
 	return S_OK;
 };
@@ -125,6 +97,92 @@ void Em0000Weapon::OnEnable()
 void Em0000Weapon::OnDisable()
 {
 
+}
+
+void Em0000Weapon::RenderInit()
+{
+	SetRenderEnable(true);
+	ENGINE::RenderProperty _InitRenderProp;
+	_InitRenderProp.bRender = true;
+	_InitRenderProp.RenderOrders[RenderProperty::Order::GBuffer] =
+	{
+		{"gbuffer_ds",
+		[this](const DrawInfo& _Info)
+			{
+				RenderGBuffer(_Info);
+			}
+		},
+	};
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Shadow]
+		=
+	{
+		{"Shadow" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderShadow(_Info);
+		}
+	} };
+
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Debug]
+		=
+	{
+		{"Debug" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebug(_Info);
+		}
+	} };
+	RenderInterface::Initialize(_InitRenderProp);
+	m_pStaticMesh = Resources::Load<ENGINE::StaticMesh>(
+		L"..\\..\\Resource\\Mesh\\Dynamic\\Monster\\Em0000\\Weapon\\Weapon.fbx");
+	PushEditEntity(m_pStaticMesh.get());
+}
+
+void Em0000Weapon::RenderDebug(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("World", &World);
+	const uint32 Numsubset = m_pStaticMesh->GetNumSubset();
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pStaticMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Em0000Weapon::RenderGBuffer(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pStaticMesh->GetNumSubset();
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pStaticMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
+			SpSubset->BindProperty(TextureType::NORMALS, 0, 1, _Info._Device);
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Em0000Weapon::RenderShadow(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pStaticMesh->GetNumSubset();
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pStaticMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
 }
 
 void Em0000Weapon::SetMesh(std::weak_ptr<ENGINE::SkeletonMesh> _pMesh)

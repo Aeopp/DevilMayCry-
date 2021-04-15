@@ -5,7 +5,6 @@
 #include "TextureType.h"
 #include "Renderer.h"
 
-
 void TestObject::Free()
 {
 
@@ -36,10 +35,6 @@ void TestObject::RenderReady()
 void TestObject::RenderInit()
 {
 	m_nTag = Player;
-
-
-
-
 	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
 	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
 	SetRenderEnable(true);
@@ -47,7 +42,6 @@ void TestObject::RenderInit()
 	// 렌더 정보 초기화 ...
 	ENGINE::RenderProperty _InitRenderProp;
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
-	_InitRenderProp.bRender = true;
 	// 렌더 속성 전체 초기화 
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;

@@ -342,47 +342,7 @@ HRESULT Em5000::Ready()
 	//GameObject를 받아오려면 각자 태그가 있어야함.
 	m_nTag = Monster5000;
 
-	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
-	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
-	SetRenderEnable(true);
-
-	// 렌더 속성 전체 초기화 
-	ENGINE::RenderProperty _InitRenderProp;
-	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
-	_InitRenderProp.bRender = true;
-	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-
-	RenderInterface::Initialize(_InitRenderProp);
-
-
-	// 스켈레톤 메쉬 로딩 ... 
-	Mesh::InitializeInfo _InitInfo{};
-	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
-	_InitInfo.bLocalVertexLocationsStorage = false;
-	// 루트 모션 지원 해줘 !!
-	_InitInfo.bRootMotionScale = true;
-	_InitInfo.bRootMotionRotation = true;
-	_InitInfo.bRootMotionTransition = true;
-	m_pMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Monster\\Em5000\\Em5000.x", _InitInfo);
-
-	// 디폴트 이름 말고 원하는 이름으로 루트모션 켜기 . 
-	// (필요없는 루트모션 정보는 이름을 "" 으로 입력)
-	// _SkeletonMesh->EnableRootMotion("스케일루트모션루트이름", "로테이션...", "이동...");
-
-	PushEditEntity(m_pMesh.get());
-	// Prev VTF 켜기 . (모션블러등 이전 스키닝 정보가 필요할 경우
-	m_pMesh->EnablePrevVTF();
-	// Prev VTF 끄기 . (런타임에 끌수 있으며 자주 켜고 끄는 것은 좋지않음)
-	// _SkeletonMesh->DisablePrevVTF();
-
-	/* 애니메이션에 따라서 콜백이 필요한 경우 설정.
-	return true 인 경우 콜백 하고나서 삭제
-	return false 인 경우 콜백 하고 나서 다음 루프때도 다시 콜백.
-	*/
-	ENGINE::AnimNotify _Notify{};
-	_Notify.Event[0.5] = [this]() {  Log("0.5 Sec Call");  return true; };
-	_Notify.Event[0.9] = [this]() {  Log("0.9 Sec Call");  return false; };
-	// 
+	RenderInit();
 
 // 트랜스폼 초기화하며 Edit 에 정보가 표시되도록 푸시 . 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
@@ -392,9 +352,6 @@ HRESULT Em5000::Ready()
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
 	// 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
 
-
-	//몬스터 초기상태 idle
-	m_pMesh->PlayAnimation("Idle", true);
 
 	//몬스터 회전 기본 속도
 	m_fAngleSpeed = D3DXToRadian(100.f);
@@ -495,6 +452,135 @@ void Em5000::OnEnable()
 
 void Em5000::OnDisable()
 {
+}
+
+void Em5000::RenderGBufferSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
+			SpSubset->BindProperty(TextureType::NORMALS, 0, 1, _Info._Device);
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Em5000::RenderShadowSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Em5000::RenderDebugBone(const DrawInfo& _Info)
+{
+	const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
+	m_pMesh->BoneDebugRender(_RenderUpdateInfo.World, _Info.Fx);
+}
+
+void Em5000::RenderDebugSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("World", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Em5000::RenderInit()
+{
+	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
+	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
+	SetRenderEnable(true);
+
+	// 렌더 속성 전체 초기화 
+	ENGINE::RenderProperty _InitRenderProp;
+	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
+	_InitRenderProp.bRender = true;
+	// 넘겨준 패스에서는 렌더링 호출 보장 . 
+	_InitRenderProp.bRender = true;
+	_InitRenderProp.RenderOrders[RenderProperty::Order::GBuffer] =
+	{
+		{"gbuffer_dsSK",
+		[this](const DrawInfo& _Info)
+			{
+				RenderGBufferSK(_Info);
+			}
+		},
+	};
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Shadow]
+		=
+	{
+		{"ShadowSK" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderShadowSK(_Info);
+		}
+	} };
+	_InitRenderProp.RenderOrders[RenderProperty::Order::DebugBone]
+		=
+	{
+		{"DebugBone" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebugBone(_Info);
+		}
+	} };
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Debug]
+		=
+	{
+		{"DebugSK" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebugSK(_Info);
+		}
+	} };
+	RenderInterface::Initialize(_InitRenderProp);
+
+	// 스켈레톤 메쉬 로딩 ... 
+	Mesh::InitializeInfo _InitInfo{};
+	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
+	_InitInfo.bLocalVertexLocationsStorage = false;
+	m_pMesh = Resources::Load<ENGINE::SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Monster\\Em5000\\Em5000.x", _InitInfo);
+	m_pMesh->EnableToRootMatricies();
+	// 모션 블러 사용시 켜기 
+	// m_pMesh->EnablePrevVTF();
+	PushEditEntity(m_pMesh.get());
+	//몬스터 초기상태 idle
+	m_pMesh->PlayAnimation("Idle", true);
 }
 
 void Em5000::Rotate(const float _fDeltaTime)

@@ -66,6 +66,13 @@ public:
 	virtual void Editor() override;
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
+
+	// ·»´õ¸µ ÇÔ¼ö....
+	void RenderGBufferSK(const DrawInfo& _Info);
+	void RenderShadowSK(const DrawInfo& _Info);
+	void RenderDebugBone(const DrawInfo& _Info);
+	void RenderDebugSK(const DrawInfo& _Info);
+	void RenderInit();
 public:
 	virtual void Rotate(const float _fDeltaTime) override;
 	virtual void Update_Angle() override;
