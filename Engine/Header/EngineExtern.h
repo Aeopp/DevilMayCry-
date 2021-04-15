@@ -17,6 +17,7 @@ extern ENGINE_DLL bool                  g_bRenderTargetVisible;
 extern ENGINE_DLL bool					g_bDebugRender;
 extern ENGINE_DLL bool                  g_bDebugBoneToRoot;
 extern ENGINE_DLL bool					g_bRenderEdit;
+extern ENGINE_DLL bool					g_bRenderPtLightScissorTest;
 extern ENGINE_DLL LPDIRECT3D9			g_pSDK;
 extern ENGINE_DLL LPDIRECT3DDEVICE9		g_pDevice;
 extern ENGINE_DLL std::vector<std::string> g_Logs;

@@ -545,8 +545,6 @@ void Renderer::DeferredShading()
 	// Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
-	
-
 	auto device = Device;
 
 	auto scenesurface = RenderTargets["SceneTarget"]->GetSurface();
@@ -602,15 +600,17 @@ void Renderer::DeferredShading()
 			deferred->SetMatrix("lightViewProj", &lightviewproj);
 			deferred->SetVector("lightColor", (D3DXVECTOR4*)&Moonlight->GetColor());
 			deferred->SetVector("lightPos", &Moonlight->GetPosition());
-			deferred->SetFloat("specularPower", 200.0f);
-			static float sinAngularRadius = 0.0046251;
-			static float cosAngularRadius = 0.9999893;
-			ImGui::SliderFloat("sinAngularRadius", &sinAngularRadius, -1.f, 1.f);
-			ImGui::SliderFloat("cosAngularRadius ", &cosAngularRadius, -1.f, 1.f);
+			deferred->SetFloat("lightFlux", Moonlight->lightFlux);
+			deferred->SetFloat("lightIlluminance", Moonlight->lightIlluminance);
+			deferred->SetFloat("lightRadius", Moonlight->GetPointRadius());
+			deferred->SetFloat("specularPower", Moonlight->specularPower);
 
-			deferred->SetFloat("sinAngularRadius", sinAngularRadius );
-			deferred->SetFloat("cosAngularRadius", cosAngularRadius );
+			deferred->SetFloat("sinAngularRadius", Moonlight->sinAngularRadius);
+			deferred->SetFloat("cosAngularRadius", Moonlight->cosAngularRadius);
 
+			clipplanes.x = Moonlight->GetNearPlane();
+			clipplanes.y = Moonlight->GetFarPlane();
+			deferred->SetVector("clipPlanes", &clipplanes);
 			device->SetTexture(3, Moonlight->GetShadowMap());
 			deferred->CommitChanges();
 			_Quad->Render(Device);
@@ -648,10 +648,18 @@ void Renderer::DeferredShading()
 				i, ScreenPos.x, ScreenPos.y);
 			Device->SetScissorRect(&scissorrect);
 
+
+
+
+			deferred->SetFloat("lightFlux", PointLights[i]->lightFlux);
+			deferred->SetFloat("lightIlluminance", PointLights[i]->lightIlluminance);
+			deferred->SetFloat("specularPower", PointLights[i]->specularPower);
+			deferred->SetFloat("sinAngularRadius", PointLights[i]->sinAngularRadius);
+			deferred->SetFloat("cosAngularRadius", PointLights[i]->cosAngularRadius);
+
 			deferred->SetVector("clipPlanes", &clipplanes);
 			deferred->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
 			deferred->SetVector("lightPos", &PointLights[i]->GetPosition());
-			deferred->SetFloat("specularPower", 80.0f);
 			deferred->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
 			device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
 			deferred->CommitChanges();
@@ -665,37 +673,40 @@ void Renderer::DeferredShading()
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, FALSE);
 
-	auto screenquad = Shaders["ScreenQuad"]->GetEffect();
+	if (g_bRenderPtLightScissorTest)
 	{
-		device->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
-		screenquad->SetTechnique("rect");
-		screenquad->Begin(NULL, 0);
-		screenquad->BeginPass(0);
-		for(auto& PtLt : PointLights)
+		auto screenquad = Shaders["ScreenQuad"]->GetEffect();
 		{
-			
-			// draw some outline around scissor rect
-			float rectvertices[24];
-			uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
-			memcpy(rectvertices, DXScreenQuadVerticesFFP, 24 * sizeof(float));
+			device->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
+			screenquad->SetTechnique("rect");
+			screenquad->Begin(NULL, 0);
+			screenquad->BeginPass(0);
+			for (auto& PtLt : PointLights)
+			{
+				// draw some outline around scissor rect
+				float rectvertices[24];
+				uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
+				memcpy(rectvertices, DXScreenQuadVerticesFFP, 24 * sizeof(float));
 
-			rectvertices[0] += PtLt->LastScissorRect.left;
-			rectvertices[1] += PtLt->LastScissorRect.top;
-			rectvertices[6] += PtLt->LastScissorRect.left;
-			rectvertices[7] += PtLt->LastScissorRect.bottom;
-			rectvertices[12] += PtLt->LastScissorRect.right;
-			rectvertices[13] += PtLt->LastScissorRect.bottom;
-			rectvertices[18] += PtLt->LastScissorRect.right;
-			rectvertices[19] += PtLt->LastScissorRect.top;
+				rectvertices[0] += PtLt->LastScissorRect.left;
+				rectvertices[1] += PtLt->LastScissorRect.top;
+				rectvertices[6] += PtLt->LastScissorRect.left;
+				rectvertices[7] += PtLt->LastScissorRect.bottom;
+				rectvertices[12] += PtLt->LastScissorRect.right;
+				rectvertices[13] += PtLt->LastScissorRect.bottom;
+				rectvertices[18] += PtLt->LastScissorRect.right;
+				rectvertices[19] += PtLt->LastScissorRect.top;
 
-			device->DrawIndexedPrimitiveUP(
-				D3DPT_LINESTRIP, 0, 4, 4, rectindices, D3DFMT_INDEX16, rectvertices, 6 * sizeof(float));
+				device->DrawIndexedPrimitiveUP(
+					D3DPT_LINESTRIP, 0, 4, 4, rectindices, D3DFMT_INDEX16, rectvertices, 6 * sizeof(float));
+			}
+			screenquad->EndPass();
+			screenquad->End();
+
+			device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 		}
-		screenquad->EndPass();
-		screenquad->End();
-
-		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 	}
+
 }
 void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 {
@@ -813,150 +824,150 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 		effect->SetTechnique(oldtech);
 };
 
-
-
-HRESULT Renderer::RenderDeferredShading()&
-{
-	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
-
-	Vector4 pixelsize{};
-	pixelsize.x = 1.0f / static_cast<float> (_RenderInfo.Viewport.Width);
-	pixelsize.y = -1.0f / static_cast<float> (_RenderInfo.Viewport.Height);
-
-	Device->SetFVF(D3DFVF_XYZW |D3DFVF_TEX1);
-	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
-
-	Device->SetRenderTarget(0u, RenderTargets["SceneTarget"]->GetSurface());
-	Device->Clear(0,NULL,D3DCLEAR_TARGET, 0, 1.0f, 0);
-
-	Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
-	Device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	Device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	Device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, TRUE);
-
-	for (int i = 1; i < 5; ++i) {
-		Device->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-		Device->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-		Device->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
-		Device->SetSamplerState(i, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-		Device->SetSamplerState(i, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	}
-
-	Device->SetTexture(0, RenderTargets["ALBM"]->GetTexture());
-	Device->SetTexture(1, RenderTargets["NRMR"]->GetTexture());
-	Device->SetTexture(2, RenderTargets["Depth"]->GetTexture());
-
-	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-
-	Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
-	auto* const Fx = Shaders["DeferredShading"]->GetEffect();
-	Fx->SetTechnique("deferred");
-	Fx->SetMatrix("matViewProjInv", (D3DXMATRIX*)&_RenderInfo.ViewProjectionInverse);
-	Fx->SetVector("pixelSize", &pixelsize);
-	Fx->SetVector("eyePos", (D3DXVECTOR4*)&_RenderInfo.Eye);
-
-
-	Fx->Begin(NULL, 0);
-	Fx->BeginPass(0);
-
-	Matrix  lightviewproj;
-	Vector4 clipplanes(0, 0, 0, 0);
-
-	Moonlight->CalculateViewProjection(lightviewproj);
-
-	{
-		// directional light
-		Fx->SetMatrix("lightViewProj", &lightviewproj);
-		Fx->SetVector("lightColor", (D3DXVECTOR4*)&Moonlight->GetColor());
-		Fx->SetVector("lightPos", &Moonlight->GetPosition());
-		Fx->SetFloat("specularPower", 200.0f);
-		Fx->SetFloat("lightFlux", Moonlight->lightFlux);
-		Fx->SetFloat("lightIlluminance", Moonlight->lightIlluminance);
-		Fx->SetFloat("specularPower",Moonlight->specularPower);
-		Fx->SetFloat("sinAngularRadius",Moonlight->sinAngularRadius);
-		Fx->SetFloat("cosAngularRadius", Moonlight->cosAngularRadius);
-		
-		Device->SetTexture(3, Moonlight->GetShadowMap());
-		Fx->CommitChanges();
-
-
-		_Quad->Render(Device, 1.f, 1.f, Fx);
-	}
-
-	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
-	RECT scissorrect;
-	
-	for (int i = 0; i < 3; ++i)
-	{
-		clipplanes.x = PointLights[i]->GetNearPlane();
-		clipplanes.y = PointLights[i]->GetFarPlane();
-
-		PointLights[i]->CalculateScissorRect
-		(
-			scissorrect, (const D3DXMATRIX&)_RenderInfo.View,
-			(const D3DXMATRIX&)_RenderInfo.Projection,
-			PointLights[i]->GetPointRadius(), g_nWndCX, g_nWndCY);
-
-		Device->SetScissorRect(&scissorrect);
-
-		Fx->SetVector("clipPlanes", &clipplanes);
-		Fx->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
-		Fx->SetVector("lightPos", &PointLights[i]->GetPosition());
-		Fx->SetFloat("specularPower", PointLights[0]->specularPower);
-		Fx->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
-		Fx->SetFloat("lightFlux",PointLights[0]->lightFlux);
-		Fx->SetFloat("lightIlluminance", PointLights[0]->lightIlluminance);
-		Fx->SetFloat("sinAngularRadius", PointLights[0]->sinAngularRadius);
-		Fx->SetFloat("cosAngularRadius", PointLights[0]->cosAngularRadius);
-		
-		Device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
-		Fx->CommitChanges();
-		_Quad->Render(Device, 1.f, 1.f, Fx);
-	}
-
-	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
-
-	Fx->EndPass();
-	Fx->End();
-
-	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	Device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, FALSE);
-
-	// draw some outline around scissor rect
-	float rectvertices[24];
-	uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
-
-	memcpy(rectvertices, DXScreenQuadVerticesFFP, 24 * sizeof(float));
-
-	rectvertices[0] += scissorrect.left;
-	rectvertices[1] += scissorrect.top;
-	rectvertices[6] += scissorrect.left;
-	rectvertices[7] += scissorrect.bottom;
-	rectvertices[12] += scissorrect.right;
-	rectvertices[13] += scissorrect.bottom;
-	rectvertices[18] += scissorrect.right;
-	rectvertices[19] += scissorrect.top;
-
-	Device->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
-	auto*const screenquad = Shaders["ScreenQuad"]->GetEffect();
-	screenquad->SetTechnique("rect");
-	screenquad->Begin(NULL, 0);
-	screenquad->BeginPass(0);
-	{
-		Device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, 0, 4, 4, rectindices, D3DFMT_INDEX16, rectvertices, 6 * sizeof(float));
-	}
-	screenquad->EndPass();
-	screenquad->End();
-
-	Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
-
-	return S_OK;
-};
+//
+//
+//HRESULT Renderer::RenderDeferredShading()&
+//{
+//	Device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+//	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+//
+//	Vector4 pixelsize{};
+//	pixelsize.x = 1.0f / static_cast<float> (_RenderInfo.Viewport.Width);
+//	pixelsize.y = -1.0f / static_cast<float> (_RenderInfo.Viewport.Height);
+//
+//	Device->SetFVF(D3DFVF_XYZW |D3DFVF_TEX1);
+//	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
+//
+//	Device->SetRenderTarget(0u, RenderTargets["SceneTarget"]->GetSurface());
+//	Device->Clear(0,NULL,D3DCLEAR_TARGET, 0, 1.0f, 0);
+//
+//	Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+//	Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+//	Device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+//	Device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+//	Device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, TRUE);
+//
+//	for (int i = 1; i < 5; ++i) {
+//		Device->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+//		Device->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+//		Device->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+//		Device->SetSamplerState(i, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+//		Device->SetSamplerState(i, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+//	}
+//
+//	Device->SetTexture(0, RenderTargets["ALBM"]->GetTexture());
+//	Device->SetTexture(1, RenderTargets["NRMR"]->GetTexture());
+//	Device->SetTexture(2, RenderTargets["Depth"]->GetTexture());
+//
+//	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+//
+//	Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+//	Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+//
+//	auto* const Fx = Shaders["DeferredShading"]->GetEffect();
+//	Fx->SetTechnique("deferred");
+//	Fx->SetMatrix("matViewProjInv", (D3DXMATRIX*)&_RenderInfo.ViewProjectionInverse);
+//	Fx->SetVector("pixelSize", &pixelsize);
+//	Fx->SetVector("eyePos", (D3DXVECTOR4*)&_RenderInfo.Eye);
+//
+//
+//	Fx->Begin(NULL, 0);
+//	Fx->BeginPass(0);
+//
+//	Matrix  lightviewproj;
+//	Vector4 clipplanes(0, 0, 0, 0);
+//
+//	Moonlight->CalculateViewProjection(lightviewproj);
+//
+//	{
+//		// directional light
+//		Fx->SetMatrix("lightViewProj", &lightviewproj);
+//		Fx->SetVector("lightColor", (D3DXVECTOR4*)&Moonlight->GetColor());
+//		Fx->SetVector("lightPos", &Moonlight->GetPosition());
+//		Fx->SetFloat("specularPower", 200.0f);
+//		Fx->SetFloat("lightFlux", Moonlight->lightFlux);
+//		Fx->SetFloat("lightIlluminance", Moonlight->lightIlluminance);
+//		Fx->SetFloat("specularPower",Moonlight->specularPower);
+//		Fx->SetFloat("sinAngularRadius",Moonlight->sinAngularRadius);
+//		Fx->SetFloat("cosAngularRadius", Moonlight->cosAngularRadius);
+//		
+//		Device->SetTexture(3, Moonlight->GetShadowMap());
+//		Fx->CommitChanges();
+//
+//
+//		_Quad->Render(Device, 1.f, 1.f, Fx);
+//	}
+//
+//	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+//	RECT scissorrect;
+//	
+//	for (int i = 0; i < 3; ++i)
+//	{
+//		clipplanes.x = PointLights[i]->GetNearPlane();
+//		clipplanes.y = PointLights[i]->GetFarPlane();
+//
+//		PointLights[i]->CalculateScissorRect
+//		(
+//			scissorrect, (const D3DXMATRIX&)_RenderInfo.View,
+//			(const D3DXMATRIX&)_RenderInfo.Projection,
+//			PointLights[i]->GetPointRadius(), g_nWndCX, g_nWndCY);
+//
+//		Device->SetScissorRect(&scissorrect);
+//
+//		Fx->SetVector("clipPlanes", &clipplanes);
+//		Fx->SetVector("lightColor", (D3DXVECTOR4*)&PointLights[i]->GetColor());
+//		Fx->SetVector("lightPos", &PointLights[i]->GetPosition());
+//		Fx->SetFloat("specularPower", PointLights[0]->specularPower);
+//		Fx->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
+//		Fx->SetFloat("lightFlux",PointLights[0]->lightFlux);
+//		Fx->SetFloat("lightIlluminance", PointLights[0]->lightIlluminance);
+//		Fx->SetFloat("sinAngularRadius", PointLights[0]->sinAngularRadius);
+//		Fx->SetFloat("cosAngularRadius", PointLights[0]->cosAngularRadius);
+//		
+//		Device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
+//		Fx->CommitChanges();
+//		_Quad->Render(Device, 1.f, 1.f, Fx);
+//	}
+//
+//	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+//
+//	Fx->EndPass();
+//	Fx->End();
+//
+//	Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+//	Device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, FALSE);
+//
+//	// draw some outline around scissor rect
+//	float rectvertices[24];
+//	uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
+//
+//	memcpy(rectvertices, DXScreenQuadVerticesFFP, 24 * sizeof(float));
+//
+//	rectvertices[0] += scissorrect.left;
+//	rectvertices[1] += scissorrect.top;
+//	rectvertices[6] += scissorrect.left;
+//	rectvertices[7] += scissorrect.bottom;
+//	rectvertices[12] += scissorrect.right;
+//	rectvertices[13] += scissorrect.bottom;
+//	rectvertices[18] += scissorrect.right;
+//	rectvertices[19] += scissorrect.top;
+//
+//	Device->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
+//	auto*const screenquad = Shaders["ScreenQuad"]->GetEffect();
+//	screenquad->SetTechnique("rect");
+//	screenquad->Begin(NULL, 0);
+//	screenquad->BeginPass(0);
+//	{
+//		Device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, 0, 4, 4, rectindices, D3DFMT_INDEX16, rectvertices, 6 * sizeof(float));
+//	}
+//	screenquad->EndPass();
+//	screenquad->End();
+//
+//	Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+//
+//	return S_OK;
+//};
 
 HRESULT Renderer::RenderDebug()&
 {

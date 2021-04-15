@@ -240,6 +240,7 @@ static void GlobalVariableEditor()
 			ImGui::Checkbox("RenderBoneToRoot", &g_bDebugBoneToRoot);
 			ImGui::Checkbox("RenderTargetVisible", &g_bRenderTargetVisible);
 			ImGui::Checkbox("RenderEdit",&g_bRenderEdit);
+			ImGui::Checkbox("RenderPointLightScissorTest", &g_bRenderPtLightScissorTest);
 		}
 	}
 	ImGui::End();

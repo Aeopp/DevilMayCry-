@@ -51,7 +51,7 @@ private:
 	void Culling()&;
 	void ResetState()&;
 private:
-	HRESULT RenderDeferredShading()&;
+	// HRESULT RenderDeferredShading()&;
 	HRESULT RenderDebug()&;
 	HRESULT RenderDebugBone()&;
 	HRESULT ImguiRender()&;
