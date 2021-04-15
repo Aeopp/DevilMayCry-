@@ -126,6 +126,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Engine\Header\;$(SolutionDir)Reference\Header\;../Bin/;../Header/;../Source/;./;$(SolutionDir)Reference\Header\imgui\;$(SolutionDir)Reference\Header\rapidjson\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>26812</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -158,15 +159,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Header\Application.h" />
+    <ClInclude Include="..\Header\Blood.h" />
     <ClInclude Include="..\Header\BtlPanel.h" />
     <ClInclude Include="..\Header\Camera.h" />
+    <ClInclude Include="..\Header\DashImpact.h" />
     <ClInclude Include="..\Header\Effect.h" />
     <ClInclude Include="..\Header\Eff_Glint.h" />
+    <ClInclude Include="..\Header\Em0000.h" />
+    <ClInclude Include="..\Header\Em0000_Weapon.h" />
+    <ClInclude Include="..\Header\Em100.h" />
+    <ClInclude Include="..\Header\Em101.h" />
+    <ClInclude Include="..\Header\Em5000.h" />
     <ClInclude Include="..\Header\FSMBase.h" />
     <ClInclude Include="..\Header\FSMState.h" />
+    <ClInclude Include="..\Header\Monster.h" />
     <ClInclude Include="..\Header\NeroFSM.h" />
     <ClInclude Include="..\Header\Nero.h" />
     <ClInclude Include="..\Header\NeroState.h" />
+    <ClInclude Include="..\Header\RedQueen.h" />
     <ClInclude Include="..\Header\TestAnimationObject.h" />
     <ClInclude Include="..\Header\Eff_OvertureHand.h" />
     <ClInclude Include="..\Header\TestObject.h" />
@@ -179,15 +189,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Application.cpp" />
+    <ClCompile Include="..\Source\Blood.cpp" />
     <ClCompile Include="..\Source\BtlPanel.cpp" />
     <ClCompile Include="..\Source\Camera.cpp" />
+    <ClCompile Include="..\Source\DashImpact.cpp" />
     <ClCompile Include="..\Source\Effect.cpp" />
     <ClCompile Include="..\Source\Eff_Glint.cpp" />
+    <ClCompile Include="..\Source\Em0000.cpp" />
+    <ClCompile Include="..\Source\Em0000_Weapon.cpp" />
+    <ClCompile Include="..\Source\Em100.cpp" />
+    <ClCompile Include="..\Source\Em101.cpp" />
+    <ClCompile Include="..\Source\Em5000.cpp" />
     <ClCompile Include="..\Source\FSMBase.cpp" />
     <ClCompile Include="..\Source\FSMState.cpp" />
+    <ClCompile Include="..\Source\Monster.cpp" />
     <ClCompile Include="..\Source\NeroFSM.cpp" />
     <ClCompile Include="..\Source\Nero.cpp" />
     <ClCompile Include="..\Source\NeroState.cpp" />
+    <ClCompile Include="..\Source\RedQueen.cpp" />
     <ClCompile Include="..\Source\TestAnimationObject.cpp" />
     <ClCompile Include="..\Source\Eff_OvertureHand.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />

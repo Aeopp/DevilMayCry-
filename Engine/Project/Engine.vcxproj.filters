@@ -97,9 +97,6 @@
     <ClCompile Include="..\Source\Shader.cpp">
       <Filter>02.Resource\03.Shader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\SkeletonMesh.cpp">
-      <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\AnimationBlendInfo.cpp">
       <Filter>02.Resource\02.Mesh\03.SkeletonMesh\01.Animation</Filter>
     </ClCompile>
@@ -142,12 +139,9 @@
     <ClCompile Include="..\Source\Physics.cpp">
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\FLight.cpp" />
-    <ClCompile Include="..\Source\Quad.cpp" />
-    <ClCompile Include="..\Source\Color.cpp" />
-    <ClCompile Include="..\Source\basiccamera.cpp" />
-    <ClCompile Include="..\Source\_3Dmath.cpp" />
-    <ClCompile Include="DxHelper.cpp" />
+    <ClCompile Include="..\Source\SkeletonMesh.cpp">
+      <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
@@ -300,9 +294,6 @@
     <ClInclude Include="..\Header\Shader.h">
       <Filter>02.Resource\03.Shader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\SkeletonMesh.h">
-      <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\Header\AnimNotify.h">
       <Filter>02.Resource\02.Mesh\03.SkeletonMesh\01.Animation</Filter>
     </ClInclude>
@@ -369,12 +360,15 @@
     <ClInclude Include="..\Header\Physics.h">
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\FLight.h" />
-    <ClInclude Include="..\Header\Quad.h" />
-    <ClInclude Include="..\Header\Color.h" />
-    <ClInclude Include="..\Header\basiccamera.h" />
-    <ClInclude Include="..\Header\_3Dmath.h" />
-    <ClInclude Include="..\Header\DxHelper.h" />
+    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Resource\Shader\Effect\DashImpact.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\SkeletonMesh.h">
+      <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="00.Object">
@@ -538,35 +532,9 @@
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
       <Filter>04.HLSL\Effect</Filter>
     </None>
+    <None Include="..\..\Resource\Shader\DebugBone.hlsl" />
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
       <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\Blur.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\DebugBone.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\RTDebug.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\Shadow.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\ShadowSK.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\ToneMap.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\gbuffer_ds.hlsl">
-      <Filter>04.HLSL</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\gbuffer_dsSK.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
     </None>
   </ItemGroup>
 </Project>

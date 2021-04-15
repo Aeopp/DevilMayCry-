@@ -30,6 +30,7 @@ public:
 	void Initialize(
 		const RenderProperty& _RenderProp)&;
 	RenderProperty  GetRenderProp()const& { return  _RenderProperty;  };
+
 	/*UpdateInfo GetRenderUpdateInfo()const& 
 	{
 		return _UpdateInfo; 

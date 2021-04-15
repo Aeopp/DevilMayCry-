@@ -241,6 +241,8 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 			}
 		}
 
+		// 어나니머스 ..
+		
 		// 포지션
 		if (RootMotionFlag.test(2)/*"root_$AssimpFbx$_Transition"*/)
 		{

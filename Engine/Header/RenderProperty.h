@@ -16,6 +16,7 @@ struct ENGINE_DLL DrawInfo
 	std::any BySituation{};
 };
 
+
 struct ENGINE_DLL ShadowInfo
 {
 	Matrix ViewProjection;

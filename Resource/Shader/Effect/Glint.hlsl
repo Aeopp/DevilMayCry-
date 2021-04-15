@@ -12,6 +12,7 @@ sampler Base = sampler_state
     minfilter = linear;
     magfilter = linear;
     mipfilter = linear;
+    sRGBTexture = true;
 };
 
 
@@ -58,7 +59,7 @@ PsOut PsMain(PsIn In)
     float4 BaseSample = tex2D(Base, In.UV);
 
     Out.Color = BaseSample;
-    Out.Color.a *= (1.f - _SliceAmount) * 0.7f;
+    Out.Color.a *= (1.f - _SliceAmount) * 0.5f;
     
     return Out;
 };
@@ -71,8 +72,9 @@ technique Default
         alphablendenable = true;
         srcblend = srcalpha;
         destblend = invsrcalpha;
-        //zenable = false;
+        zenable = false;
         zwriteenable = false;
+        sRGBWRITEENABLE = true;
 
         vertexshader = compile vs_3_0 VsMain();
         pixelshader = compile ps_3_0 PsMain();

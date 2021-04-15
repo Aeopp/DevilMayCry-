@@ -9,7 +9,13 @@
 #include "BtlPanel.h"
 #include "Camera.h"
 #include "Nero.h"
+#include "Em100.h"
+#include "Em101.h"
+#include "Em0000.h"
+#include "Em0000_Weapon.h"
+#include "Em5000.h"
 #include <iostream>
+#include "RedQueen.h"
 
 using namespace std;
 
@@ -32,8 +38,10 @@ TestScene* TestScene::Create()
 HRESULT TestScene::LoadScene()
 {
 	Scene::LoadScene();
-
+	
 	AddGameObject<Camera>();
+	// AddGameObject<Em5000>();
+
 
 	//AddGameObject<ShaderTester>();
 	/*AddGameObject<TestObject>();
@@ -53,6 +61,16 @@ HRESULT TestScene::LoadScene()
 	/*AddGameObject<Eff_OvertureHand>();
 	AddGameObject<BtlPanel>();
 	AddGameObject<Eff_Glint>();*/
+	// AddGameObject<TestObject>();
+	//AddGameObject<TestAnimationObject>();
+	//AddGameObject<Nero>();
+	//AddGameObject<BtlPanel>();
+	//AddGameObject<Eff_OvertureHand>();
+	//AddGameObject<BtlPanel>();
+	//AddGameObject<Eff_Glint>();
+
+	//AddGameObject<DashImpact>();
+	//AddGameObject<Blood>();
 
 	return S_OK;
 }

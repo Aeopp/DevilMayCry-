@@ -83,6 +83,11 @@ void GameObject::PushEditEntity(Object* _EditObject)
 	m_pEditObjects.push_back(_EditObject);
 }
 
+BT_INFO GameObject::Get_BattleInfo()
+{
+	return m_BattleInfo;
+}
+
 void GameObject::SetScene(Scene* const _pScene)
 {
 	m_pScene = _pScene;
@@ -101,6 +106,12 @@ UINT GameObject::GetLoopIdx()
 void GameObject::SetLoopIdx(const UINT _nLoopIdx)
 {
 	m_nLoopIdx = _nLoopIdx;
+}
+
+UINT GameObject::Update(const float _fDeltaTime)
+{
+	m_pTransform.lock()->UpdateTransform();
+	return 0;
 }
 
 void GameObject::Editor()

@@ -4,13 +4,12 @@
 
 #include "FSMState.h"
 class Nero;
-
+class RedQueen;
 class NeroState :    public FSMState
 {
 protected:
 	weak_ptr<Nero>	m_pNero;
 	//weak_ptr<Animator>	m_pAnimator;
-
 public:
 	explicit NeroState(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 	virtual ~NeroState();
@@ -20,6 +19,14 @@ public:
 	virtual HRESULT StateEnter()							PURE;
 	virtual HRESULT StateExit()								PURE;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	PURE;
+protected:
+	virtual void	ResetAnimation(float fResetTiming,UINT _CheckIndex);
+protected:
+	virtual HRESULT KeyInput_Idle(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Run(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Cbs_Idle(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Jump(const int _nIndex = -1);
+	virtual HRESULT KeyInput_Cbs_Jump(const int _nIndex = -1);
 };
 
 class Idle : public NeroState
@@ -38,15 +45,15 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Idle_Switch_Leg : public NeroState
+class Idle_Start : public NeroState
 {
 private:
-	explicit Idle_Switch_Leg(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	explicit Idle_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 public:
-	virtual ~Idle_Switch_Leg();
+	virtual ~Idle_Start();
 
 public:
-	static Idle_Switch_Leg* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	static Idle_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -105,55 +112,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Jump_Landing : public NeroState
-{
-private:
-	explicit Jump_Landing(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Landing();
-
-public:
-	static Jump_Landing* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-
-class Jump_Landing_Gun : public NeroState
-{
-private:
-	explicit Jump_Landing_Gun(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Landing_Gun();
-
-public:
-	static Jump_Landing_Gun* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Landing_High : public NeroState
-{
-private:
-	explicit Jump_Landing_High(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Landing_High();
-
-public:
-	static Jump_Landing_High* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class Jump_Twice : public NeroState
 {
 private:
@@ -170,22 +128,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Jump_Front : public NeroState
-{
-private:
-	explicit Jump_Front(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Front();
-
-public:
-	static Jump_Front* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class Jump_Front_Landing : public NeroState
 {
 private:
@@ -195,102 +137,6 @@ public:
 
 public:
 	static Jump_Front_Landing* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Front_Twice : public NeroState
-{
-private:
-	explicit Jump_Front_Twice(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Front_Twice();
-
-public:
-	static Jump_Front_Twice* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Back : public NeroState
-{
-private:
-	explicit Jump_Back(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Back();
-
-public:
-	static Jump_Back* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Back_Twice : public NeroState
-{
-private:
-	explicit Jump_Back_Twice(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Back_Twice();
-
-public:
-	static Jump_Back_Twice* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Stinger : public NeroState
-{
-private:
-	explicit Jump_Stinger(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Stinger();
-
-public:
-	static Jump_Stinger* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Stinger_Loop : public NeroState
-{
-private:
-	explicit Jump_Stinger_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Stinger_Loop();
-
-public:
-	static Jump_Stinger_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Jump_Stinger_Landing : public NeroState
-{
-private:
-	explicit Jump_Stinger_Landing(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Jump_Stinger_Landing();
-
-public:
-	static Jump_Stinger_Landing* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -328,6 +174,9 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	
 };
 
 class RunStartLeft : public NeroState
@@ -474,86 +323,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class GunWalkFront : public NeroState
-{
-private:
-	explicit GunWalkFront(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~GunWalkFront();
-
-public:
-	static GunWalkFront* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class GunWalkLeft : public NeroState
-{
-private:
-	explicit GunWalkLeft(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~GunWalkLeft();
-
-public:
-	static GunWalkLeft* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class GunWalkBack : public NeroState
-{
-private:
-	explicit GunWalkBack(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~GunWalkBack();
-
-public:
-	static GunWalkBack* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class GunWalkRight : public NeroState
-{
-private:
-	explicit GunWalkRight(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~GunWalkRight();
-
-public:
-	static GunWalkRight* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class GunWalkRightBack : public NeroState
-{
-private:
-	explicit GunWalkRightBack(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~GunWalkRightBack();
-
-public:
-	static GunWalkRightBack* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class WalkLoop : public NeroState
 {
 private:
@@ -586,55 +355,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class WalkStartRight : public NeroState
-{
-private:
-	explicit WalkStartRight(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~WalkStartRight();
-
-public:
-	static WalkStartRight* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class WalkStart180 : public NeroState
-{
-private:
-	explicit WalkStart180(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~WalkStart180();
-
-public:
-	static WalkStart180* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class WalkStartLeft : public NeroState
-{
-private:
-	explicit WalkStartLeft(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~WalkStartLeft();
-
-public:
-	static WalkStartLeft* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-
 class WalkStop : public NeroState
 {
 private:
@@ -644,23 +364,6 @@ public:
 
 public:
 	static WalkStop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-
-class WalkTurn180 : public NeroState
-{
-private:
-	explicit WalkTurn180(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~WalkTurn180();
-
-public:
-	static WalkTurn180* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -693,70 +396,6 @@ public:
 
 public:
 	static Evade_R* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Idle_To_Shoot : public NeroState
-{
-private:
-	explicit Idle_To_Shoot(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Idle_To_Shoot();
-
-public:
-	static Idle_To_Shoot* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Idle_To_Shoot_Left : public NeroState
-{
-private:
-	explicit Idle_To_Shoot_Left(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Idle_To_Shoot_Left();
-
-public:
-	static Idle_To_Shoot_Left* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Idle_To_Shoot_Right : public NeroState
-{
-private:
-	explicit Idle_To_Shoot_Right(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Idle_To_Shoot_Right();
-
-public:
-	static Idle_To_Shoot_Right* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Shoot_To_Idle : public NeroState
-{
-private:
-	explicit Shoot_To_Idle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Shoot_To_Idle();
-
-public:
-	static Shoot_To_Idle* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -1197,54 +836,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Wire_Pull_Air_Hard : public NeroState
-{
-private:
-	explicit Wire_Pull_Air_Hard(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Wire_Pull_Air_Hard();
-
-public:
-	static Wire_Pull_Air_Hard* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Wire_Pull_Air_Hard_Up : public NeroState
-{
-private:
-	explicit Wire_Pull_Air_Hard_Up(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Wire_Pull_Air_Hard_Up();
-
-public:
-	static Wire_Pull_Air_Hard_Up* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Wire_Pull_Air_Hard_Down : public NeroState
-{
-private:
-	explicit Wire_Pull_Air_Hard_Down(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Wire_Pull_Air_Hard_Down();
-
-public:
-	static Wire_Pull_Air_Hard_Down* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class BT_Att1 : public NeroState
 {
 private:
@@ -1549,118 +1140,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class BT_Att1_To_RunStart : public NeroState
-{
-private:
-	explicit BT_Att1_To_RunStart(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_RunStart();
-
-public:
-	static BT_Att1_To_RunStart* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_To_RunLoop : public NeroState
-{
-private:
-	explicit BT_Att1_To_RunLoop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_RunLoop();
-
-public:
-	static BT_Att1_To_RunLoop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_To_Idle : public NeroState
-{
-private:
-	explicit BT_Att1_To_Idle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_Idle();
-
-public:
-	static BT_Att1_To_Idle* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_To_Idle_End : public NeroState
-{
-private:
-	explicit BT_Att1_To_Idle_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_To_Idle_End();
-
-public:
-	static BT_Att1_To_Idle_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att2_To_RunStart : public NeroState
-{
-private:
-	explicit BT_Att2_To_RunStart(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att2_To_RunStart();
-
-public:
-	static BT_Att2_To_RunStart* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att2_To_Idle : public NeroState
-{
-private:
-	explicit BT_Att2_To_Idle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att2_To_Idle();
-
-public:
-	static BT_Att2_To_Idle* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class BT_Att1_Dash : public NeroState
-{
-private:
-	explicit BT_Att1_Dash(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~BT_Att1_Dash();
-
-public:
-	static BT_Att1_Dash* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class BT_Parrying : public NeroState
 {
 private:
@@ -1670,38 +1149,6 @@ public:
 
 public:
 	static BT_Parrying* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Skill_E_Start : public NeroState
-{
-private:
-	explicit Skill_E_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Skill_E_Start();
-
-public:
-	static Skill_E_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Skill_E_Loop : public NeroState
-{
-private:
-	explicit Skill_E_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Skill_E_Loop();
-
-public:
-	static Skill_E_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -1739,6 +1186,8 @@ public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+private:
+	float	m_fLoopTime;
 };
 
 class Skill_Split_Landing : public NeroState
@@ -1756,6 +1205,8 @@ public:
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
+
+
 
 class Skill_Float_Ground : public NeroState
 {
@@ -1805,38 +1256,6 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Skill_Float_Air : public NeroState
-{
-private:
-	explicit Skill_Float_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Skill_Float_Air();
-
-public:
-	static Skill_Float_Air* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
-class Skill_Float_Air_Ex3 : public NeroState
-{
-private:
-	explicit Skill_Float_Air_Ex3(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-public:
-	virtual ~Skill_Float_Air_Ex3();
-
-public:
-	static Skill_Float_Air_Ex3* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
-
-public:
-	virtual HRESULT StateEnter()							override;
-	virtual HRESULT StateExit()								override;
-	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
-};
-
 class Skill_Shuffle : public NeroState
 {
 private:
@@ -1853,21 +1272,23 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class Skill_Caliber : public NeroState
+class Skill_Shuffle_Ex : public NeroState
 {
 private:
-	explicit Skill_Caliber(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	explicit Skill_Shuffle_Ex(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 public:
-	virtual ~Skill_Caliber();
+	virtual ~Skill_Shuffle_Ex();
 
 public:
-	static Skill_Caliber* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	static Skill_Shuffle_Ex* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
 	virtual HRESULT StateExit()								override;
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
+
+
 
 class Skill_Streak : public NeroState
 {
@@ -1878,6 +1299,41 @@ public:
 
 public:
 	static Skill_Streak* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Skill_Streak_Loop : public NeroState
+{
+private:
+	explicit Skill_Streak_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Streak_Loop();
+
+public:
+	static Skill_Streak_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	float	m_fLoopTime;
+};
+
+class Skill_Streak_End : public NeroState
+{
+private:
+	explicit Skill_Streak_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Streak_End();
+
+public:
+	static Skill_Streak_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -1901,6 +1357,56 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
+class Skill_Streak_Ex3_Rush : public NeroState
+{
+private:
+	explicit Skill_Streak_Ex3_Rush(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Streak_Ex3_Rush();
+
+public:
+	static Skill_Streak_Ex3_Rush* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Skill_Streak_Ex3_Roll_Loop : public NeroState
+{
+private:
+	explicit Skill_Streak_Ex3_Roll_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Streak_Ex3_Roll_Loop();
+
+public:
+	static Skill_Streak_Ex3_Roll_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	int		m_iLoopCount = 0;
+};
+
+class Skill_Streak_Ex3_Roll_End : public NeroState
+{
+private:
+	explicit Skill_Streak_Ex3_Roll_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Streak_Ex3_Roll_End();
+
+public:
+	static Skill_Streak_Ex3_Roll_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
 
 class GT_Equip : public NeroState
 {
@@ -2033,15 +1539,15 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class GT_Spark_Basic : public NeroState
+class Overture_Shoot : public NeroState
 {
 private:
-	explicit GT_Spark_Basic(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	explicit Overture_Shoot(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 public:
-	virtual ~GT_Spark_Basic();
+	virtual ~Overture_Shoot();
 
 public:
-	static GT_Spark_Basic* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	static Overture_Shoot* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -2049,15 +1555,15 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
-class GT_Spark_Basic_Up : public NeroState
+class Overture_Shoot_Up : public NeroState
 {
 private:
-	explicit GT_Spark_Basic_Up(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	explicit Overture_Shoot_Up(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 public:
-	virtual ~GT_Spark_Basic_Up();
+	virtual ~Overture_Shoot_Up();
 
 public:
-	static GT_Spark_Basic_Up* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+	static Overture_Shoot_Up* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
 public:
 	virtual HRESULT StateEnter()							override;
@@ -2065,8 +1571,898 @@ public:
 	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
 };
 
+class Overture_Shoot_Down : public NeroState
+{
+private:
+	explicit Overture_Shoot_Down(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Overture_Shoot_Down();
 
+public:
+	static Overture_Shoot_Down* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
 
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
 
+class Overture_Shoot_Air : public NeroState
+{
+private:
+	explicit Overture_Shoot_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Overture_Shoot_Air();
+
+public:
+	static Overture_Shoot_Air* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Overture_Shoot_Air_Up : public NeroState
+{
+private:
+	explicit Overture_Shoot_Air_Up(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Overture_Shoot_Air_Up();
+
+public:
+	static Overture_Shoot_Air_Up* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Overture_Shoot_Air_Down : public NeroState
+{
+private:
+	explicit Overture_Shoot_Air_Down(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Overture_Shoot_Air_Down();
+
+public:
+	static Overture_Shoot_Air_Down* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_Idle : public NeroState
+{
+private:
+	explicit Cbs_Idle(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_Idle();
+
+public:
+	static Cbs_Idle* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_ComboA1 : public NeroState
+{
+private:
+	explicit Cbs_ComboA1(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_ComboA1();
+
+public:
+	static Cbs_ComboA1* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_ComboA2 : public NeroState
+{
+private:
+	explicit Cbs_ComboA2(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_ComboA2();
+
+public:
+	static Cbs_ComboA2* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_ComboA3 : public NeroState
+{
+private:
+	explicit Cbs_ComboA3(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_ComboA3();
+
+public:
+	static Cbs_ComboA3* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_ComboA4 : public NeroState
+{
+private:
+	explicit Cbs_ComboA4(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_ComboA4();
+
+public:
+	static Cbs_ComboA4* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_ComboA5 : public NeroState
+{
+private:
+	explicit Cbs_ComboA5(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_ComboA5();
+
+public:
+	static Cbs_ComboA5* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_SKill_Crystal : public NeroState
+{
+private:
+	explicit Cbs_SKill_Crystal(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_Crystal();
+
+public:
+	static Cbs_SKill_Crystal* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_SKill_IceAge_Start : public NeroState
+{
+private:
+	explicit Cbs_SKill_IceAge_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_IceAge_Start();
+
+public:
+	static Cbs_SKill_IceAge_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_SKill_IceAge_Loop : public NeroState
+{
+private:
+	explicit Cbs_SKill_IceAge_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_IceAge_Loop();
+
+public:
+	static Cbs_SKill_IceAge_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+private:
+	float	m_fLoopTime;
+};
+
+class Cbs_SKill_IceAge_End : public NeroState
+{
+private:
+	explicit Cbs_SKill_IceAge_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_IceAge_End();
+
+public:
+	static Cbs_SKill_IceAge_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_SKill_Revolver_Start : public NeroState
+{
+private:
+	explicit Cbs_SKill_Revolver_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_Revolver_Start();
+
+public:
+	static Cbs_SKill_Revolver_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_SKill_Revolver_Loop : public NeroState
+{
+private:
+	explicit Cbs_SKill_Revolver_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_Revolver_Loop();
+
+public:
+	static Cbs_SKill_Revolver_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	UINT	m_iLoopCount = 0;
+};
+
+class Cbs_SKill_Revolver_End : public NeroState
+{
+private:
+	explicit Cbs_SKill_Revolver_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_Revolver_End();
+
+public:
+	static Cbs_SKill_Revolver_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Cbs_SKill_Swing : public NeroState
+{
+private:
+	explicit Cbs_SKill_Swing(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Cbs_SKill_Swing();
+
+public:
+	static Cbs_SKill_Swing* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_BiAttack : public NeroState
+{
+private:
+	explicit Middle_Cbs_BiAttack(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_BiAttack();
+
+public:
+	static Middle_Cbs_BiAttack* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_BlitzAttack : public NeroState
+{
+private:
+	explicit Middle_Cbs_BlitzAttack(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_BlitzAttack();
+
+public:
+	static Middle_Cbs_BlitzAttack* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Satellite : public NeroState
+{
+private:
+	explicit Middle_Cbs_Satellite(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Satellite();
+
+public:
+	static Middle_Cbs_Satellite* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Satellite_Air : public NeroState
+{
+private:
+	explicit Middle_Cbs_Satellite_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Satellite_Air();
+
+public:
+	static Middle_Cbs_Satellite_Air* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Strike : public NeroState
+{
+private:
+	explicit Middle_Cbs_Strike(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Strike();
+
+public:
+	static Middle_Cbs_Strike* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Strike_Air : public NeroState
+{
+private:
+	explicit Middle_Cbs_Strike_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Strike_Air();
+
+public:
+	static Middle_Cbs_Strike_Air* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Strike_Air_Down : public NeroState
+{
+private:
+	explicit Middle_Cbs_Strike_Air_Down(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Strike_Air_Down();
+
+public:
+	static Middle_Cbs_Strike_Air_Down* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Strike_Air_Up : public NeroState
+{
+private:
+	explicit Middle_Cbs_Strike_Air_Up(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Strike_Air_Up();
+
+public:
+	static Middle_Cbs_Strike_Air_Up* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Strike_Down : public NeroState
+{
+private:
+	explicit Middle_Cbs_Strike_Down(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Strike_Down();
+
+public:
+	static Middle_Cbs_Strike_Down* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_Strike_Up : public NeroState
+{
+private:
+	explicit Middle_Cbs_Strike_Up(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_Strike_Up();
+
+public:
+	static Middle_Cbs_Strike_Up* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Middle_Cbs_ThunderBullet : public NeroState
+{
+private:
+	explicit Middle_Cbs_ThunderBullet(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Middle_Cbs_ThunderBullet();
+
+public:
+	static Middle_Cbs_ThunderBullet* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboA1 : public NeroState
+{
+private:
+	explicit Pole_ComboA1(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboA1();
+
+public:
+	static Pole_ComboA1* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboA2 : public NeroState
+{
+private:
+	explicit Pole_ComboA2(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboA2();
+
+public:
+	static Pole_ComboA2* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboA3 : public NeroState
+{
+private:
+	explicit Pole_ComboA3(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboA3();
+
+public:
+	static Pole_ComboA3* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboB1 : public NeroState
+{
+private:
+	explicit Pole_ComboB1(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboB1();
+
+public:
+	static Pole_ComboB1* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboB2 : public NeroState
+{
+private:
+	explicit Pole_ComboB2(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboB2();
+
+public:
+	static Pole_ComboB2* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboB3 : public NeroState
+{
+private:
+	explicit Pole_ComboB3(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboB3();
+
+public:
+	static Pole_ComboB3* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_ComboB4 : public NeroState
+{
+private:
+	explicit Pole_ComboB4(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_ComboB4();
+
+public:
+	static Pole_ComboB4* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_WhirlWind_Start : public NeroState
+{
+private:
+	explicit Pole_WhirlWind_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_WhirlWind_Start();
+
+public:
+	static Pole_WhirlWind_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Pole_WhirlWind_Loop : public NeroState
+{
+private:
+	explicit Pole_WhirlWind_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_WhirlWind_Loop();
+
+public:
+	static Pole_WhirlWind_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+private:
+	UINT	m_iLoopCount = 0;
+	float	m_fLoopTime = 0.f;
+};
+
+class Pole_WhirlWind_End : public NeroState
+{
+private:
+	explicit Pole_WhirlWind_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Pole_WhirlWind_End();
+
+public:
+	static Pole_WhirlWind_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class ComboA_Dash : public NeroState
+{
+private:
+	explicit ComboA_Dash(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~ComboA_Dash();
+
+public:
+	static ComboA_Dash* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Skill_Caliber : public NeroState
+{
+private:
+	explicit Skill_Caliber(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Caliber();
+
+public:
+	static Skill_Caliber* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Skill_Caliber_End : public NeroState
+{
+private:
+	explicit Skill_Caliber_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Caliber_End();
+
+public:
+	static Skill_Caliber_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Hr_Air : public NeroState
+{
+private:
+	explicit Hr_Air(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Hr_Air();
+
+public:
+	static Hr_Air* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Hr_Ex_Start : public NeroState
+{
+private:
+	explicit Hr_Ex_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Hr_Ex_Start();
+
+public:
+	static Hr_Ex_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Hr_Ex_Finish : public NeroState
+{
+private:
+	explicit Hr_Ex_Finish(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Hr_Ex_Finish();
+
+public:
+	static Hr_Ex_Finish* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Hr_Ex_Air_Roll_Start : public NeroState
+{
+private:
+	explicit Hr_Ex_Air_Roll_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Hr_Ex_Air_Roll_Start();
+
+public:
+	static Hr_Ex_Air_Roll_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Hr_Ex_Air_Roll_Loop : public NeroState
+{
+private:
+	explicit Hr_Ex_Air_Roll_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Hr_Ex_Air_Roll_Loop();
+
+public:
+	static Hr_Ex_Air_Roll_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+private:
+	int	m_iLoopCount = 0;
+};
+
+class Hr_Ex_Air_Roll_End : public NeroState
+{
+private:
+	explicit Hr_Ex_Air_Roll_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Hr_Ex_Air_Roll_End();
+
+public:
+	static Hr_Ex_Air_Roll_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Skill_Split_Ex : public NeroState
+{
+private:
+	explicit Skill_Split_Ex(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Split_Ex();
+
+public:
+	static Skill_Split_Ex* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Skill_Split_Ex_Loop : public NeroState
+{
+private:
+	explicit Skill_Split_Ex_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Split_Ex_Loop();
+
+public:
+	static Skill_Split_Ex_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+private:
+	float	m_fLoopTime;
+};
+
+class Skill_Split_Ex_Landing : public NeroState
+{
+private:
+	explicit Skill_Split_Ex_Landing(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Split_Ex_Landing();
+
+public:
+	static Skill_Split_Ex_Landing* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Air_Dive_Slash_Start : public NeroState
+{
+private:
+	explicit Air_Dive_Slash_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Air_Dive_Slash_Start();
+
+public:
+	static Air_Dive_Slash_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Air_Dive_Slash_Loop : public NeroState
+{
+private:
+	explicit Air_Dive_Slash_Loop(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Air_Dive_Slash_Loop();
+
+public:
+	static Air_Dive_Slash_Loop* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+
+};
+
+class Air_Dive_Slash_End : public NeroState
+{
+private:
+	explicit Air_Dive_Slash_End(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Air_Dive_Slash_End();
+
+public:
+	static Air_Dive_Slash_End* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
+
+class Skill_Float_Ground_Ex3_Start : public NeroState
+{
+private:
+	explicit Skill_Float_Ground_Ex3_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+public:
+	virtual ~Skill_Float_Ground_Ex3_Start();
+
+public:
+	static Skill_Float_Ground_Ex3_Start* Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero);
+
+public:
+	virtual HRESULT StateEnter()							override;
+	virtual HRESULT StateExit()								override;
+	virtual HRESULT StateUpdate(const float _fDeltaTime)	override;
+};
 
 #endif // NeroState_h__

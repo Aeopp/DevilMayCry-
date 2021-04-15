@@ -21,29 +21,29 @@ Eff_Glint* Eff_Glint::Create()
 	return new Eff_Glint{};
 }
 
-//
-//void Eff_Glint::RenderAlphaBlendEffectImplementation(
-//	const ImplementationInfo& _ImplInfo)
-//{
-//	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
-//	if (auto SharedSubset = WeakSubset_Plane.lock();
-//		SharedSubset)
-//	{
-//		for (UINT i = 0u; i < 3u; ++i)
-//		{
-//			if (_SliceAmount[i] < 1.f)
-//			{
-//				_ImplInfo.Fx->SetMatrix("World", &_WorldMatrix[i]);
-//				_ImplInfo.Fx->SetFloat("_SliceAmount", _SliceAmount[i]);
-//
-//				_ImplInfo.Fx->SetTexture("BaseMap", _GlintTex->GetTexture());
-//				_ImplInfo.Fx->BeginPass(0);
-//				SharedSubset->Render(_ImplInfo.Fx);
-//				_ImplInfo.Fx->EndPass();
-//			}
-//		}
-//	}
-//}
+
+void Eff_Glint::RenderAlphaBlendEffectImplementation(
+	const DrawInfo& _ImplInfo)
+{
+	auto WeakSubset_Plane = _PlaneMesh->GetSubset(0u);
+	if (auto SharedSubset = WeakSubset_Plane.lock();
+		SharedSubset)
+	{
+		for (UINT i = 0u; i < 3u; ++i)
+		{
+			if (_SliceAmount[i] < 1.f)
+			{
+				_ImplInfo.Fx->SetMatrix("World", &_WorldMatrix[i]);
+				_ImplInfo.Fx->SetFloat("_SliceAmount", _SliceAmount[i]);
+				_ImplInfo.Fx->SetTexture("BaseMap", _GlintTex->GetTexture());
+				
+				_ImplInfo.Fx->BeginPass(0);
+				SharedSubset->Render(_ImplInfo.Fx);
+				_ImplInfo.Fx->EndPass();
+			}
+		}
+	}
+}
 
 HRESULT Eff_Glint::Ready()
 {
@@ -122,13 +122,26 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 				Matrix TempMat, BillMat;
 				D3DXMatrixIdentity(&_WorldMatrix[i]);
 				float Scale = Sptransform->GetScale().x * _Scale[i] * 0.1f;
-				D3DXMatrixScaling(&TempMat, Scale, Scale * _Aspect, 1.f);
-				_WorldMatrix[i] *= TempMat;
 				float Rot = 0.f;
+				Vector3 Pos = Sptransform->GetPosition();
 				if (1u == i)
+				{
 					Rot = D3DXToRadian(35.f);
+					D3DXMatrixScaling(&TempMat, Scale * 1.3f, Scale * _Aspect, 1.f);
+					//Pos += Vector3(0.01f, 0.01f, 0.01f);
+				}
 				else if (2u == i)
+				{
 					Rot = D3DXToRadian(-35.f);
+					D3DXMatrixScaling(&TempMat, Scale * 0.7f, Scale * _Aspect, 1.f);
+					//Pos -= Vector3(0.01f, 0.01f, 0.01f);
+				}
+				else // 0
+				{
+					Rot = 0.f;
+					D3DXMatrixScaling(&TempMat, Scale, Scale * _Aspect, 1.f);
+				}
+				_WorldMatrix[i] *= TempMat;
 				D3DXMatrixRotationZ(&TempMat, Rot);
 				_WorldMatrix[i] *= TempMat;
 				TempMat = Renderer::GetInstance()->_RenderInfo.View;
@@ -138,7 +151,6 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 				memcpy(&BillMat.m[2][0], &TempMat.m[2][0], sizeof(Vector3));
 				D3DXMatrixInverse(&BillMat, 0, &BillMat);
 				_WorldMatrix[i] *= BillMat;
-				Vector3 Pos = Sptransform->GetPosition();
 				D3DXMatrixTranslation(&TempMat, Pos.x, Pos.y, Pos.z);
 				_WorldMatrix[i] *= TempMat;
 			}
@@ -152,21 +164,22 @@ UINT Eff_Glint::Update(const float _fDeltaTime)
 		}
 
 		//
+		ImGui::Text("Eff_Glint");
 		{
 			Vector3 SliderPosition = Sptransform->GetPosition();
-			ImGui::SliderFloat3("Position", SliderPosition, -10.f, 10.f);
+			ImGui::SliderFloat3("Pos##Glint", SliderPosition, -10.f, 10.f);
 			Sptransform->SetPosition(SliderPosition);
 		}
 
 		{
 			float Scale = Sptransform->GetScale().x;
-			ImGui::SliderFloat("Scale", &Scale, 0.1f, 10.f);
+			ImGui::SliderFloat("Scale##Glint", &Scale, 0.1f, 10.f);
 			Sptransform->SetScale({ Scale, Scale, Scale });	// x¸¸ À¯È¿
 		}
 
 		{
 			float Aspect = _Aspect;
-			ImGui::SliderFloat("Aspect", &Aspect, 0.1f, 1.f);
+			ImGui::SliderFloat("Aspect##Glint", &Aspect, 0.1f, 1.f);
 			_Aspect = Aspect;
 		}
 

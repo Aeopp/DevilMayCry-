@@ -35,6 +35,11 @@ void TestObject::RenderReady()
 
 void TestObject::RenderInit()
 {
+	m_nTag = Player;
+
+
+
+
 	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
 	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
 	SetRenderEnable(true);
@@ -81,8 +86,7 @@ void TestObject::RenderInit()
 		 // L"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx"
 	// 스태틱 메쉬 로딩
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx");
-
+		L"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx");
 	PushEditEntity(_StaticMesh.get());
 }
 
@@ -161,7 +165,21 @@ HRESULT TestObject::Start()
 
 UINT TestObject::Update(const float _fDeltaTime)
 {
+	Vector3 vDir = m_pTransform.lock()->GetLook();
 
+	D3DXVec3Normalize(&vDir, &vDir);
+	if (Input::GetKey(DIK_UP))
+		m_pTransform.lock()->Translate(vDir * _fDeltaTime * 10.f);
+	if (Input::GetKey(DIK_DOWN))
+		m_pTransform.lock()->Translate(-vDir * _fDeltaTime * 10.f);
+	if (Input::GetKey(DIK_LEFT))
+		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * -_fDeltaTime * 50.f), 0.f });
+	if (Input::GetKey(DIK_RIGHT))
+		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });
+		
+
+	
+	
 	return 0;
 }
 

@@ -37,7 +37,7 @@ public:
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
-	
+	void UpdateToRootMatricies();
 	bool    IsAnimationEnd();
 	void    EnableToRootMatricies();
 	void    DisableToRootMatricies();
@@ -92,7 +92,7 @@ private:
 	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
 	void AnimationSave(const std::filesystem::path & FullPath)&;
 private:
-	void UpdateToRootMatricies();
+
 	virtual HRESULT LoadMeshImplementation(
 		const aiScene * AiScene,
 		const std::filesystem::path _Path,

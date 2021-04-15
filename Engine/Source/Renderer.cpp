@@ -1113,6 +1113,7 @@ HRESULT Renderer::AlphaBlendEffectRender()&
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
 		Fx->SetMatrix("ViewProjection", &_RenderInfo.ViewProjection);
+		
 		_DrawInfo.Fx = Fx;
 		for (auto& [Entity, Call] : Entitys)
 		{
@@ -1141,24 +1142,17 @@ HRESULT Renderer::UIRender()&
 	for (auto& [ShaderKey, Entitys] : _Group)
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
-		Fx->SetMatrix("ScreenMat", &_RenderInfo.Ortho);
+		Fx->SetMatrix("Ortho", &_RenderInfo.Ortho);
 		_DrawInfo.Fx = Fx;
 		for (auto& [Entity, Call] : Entitys)
 		{
 			UINT Passes{ 0u };
 			Fx->Begin(&Passes, NULL);
-			for (int32 i = 0; i < Passes; ++i)
-			{
-				_DrawInfo.PassIndex = i;
-				Fx->BeginPass(i);
-				{
-					Call(_DrawInfo);
-				}
-				Fx->EndPass();
-			}
+			Call(_DrawInfo);
 			Fx->End();
 		}
 	}
+
 	return S_OK;
 }
 ;

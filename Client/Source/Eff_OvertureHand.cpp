@@ -21,52 +21,53 @@ Eff_OvertureHand* Eff_OvertureHand::Create()
 	return new Eff_OvertureHand{};
 }
 
-//
-//void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
-//	const ImplementationInfo& _ImplInfo)
-//{
-//	auto WeakSubset = _HandMesh->GetSubset(0u);
-//
-//	if (auto SharedSubset = WeakSubset.lock();
-//		SharedSubset)
-//	{
-//		//_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
-//
-//		_ImplInfo.Fx->SetTexture("Color0Map", _GlowTex->GetTexture());
-//		_ImplInfo.Fx->SetTexture("Color1Map", _LightningColorTex->GetTexture());
-//		_ImplInfo.Fx->SetTexture("AlpMap", _LightningTex->GetTexture());
-//		_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
-//
-//		if (0.3f < _AccumulateTime)
-//		{
-//			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV0);
-//			_ImplInfo.Fx->SetFloat("_SliceAmount", (_AccumulateTime - 0.3f) * 0.8f);
-//
-//			_ImplInfo.Fx->BeginPass(1);
-//			SharedSubset->Render(_ImplInfo.Fx);
-//			_ImplInfo.Fx->EndPass();
-//		}
-//
-//		if (0.2f > _AccumulateTime)
-//		{
-//			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
-//			_ImplInfo.Fx->SetFloat("_SliceAmount", 1.f - _AccumulateTime * 5.f);
-//
-//			_ImplInfo.Fx->BeginPass(0);
-//			SharedSubset->Render(_ImplInfo.Fx);
-//			_ImplInfo.Fx->EndPass();
-//		}
-//		else if (0.6f > _AccumulateTime)
-//		{
-//			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
-//			_ImplInfo.Fx->SetFloat("_SliceAmount", _AccumulateTime);
-//
-//			_ImplInfo.Fx->BeginPass(0);
-//			SharedSubset->Render(_ImplInfo.Fx);
-//			_ImplInfo.Fx->EndPass();
-//		}
-//	}
-//}
+
+void Eff_OvertureHand::RenderAlphaBlendEffectImplementation(
+	const DrawInfo& _ImplInfo)
+{
+	auto WeakSubset = _HandMesh->GetSubset(0u);
+
+	if (auto SharedSubset = WeakSubset.lock();
+		SharedSubset)
+	{
+		//_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
+
+		_ImplInfo.Fx->SetTexture("ALB0Map", _GlowTex->GetTexture());
+		_ImplInfo.Fx->SetTexture("ALB1Map", _LightningColorTex->GetTexture());
+		_ImplInfo.Fx->SetTexture("AlphaMap", _LightningTex->GetTexture());
+		_ImplInfo.Fx->SetTexture("NoiseMap", _NoiseTex->GetTexture());
+
+		if (0.3f < _AccumulateTime)
+		{
+			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV0);
+			_ImplInfo.Fx->SetFloat("_SliceAmount", (_AccumulateTime - 0.3f) * 0.8f);
+
+			_ImplInfo.Fx->BeginPass(1);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
+
+		if (0.2f > _AccumulateTime)
+		{
+			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
+			_ImplInfo.Fx->SetFloat("_SliceAmount", 1.f - _AccumulateTime * 5.f);
+
+			_ImplInfo.Fx->BeginPass(0);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
+		else if (0.6f > _AccumulateTime)
+		{
+			_ImplInfo.Fx->SetFloat("_TexV", _RandTexV1);
+			_ImplInfo.Fx->SetFloat("_SliceAmount", _AccumulateTime);
+
+			_ImplInfo.Fx->BeginPass(0);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+		}
+	}
+}
+
 
 HRESULT Eff_OvertureHand::Ready()
 {
@@ -83,7 +84,7 @@ HRESULT Eff_OvertureHand::Ready()
 	//	ENGINE::RenderProperty::Order::AlphaBlendEffect,
 	//	//ENGINE::RenderProperty::Order::Debug
 	//};
-	//RenderInterface::Initialize(_InitRenderProp);
+	RenderInterface::Initialize(_InitRenderProp);
 
 	//_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
 	//	L"..\\..\\Resource\\Shader\\Effect\\OvertureHand.hlsl", {});
@@ -121,7 +122,7 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 	_AccumulateTime += _PlayingSpeed * _fDeltaTime;
 	if (1.5f < _AccumulateTime)
 	{
-		_RandTexV0 = FMath::Random<float>(0.7f, 0.9f);
+		_RandTexV0 = FMath::Random<float>(0.75f, 0.9f);
 		_RandTexV1 = FMath::Random<float>(0.4f, 0.8f);
 		_AccumulateTime = 0.f;
 	}
@@ -130,24 +131,23 @@ UINT Eff_OvertureHand::Update(const float _fDeltaTime)
 		Sptransform)
 	{
 		//
+		ImGui::Text("Eff_OvertureHand");
 		{
 			Vector3 SliderPosition = Sptransform->GetPosition();
-			ImGui::SliderFloat3("Position", SliderPosition, -10.f, 10.f);
+			ImGui::SliderFloat3("Pos##OvertureHand", SliderPosition, -10.f, 10.f);
 			Sptransform->SetPosition(SliderPosition);
 		}
 
 		{
 			float AllScale = Sptransform->GetScale().x;
-			ImGui::SliderFloat("All Scale", &AllScale, 0.01f, 1.f);
+			ImGui::SliderFloat("Scale##OvertureHand", &AllScale, 0.01f, 1.f);
 			Sptransform->SetScale({ AllScale,AllScale,AllScale });
 		}
 
-		static Vector3 Rotation{ 0,0,0 };
-		if (ImGui::SliderAngle("Pitch", &Rotation.x) ||
-			ImGui::SliderAngle("Yaw", &Rotation.y) ||
-			ImGui::SliderAngle("PitchRoll", &Rotation.z))
 		{
-			Sptransform->SetRotation(Rotation);
+			Vector3 SliderRotation{ 0,0,0 };
+			ImGui::SliderFloat3("Rot##OvertureHand", SliderRotation, 0.f, 360.f);
+			Sptransform->SetRotation(SliderRotation);
 		}
 	}
 
