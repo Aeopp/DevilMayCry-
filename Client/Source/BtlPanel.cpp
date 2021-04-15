@@ -5,7 +5,6 @@
 #include "TextureType.h"
 #include "Renderer.h"
 
-
 void BtlPanel::Free()
 {
 	SafeDeleteArray(_UIDescs);
@@ -22,7 +21,7 @@ BtlPanel* BtlPanel::Create()
 }
 
 
-void BtlPanel::RenderUIImplementation(const DrawInfo& _ImplInfo)
+void BtlPanel::RenderUI(const DrawInfo& _ImplInfo)
 {
 	UI_DESC_ID CurID = DESC_END;
 	Matrix ScreenMat;
@@ -100,7 +99,7 @@ void BtlPanel::RenderUIImplementation(const DrawInfo& _ImplInfo)
 		if (_UIDescs[CurID].Using)
 		{
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _TargetCursorTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.3f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _TotalAccumulateTime * 0.3f);
 
 			for (int i = 0; i < 3; ++i)
 			{
@@ -183,8 +182,8 @@ void BtlPanel::RenderUIImplementation(const DrawInfo& _ImplInfo)
 		{
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _TDTGaugeATOSTex->GetTexture());
 			_ImplInfo.Fx->SetTexture("NRMR0Map", _TDTGaugeNRMRTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.3f);
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.1f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexU", _TotalAccumulateTime * 0.3f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _TotalAccumulateTime * 0.1f);
 			_ImplInfo.Fx->SetFloat("_TDTGaugeCurXPosOrtho", _TDTGauge_CurXPosOrtho);
 			
 			Create_ScreenMat(CurID, ScreenMat);
@@ -491,7 +490,7 @@ void BtlPanel::RenderUIImplementation(const DrawInfo& _ImplInfo)
 				_ImplInfo.Fx->SetTexture("ALB1Map", RankTex.lock()->GetTexture());
 				_ImplInfo.Fx->SetTexture("NRMR0Map", _RankNormalTex->GetTexture());
 				_ImplInfo.Fx->SetFloat("_RankGaugeCurYPosOrtho", _RankGauge_CurYPosOrtho);
-				_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.1f);
+				_ImplInfo.Fx->SetFloat("_AccumulationTexU", _TotalAccumulateTime * 0.1f);
 
 				Create_ScreenMat(CurID, ScreenMat, _CurRank);
 				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
@@ -506,31 +505,32 @@ void BtlPanel::RenderUIImplementation(const DrawInfo& _ImplInfo)
 
 void BtlPanel::RenderReady()
 {
-
+	_RenderProperty.bRender = true;
 }
 
 HRESULT BtlPanel::Ready()
 {
 	SetRenderEnable(true);
 
-	m_nTag = GAMEOBJECTTAG::Btl_Panel;
+	m_nTag = GAMEOBJECTTAG::UI_BtlPanel;
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	//_InitRenderProp.RenderOrders =
-	//{
-	//	ENGINE::RenderProperty::Order::UI,
-	//	//ENGINE::RenderProperty::Order::Debug
-	//};
-	//RenderInterface::Initialize(_InitRenderProp);
+	_InitRenderProp.RenderOrders[RenderProperty::Order::UI] =
+	{
+		{"BtlPanel",
+		[this](const DrawInfo& _Info)
+			{
+				this->RenderUI(_Info);
+			}
+		},
+	};
+	RenderInterface::Initialize(_InitRenderProp);
 
-	//_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::UI,
-	//	L"..\\..\\Resource\\Shader\\UI\\BtlPanel.hlsl", {});
+	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Primitive\\plane00.fbx");
+	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Primitive\\pipe00.fbx");
 
-	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
-	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\pipe00.fbx");
-
-	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
+	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\noiseInput_ATOS.tga");
 
 	_RedOrbALBMTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_albm.tga");
 	_RedOrbATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_atos.tga");
@@ -608,7 +608,7 @@ HRESULT BtlPanel::Start()
 
 UINT BtlPanel::Update(const float _fDeltaTime)
 {
-	_AccumulateTime += _fDeltaTime;
+	_DeltaTime = _fDeltaTime;
 	_TotalAccumulateTime += _fDeltaTime;
 
 	////////////////////////////
@@ -639,7 +639,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	}
 	if (Input::GetKeyDown(DIK_F3))
 	{
-		AddRankScore(20);
+		AddRankScore(10);
 	}
 	////////////////////////////
 
@@ -741,7 +741,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 		}
 
 		_RankGauge_DecreaseTick += _fDeltaTime;
-		if (0.1f < _RankGauge_DecreaseTick)
+		if (0.075f < _RankGauge_DecreaseTick)
 		{
 			--_RankScore;
 			_RankGauge_DecreaseTick = 0.f;
@@ -800,7 +800,7 @@ void BtlPanel::AddRankScore(int Score)
 	int AddScoreAmount = Score;
 
 	if (_PreRank < (_RankScore + Score) / 100)
-		AddScoreAmount += 10;	// 바로 랭크 떨어지게 하지 않기 위함
+		AddScoreAmount += 50;	// 바로 랭크 떨어지게 하지 않기 위함
 
 	_RankScore += AddScoreAmount;
 }
@@ -1401,7 +1401,7 @@ void BtlPanel::Check_KeyInput()
 
 void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 {
-	ImGui::Text("BTLPanel : %d", _ID);
+	ImGui::Text("----- BtlPanel : %d -----", _ID);
 
 	Vector3 Position = _UIDescs[_ID].Pos;
 	ImGui::InputFloat3("Position", Position);
@@ -1448,4 +1448,6 @@ void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 	Vector2 InputUIOffset = _InputUIOffset;
 	ImGui::SliderFloat2("InputUIOffset", InputUIOffset, 0, 1000);
 	_InputUIOffset = InputUIOffset;
+
+	ImGui::Text("----- BtlPanel End -----");
 }

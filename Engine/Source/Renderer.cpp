@@ -15,7 +15,7 @@
 USING(ENGINE)
 IMPLEMENT_SINGLETON(Renderer)
 
-Renderer::Renderer(){}
+Renderer::Renderer() {}
 
 void Renderer::Free()
 {
@@ -59,7 +59,7 @@ void Renderer::ReadyLights()
 	// 달빛
 	Moonlight = std::make_shared<FLight>
 		(FLight(FLight::Type::Directional,
-		{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
+			{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
 	PointLights.resize(3u);
 
 	PointLights[0] = std::make_shared<FLight>(
@@ -98,22 +98,22 @@ void Renderer::ReadyRenderTargets()
 {
 	static const Vector2 RenderTargetDebugRenderSize{ 80.f,80.f };
 
-	 const  float InitX =
+	const  float InitX =
 		g_nWndCX / -2.f + (RenderTargetDebugRenderSize.x);
-	 const  float InitY =
-		 g_nWndCY / +2.f - (RenderTargetDebugRenderSize.y);
+	const  float InitY =
+		g_nWndCY / +2.f - (RenderTargetDebugRenderSize.y);
 
-	 const float YOffset = -RenderTargetDebugRenderSize.y *2.f ;
-	 const float XOffset = RenderTargetDebugRenderSize.x * 2.f;
-	 const float Interval = 5.f;
+	const float YOffset = -RenderTargetDebugRenderSize.y * 2.f;
+	const float XOffset = RenderTargetDebugRenderSize.x * 2.f;
+	const float Interval = 5.f;
 
 	{
-		auto& SceneTarget = RenderTargets["SceneTarget"] = 
+		auto& SceneTarget = RenderTargets["SceneTarget"] =
 			std::make_shared<RenderTarget>();
 
 		RenderTarget::Info InitInfo;
 		InitInfo.Width = g_nWndCX;
-		InitInfo.Height = g_nWndCY ;
+		InitInfo.Height = g_nWndCY;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A16B16G16R16F;
@@ -128,15 +128,15 @@ void Renderer::ReadyRenderTargets()
 		auto& ALBM = RenderTargets["ALBM"] = std::make_shared<RenderTarget>();
 
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX ;
-		InitInfo.Height = g_nWndCY ;
+		InitInfo.Width = g_nWndCX;
+		InitInfo.Height = g_nWndCY;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
 		InitInfo.Format = D3DFMT_A8R8G8B8;
 		InitInfo._D3DPool = D3DPOOL_DEFAULT;
 		ALBM->Initialize(InitInfo);
 		ALBM->DebugBufferInitialize(
-			{ InitX,InitY + (YOffset  *1.f ) + Interval },
+			{ InitX,InitY + (YOffset * 1.f) + Interval },
 			RenderTargetDebugRenderSize);
 	}
 
@@ -145,7 +145,7 @@ void Renderer::ReadyRenderTargets()
 
 
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX; 
+		InitInfo.Width = g_nWndCX;
 		InitInfo.Height = g_nWndCY;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
@@ -161,7 +161,7 @@ void Renderer::ReadyRenderTargets()
 		auto& Depth = RenderTargets["Depth"] = std::make_shared<RenderTarget>();
 
 		RenderTarget::Info InitInfo;
-		InitInfo.Width = g_nWndCX; 
+		InitInfo.Width = g_nWndCX;
 		InitInfo.Height = g_nWndCY;
 		InitInfo.Levels = 1;
 		InitInfo.Usages = D3DUSAGE_RENDERTARGET;
@@ -217,20 +217,20 @@ void Renderer::Push(const std::weak_ptr<GameObject>& _RenderEntity)&
 		if (_SharedObject->IsRenderEnable())
 		{
 			if (
-				std::shared_ptr<RenderInterface> _SharedRenderEntity 
-						= std::dynamic_pointer_cast<RenderInterface>(_SharedObject);
+				std::shared_ptr<RenderInterface> _SharedRenderEntity
+				= std::dynamic_pointer_cast<RenderInterface>(_SharedObject);
 				_SharedRenderEntity)
 			{
 				if (false == _SharedRenderEntity->GetRenderProp().bRender)return;
 
 				const auto& _EntityRenderProp = _SharedRenderEntity->GetRenderProp();
 
-				for (const auto& [_EntityOrder,ShaderKeyCallMap] : _EntityRenderProp.RenderOrders)
+				for (const auto& [_EntityOrder, ShaderKeyCallMap] : _EntityRenderProp.RenderOrders)
 				{
-					for (const auto& [ShaderKey,Call]: ShaderKeyCallMap)
+					for (const auto& [ShaderKey, Call] : ShaderKeyCallMap)
 					{
 						RenderEntitys[_EntityOrder][ShaderKey].push_back(
-								RenderEntityType{ _SharedRenderEntity.get(), Call });
+							RenderEntityType{ _SharedRenderEntity.get(), Call });
 					}
 				}
 			}
@@ -306,9 +306,9 @@ void Renderer::RenderBegin()&
 // 등록코드수정 
 void Renderer::RenderReadyEntitys()&
 {
-	for (auto& [_Order,RenderEntitys] : RenderEntitys)
+	for (auto& [_Order, RenderEntitys] : RenderEntitys)
 	{
-		for (auto& [ShaderKey,RenderEntityArr] : RenderEntitys)
+		for (auto& [ShaderKey, RenderEntityArr] : RenderEntitys)
 		{
 			for (auto& RenderEntity : RenderEntityArr)
 			{
@@ -387,7 +387,7 @@ void Renderer::RenderShadowMaps()
 			{
 				_DrawInfo.PassIndex = i;
 				Fx->BeginPass(i);
-				for (auto& [_Entity,_Call] : EntityArr)
+				for (auto& [_Entity, _Call] : EntityArr)
 				{
 					_Call(_DrawInfo);
 				}
@@ -397,12 +397,12 @@ void Renderer::RenderShadowMaps()
 		}
 		// 렌더 엔드 ... 
 
-	});
+		});
 
 	Moonlight->BlurShadowMap(Device, [&](FLight* light) {
 		D3DXVECTOR4 pixelsize(1.0f / light->GetShadowMapSize(),
 			1.0f / light->GetShadowMapSize(), 0, 0);
-		D3DXVECTOR4 TexelSize = Moonlight->BlurIntencity * pixelsize;	
+		D3DXVECTOR4 TexelSize = Moonlight->BlurIntencity * pixelsize;
 		// make it more blurry
 		Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 		Blur->SetTechnique("boxblur3x3");
@@ -504,15 +504,15 @@ void Renderer::RenderGBuffer()
 	DrawInfo _DrawInfo{};
 	_DrawInfo.BySituation.reset();
 	_DrawInfo._Device = Device;
-	for (auto&  [ ShaderKey , Entitys ] : GBufferGroup)
+	for (auto& [ShaderKey, Entitys] : GBufferGroup)
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
 		Fx->SetMatrix("matViewProj", &_RenderInfo.ViewProjection);
 		_DrawInfo.Fx = Fx;
-		for (auto&  [ Entity ,Call ] : Entitys)
+		for (auto& [Entity, Call] : Entitys)
 		{
-			UINT Passes{ 0u }; 
-			Fx->Begin(&Passes, NULL); 
+			UINT Passes{ 0u };
+			Fx->Begin(&Passes, NULL);
 			for (int32 i = 0; i < Passes; ++i)
 			{
 				_DrawInfo.PassIndex = i;
@@ -526,7 +526,7 @@ void Renderer::RenderGBuffer()
 		}
 	}
 
-	RenderScene(Shaders["gbuffer_ds"]->GetEffect() , _RenderInfo.ViewProjection);
+	RenderScene(Shaders["gbuffer_ds"]->GetEffect(), _RenderInfo.ViewProjection);
 
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
@@ -545,13 +545,13 @@ void Renderer::DeferredShading()
 	// Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
-	
+
 
 	auto device = Device;
 
 	auto scenesurface = RenderTargets["SceneTarget"]->GetSurface();
 	auto albedo = RenderTargets["ALBM"]->GetTexture();
-	auto normals= RenderTargets["NRMR"]->GetTexture();
+	auto normals = RenderTargets["NRMR"]->GetTexture();
 	auto depth = RenderTargets["Depth"]->GetTexture();
 
 	auto deferred = Shaders["DeferredShading"]->GetEffect();
@@ -581,12 +581,12 @@ void Renderer::DeferredShading()
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-	
+
 	deferred->SetTechnique("deferred");
 	deferred->SetMatrix("matViewProjInv", &_RenderInfo.ViewProjectionInverse);
 	deferred->SetVector("pixelSize", &pixelsize);
 	deferred->SetVector("eyePos", &_RenderInfo.Eye);
-	
+
 
 	deferred->Begin(NULL, 0);
 	deferred->BeginPass(0);
@@ -594,7 +594,7 @@ void Renderer::DeferredShading()
 		D3DXMATRIX lightviewproj;
 		D3DXVECTOR4 clipplanes(0, 0, 0, 0);
 
-		
+
 		Moonlight->CalculateViewProjection(lightviewproj);
 
 		{
@@ -608,8 +608,8 @@ void Renderer::DeferredShading()
 			ImGui::SliderFloat("sinAngularRadius", &sinAngularRadius, -1.f, 1.f);
 			ImGui::SliderFloat("cosAngularRadius ", &cosAngularRadius, -1.f, 1.f);
 
-			deferred->SetFloat("sinAngularRadius", sinAngularRadius );
-			deferred->SetFloat("cosAngularRadius", cosAngularRadius );
+			deferred->SetFloat("sinAngularRadius", sinAngularRadius);
+			deferred->SetFloat("cosAngularRadius", cosAngularRadius);
 
 			device->SetTexture(3, Moonlight->GetShadowMap());
 			deferred->CommitChanges();
@@ -619,14 +619,14 @@ void Renderer::DeferredShading()
 		// point lights
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
-		for (int i = 0; i < 3; ++i) 
+		for (int i = 0; i < 3; ++i)
 		{
 			clipplanes.x = PointLights[i]->GetNearPlane();
 			clipplanes.y = PointLights[i]->GetFarPlane();
-			Math::Matrix viewtranspose, projtranspose ,view,proj; 
+			Math::Matrix viewtranspose, projtranspose, view, proj;
 			std::memcpy(&view, &_RenderInfo.View, sizeof(Matrix));
 			std::memcpy(&proj, &_RenderInfo.Projection, sizeof(Matrix));
-			Math::MatrixTranspose(viewtranspose, view);   
+			Math::MatrixTranspose(viewtranspose, view);
 			Math::MatrixTranspose(projtranspose, proj);
 			RECT scissorrect;
 			PointLights[i]->CalculateScissorRect(
@@ -671,9 +671,9 @@ void Renderer::DeferredShading()
 		screenquad->SetTechnique("rect");
 		screenquad->Begin(NULL, 0);
 		screenquad->BeginPass(0);
-		for(auto& PtLt : PointLights)
+		for (auto& PtLt : PointLights)
 		{
-			
+
 			// draw some outline around scissor rect
 			float rectvertices[24];
 			uint16_t rectindices[5] = { 0, 1, 2, 3, 0 };
@@ -717,10 +717,10 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 	ImGui::SliderFloat3("allrotationeuler", allrotationeuler, -360.f, 360.f);
 	D3DXMATRIX Allrotation{};
 
-	D3DXMatrixRotationYawPitchRoll(&Allrotation, 
-		FMath::ToRadian( allrotationeuler.y  ) ,  
-		FMath::ToRadian( allrotationeuler.x ) ,
-		FMath::ToRadian( allrotationeuler.z  )  );
+	D3DXMatrixRotationYawPitchRoll(&Allrotation,
+		FMath::ToRadian(allrotationeuler.y),
+		FMath::ToRadian(allrotationeuler.x),
+		FMath::ToRadian(allrotationeuler.z));
 
 	world[0] *= Allrotation;
 	world[1] *= Allrotation;
@@ -770,12 +770,12 @@ void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 		//effect->CommitChanges();
 		//skull->DrawSubset(0);
 
-		Matrix targetscale,targettranslation ,targetworld,targetinverseworld;
- 		D3DXMatrixScaling(&targetscale, 0.15f, 0.15f, 0.15f) ;
-		D3DXMatrixTranslation(&targettranslation, 
+		Matrix targetscale, targettranslation, targetworld, targetinverseworld;
+		D3DXMatrixScaling(&targetscale, 0.15f, 0.15f, 0.15f);
+		D3DXMatrixTranslation(&targettranslation,
 			MoonLightTarget.x, MoonLightTarget.y, MoonLightTarget.z);
 		targetworld = targetscale * targettranslation;
-		D3DXMatrixInverse(&targetinverseworld,nullptr, &targetworld); 
+		D3DXMatrixInverse(&targetinverseworld, nullptr, &targetworld);
 
 		effect->SetMatrix("matWorld", &targetworld);
 		effect->SetMatrix("matWorldInv", &targetinverseworld);
@@ -824,11 +824,11 @@ HRESULT Renderer::RenderDeferredShading()&
 	pixelsize.x = 1.0f / static_cast<float> (_RenderInfo.Viewport.Width);
 	pixelsize.y = -1.0f / static_cast<float> (_RenderInfo.Viewport.Height);
 
-	Device->SetFVF(D3DFVF_XYZW |D3DFVF_TEX1);
+	Device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 	Device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
 	Device->SetRenderTarget(0u, RenderTargets["SceneTarget"]->GetSurface());
-	Device->Clear(0,NULL,D3DCLEAR_TARGET, 0, 1.0f, 0);
+	Device->Clear(0, NULL, D3DCLEAR_TARGET, 0, 1.0f, 0);
 
 	Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
@@ -877,10 +877,10 @@ HRESULT Renderer::RenderDeferredShading()&
 		Fx->SetFloat("specularPower", 200.0f);
 		Fx->SetFloat("lightFlux", Moonlight->lightFlux);
 		Fx->SetFloat("lightIlluminance", Moonlight->lightIlluminance);
-		Fx->SetFloat("specularPower",Moonlight->specularPower);
-		Fx->SetFloat("sinAngularRadius",Moonlight->sinAngularRadius);
+		Fx->SetFloat("specularPower", Moonlight->specularPower);
+		Fx->SetFloat("sinAngularRadius", Moonlight->sinAngularRadius);
 		Fx->SetFloat("cosAngularRadius", Moonlight->cosAngularRadius);
-		
+
 		Device->SetTexture(3, Moonlight->GetShadowMap());
 		Fx->CommitChanges();
 
@@ -890,7 +890,7 @@ HRESULT Renderer::RenderDeferredShading()&
 
 	Device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 	RECT scissorrect;
-	
+
 	for (int i = 0; i < 3; ++i)
 	{
 		clipplanes.x = PointLights[i]->GetNearPlane();
@@ -909,11 +909,11 @@ HRESULT Renderer::RenderDeferredShading()&
 		Fx->SetVector("lightPos", &PointLights[i]->GetPosition());
 		Fx->SetFloat("specularPower", PointLights[0]->specularPower);
 		Fx->SetFloat("lightRadius", PointLights[i]->GetPointRadius());
-		Fx->SetFloat("lightFlux",PointLights[0]->lightFlux);
+		Fx->SetFloat("lightFlux", PointLights[0]->lightFlux);
 		Fx->SetFloat("lightIlluminance", PointLights[0]->lightIlluminance);
 		Fx->SetFloat("sinAngularRadius", PointLights[0]->sinAngularRadius);
 		Fx->SetFloat("cosAngularRadius", PointLights[0]->cosAngularRadius);
-		
+
 		Device->SetTexture(4, PointLights[i]->GetCubeShadowMap());
 		Fx->CommitChanges();
 		_Quad->Render(Device, 1.f, 1.f, Fx);
@@ -943,7 +943,7 @@ HRESULT Renderer::RenderDeferredShading()&
 	rectvertices[19] += scissorrect.top;
 
 	Device->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
-	auto*const screenquad = Shaders["ScreenQuad"]->GetEffect();
+	auto* const screenquad = Shaders["ScreenQuad"]->GetEffect();
 	screenquad->SetTechnique("rect");
 	screenquad->Begin(NULL, 0);
 	screenquad->BeginPass(0);
@@ -969,7 +969,7 @@ HRESULT Renderer::RenderDebug()&
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
 		auto DebugColor = Vector4(0.7f, 0.0f, 0.3f, 0.5f);
-		Fx->SetVector("DebugColor", &DebugColor); 
+		Fx->SetVector("DebugColor", &DebugColor);
 		Fx->SetMatrix("ViewProjection", &_RenderInfo.ViewProjection);
 		_DrawInfo.Fx = Fx;
 		UINT Passes{ 0u };
@@ -978,13 +978,13 @@ HRESULT Renderer::RenderDebug()&
 		{
 			_DrawInfo.PassIndex = i;
 			Fx->BeginPass(i);
-			for (auto& [_Entity,Call]: _EntityArr)
+			for (auto& [_Entity, Call] : _EntityArr)
 			{
 				Call(_DrawInfo);
 			}
 			Fx->EndPass();
 		}
-		Fx->End(); 
+		Fx->End();
 	}
 	return S_OK;
 };
@@ -998,12 +998,12 @@ HRESULT Renderer::RenderDebugBone()&
 	DrawInfo _DrawInfo{};
 	_DrawInfo._Device = Device;
 	_DrawInfo.BySituation.reset();
-	
+
 	for (auto& [ShaderKey, _EntityArr] : _Order)
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
 		_DrawInfo.Fx = Fx;
-		Vector4 DebugColor {0.3f,0.7f,0.1f,0.5f};
+		Vector4 DebugColor{ 0.3f,0.7f,0.1f,0.5f };
 		const Matrix ScaleOffset = FMath::Scale({ 0.01f,0.01f,0.01f });
 		const Matrix ViewProjection = _RenderInfo.ViewProjection;
 		Fx->SetVector("DebugColor", &DebugColor);
@@ -1015,7 +1015,7 @@ HRESULT Renderer::RenderDebugBone()&
 		{
 			Fx->BeginPass(i);
 			_DrawInfo.PassIndex = i;
-			for (auto& [Entity ,Call]: _EntityArr)
+			for (auto& [Entity, Call] : _EntityArr)
 			{
 				Call(_DrawInfo);
 			}
@@ -1113,7 +1113,7 @@ HRESULT Renderer::AlphaBlendEffectRender()&
 	{
 		auto Fx = Shaders[ShaderKey]->GetEffect();
 		Fx->SetMatrix("ViewProjection", &_RenderInfo.ViewProjection);
-		
+
 		_DrawInfo.Fx = Fx;
 		for (auto& [Entity, Call] : Entitys)
 		{
@@ -1245,4 +1245,3 @@ void Renderer::TestLightEdit()
 		Moonlight->SetPosition((const D3DXVECTOR4&)moondir);
 	}
 };
-

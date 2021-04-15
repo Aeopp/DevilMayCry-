@@ -4,7 +4,7 @@
 #include "RenderInterface.h"
 
 class BtlPanel : public ENGINE::GameObject,
-				public ENGINE::RenderInterface				
+				 public ENGINE::RenderInterface				
 {
 private:
 	enum UI_DESC_ID
@@ -94,7 +94,7 @@ private:
 	std::shared_ptr<ENGINE::Texture> _RankBAAlbTex{};
 	std::shared_ptr<ENGINE::Texture> _RankSAlbTex{};
 
-	float _AccumulateTime = 0.f;
+	float _DeltaTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
 
 	Vector3 _TargetPos = Vector3(0.f, 0.f, 0.f);
@@ -156,7 +156,9 @@ private:
 	// GameObject을(를) 통해 상속됨
 	virtual void Free() override;
 	virtual std::string GetName() override;
-	///
+private:
+	void	RenderUI(const DrawInfo& _ImplInfo);
+private:
 	void	Init_UIDescs();
 	void	Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt = 0);
 	void	Update_TargetInfo();
@@ -167,7 +169,6 @@ private:
 public:
 	static BtlPanel* Create();
 public:
-	void    RenderUIImplementation(const DrawInfo&_ImplInfo) ;
 	virtual void    RenderReady() override;
 public:
 	virtual HRESULT Ready() override;

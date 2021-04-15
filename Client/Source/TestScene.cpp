@@ -4,19 +4,19 @@
 #include "TestObject.h"
 #include "ShaderTester.h"
 #include "TestAnimationObject.h"
-#include "Eff_OvertureHand.h"
-#include "Eff_Glint.h"
-#include "BtlPanel.h"
 #include "Camera.h"
 #include "Nero.h"
+#include "RedQueen.h"
 #include "Em100.h"
 #include "Em101.h"
 #include "Em0000.h"
 #include "Em0000_Weapon.h"
 #include "Em5000.h"
-#include <iostream>
-#include "RedQueen.h"
+#include "OvertureHand.h"
+#include "Glint.h"
+#include "BtlPanel.h"
 
+#include <iostream>
 using namespace std;
 
 TestScene::TestScene()
@@ -40,14 +40,12 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 	
 	AddGameObject<Camera>();
-	AddGameObject<Nero>();
-	// AddGameObject<Em5000>();
 
 	//AddGameObject<ShaderTester>();
-	/*AddGameObject<TestObject>();
-	AddGameObject<TestAnimationObject>();*/
 
-	//AddGameObject<Nero>();
+	//AddGameObject<TestObject>();
+	//AddGameObject<TestAnimationObject>();
+
 	/*AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();
@@ -58,17 +56,15 @@ HRESULT TestScene::LoadScene()
 	AddGameObject<TestAnimationObject>();
 	AddGameObject<TestAnimationObject>();*/
 
-	/*AddGameObject<Eff_OvertureHand>();
-	AddGameObject<BtlPanel>();
-	AddGameObject<Eff_Glint>();*/
-	// AddGameObject<TestObject>();
-	//AddGameObject<TestAnimationObject>();
 	//AddGameObject<Nero>();
-	//AddGameObject<BtlPanel>();
-	//AddGameObject<Eff_OvertureHand>();
-	//AddGameObject<BtlPanel>();
-	//AddGameObject<Eff_Glint>();
 
+	//AddGameObject<Em5000>();
+
+	//AddGameObject<BtlPanel>();
+	//AddGameObject<Glint>();
+	//AddGameObject<OvertureHand>();
+	
+	// 수정 필요
 	//AddGameObject<DashImpact>();
 	//AddGameObject<Blood>();
 
