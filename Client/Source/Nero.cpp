@@ -4,7 +4,8 @@
 #include "Subset.h"
 #include "NeroFSM.h"
 #include "RedQueen.h"
-
+#include "Nero_LWing.h"
+#include "Nero_RWing.h"
 Nero::Nero()
 	:m_iCurAnimationIndex(ANI_END)
 	, m_iPreAnimationIndex(ANI_END)
@@ -95,6 +96,8 @@ HRESULT Nero::Ready()
 	//FSM ¡ÿ∫Ò
 
 	m_pRedQueen = AddGameObject<RedQueen>();
+	m_pLWing = AddGameObject<Nero_LWing>();
+	m_pRWing = AddGameObject<Nero_RWing>();
 	m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
 
 	m_iCurAnimationIndex = ANI_END;
@@ -236,6 +239,12 @@ optional<Matrix> Nero::Get_BoneMatrix_ByName(std::string _BoneName)
 Matrix* Nero::Get_BoneMatrixPtr(std::string _BoneName)
 {
 	return m_pMesh->GetToRootMatrixPtr(_BoneName);;
+}
+
+void Nero::SetActive_Wings(bool ActiveOrNot)
+{
+	m_pLWing.lock()->SetActive(ActiveOrNot);
+	m_pRWing.lock()->SetActive(ActiveOrNot);
 }
 
 void Nero::StopAnimation()

@@ -176,6 +176,8 @@
     <ClInclude Include="..\Header\NeroFSM.h" />
     <ClInclude Include="..\Header\Nero.h" />
     <ClInclude Include="..\Header\NeroState.h" />
+    <ClInclude Include="..\Header\Nero_LWing.h" />
+    <ClInclude Include="..\Header\Nero_RWing.h" />
     <ClInclude Include="..\Header\RedQueen.h" />
     <ClInclude Include="..\Header\TestAnimationObject.h" />
     <ClInclude Include="..\Header\Eff_OvertureHand.h" />
@@ -206,6 +208,8 @@
     <ClCompile Include="..\Source\NeroFSM.cpp" />
     <ClCompile Include="..\Source\Nero.cpp" />
     <ClCompile Include="..\Source\NeroState.cpp" />
+    <ClCompile Include="..\Source\Nero_LWing.cpp" />
+    <ClCompile Include="..\Source\Nero_RWing.cpp" />
     <ClCompile Include="..\Source\RedQueen.cpp" />
     <ClCompile Include="..\Source\TestAnimationObject.cpp" />
     <ClCompile Include="..\Source\Eff_OvertureHand.cpp" />

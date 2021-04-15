@@ -6,6 +6,8 @@
 #include "RenderInterface.h"
 class NeroFSM;
 class RedQueen;
+class Nero_LWing;
+class Nero_RWing;
 class Nero :   public GameObject ,
 	public ENGINE::RenderInterface
 
@@ -240,6 +242,7 @@ public:
 public:
 	void Reset_JumpCount() { m_iJumpCount = 1; }
 	void Set_JumpDir(UINT _iJumpDir) { m_iJumpDirIndex = _iJumpDir; }
+	void SetActive_Wings(bool ActiveOrNot);
 public:
 	void DecreaseJumpCount() { --m_iJumpCount; }
 	void DecreaseRQ_Gage() { m_fRedQueenGage -= 1; }
@@ -267,6 +270,9 @@ private:
 	std::shared_ptr<ENGINE::SkeletonMesh> m_pMesh;
 	std::shared_ptr<NeroFSM> m_pFSM;
 	std::weak_ptr<RedQueen> m_pRedQueen;
+	std::weak_ptr<Nero_LWing>	m_pLWing;
+	std::weak_ptr<Nero_RWing>	m_pRWing;
+
 
 	UINT	m_iCurAnimationIndex;
 	UINT	m_iPreAnimationIndex;

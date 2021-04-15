@@ -102,6 +102,16 @@
       <Filter>02.GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\RedQueen.h" />
+    <ClInclude Include="..\Header\Blood.h" />
+    <ClInclude Include="..\Header\DashImpact.h" />
+    <ClInclude Include="..\Header\Em0000.h" />
+    <ClInclude Include="..\Header\Em0000_Weapon.h" />
+    <ClInclude Include="..\Header\Em100.h" />
+    <ClInclude Include="..\Header\Em101.h" />
+    <ClInclude Include="..\Header\Em5000.h" />
+    <ClInclude Include="..\Header\Monster.h" />
+    <ClInclude Include="..\Header\Nero_LWing.h" />
+    <ClInclude Include="..\Header\Nero_RWing.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -156,5 +166,15 @@
       <Filter>02.GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\RedQueen.cpp" />
+    <ClCompile Include="..\Source\Blood.cpp" />
+    <ClCompile Include="..\Source\DashImpact.cpp" />
+    <ClCompile Include="..\Source\Em0000.cpp" />
+    <ClCompile Include="..\Source\Em0000_Weapon.cpp" />
+    <ClCompile Include="..\Source\Em100.cpp" />
+    <ClCompile Include="..\Source\Em101.cpp" />
+    <ClCompile Include="..\Source\Em5000.cpp" />
+    <ClCompile Include="..\Source\Monster.cpp" />
+    <ClCompile Include="..\Source\Nero_LWing.cpp" />
+    <ClCompile Include="..\Source\Nero_RWing.cpp" />
   </ItemGroup>
 </Project>
