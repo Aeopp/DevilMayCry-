@@ -559,7 +559,6 @@
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
     <None Include="..\..\Resource\Shader\Debug.hlsl">
       <Filter>04.HLSL</Filter>
     </None>
@@ -592,6 +591,9 @@
     </None>
     <None Include="..\..\Resource\Shader\ToneMap.hlsl">
       <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
     </None>
   </ItemGroup>
 </Project>
