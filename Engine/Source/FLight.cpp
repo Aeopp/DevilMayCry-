@@ -152,6 +152,22 @@ void FLight::EditImplementation(const uint32 Idx)
 	}
 
 	{
+		ImGui::Text("Point Radius : %4.3f ", PointRadius);
+		static float PointRadiusSliderPower = 0.01f;
+		ImGui::SliderFloat("PointRadiusSliderPower", 
+			&PointRadiusSliderPower, FLT_MIN, 1.f);
+		ImGui::InputFloat3("In PointRadius",&PointRadius);
+		float  AddPointRadius{ 0.0f };
+		if (ImGui::SliderFloat("Add PointRadius",&AddPointRadius, -1.f, 1.f, "%3.3f"))
+		{
+			AddPointRadius *= PointRadiusSliderPower;
+		}
+		PointRadius += AddPointRadius;
+		ImGui::Separator();
+	}
+
+
+	{
 		ImGui::Text("Projection Size : %4.4f , %4.4f", Projparams.x, Projparams.y);
 		static float ProjectionSizeSliderPower = 0.01f;
 		ImGui::SliderFloat("ProjectionSliderPower", &ProjectionSizeSliderPower, FLT_MIN, 1.f);
@@ -213,7 +229,6 @@ void FLight::EditImplementation(const uint32 Idx)
 		lightFlux += AddlightFlux;
 		
 		ImGui::Separator();
-
 	}
 
 	{

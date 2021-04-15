@@ -108,14 +108,14 @@ void TestObject::RenderGBuffer(const DrawInfo& _Info)
 		{
 			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
 			{
-				/*const std::string msg = std::to_string(i) + " : 컬링 !! ";
-				std::cout << msg << std::endl;*/
+				const std::string msg = std::to_string(i) + " : 컬링 !! ";
+				std::cout << msg << std::endl;
 				continue; 
 			}
 			else
 			{
-				/*const std::string msg = std::to_string(i) + " : 드로우 !! ";
-				std::cout << msg << std::endl;*/
+				const std::string msg = std::to_string(i) + " : 드로우 !! ";
+				std::cout << msg << std::endl;
 			}
 
 			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
@@ -136,14 +136,14 @@ void TestObject::RenderShadow(const DrawInfo& _Info)
 		{
 			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
 			{
-				/*const std::string msg = std::to_string(i) + " : 컬링 !! ";
-				std::cout << msg << std::endl;*/
+				const std::string msg = std::to_string(i) + " : 쉐도우 컬링 !! ";
+				std::cout << msg << std::endl;
 				continue;
 			}
 			else
 			{
-				/*const std::string msg = std::to_string(i) + " : 드로우 !! ";
-				std::cout << msg << std::endl;*/
+				const std::string msg = std::to_string(i) + " : 쉐도우 드로우 !! ";
+				std::cout << msg << std::endl;
 			}
 
 			SpSubset->Render(_Info.Fx);
@@ -162,6 +162,12 @@ void TestObject::RenderDebug(const DrawInfo& _Info)
 		if (auto SpSubset = _StaticMesh->GetSubset(i).lock();
 			SpSubset)
 		{
+			if (false == 
+				_Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+			{
+				continue;
+			}
+
 			SpSubset->Render(_Info.Fx);
 		};
 	};

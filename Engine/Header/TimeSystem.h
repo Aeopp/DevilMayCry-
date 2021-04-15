@@ -1,6 +1,7 @@
 #ifndef __TIME_SYSTEM_H__
 #define __TIME_SYSTEM_H__
 #include "Object.h"
+#include <chrono>
 
 BEGIN(ENGINE)
 class TimeSystem final : public Object
@@ -15,6 +16,8 @@ private:
 	LARGE_INTEGER	m_tEndFrame;
 	uint64			m_uiFrameRate;
 	uint64          m_uiUpdateCount;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_PrevTime;
 private:
 	explicit TimeSystem();
 	virtual ~TimeSystem() = default;
