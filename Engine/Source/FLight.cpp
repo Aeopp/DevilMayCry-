@@ -152,6 +152,39 @@ void FLight::EditImplementation(const uint32 Idx)
 	}
 
 	{
+		ImGui::Text(
+			"Direction : Yaw %4.3f, Pitch %4.3f, Roll %4.3f", 
+			Direction.y, Direction.x, Direction.z);
+
+		if (ImGui::InputFloat3("In Direction", Direction))
+		{
+			Direction.x = FMath::ToRadian(Direction.x);
+			Direction.y = FMath::ToRadian(Direction.y);
+			Direction.z = FMath::ToRadian(Direction.z);
+		}
+
+		static float DirectionSliderPower = 0.01f;
+		ImGui::SliderFloat("DirectionSliderPower",
+			&DirectionSliderPower, FLT_MIN, 1.f);
+		Vector3  AddDirection{ 0,0,0 };
+		if (ImGui::SliderFloat3("Add AddDirection", AddDirection, 
+			-360.f, 360.f, "%3.3f deg"))
+		{
+			AddDirection *= DirectionSliderPower;
+		}
+		Direction += AddDirection;
+
+		/*if (ImGui::SliderFloat3("Slider Direction", Direction,-360.f,360.f))
+		{
+			Direction.x = FMath::ToRadian(Direction.x);
+			Direction.y = FMath::ToRadian(Direction.y);
+			Direction.z = FMath::ToRadian(Direction.z);
+
+		}*/
+		ImGui::Separator();
+	}
+
+	{
 		ImGui::Text("Point Radius : %4.3f ", PointRadius);
 		static float PointRadiusSliderPower = 0.01f;
 		ImGui::SliderFloat("PointRadiusSliderPower", 
@@ -299,13 +332,15 @@ void FLight::CalculateViewProjection(D3DXMATRIX& out)
 {
 	if (_Type == Directional) {
 		D3DXVECTOR3 eye = { Position.x , Position.y , Position.z };
-		D3DXVECTOR3 look(0, 0, 0);
+		// D3DXVECTOR3 look(0, 0, 0);
 		D3DXVECTOR3 up(0, 1, 0);
 
 		if (fabs(Position.y) > 0.999f)
 			up = D3DXVECTOR3(1, 0, 0);
 		
-		D3DXMatrixLookAtLH(&out, &eye, &look, &up);
+		Vector3 At = eye + FMath::MulNormal(Vector3{ 0,0,1 },
+			FMath::Rotation({ Direction.x , Direction.y , Direction.z }));
+		D3DXMatrixLookAtLH(&out, &eye, &At, &up);
 		D3DXMatrixOrthoLH(&this->proj, 
 			Projparams.x, Projparams.y, Projparams.z, Projparams.w);
 		D3DXMatrixInverse(&this->viewinv, nullptr, &out);

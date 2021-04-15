@@ -72,7 +72,7 @@ private:
 	uint16_t				ShadowMapSize;
 	bool					Blurred;
 public:
-	D3DXVECTOR3             Direction;
+	D3DXVECTOR3             Direction{ 0,0,0 };
 	float                   BlurIntencity;
 	float  lightFlux = 10.f;
 	float  lightIlluminance = 1.5f;
