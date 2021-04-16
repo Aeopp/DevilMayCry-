@@ -165,18 +165,6 @@
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
       <Filter>04.HLSL\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlend.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\GBuffer.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\ScreenQuad.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\UI\BtlPanel.hlsl">
       <Filter>04.HLSL\UI</Filter>
     </ClInclude>
@@ -562,42 +550,44 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Resource\Shader\DebugSK.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
+    <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\Debug.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\DebugSK.hlsl">
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
     <None Include="..\..\Resource\Shader\Blur.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\DebugBone.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
-    </None>
-    <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\gbuffer_ds.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\gbuffer_dsSK.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\RTDebug.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\Shadow.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\ShadowSK.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
     </None>
     <None Include="..\..\Resource\Shader\ToneMap.hlsl">
-      <Filter>04.HLSL\Scene</Filter>
+      <Filter>04.HLSL</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+      <Filter>04.HLSL\Effect</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 matrix World;
-matrix View;
-matrix Projection;
+matrix ViewProjection;
 //float3 LightDirection = float3(0, -1, 0);
 
 float _SliceAmount = 0.f;
@@ -13,6 +12,8 @@ sampler Base = sampler_state
     magfilter = linear;
     mipfilter = linear;
     sRGBTexture = true;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 
@@ -32,8 +33,8 @@ VsOut VsMain(VsIn In)
 {
     VsOut Out = (VsOut) 0;
     
-    matrix WVP = mul(World, View);
-    WVP = mul(WVP, Projection);
+    matrix WVP = World;
+    WVP = mul(WVP, ViewProjection);
     
     Out.Position = mul(float4(In.Position.xyz, 1.f), WVP);
     Out.UV = In.UV;
