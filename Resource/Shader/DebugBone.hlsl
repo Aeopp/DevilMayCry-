@@ -1,10 +1,8 @@
 float4x4 ToRoot;
-
 float4x4 ScaleOffset;
 
 float4x4 World;
-float4x4 View;
-float4x4 Projection;
+float4x4 ViewProjection;
 float2 UVScale = { 1, 1 };
 float4 DebugColor = float4(0.3f, 0.7f, 0.1f, 0.5f);
 
@@ -23,7 +21,6 @@ struct VsOut
 VsOut VsDebug(VsIn In)
 {
     VsOut Out = (VsOut) 0;
-    float4x4 ViewProjection = mul(View, Projection);
     float4x4 RenderTransform = mul(ToRoot, World);
     RenderTransform = mul(ScaleOffset , RenderTransform);
     float4x4 WVP = mul(RenderTransform, ViewProjection);

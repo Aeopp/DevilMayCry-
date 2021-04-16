@@ -18,8 +18,8 @@ private:
 public:
 	static Blood* Create();
 public:
-	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo)override;
-	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
+	 void    RenderForwardAlphaBlendImplementation(const DrawInfo& _ImplInfo);
+	void    RenderDebugImplementation(const DrawInfo& _ImplInfo);
 	virtual void    RenderReady()                          override;
 public:
 	virtual HRESULT Ready() override;

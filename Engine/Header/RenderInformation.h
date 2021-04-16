@@ -9,9 +9,14 @@ BEGIN(ENGINE)
 class ENGINE_DLL RenderInformation
 {
 public:
+	D3DVIEWPORT9 Viewport{};
+	Vector4 Eye{0,0,0,1};
+	Matrix  View{}; 
 	Matrix  ViewInverse{};
-	Matrix  CameraView{}; 
-	Matrix  CameraProjection{};
+	Matrix  Projection{};
+	Matrix  ProjectionInverse{};
+	Matrix  ViewProjection{};
+	Matrix  ViewProjectionInverse{};
 	Matrix  Ortho{};
 };
 END

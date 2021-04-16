@@ -60,7 +60,7 @@ public:
 		const double CurrentAnimationTime,
 		const std::string& AnimationName,
 		const std::optional<AnimationBlendInfo>& IsAnimationBlend ,
-		const Quaternion& QuatOffset)&;
+		const Quaternion& QuatOffset = Quaternion{0,0,0,1})&;
 
 	void Editor(std::string& RefRootMotionScaleName,
 				std::string& RefRootMotionRotationName,

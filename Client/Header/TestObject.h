@@ -17,10 +17,9 @@ private:
 public:
 	static TestObject* Create();
 public:
-	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
-	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderReady()                          override;
 public:
+	void RenderInit();
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;
 	virtual HRESULT Start() override;
@@ -29,7 +28,9 @@ public:
 	virtual void    Editor()override;
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
-
-
+public:
+	void RenderDebug(const DrawInfo& _Info);
+	void RenderGBuffer(const DrawInfo& _Info);
+	void RenderShadow(const DrawInfo& _Info);
 };
 #endif //

@@ -5,7 +5,6 @@
 #include "TextureType.h"
 #include "Renderer.h"
 
-
 void TestObject::Free()
 {
 
@@ -19,40 +18,6 @@ std::string TestObject::GetName()
 TestObject* TestObject::Create()
 {
 	return new TestObject{};
-}
-
-
-void TestObject::RenderForwardAlphaBlendImplementation(
-	const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
-			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-};
-
-void TestObject::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
-{
-	const uint64 NumSubset = _StaticMesh->GetNumSubset();
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = _StaticMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
 };
 
 void TestObject::RenderReady()
@@ -61,20 +26,28 @@ void TestObject::RenderReady()
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
+		const Vector3 Scale = _SpTransform->GetScale();
 		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
+		_RenderUpdateInfo.World = _SpTransform->GetWorldMatrix();
+		if (_StaticMesh)
+		{
+			const uint32  Numsubset = _StaticMesh->GetNumSubset();  
+			_RenderUpdateInfo.SubsetCullingSphere.resize(Numsubset);
+
+			for (uint32 i = 0; i < Numsubset ;  ++i)
+			{
+				const auto& _Subset = _StaticMesh->GetSubset(i); 
+				const auto& _CurBS =_Subset.lock()->GetVertexBufferDesc().BoundingSphere;
+
+				_RenderUpdateInfo.SubsetCullingSphere[i]= _CurBS.Transform(_RenderUpdateInfo.World, Scale.x); 
+			}
+		}
 	}
 }
 
-HRESULT TestObject::Ready()
+void TestObject::RenderInit()
 {
 	m_nTag = Player;
-
-
-
-
 	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능 ) 알림.
 	// 렌더 인터페이스 상속받지 않았다면 키지마세요.
 	SetRenderEnable(true);
@@ -82,45 +55,123 @@ HRESULT TestObject::Ready()
 	// 렌더 정보 초기화 ...
 	ENGINE::RenderProperty _InitRenderProp;
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
+	// 렌더 속성 전체 초기화 
+	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
-	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	_InitRenderProp.RenderOrders = 
-	{ 
-		RenderProperty::Order::ForwardAlphaBlend,
-		RenderProperty::Order::Debug 
+	_InitRenderProp.RenderOrders[RenderProperty::Order::GBuffer] =
+	{
+		{"gbuffer_ds",
+		[this](const DrawInfo& _Info)
+			{
+				RenderGBuffer(_Info);
+			}
+		},
 	};
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Shadow]
+		=
+	{
+		{"Shadow" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderShadow(_Info);
+		}
+	} };
+
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Debug]
+		=
+	{
+		{"Debug" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebug(_Info);
+		}
+	} };
+
 	RenderInterface::Initialize(_InitRenderProp);
+
 	// 
-
-
-	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::ForwardAlphaBlend,
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl",{});
-	_ShaderInfo.RegistShader(
-			RenderProperty::Order::Debug,
-		L"..\\..\\Resource\\Shader\\Debug.hlsl", {});
-
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
-	// 
-
 	// 스태틱 메쉬 로딩
-	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx");
-	PushEditEntity(_StaticMesh.get());
 
+	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
+		L"..\\..\\..\\TestResource\\GoodMap\\1357_theatrefloor_01.fbx");
+	PushEditEntity(_StaticMesh.get());
+};
+
+void TestObject::RenderGBuffer(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset =_StaticMesh->GetNumSubset();
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = _StaticMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+			{
+				continue; 
+			}
+			
+
+			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
+			SpSubset->BindProperty(TextureType::NORMALS, 0, 1, _Info._Device);
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+void TestObject::RenderShadow(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = _StaticMesh->GetNumSubset();
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = _StaticMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+			{
+				continue;
+			}
+
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+
+void TestObject::RenderDebug(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("World", &World);
+	const uint32 Numsubset = _StaticMesh->GetNumSubset();
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = _StaticMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			if (false == 
+				_Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+			{
+				continue;
+			}
+
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+};
+
+
+HRESULT TestObject::Ready()
+{
 	// 트랜스폼 초기화 .. 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.01,0.01,0.01});
+	InitTransform.lock()->SetScale({ 0.01,0.01,0.01 });
+	InitTransform.lock()->SetPosition(Vector3{ -12.f,-0.9f,-638.f });
+
 	PushEditEntity(InitTransform.lock().get());
-
-
-	m_pTransform = GetComponent<ENGINE::Transform>();
-
+	RenderInit();
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
-	// PushEditEntity(_ShaderInfo.ForwardAlphaBlendShader.get());
-
 	return S_OK;
 };
 
@@ -140,14 +191,14 @@ UINT TestObject::Update(const float _fDeltaTime)
 	Vector3 vDir = m_pTransform.lock()->GetLook();
 
 	D3DXVec3Normalize(&vDir, &vDir);
-	if (Input::GetKey(DIK_UP))
+	/*if (Input::GetKey(DIK_UP))
 		m_pTransform.lock()->Translate(vDir * _fDeltaTime * 10.f);
 	if (Input::GetKey(DIK_DOWN))
 		m_pTransform.lock()->Translate(-vDir * _fDeltaTime * 10.f);
 	if (Input::GetKey(DIK_LEFT))
 		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * -_fDeltaTime * 50.f), 0.f });
 	if (Input::GetKey(DIK_RIGHT))
-		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });
+		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });*/
 		
 
 	

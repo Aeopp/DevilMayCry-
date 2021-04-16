@@ -16,9 +16,6 @@ protected:
 	//에디터 쓰고 싶은 놈들만
 	virtual std::string GetName() override PURE;
 public:
-	virtual void	RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override PURE;
-	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo)override PURE;
-	virtual void    RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)override PURE;
 	virtual void    RenderReady()override;
 
 	virtual void	Fight(const float _fDeltaTime) PURE;

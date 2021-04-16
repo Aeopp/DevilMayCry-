@@ -4,7 +4,7 @@
 #include "RenderInterface.h"
 
 class BtlPanel : public ENGINE::GameObject,
-				public ENGINE::RenderInterface				
+				 public ENGINE::RenderInterface				
 {
 private:
 	enum UI_DESC_ID
@@ -94,7 +94,7 @@ private:
 	std::shared_ptr<ENGINE::Texture> _RankBAAlbTex{};
 	std::shared_ptr<ENGINE::Texture> _RankSAlbTex{};
 
-	float _AccumulateTime = 0.f;
+	float _DeltaTime = 0.f;
 	float _TotalAccumulateTime = 0.f;
 
 	Vector3 _TargetPos = Vector3(0.f, 0.f, 0.f);
@@ -113,7 +113,7 @@ private:
 
 	Vector2 _InputUIOffset = Vector2(0.f, 0.f);
 
-	float _RankBackMaxScale = 1.5f;
+	float _RankBackMaxScale = 1.8f;
 	float _RankMaxRotY = 15.f;
 	float _RankCurRotY = 0.f;
 
@@ -121,18 +121,21 @@ private:
 	0 X
 	1 ~ 99 D
 	100 ~ 199 C
-	200 ~ 300 B
+	200 ~ 299 B
 	300 ~ 399 A
 	400 ~ 499 S
 	500 ~ 599 SS
 	600 ~ 699 SSS
 	*/
-	int _RankScore = 0;
-	int _PreRank = 0;
+	float _RankScore = 0.f;
+	int _PreRank = -1;
 	int _CurRank = -999;
 	float _RankGauge_CurYPosOrtho = 0.f;
-	float _RankGauge_DecreaseTick = 0.f;
+	float _RankGauge_GoalZPos = 0.f;
 	float _RankLetter_GoalXPos = 0.f;
+	Vector4 _RankLetter_GlintFrame = Vector4();		// (Min.xy, Max.xy)
+	float _RankLetter_GlintAccumulateTime = 0.f;
+	float _RankDissolveAmount = 0.f;
 
 	enum KEY_INPUT_ID
 	{
@@ -156,10 +159,14 @@ private:
 	// GameObject을(를) 통해 상속됨
 	virtual void Free() override;
 	virtual std::string GetName() override;
-	///
+private:
+	void	RenderUI(const DrawInfo& _ImplInfo);
+private:
 	void	Init_UIDescs();
 	void	Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt = 0);
 	void	Update_TargetInfo();
+	void	Update_Rank(const float _fDeltaTime);
+	void	Update_GaugeOrthoPos();
 	Vector2	WorldPosToScreenPos(const Vector3& WorldPos);
 	Vector2	ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY);
 	void	Check_KeyInput();
@@ -167,7 +174,6 @@ private:
 public:
 	static BtlPanel* Create();
 public:
-	virtual void    RenderUIImplementation(const ImplementationInfo&_ImplInfo) override;
 	virtual void    RenderReady() override;
 public:
 	virtual HRESULT Ready() override;
@@ -182,6 +188,6 @@ public:
 	void SetTargetActive(bool IsActive);
 	void SetTargetPos(const Vector3& Pos) { _TargetPos = Pos; }
 	void SetKeyInputActive(bool IsActive);
-	void AddRankScore(int Score);
+	void AddRankScore(float Score);
 };
 #endif // !__UI_BTL_PANEL__

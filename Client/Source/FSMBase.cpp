@@ -4,7 +4,7 @@
 
 FSMBase::FSMBase()
 {
-}
+};
 
 FSMBase::~FSMBase()
 {

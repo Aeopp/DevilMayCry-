@@ -69,7 +69,7 @@ void RenderTarget::DebugBufferInitialize(const Vector2& ScreenPos, const Vector2
 		D3DPOOL_MANAGED,
 		&IdxBuf, nullptr);
 
-	DebugBufVtxDecl=Vertex::Screen::GetVertexDecl(g_pDevice);
+	DebugBufVtxDecl = Vertex::Screen::GetVertexDecl(g_pDevice);
 
 	Vertex::Screen* VtxBufPtr{ nullptr };
 
@@ -101,7 +101,8 @@ void RenderTarget::DebugBufferInitialize(const Vector2& ScreenPos, const Vector2
 	IdxBufPtr[5] = 3u;
 
 	IdxBuf->Unlock();
-}
+};
+
 void RenderTarget::DebugRender(ID3DXEffect* const Fx)
 {
 	const Matrix ScreenMatrix = 
@@ -110,7 +111,7 @@ void RenderTarget::DebugRender(ID3DXEffect* const Fx)
 
 	Fx->SetTexture("RenderTargetTexture", TargetTexture);
 	Fx->SetMatrix("Ortho", 
-		&Renderer::GetInstance()->CurrentRenderInfo.Ortho);
+		&Renderer::GetInstance()->_RenderInfo.Ortho);
 	Fx->SetMatrix("ScreenMatrix", &ScreenMatrix);
 	Fx->CommitChanges();
 	uint32 Pass = 0u;

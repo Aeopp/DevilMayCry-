@@ -62,9 +62,6 @@ private:
 public:
 	static Em5000* Create();
 public:
-	virtual void RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
-	virtual void RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo) override;
-	virtual void RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo) override;
 
 
 	virtual void Fight(const float _fDeltaTime)override;
@@ -80,6 +77,14 @@ public:
 	virtual void Editor() override;
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
+public:
+	// ·»´õ¸µ ÇÔ¼ö....
+	void RenderGBufferSK(const DrawInfo& _Info);
+	void RenderShadowSK(const DrawInfo& _Info);
+	void RenderDebugBone(const DrawInfo& _Info);
+	void RenderDebugSK(const DrawInfo& _Info);
+	void RenderInit();
+
 public:
 	virtual void Rotate(const float _fDeltaTime) override;
 	virtual void Update_Angle() override;

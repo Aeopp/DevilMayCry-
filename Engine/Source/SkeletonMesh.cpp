@@ -606,6 +606,7 @@ void SkeletonMesh::DisableToRootMatricies()
 	ToRoots.reset();
 }
 
+
 void SkeletonMesh::EnablePrevVTF()&
 {
 	if (!PrevBoneAnimMatrixInfo)

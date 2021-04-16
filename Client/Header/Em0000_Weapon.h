@@ -18,8 +18,6 @@ private:
 public:
 	static Em0000Weapon* Create();
 public:
-	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
-	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
 	virtual void    RenderReady()                          override;
 public:
 	virtual HRESULT Ready() override;
@@ -31,6 +29,11 @@ public:
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
 
+	// ·»´õ¸µ ÇÔ¼ö
+	void RenderInit();
+	void RenderDebug(const DrawInfo& _Info);
+	void RenderGBuffer(const DrawInfo& _Info);
+	void RenderShadow(const DrawInfo& _Info);
 private:
 	std::shared_ptr<ENGINE::StaticMesh> m_pStaticMesh{};
 

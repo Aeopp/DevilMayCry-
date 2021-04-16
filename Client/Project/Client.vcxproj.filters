@@ -52,8 +52,8 @@
     <Filter Include="02.GameObject\Effect\Common">
       <UniqueIdentifier>{9d62ca16-6527-44a0-a433-1dd09ed55225}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObject\Effect\Blood">
-      <UniqueIdentifier>{2826fa2d-ca31-4d8d-9f40-8e2fc04fbd84}</UniqueIdentifier>
+    <Filter Include="02.GameObject\01.Player">
+      <UniqueIdentifier>{b7363eb4-1fc1-4324-a86f-e497255c94b6}</UniqueIdentifier>
     </Filter>
     <Filter Include="02.GameObject\Effect\DashImpact">
       <UniqueIdentifier>{b7667868-436c-417f-b44f-5022f169be9a}</UniqueIdentifier>
@@ -111,15 +111,10 @@
     <ClInclude Include="..\Header\Camera.h">
       <Filter>02.GameObject\00.Camera</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\Eff_OvertureHand.h">
+    <ClInclude Include="..\Header\OvertureHand.h">
       <Filter>02.GameObject\Effect\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\FSMBase.h" />
-    <ClInclude Include="..\Header\FSMState.h" />
-    <ClInclude Include="..\Header\NeroFSM.h" />
-    <ClInclude Include="..\Header\Nero.h" />
-    <ClInclude Include="..\Header\NeroState.h" />
-    <ClInclude Include="..\Header\Eff_Glint.h">
+    <ClInclude Include="..\Header\Glint.h">
       <Filter>02.GameObject\Effect\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\BtlPanel.h">
@@ -155,6 +150,14 @@
     <ClInclude Include="..\Header\Car.h">
       <Filter>02.GameObject\02. Monster\03.Em5000\Car</Filter>
     </ClInclude>
+    <ClInclude Include="..\Header\RedQueen.h" />
+    <ClInclude Include="..\Header\Blood.h" />
+    <ClInclude Include="..\Header\DashImpact.h" />
+
+    <ClInclude Include="..\Header\Nero_LWing.h" />
+    <ClInclude Include="..\Header\Nero_RWing.h" />
+    <ClInclude Include="..\Header\Wire_Arm.h" />
+    <ClInclude Include="..\Header\Buster_Arm.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -191,18 +194,13 @@
     <ClCompile Include="..\Source\Camera.cpp">
       <Filter>02.GameObject\00.Camera</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Eff_OvertureHand.cpp">
+    <ClCompile Include="..\Source\OvertureHand.cpp">
       <Filter>02.GameObject\Effect\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\FSMBase.cpp" />
-    <ClCompile Include="..\Source\FSMState.cpp" />
-    <ClCompile Include="..\Source\NeroFSM.cpp" />
-    <ClCompile Include="..\Source\Nero.cpp" />
-    <ClCompile Include="..\Source\NeroState.cpp" />
     <ClCompile Include="..\Source\BtlPanel.cpp">
       <Filter>02.GameObject\UI\BtlPanel</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Eff_Glint.cpp">
+    <ClCompile Include="..\Source\Glint.cpp">
       <Filter>02.GameObject\Effect\Common</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Effect.cpp">
@@ -235,5 +233,10 @@
     <ClCompile Include="..\Source\Car.cpp">
       <Filter>02.GameObject\02. Monster\03.Em5000\Car</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\RedQueen.cpp" />
+    <ClCompile Include="..\Source\Nero_LWing.cpp" />
+    <ClCompile Include="..\Source\Nero_RWing.cpp" />
+    <ClCompile Include="..\Source\Wire_Arm.cpp" />
+    <ClCompile Include="..\Source\Buster_Arm.cpp" />
   </ItemGroup>
 </Project>

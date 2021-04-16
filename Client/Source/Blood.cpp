@@ -23,7 +23,7 @@ Blood* Blood::Create()
 
 
 void Blood::RenderForwardAlphaBlendImplementation(
-	const ImplementationInfo& _ImplInfo)
+	const DrawInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _StaticMesh->GetNumSubset();
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
@@ -32,7 +32,6 @@ void Blood::RenderForwardAlphaBlendImplementation(
 		if (auto SharedSubset = WeakSubset.lock();
 			SharedSubset)
 		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
 			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
 			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
 			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
@@ -41,7 +40,7 @@ void Blood::RenderForwardAlphaBlendImplementation(
 	}
 };
 
-void Blood::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
+void Blood::RenderDebugImplementation(const DrawInfo& _ImplInfo)
 {
 	const uint64 NumSubset = _StaticMesh->GetNumSubset();
 	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
@@ -64,7 +63,6 @@ void Blood::RenderReady()
 		_RenderProperty.bRender = true;
 		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
 		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
 	}
 }
 
@@ -79,25 +77,14 @@ HRESULT Blood::Ready()
 	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
 	_InitRenderProp.bRender = true;
 	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	_InitRenderProp.RenderOrders =
+	/*_InitRenderProp.RenderOrders =
 	{
 		RenderProperty::Order::ForwardAlphaBlend,
 		RenderProperty::Order::Debug
-	};
+	};*/
 	RenderInterface::Initialize(_InitRenderProp);
 	// 
 
-
-	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::ForwardAlphaBlend,
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlend.hlsl", {});
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::Debug,
-		L"..\\..\\Resource\\Shader\\Debug.hlsl", {});
-
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
 	// 
 
 	// 스태틱 메쉬 로딩

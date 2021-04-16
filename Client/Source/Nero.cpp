@@ -3,12 +3,32 @@
 #include "Renderer.h"
 #include "Subset.h"
 #include "NeroFSM.h"
+#include "RedQueen.h"
+#include "Nero_LWing.h"
+#include "Nero_RWing.h"
+#include "Buster_Arm.h"
+#include "Wire_Arm.h"
 Nero::Nero()
+	:m_iCurAnimationIndex(ANI_END)
+	, m_iPreAnimationIndex(ANI_END)
+	, m_iCurWeaponIndex(RQ)
+	, m_iJumpDirIndex(Basic)
+	, m_fRedQueenGage(0.f)
 {
 }
 void Nero::Free()
 {
 	m_pFSM = nullptr;
+}
+
+void Nero::Set_RQ_State(UINT _StateIndex)
+{
+	m_pRedQueen.lock()->SetWeaponState(_StateIndex);
+}
+
+void Nero::Set_PlayingTime(float NewTime)
+{
+	m_pMesh->SetPlayingTime(NewTime);
 }
 
 std::string Nero::GetName()
@@ -23,46 +43,17 @@ Nero* Nero::Create()
 
 HRESULT Nero::Ready()
 {
-	SetRenderEnable(true);
+	RenderInit();
 
-	ENGINE::RenderProperty _InitRenderProp;
-	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
-	_InitRenderProp.bRender = true;
-	// 넘겨준 패스에서는 렌더링 호출 보장 . 
-	_InitRenderProp.RenderOrders =
-	{
-		RenderProperty::Order::ForwardAlphaBlend,
-		RenderProperty::Order::Debug ,
-		RenderProperty::Order::DebugBone
-	};
-	RenderInterface::Initialize(_InitRenderProp);
-
-	// 렌더링 패스와 쉐이더 매칭 . 쉐이더 매칭이 안되면 렌더링을 못함.
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::ForwardAlphaBlend,
-		L"..\\..\\Resource\\Shader\\ForwardAlphaBlendSK.hlsl", {});
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::Debug,
-		L"..\\..\\Resource\\Shader\\DebugSK.hlsl", {});
-	_ShaderInfo.RegistShader(
-		RenderProperty::Order::DebugBone,
-		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
-
-	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Player\\Player.fbx");
-	m_pTransform.lock()->SetScale({ 0.001f,0.001f,0.001f });
-	PushEditEntity(m_pMesh.get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::ForwardAlphaBlend).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
-	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
+	m_pTransform.lock()->SetScale({ 0.03f,0.03f,0.03f });
 	PushEditEntity(m_pTransform.lock().get());
 
-	ENGINE::AnimNotify _Notify{};
-	
-	//몇초에 이벤트를 발생 시킬지
+	//ENGINE::AnimNotify _Notify{};
+	//
+	////몇초에 이벤트를 발생 시킬지
 
-
-	_Notify.Event[0.5] = [this]() {  Log("0.5 Sec Call");  return true; };
-	_Notify.Event[0.9] = [this]() {  Log("0.9 Sec Call");  return false; };
+	//_Notify.Event[0.5] = [this]() {  Log("0.5 Sec Call");  return true; };
+	//_Notify.Event[0.9] = [this]() {  Log("0.9 Sec Call");  return false; };
 
 	//내 클라에서의 SetAnimation
 	//세팅할 애니메이션 이름 넘겨주고 나중에는 인덱스도 오버로딩
@@ -71,9 +62,20 @@ HRESULT Nero::Ready()
 	//m_pMesh->PlayAnimation("RunLoop", true , _Notify);
 	//m_pMesh->PlayAnimation(IDLE, true, _Notify);
 	//FSM 준비
+
+	m_pRedQueen = AddGameObject<RedQueen>();
+	m_pLWing = AddGameObject<Nero_LWing>();
+	m_pRWing = AddGameObject<Nero_RWing>();
+	m_pBusterArm = AddGameObject<Buster_Arm>();
+	m_pWireArm = AddGameObject<Wire_Arm>();
+
 	m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
 
-	
+	m_iCurAnimationIndex = ANI_END;
+	m_iPreAnimationIndex = ANI_END;
+
+	m_nTag = 100;
+
 	return S_OK;
 }
 
@@ -81,7 +83,6 @@ HRESULT Nero::Ready()
 HRESULT Nero::Awake()
 {
 	m_pFSM->ChangeState(NeroFSM::IDLE);
-	m_pMesh->PlayingTime();
 	return S_OK;
 }
 
@@ -92,10 +93,16 @@ HRESULT Nero::Start()
 
 UINT Nero::Update(const float _fDeltaTime)
 {
-	if (nullptr != m_pFSM)
+	//GameObject::Update(_fDeltaTime);
+	if (Input::GetKeyDown(DIK_0))
+		m_bDebugButton = !m_bDebugButton;
+	
+	if (nullptr != m_pFSM && m_bDebugButton)
 		m_pFSM->UpdateFSM(_fDeltaTime);
 
-	m_pMesh->Update(_fDeltaTime);
+	auto [Scale,Rot,Pos] =m_pMesh->Update(_fDeltaTime);
+
+	m_pTransform.lock()->SetPosition(m_pTransform.lock()->GetPosition() + Pos * m_pTransform.lock()->GetScale().x);
 
 	return 0;
 }
@@ -113,64 +120,144 @@ void Nero::OnDisable()
 {
 }
 
+void Nero::RenderGBufferSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->BindProperty(TextureType::DIFFUSE, 0, 0, _Info._Device);
+			SpSubset->BindProperty(TextureType::NORMALS, 0, 1, _Info._Device);
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Nero::RenderShadowSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("matWorld", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Nero::RenderDebugBone(const DrawInfo& _Info)
+{
+	const Matrix ScaleOffset = FMath::Scale({ 0.01,0.01 ,0.01 });
+	m_pMesh->BoneDebugRender(_RenderUpdateInfo.World, _Info.Fx);
+}
+
+void Nero::RenderDebugSK(const DrawInfo& _Info)
+{
+	const Matrix World = _RenderUpdateInfo.World;
+	_Info.Fx->SetMatrix("World", &World);
+	const uint32 Numsubset = m_pMesh->GetNumSubset();
+
+	if (Numsubset > 0)
+	{
+		m_pMesh->BindVTF(_Info.Fx);
+	};
+	for (uint32 i = 0; i < Numsubset; ++i)
+	{
+		if (auto SpSubset = m_pMesh->GetSubset(i).lock();
+			SpSubset)
+		{
+			SpSubset->Render(_Info.Fx);
+		};
+	};
+}
+
+void Nero::RenderInit()
+{
+	// 렌더를 수행해야하는 오브젝트라고 (렌더러에 등록 가능) 알림.
+    // 렌더 인터페이스 상속받지 않았다면 키지마세요.
+	SetRenderEnable(true);
+
+	// 렌더 속성 전체 초기화 
+	ENGINE::RenderProperty _InitRenderProp;
+	// 이값을 런타임에 바꾸면 렌더를 켜고 끌수 있음. 
+	_InitRenderProp.bRender = true;
+	_InitRenderProp.RenderOrders[RenderProperty::Order::GBuffer] =
+	{
+		{"gbuffer_dsSK",
+		[this](const DrawInfo& _Info)
+			{
+				RenderGBufferSK(_Info);
+			}
+		},
+	};
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Shadow]
+		=
+	{
+		{"ShadowSK" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderShadowSK(_Info);
+		}
+	} };
+	_InitRenderProp.RenderOrders[RenderProperty::Order::DebugBone]
+		=
+	{
+		{"DebugBone" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebugBone(_Info);
+		}
+	} };
+	_InitRenderProp.RenderOrders[RenderProperty::Order::Debug]
+		=
+	{
+		{"DebugSK" ,
+		[this](const DrawInfo& _Info)
+		{
+			RenderDebugSK(_Info);
+		}
+	} };
+	RenderInterface::Initialize(_InitRenderProp);
+
+	// 스켈레톤 메쉬 로딩 ... 
+	Mesh::InitializeInfo _InitInfo{};
+	// 버텍스 정점 정보가 CPU 에서도 필요 한가 ? 
+	_InitInfo.bLocalVertexLocationsStorage = false;
+	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.fbx", _InitInfo);
+
+	m_pMesh->LoadAnimationFromDirectory(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Animation");
+	m_pMesh->AnimationDataLoadFromJsonTable(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Player.Animation");
+
+	m_pMesh->EnableToRootMatricies();
+
+	PushEditEntity(m_pMesh.get());
+}
+
 void Nero::RenderReady()
 {
 	auto _WeakTransform = GetComponent<ENGINE::Transform>();
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
-		_RenderProperty.bRender = true;
-		ENGINE::RenderInterface::UpdateInfo _UpdateInfo{};
-		_UpdateInfo.World = _SpTransform->GetWorldMatrix();
-		RenderVariableBind(_UpdateInfo);
+		_RenderUpdateInfo.World = _SpTransform->GetWorldMatrix();
 	}
 }
 
-void Nero::RenderDebugImplementation(const ImplementationInfo& _ImplInfo)
-{
-	//디버그용 렌더
-	const uint64 NumSubset = m_pMesh->GetNumSubset();
-	m_pMesh->BindVTF(_ImplInfo.Fx);
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = m_pMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-}
-
-void Nero::RenderForwardAlphaBlendImplementation(const ImplementationInfo& _ImplInfo)
-{
-	//포워드 렌더
-	const uint64 NumSubset = m_pMesh->GetNumSubset();
-	m_pMesh->BindVTF(_ImplInfo.Fx);
-	for (uint64 SubsetIdx = 0u; SubsetIdx < NumSubset; ++SubsetIdx)
-	{
-		auto WeakSubset = m_pMesh->GetSubset(SubsetIdx);
-		if (auto SharedSubset = WeakSubset.lock();
-			SharedSubset)
-		{
-			_ImplInfo.Fx->SetFloatArray("LightDirection", Renderer::GetInstance()->TestDirectionLight, 3u);
-			const auto& VtxBufDesc = SharedSubset->GetVertexBufferDesc();
-			SharedSubset->BindProperty(TextureType::DIFFUSE, 0u, "ALBM0Map", _ImplInfo.Fx);
-			SharedSubset->BindProperty(TextureType::NORMALS, 0u, "NRMR0Map", _ImplInfo.Fx);
-			SharedSubset->Render(_ImplInfo.Fx);
-		}
-	}
-}
-
-void Nero::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
-{
-	//디버그 뼈 렌더 뼈위치에 구체로 그려짐
-	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
-		SpTransform)
-	{
-		m_pMesh->BoneDebugRender(SpTransform->GetWorldMatrix(), _ImplInfo.Fx);
-	}
-}
 
 void Nero::Editor()
 {
@@ -187,17 +274,76 @@ float Nero::Get_PlayingTime()
 	return m_pMesh->PlayingTime();
 }
 
+float Nero::Get_PlayingAccTime()
+{
+	return m_pMesh->PlayingAccTime();
+}
+
+optional<Matrix> Nero::Get_BoneMatrix_ByName(std::string _BoneName)
+{
+	return m_pMesh->GetNodeToRoot(_BoneName);
+}
+
+Matrix* Nero::Get_BoneMatrixPtr(std::string _BoneName)
+{
+	return m_pMesh->GetToRootMatrixPtr(_BoneName);;
+}
+
+void Nero::SetActive_Wings(bool ActiveOrNot)
+{
+	m_pLWing.lock()->SetActive(ActiveOrNot);
+	m_pRWing.lock()->SetActive(ActiveOrNot);
+}
+
+void Nero::SetActive_Buster_Arm(bool ActiveOrNot)
+{
+	m_pBusterArm.lock()->SetActive(ActiveOrNot);
+}
+
+void Nero::SetActive_Wire_Arm(bool ActiveOrNot)
+{
+	m_pWireArm.lock()->SetActive(ActiveOrNot);
+}
+
+void Nero::StopAnimation()
+{
+	m_pMesh->StopAnimation();
+}
+
+void Nero::ContinueAnimiation()
+{
+	m_pMesh->ContinueAnimation();
+}
+
 bool Nero::IsAnimationEnd()
 {
 	return m_pMesh->IsAnimationEnd();
 }
 
-void Nero::ChangeAnimation(const std::string& InitAnimName, const bool bLoop, const AnimNotify& _Notify)
+void Nero::ChangeAnimation(const std::string& InitAnimName, const bool bLoop, const UINT AnimationIndex, const AnimNotify& _Notify)
 {
+	m_iPreAnimationIndex = m_iCurAnimationIndex;
+	m_iCurAnimationIndex = AnimationIndex;
 	m_pMesh->PlayAnimation(InitAnimName, bLoop, _Notify);
 }
 
-void Nero::ChangeAnimation(const uint32 AnimationIndex, const bool bLoop, const AnimNotify& _Notify)
+void Nero::ChangeAnimationIndex(const UINT AnimationIndex)
 {
-	m_pMesh->PlayAnimation(AnimationIndex, bLoop, _Notify);
+	m_iPreAnimationIndex = m_iCurAnimationIndex;
+	m_iCurAnimationIndex = AnimationIndex;
 }
+
+void Nero::ChangeWeapon(UINT _iWeaponIndex)
+{
+	m_iCurWeaponIndex = _iWeaponIndex;
+}
+void Nero::Change_BusterArm_Animation(const std::string& InitAnimName, const bool bLoop, const AnimNotify& _Notify)
+{
+	m_pBusterArm.lock()->ChangeAnimation(InitAnimName, bLoop, _Notify);
+}
+void Nero::Change_WireArm_Animation(const std::string& InitAnimName, const bool bLoop, const AnimNotify& _Notify)
+{
+	m_pWireArm.lock()->ChangeAnimation(InitAnimName, bLoop, _Notify);
+}
+//if (Input::GetKeyDown(DIK_LCONTROL))
+//	m_iCurWeaponIndex = m_iCurWeaponIndex == RQ ? Cbs : RQ;

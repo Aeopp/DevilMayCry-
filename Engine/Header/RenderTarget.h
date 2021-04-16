@@ -25,6 +25,7 @@ public:
 				const float Z,const DWORD Stencil)&;*/
 	void Release()&;
 
+	~RenderTarget()noexcept { Release();  };
 	IDirect3DTexture9* GetTexture()
 		const& { return TargetTexture;  };
 	IDirect3DSurface9* GetSurface(

@@ -5,7 +5,6 @@
 #include "TextureType.h"
 #include "Renderer.h"
 
-
 void BtlPanel::Free()
 {
 	SafeDeleteArray(_UIDescs);
@@ -22,7 +21,7 @@ BtlPanel* BtlPanel::Create()
 }
 
 
-void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
+void BtlPanel::RenderUI(const DrawInfo& _ImplInfo)
 {
 	UI_DESC_ID CurID = DESC_END;
 	Matrix ScreenMat;
@@ -100,7 +99,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		if (_UIDescs[CurID].Using)
 		{
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _TargetCursorTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.3f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _TotalAccumulateTime * 0.3f);
 
 			for (int i = 0; i < 3; ++i)
 			{
@@ -183,8 +182,8 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		{
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _TDTGaugeATOSTex->GetTexture());
 			_ImplInfo.Fx->SetTexture("NRMR0Map", _TDTGaugeNRMRTex->GetTexture());
-			_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.3f);
-			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _AccumulateTime * 0.1f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexU", _TotalAccumulateTime * 0.3f);
+			_ImplInfo.Fx->SetFloat("_AccumulationTexV", _TotalAccumulateTime * 0.1f);
 			_ImplInfo.Fx->SetFloat("_TDTGaugeCurXPosOrtho", _TDTGauge_CurXPosOrtho);
 			
 			Create_ScreenMat(CurID, ScreenMat);
@@ -295,7 +294,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 
 		//
 		CurID = RANK_BACK;
-		if (_UIDescs[CurID].Using)
+		if (_UIDescs[CurID].Using && 0.00001f >_RankDissolveAmount)
 		{
 			_ImplInfo.Fx->SetTexture("ATOS0Map", _RingTex->GetTexture());
 
@@ -314,15 +313,27 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 		CurID = RANK_LETTER;
 		if (_UIDescs[CurID].Using)
 		{
-			_ImplInfo.Fx->SetTexture("ALB0Map", _RankLetterTex->GetTexture());
+			_ImplInfo.Fx->SetTexture("ALB0Map", _RankLetterGlintTex->GetTexture());
+			_ImplInfo.Fx->SetFloatArray("_MinTexUV", Vector2(_RankLetter_GlintFrame.x, _RankLetter_GlintFrame.y), 2u);
+			_ImplInfo.Fx->SetFloatArray("_MaxTexUV", Vector2(_RankLetter_GlintFrame.z, _RankLetter_GlintFrame.w), 2u);
 
-			Create_ScreenMat(CurID, ScreenMat, _RankScore / 100);
+			Create_ScreenMat(CurID, ScreenMat, 7);
+			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
+
+			_ImplInfo.Fx->BeginPass(12);
+			SharedSubset->Render(_ImplInfo.Fx);
+			_ImplInfo.Fx->EndPass();
+
+			_ImplInfo.Fx->SetTexture("ALB0Map", _RankLetterTex->GetTexture());
+			_ImplInfo.Fx->SetFloat("_SliceAmount", _RankDissolveAmount);
+
+			Create_ScreenMat(CurID, ScreenMat, _CurRank);
 			_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
 			_ImplInfo.Fx->SetFloatArray("_MinTexUV", _MinTexUV, 2u);	// Create_ScreenMat() 에서 셋팅
 			_ImplInfo.Fx->SetFloatArray("_MaxTexUV", _MaxTexUV, 2u);
 
-			_ImplInfo.Fx->BeginPass(12);
+			_ImplInfo.Fx->BeginPass(16);
 			SharedSubset->Render(_ImplInfo.Fx);
 			_ImplInfo.Fx->EndPass();
 		}
@@ -468,6 +479,8 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 
 		if (!RankMesh.expired())
 		{
+			_ImplInfo.Fx->SetFloat("_SliceAmount", _RankDissolveAmount);
+
 			auto WeakSubset0 = RankMesh.lock()->GetSubset(0u);
 			if (auto SharedSubset = WeakSubset0.lock();
 				SharedSubset)
@@ -478,7 +491,7 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				Create_ScreenMat(CurID, ScreenMat, _CurRank);
 				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
-				_ImplInfo.Fx->BeginPass(8);
+				_ImplInfo.Fx->BeginPass(14);
 				SharedSubset->Render(_ImplInfo.Fx);
 				_ImplInfo.Fx->EndPass();
 			}
@@ -491,12 +504,12 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 				_ImplInfo.Fx->SetTexture("ALB1Map", RankTex.lock()->GetTexture());
 				_ImplInfo.Fx->SetTexture("NRMR0Map", _RankNormalTex->GetTexture());
 				_ImplInfo.Fx->SetFloat("_RankGaugeCurYPosOrtho", _RankGauge_CurYPosOrtho);
-				_ImplInfo.Fx->SetFloat("_AccumulationTexU", _AccumulateTime * 0.1f);
+				_ImplInfo.Fx->SetFloat("_AccumulationTexU", _TotalAccumulateTime * 0.1f);
 
 				Create_ScreenMat(CurID, ScreenMat, _CurRank);
 				_ImplInfo.Fx->SetMatrix("ScreenMat", &ScreenMat);
 
-				_ImplInfo.Fx->BeginPass(14);
+				_ImplInfo.Fx->BeginPass(15);
 				SharedSubset->Render(_ImplInfo.Fx);
 				_ImplInfo.Fx->EndPass();
 			}
@@ -506,31 +519,32 @@ void BtlPanel::RenderUIImplementation(const ImplementationInfo& _ImplInfo)
 
 void BtlPanel::RenderReady()
 {
-
+	_RenderProperty.bRender = true;
 }
 
 HRESULT BtlPanel::Ready()
 {
 	SetRenderEnable(true);
 
-	m_nTag = GAMEOBJECTTAG::Btl_Panel;
+	m_nTag = GAMEOBJECTTAG::UI_BtlPanel;
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	_InitRenderProp.RenderOrders =
+	_InitRenderProp.RenderOrders[RenderProperty::Order::UI] =
 	{
-		ENGINE::RenderProperty::Order::UI,
-		//ENGINE::RenderProperty::Order::Debug
+		{"BtlPanel",
+		[this](const DrawInfo& _Info)
+			{
+				this->RenderUI(_Info);
+			}
+		},
 	};
 	RenderInterface::Initialize(_InitRenderProp);
 
-	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::UI,
-		L"..\\..\\Resource\\Shader\\UI\\BtlPanel.hlsl", {});
+	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Primitive\\plane00.fbx");
+	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\Primitive\\pipe00.fbx");
 
-	_PlaneMesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\plane00.fbx");
-	_Pipe0Mesh = Resources::Load<ENGINE::StaticMesh>(L"..\\..\\Resource\\Mesh\\Static\\mesh_primitive\\pipe00.fbx");
-
-	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\Effect\\noiseInput_ATOS.tga");
+	_NoiseTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\noiseInput_ATOS.tga");
 
 	_RedOrbALBMTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_albm.tga");
 	_RedOrbATOSTex = Resources::Load<ENGINE::Texture>(L"..\\..\\Resource\\Texture\\UI\\red_orb_atos.tga");
@@ -608,147 +622,13 @@ HRESULT BtlPanel::Start()
 
 UINT BtlPanel::Update(const float _fDeltaTime)
 {
-	_AccumulateTime += _fDeltaTime;
+	_DeltaTime = _fDeltaTime;
 	_TotalAccumulateTime += _fDeltaTime;
-
-	////////////////////////////
-	// 임시
-	//if (Input::GetKey(DIK_LEFTARROW))
-	//{
-	//	_TargetHP_Degree += 150.f * _fDeltaTime;
-	//	if (360.f < _TargetHP_Degree)
-	//		_TargetHP_Degree = 360.f;
-	//}
-	//if (Input::GetKey(DIK_RIGHTARROW))
-	//{
-	//	_TargetHP_Degree -= 150.f * _fDeltaTime;
-	//	if (0.f > _TargetHP_Degree)
-	//		_TargetHP_Degree = 0.f;
-	//}
-	if (Input::GetKeyDown(DIK_F1))
-	{
-		static bool bActive = _UIDescs[TARGET_CURSOR].Using;
-		bActive = !bActive;
-		SetTargetActive(bActive);
-	}
-	if (Input::GetKeyDown(DIK_F2))
-	{
-		static bool bActive = _UIDescs[KEYBOARD].Using;
-		bActive = !bActive;
-		SetKeyInputActive(bActive);
-	}
-	if (Input::GetKeyDown(DIK_F3))
-	{
-		AddRankScore(20);
-	}
-	////////////////////////////
 
 	//
 	Update_TargetInfo();
-
-	//
-	float BossGaugeOrthoOffsetToCenter = 0.344f; // 직접 수작업으로 찾아야 하나 ㅠㅠ
-	// + 적 체력 받아와서 degree 같은 애들 갱신하자
-	// 일단 임시. 보스게이지가 한가운데 있어서 밑 로직 가능
-	_BossGauge_CurXPosOrtho = -BossGaugeOrthoOffsetToCenter + ((360.f - _TargetHP_Degree) / 360.f * 2.f * BossGaugeOrthoOffsetToCenter);
-
-	//
-	float HPGaugeOrthoWidth = 0.078125f;
-	float HPGaugeOrthoStartX = ScreenPosToOrtho(_UIDescs[HP_GAUGE].Pos.x, 0.f).x - HPGaugeOrthoWidth * 0.5f;
-	_HPGauge_CurXPosOrtho = HPGaugeOrthoStartX + (360.f - _TargetHP_Degree) / 360.f * HPGaugeOrthoWidth * static_cast<float>(_HPGaugeCount);
-
-	//
-	float TDTGaugeOrthoCenterX = -0.523437f;
-	float TDTGagueOrthoOffsetToCenter = 0.18125f;
-	_TDTGauge_CurXPosOrtho = (TDTGaugeOrthoCenterX - TDTGagueOrthoOffsetToCenter) + (360.f - _TargetHP_Degree) / 360.f * 2.f * TDTGagueOrthoOffsetToCenter;
- 
-	//
-	_CurRank = _RankScore / 100;
-	if (0 >= _RankScore)
-	{
-		_CurRank = -1;
-		_RankScore = 0;
-	}
-	else if (700 <= _RankScore)
-	{
-		_CurRank = 6;
-		_RankScore = 699;
-	}
-
-	if (_PreRank != _CurRank)
-	{
-		if (-1 == _CurRank)
-		{
-			_UIDescs[RANK_BACK].Using = false;
-			_UIDescs[RANK].Using = false;
-			_UIDescs[RANK_LETTER].Using = false;
-		}
-		else
-		{
-			_UIDescs[RANK_BACK].Using = true;
-			_UIDescs[RANK].Using = true;
-			_UIDescs[RANK_LETTER].Using = true;
-			_UIDescs[RANK_BACK].Using = true;
-			_UIDescs[RANK].Using = true;
-			_UIDescs[RANK_LETTER].Using = true;
-		}
-
-		_RankCurRotY = 45.f;
-		_UIDescs[RANK_LETTER].Pos.x = 2000.f;
-
-		switch (_CurRank)
-		{
-		case -1:
-			_RankLetter_GoalXPos = 2000.f;
-			break;
-		case 0:
-			_RankLetter_GoalXPos = 1120.f;
-			break;
-		case 1:
-			_RankLetter_GoalXPos = 1115.f;
-			break;
-		case 2: case 3: case 4:
-			_RankLetter_GoalXPos = 1125.f;
-			break;
-		case 5:
-			_RankLetter_GoalXPos = 1135.f;
-			break;
-		case 6:
-			_RankLetter_GoalXPos = 1115.f;
-			break;
-		}
-
-		_PreRank = _CurRank;
-	}
-
-	if (0 <= _PreRank)
-	{
-		float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
-		_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
-		_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
-
-		_RankCurRotY = 45.f + _RankMaxRotY * sinf(_TotalAccumulateTime);
-
-		float RankGaugeStartYPos = 0.816f;
-		float RankGaugeEndYPos = 7.224f;
-		_RankGauge_CurYPosOrtho = RankGaugeStartYPos + (_RankScore % 100) / 100.f * (RankGaugeEndYPos - RankGaugeStartYPos);
-
-		if (_UIDescs[RANK_LETTER].Pos.x > _RankLetter_GoalXPos)
-		{
-			_UIDescs[RANK_LETTER].Pos.x -= _fDeltaTime * 1500.f;
-			if (_UIDescs[RANK_LETTER].Pos.x < _RankLetter_GoalXPos)
-				_UIDescs[RANK_LETTER].Pos.x = _RankLetter_GoalXPos;
-		}
-
-		_RankGauge_DecreaseTick += _fDeltaTime;
-		if (0.1f < _RankGauge_DecreaseTick)
-		{
-			--_RankScore;
-			_RankGauge_DecreaseTick = 0.f;
-		}
-	}
-
-	//
+	Update_Rank(_fDeltaTime);
+	Update_GaugeOrthoPos();
 	Check_KeyInput();
 
 	//
@@ -762,7 +642,7 @@ UINT BtlPanel::Update(const float _fDeltaTime)
 	//std::cout << ScreenPosToOrtho(0.f, TargetPos.y).y << std::endl;
 
 	return 0;
-}
+}          
 
 UINT BtlPanel::LateUpdate(const float _fDeltaTime)
 {
@@ -795,14 +675,15 @@ void BtlPanel::SetKeyInputActive(bool IsActive)
 	_UIDescs[KEYBOARD].Using = IsActive;
 }
 
-void BtlPanel::AddRankScore(int Score)
+void BtlPanel::AddRankScore(float Score)
 {
-	int AddScoreAmount = Score;
+	if (_PreRank < static_cast<int>((_RankScore + Score) / 100.f))
+	{
+		_RankScore = (_PreRank * 100.f + 150.f);
+		return;
+	}
 
-	if (_PreRank < (_RankScore + Score) / 100)
-		AddScoreAmount += 10;	// 바로 랭크 떨어지게 하지 않기 위함
-
-	_RankScore += AddScoreAmount;
+	_RankScore += Score;
 }
 
 void BtlPanel::Init_UIDescs()
@@ -1269,12 +1150,12 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._22 = 1.2f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
 			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
-			_Out._42 = -(425.f - (g_nWndCY >> 1));
+			_Out._42 = -(420.f - (g_nWndCY >> 1));
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.f, 0.4f);
 			_MaxTexUV = Vector2(0.3f, 0.62f);
 			break;
-		case 6:
+		case 6: // SSS
 			_Out._11 = 2.2f;
 			_Out._22 = 1.22f;
 			_Out._33 = _UIDescs[_ID].Scale.z;
@@ -1283,6 +1164,14 @@ void BtlPanel::Create_ScreenMat(UI_DESC_ID _ID, Matrix& _Out, int _Opt/*= 0*/)
 			_Out._43 = _UIDescs[_ID].Pos.z;
 			_MinTexUV = Vector2(0.3f, 0.25f);
 			_MaxTexUV = Vector2(0.75f, 0.5f);
+			break;
+		case 7: // Glint
+			_Out._11 = 3.5f;
+			_Out._22 = 3.5f;
+			_Out._33 = _UIDescs[_ID].Scale.z;
+			_Out._41 = _UIDescs[_ID].Pos.x - (g_nWndCX >> 1);
+			_Out._42 = -(_UIDescs[_ID].Pos.y - (g_nWndCY >> 1)) - 100.f;
+			_Out._43 = _UIDescs[_ID].Pos.z;
 			break;
 		}
 		break;
@@ -1333,13 +1222,152 @@ void BtlPanel::Update_TargetInfo()
 	D3DXVec2Normalize(&_TargetHP_Normal1, &_TargetHP_Normal1);
 }
 
+void BtlPanel::Update_Rank(const float _fDeltaTime)
+{
+	_CurRank = static_cast<int>(_RankScore / 100.f);
+	if (0.f >= _RankScore)
+	{
+		_CurRank = -1;
+		_RankScore = 0.f;
+	}
+	else if (699.999f < _RankScore)
+	{
+		_CurRank = 6;
+		_RankScore = 699.999f;
+	}
+
+	if (_PreRank != _CurRank)
+	{
+		if (-1 == _CurRank)
+		{
+			_UIDescs[RANK_BACK].Using = false;
+			_UIDescs[RANK].Using = false;
+			_UIDescs[RANK_LETTER].Using = false;
+		}
+		else
+		{
+			_UIDescs[RANK_BACK].Using = true;
+			_UIDescs[RANK].Using = true;
+			_UIDescs[RANK_LETTER].Using = true;
+			_UIDescs[RANK_BACK].Using = true;
+			_UIDescs[RANK].Using = true;
+			_UIDescs[RANK_LETTER].Using = true;
+		}
+
+		_RankCurRotY = 45.f;
+
+		_UIDescs[RANK].Pos.z = 12.f;
+		_RankGauge_GoalZPos = 15.f;
+
+		_UIDescs[RANK_LETTER].Pos.x = 2000.f;
+
+		switch (_CurRank)
+		{
+		case -1:
+			_RankLetter_GoalXPos = 2000.f;
+			break;
+		case 0:
+			_RankLetter_GoalXPos = 1120.f;
+			break;
+		case 1:
+			_RankLetter_GoalXPos = 1115.f;
+			break;
+		case 2: case 3: case 4:
+			_RankLetter_GoalXPos = 1125.f;
+			break;
+		case 5:
+			_RankLetter_GoalXPos = 1135.f;
+			break;
+		case 6:
+			_RankLetter_GoalXPos = 1115.f;
+			break;
+		}
+
+		_RankLetter_GlintAccumulateTime = 0.f;
+
+		_RankDissolveAmount = 0.f;
+
+		_PreRank = _CurRank;
+	}
+
+	if (0 <= _PreRank)
+	{
+		float newRankBackScale = _RankBackMaxScale * cosf(_TotalAccumulateTime * 8.f);
+		_UIDescs[RANK_BACK].Scale.x = newRankBackScale;
+		_UIDescs[RANK_BACK].Scale.y = newRankBackScale;
+
+		_RankCurRotY = 45.f + _RankMaxRotY * sinf(_TotalAccumulateTime);
+
+		float RankGaugeStartYPos = 0.816f;
+		float RankGaugeEndYPos = 7.224f;
+		_RankGauge_CurYPosOrtho = RankGaugeStartYPos + (static_cast<int>(_RankScore) % 100) / 100.f * (RankGaugeEndYPos - RankGaugeStartYPos);
+
+		if (_UIDescs[RANK].Pos.z < _RankGauge_GoalZPos)
+		{
+			_UIDescs[RANK].Pos.z += _fDeltaTime * 20.f;
+			if (_UIDescs[RANK].Pos.z > _RankGauge_GoalZPos)
+				_UIDescs[RANK].Pos.z = _RankGauge_GoalZPos;
+		}
+
+		if (_UIDescs[RANK_LETTER].Pos.x > _RankLetter_GoalXPos)
+		{
+			_UIDescs[RANK_LETTER].Pos.x -= _fDeltaTime * 1500.f;
+			if (_UIDescs[RANK_LETTER].Pos.x < _RankLetter_GoalXPos)
+				_UIDescs[RANK_LETTER].Pos.x = _RankLetter_GoalXPos;
+		}
+
+		if (g_nWndCX >_UIDescs[RANK_LETTER].Pos.x)
+			_RankLetter_GlintAccumulateTime += _fDeltaTime * 20.f;
+
+		float cx = 4.f;	// 가로 갯수
+		float cy = 4.f; // 세로 갯수
+		if (cx * cy > _RankLetter_GlintAccumulateTime)
+		{
+			int Frame = static_cast<int>(_RankLetter_GlintAccumulateTime);
+			int w = Frame % static_cast<int>(cx);
+			int h = Frame / static_cast<int>(cx);
+			_RankLetter_GlintFrame.x = 1.f / cx * static_cast<float>(w);
+			_RankLetter_GlintFrame.y = 1.f / cy * static_cast<float>(h);
+			_RankLetter_GlintFrame.z = _RankLetter_GlintFrame.x + 1.f / cx;
+			_RankLetter_GlintFrame.w = _RankLetter_GlintFrame.y + 1.f / cy;
+		}
+
+		//
+		_RankScore -= _fDeltaTime * 10.f;
+
+		float Dissolve = _RankScore - _PreRank * 100.f;
+		if (25.f < Dissolve)
+			_RankDissolveAmount = 0.f;
+		else
+			_RankDissolveAmount = 1.f - Dissolve * 0.04f;
+	}
+}
+
+void BtlPanel::Update_GaugeOrthoPos()
+{
+	float BossGaugeOrthoOffsetToCenter = 0.344f; // 직접 수작업으로 찾아야 하나 ㅠㅠ
+	// + 적 체력 받아와서 degree 같은 애들 갱신하자
+	// 일단 임시. 보스게이지가 한가운데 있어서 밑 로직 가능
+	_BossGauge_CurXPosOrtho = -BossGaugeOrthoOffsetToCenter + ((360.f - _TargetHP_Degree) / 360.f * 2.f * BossGaugeOrthoOffsetToCenter);
+
+	//
+	float HPGaugeOrthoWidth = 0.078125f;
+	float HPGaugeOrthoStartX = ScreenPosToOrtho(_UIDescs[HP_GAUGE].Pos.x, 0.f).x - HPGaugeOrthoWidth * 0.5f;
+	_HPGauge_CurXPosOrtho = HPGaugeOrthoStartX + (360.f - _TargetHP_Degree) / 360.f * HPGaugeOrthoWidth * static_cast<float>(_HPGaugeCount);
+
+	//
+	float TDTGaugeOrthoCenterX = -0.523437f;
+	float TDTGagueOrthoOffsetToCenter = 0.18125f;
+	_TDTGauge_CurXPosOrtho = (TDTGaugeOrthoCenterX - TDTGagueOrthoOffsetToCenter) + (360.f - _TargetHP_Degree) / 360.f * 2.f * TDTGagueOrthoOffsetToCenter;
+}
+
 Vector2 BtlPanel::WorldPosToScreenPos(const Vector3& WorldPos)
 {
-	const ENGINE::RenderInformation& info = Renderer::GetInstance()->CurrentRenderInfo;
+	const ENGINE::RenderInformation& info = Renderer::GetInstance()->_RenderInfo;
 	
 	Vector4 Pos = Vector4(WorldPos.x, WorldPos.y, WorldPos.z, 1.f);
-	D3DXVec4Transform(&Pos, &Pos, &info.CameraView);
-	D3DXVec4Transform(&Pos, &Pos, &info.CameraProjection);
+	D3DXVec4Transform(&Pos, &Pos, &info.View);
+	D3DXVec4Transform(&Pos, &Pos, &info.Projection);
 
 	float x = (Pos.x / Pos.w + 1.f) * (g_nWndCX >> 1);
 	float y = (-Pos.y / Pos.w + 1.f) * (g_nWndCY >> 1);
@@ -1350,12 +1378,44 @@ Vector2 BtlPanel::WorldPosToScreenPos(const Vector3& WorldPos)
 Vector2 BtlPanel::ScreenPosToOrtho(float _ScreenPosX, float _ScreenPosY)
 {
 	Vector2 Ret = Vector2(_ScreenPosX - (g_nWndCX >> 1), -(_ScreenPosY - (g_nWndCY >> 1)));	
-	D3DXVec2TransformCoord(&Ret, &Ret, &Renderer::GetInstance()->CurrentRenderInfo.Ortho);
+	D3DXVec2TransformCoord(&Ret, &Ret, &Renderer::GetInstance()->_RenderInfo.Ortho);
 	return Ret;
 }
 
 void BtlPanel::Check_KeyInput()
 {
+	////////////////////////////
+	// 임시
+	//if (Input::GetKey(DIK_LEFTARROW))
+	//{
+	//	_TargetHP_Degree += 150.f * _fDeltaTime;
+	//	if (360.f < _TargetHP_Degree)
+	//		_TargetHP_Degree = 360.f;
+	//}
+	//if (Input::GetKey(DIK_RIGHTARROW))
+	//{
+	//	_TargetHP_Degree -= 150.f * _fDeltaTime;
+	//	if (0.f > _TargetHP_Degree)
+	//		_TargetHP_Degree = 0.f;
+	//}
+	if (Input::GetKeyDown(DIK_F1))
+	{
+		static bool bActive = _UIDescs[TARGET_CURSOR].Using;
+		bActive = !bActive;
+		SetTargetActive(bActive);
+	}
+	if (Input::GetKeyDown(DIK_F2))
+	{
+		static bool bActive = _UIDescs[KEYBOARD].Using;
+		bActive = !bActive;
+		SetKeyInputActive(bActive);
+	}
+	if (Input::GetKeyDown(DIK_F3))
+	{
+		AddRankScore(10.f);
+	}
+	////////////////////////////
+
 	if (!_UIDescs[KEYBOARD].Using)
 		return;
 
@@ -1401,7 +1461,7 @@ void BtlPanel::Check_KeyInput()
 
 void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 {
-	ImGui::Text("BTLPanel : %d", _ID);
+	ImGui::Text("----- BtlPanel : %d -----", _ID);
 
 	Vector3 Position = _UIDescs[_ID].Pos;
 	ImGui::InputFloat3("Position", Position);
@@ -1441,11 +1501,13 @@ void BtlPanel::Imgui_ModifyUI(UI_DESC_ID _ID)
 	ImGui::SliderFloat3("TargetPos", TargetPos, -10.f, 10.f);
 	_TargetPos = TargetPos;
 
-	int RankScore = _RankScore;
-	ImGui::SliderInt("RankScore", &RankScore, 0, 699);
+	float RankScore = _RankScore;
+	ImGui::SliderFloat("RankScore", &RankScore, 0.f, 699.999f);
 	_RankScore = RankScore;
 
 	Vector2 InputUIOffset = _InputUIOffset;
 	ImGui::SliderFloat2("InputUIOffset", InputUIOffset, 0, 1000);
 	_InputUIOffset = InputUIOffset;
+
+	ImGui::Text("----- BtlPanel End -----");
 }

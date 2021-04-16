@@ -1,7 +1,5 @@
 #ifndef __CORE_SYSTEM_H__
 #define __CORE_SYSTEM_H__
-
-
 #include "Object.h"
 
 BEGIN(ENGINE)
@@ -34,7 +32,8 @@ public:
 	HRESULT ReadyEngine(
 		const bool bWindowed,const bool bMultiSample);
 	HRESULT UpdateEngine();
-public :
+private:
+	void Editor();
 
 };
 END

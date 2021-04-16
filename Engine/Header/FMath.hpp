@@ -53,6 +53,9 @@ public:
 		IDirect3DDevice9* const _Device, const float Width, const float Height);
 	static inline bool InnerPointFromFace(const Vector3& Point, const std::array<Vector3, 3ul>& Face);
 
+	static inline Vector2 ScreenCoordToNDC(const float x, const float y , const float Width, const float Height);
+	static inline Vector2 NDCToScreenCoord(const float x, const float y , const float Width, const float Height);
+
 	// 임의의 위치 벡터를 평면에 투영시킨 위치 벡터를 반환.
 	static inline Vector3 ProjectionPointFromFace(const D3DXPLANE _Plane, const Vector3& Point);
 
@@ -158,65 +161,7 @@ private:
 	static inline auto& GetGenerator();
 #pragma endregion RANDOM
 
-#pragma region COLOR 
-	public:
-	class Color
-	{
-	public:
-		static inline Vector4 
-			sRGBToLinear(const uint8 Red, const uint8 Green, const uint8 Blue);
-		static inline Vector4
-			sRGBToLinear(const float Red, 
-				const float Green, const float Blue,
-				const float alpha);
-	};
-#pragma endregion 
 };
-
-Vector4
-FMath::Color::sRGBToLinear(const uint8 Red, const uint8 Green, const uint8 Blue)
-{
-	Vector4 ret;
-
-	float lo_r = (float)Red / 3294.6f;
-	float lo_g = (float)Green / 3294.6f;
-	float lo_b = (float)Blue / 3294.6f;
-
-	float hi_r = powf((Red / 255.0f + 0.055f) / 1.055f, 2.4f);
-	float hi_g = powf((Green / 255.0f + 0.055f) / 1.055f, 2.4f);
-	float hi_b = powf((Blue / 255.0f + 0.055f) / 1.055f, 2.4f);
-
-	ret.x = (Red < 10 ? lo_r : hi_r);
-	ret.y = (Green < 10 ? lo_g : hi_g);
-	ret.z = (Blue < 10 ? lo_b : hi_b);
-	ret.w = 1;
-
-	return ret;
-};
-
- Vector4
-	 FMath::Color::sRGBToLinear(const float Red,
-		 const float Green, const float Blue ,
-		 const float alpha)
- {
-	 Vector4 ret;
-
-	 float lo_r = (float)Red / 12.92f;
-	 float lo_g = (float)Green / 12.92f;
-	 float lo_b = (float)Blue / 12.92f;
-
-	 float hi_r = powf((Red + 0.055f) / 1.055f, 2.4f);
-	 float hi_g = powf((Green + 0.055f) / 1.055f, 2.4f);
-	 float hi_b = powf((Blue + 0.055f) / 1.055f, 2.4f);
-
-	 ret.x = (Red < 0.04f ? lo_r : hi_r);
-	 ret.y = (Green < 0.04f ? lo_g : hi_g);
-	 ret.z = (Blue < 0.04f ? lo_b : hi_b);
-	 ret.w = alpha;
-
-	 return ret;
- }
-
 
 inline float FMath::MaxScala(const Vector3& Lhs)
 {
@@ -298,6 +243,25 @@ auto& FMath::GetGenerator()
 };
 
 
+
+inline Vector2 FMath::ScreenCoordToNDC(const float x, const float y,
+	const float Width, const float Height)
+{
+	const float XTransform = (2.f / Width);
+	const float YTransform = -(2.f / Height);
+	return Vector2{ x * XTransform - 1.f  ,  y * YTransform + 1.f };
+};
+
+inline Vector2 FMath::NDCToScreenCoord(
+	const float x, const float y ,
+	const float Width, const float Height)
+{
+	return Vector2
+	{
+		x * (Width / 2) + (Width / 2) ,
+		y * -(Height / 2) + (Height / 2)
+	};
+}
 
 inline Matrix FMath::Rotation(const Quaternion& Rotation)
 {

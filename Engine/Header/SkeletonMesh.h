@@ -37,11 +37,14 @@ public:
 	virtual std::string GetName() override;
 	void BindVTF(ID3DXEffect * Fx)&;
 public:
-	
+	void UpdateToRootMatricies();
 	bool    IsAnimationEnd();
 	void    EnableToRootMatricies();
 	void    DisableToRootMatricies();
+	// Prev VTF 켜기 . (모션블러등 이전 스키닝 정보가 필요할 경우
 	void    EnablePrevVTF()&;
+	// Prev VTF 끄기 . (런타임에 끌수 있으며 자주 켜고 끄는 것은 좋지않음)
+	// _SkeletonMesh->DisablePrevVTF();
 	void    DisablePrevVTF()&;
 	std::tuple<Vector3, Quaternion, Vector3>   
 		Update(const float DeltaTime)&;
@@ -92,7 +95,7 @@ private:
 	std::tuple<Vector3, Quaternion, Vector3>    AnimationUpdateImplementation()&;
 	void AnimationSave(const std::filesystem::path & FullPath)&;
 private:
-	void UpdateToRootMatricies();
+
 	virtual HRESULT LoadMeshImplementation(
 		const aiScene * AiScene,
 		const std::filesystem::path _Path,

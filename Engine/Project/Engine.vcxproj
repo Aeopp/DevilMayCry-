@@ -184,8 +184,12 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\AnimationTrack.h" />
     <ClInclude Include="..\Header\AnimNotify.h" />
     <ClInclude Include="..\Header\AssimpHelper.hpp" />
+    <ClInclude Include="..\Header\basiccamera.h" />
     <ClInclude Include="..\Header\Collider.h" />
     <ClInclude Include="..\Header\CollisionCallback.h" />
+    <ClInclude Include="..\Header\Color.h" />
+    <ClInclude Include="..\Header\DxHelper.h" />
+    <ClInclude Include="..\Header\FLight.h" />
     <ClInclude Include="..\Header\IconsFontAwesome5.h" />
     <ClInclude Include="..\Header\Node.h" />
     <ClInclude Include="..\Header\Component.h" />
@@ -227,6 +231,7 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\Scene.hpp" />
     <ClInclude Include="..\Header\SceneManager.h" />
     <ClInclude Include="..\Header\SceneSystem.h" />
+    <ClInclude Include="..\Header\Quad.h" />
     <ClInclude Include="..\Header\Shader.h" />
     <ClInclude Include="..\Header\ShaderTester.h" />
     <ClInclude Include="..\Header\SkeletonMesh.h" />
@@ -238,14 +243,18 @@ call Engine.bat</Command>
     <ClInclude Include="..\Header\TimeSystem.h" />
     <ClInclude Include="..\Header\Transform.h" />
     <ClInclude Include="..\Header\Vertexs.h" />
+    <ClInclude Include="..\Header\_3Dmath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AnimationBlendInfo.cpp" />
     <ClCompile Include="..\Source\AnimationInformation.cpp" />
     <ClCompile Include="..\Source\AnimationTrack.cpp" />
     <ClCompile Include="..\Source\AnimNotify.cpp" />
+    <ClCompile Include="..\Source\basiccamera.cpp" />
     <ClCompile Include="..\Source\Collider.cpp" />
     <ClCompile Include="..\Source\CollisionCallback.cpp" />
+    <ClCompile Include="..\Source\Color.cpp" />
+    <ClCompile Include="..\Source\FLight.cpp" />
     <ClCompile Include="..\Source\Node.cpp" />
     <ClCompile Include="..\Source\Component.cpp" />
     <ClCompile Include="..\Source\Core.cpp" />
@@ -278,6 +287,7 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Scene.cpp" />
     <ClCompile Include="..\Source\SceneManager.cpp" />
     <ClCompile Include="..\Source\SceneSystem.cpp" />
+    <ClCompile Include="..\Source\Quad.cpp" />
     <ClCompile Include="..\Source\Shader.cpp" />
     <ClCompile Include="..\Source\ShaderTester.cpp" />
     <ClCompile Include="..\Source\SkeletonMesh.cpp" />
@@ -287,10 +297,12 @@ call Engine.bat</Command>
     <ClCompile Include="..\Source\Timer.cpp" />
     <ClCompile Include="..\Source\TimeSystem.cpp" />
     <ClCompile Include="..\Source\Transform.cpp" />
+    <ClCompile Include="..\Source\_3Dmath.cpp" />
+    <ClCompile Include="DxHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\ForwardAlphaBlendSK.hlsl">
-      <FileType>Document</FileType>
+      <FileType>HLSL</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
@@ -347,14 +359,50 @@ call Engine.bat</Command>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <ClInclude Include="..\..\Resource\Shader\Effect\DashImpact.hlsl">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Resource\Shader\Effect\DashImpact.hlsl">
+    <None Include="..\..\Resource\Shader\Blur.hlsl">
       <FileType>Document</FileType>
-    </ClInclude>
+    </None>
+    <None Include="..\..\Resource\Shader\Shadow.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\ShadowSK.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\RTDebug.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\ToneMap.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\gbuffer_ds.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resource\Shader\gbuffer_dsSK.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -45,23 +45,32 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpsz
 		return FALSE;
 	}
 
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
+
 	// 메시지 루프.
 	MSG tMessage;
 	tMessage.message = WM_NULL;
 
 	Application* pApplication = new Application;
-
 	pApplication->ReadyApplication(true,false);
 
-	while (WM_QUIT != tMessage.message)
+	while (true)
 	{
 		if (PeekMessage(&tMessage, nullptr, 0, 0, PM_REMOVE))
 		{
-			TranslateMessage(&tMessage);
-			DispatchMessage(&tMessage);
-		}
+			if (WM_QUIT == tMessage.message)
+				break;
 
-		pApplication->UpdateApplication();
+			if (!TranslateAccelerator(tMessage.hwnd, hAccelTable, &tMessage))
+			{
+				TranslateMessage(&tMessage);
+				DispatchMessage(&tMessage);
+			}
+		}
+		else
+		{
+			pApplication->UpdateApplication();
+		}
 	}
 
 	pApplication->ReleaseApplication();

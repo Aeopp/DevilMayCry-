@@ -12,7 +12,7 @@ private:
 public:
 	static DashImpact* Create();
 public:
-	virtual void    RenderAlphaBlendEffectImplementation(const ImplementationInfo&_ImplInfo) override;
+	 void    RenderAlphaBlendEffectImplementation(const DrawInfo&_ImplInfo) ;
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;

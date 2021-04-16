@@ -401,6 +401,11 @@ static inline HRESULT LoadMesh(
 	(*_ppVB)->Lock(0, 0, &pVertices, 0);
 	memcpy(pVertices, vecVertices.data(), (size_t)_pVBDesc->nBufferSize);
 	(*_ppVB)->Unlock();
+
+	// 컬링을 위해 메쉬 로컬 공간에서 구체 크기를 설정 한다 .
+	D3DXComputeBoundingSphere(
+		(Vector3*)vecVertices.data(), _pVBDesc->nNumVertices, _pVBDesc->nStride,
+		&_pVBDesc->BoundingSphere.Center, &_pVBDesc->BoundingSphere.Radius);
 #pragma endregion
 
 #pragma region CREATE INDEX BUFFER

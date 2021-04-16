@@ -1,7 +1,6 @@
 ﻿#include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_impl_win32.h"
-
 #include "CoreSystem.h"
 #include "GraphicSystem.h"
 #include "InputSystem.h"
@@ -11,7 +10,6 @@
 #include "Renderer.h"
 #include "IconsFontAwesome5.h"
 #include "PhysicsSystem.h"
-
 
 USING(ENGINE)
 IMPLEMENT_SINGLETON(CoreSystem)
@@ -99,6 +97,7 @@ static void GlobalVariableSetup()
 	g_bCollisionVisible = false;
 	g_bRenderTargetVisible = false;
 	g_bDebugRender = false;
+	g_bRenderEdit = false;
 
 	ID3DXBuffer* SphereMeshAdjacency{ nullptr };
 	D3DXCreateSphere(g_pDevice, 0.00001f, 8, 8, &g_pSphereMesh, &SphereMeshAdjacency);
@@ -139,6 +138,9 @@ void CoreSystem::Free()
 
 	m_pTimeSystem.reset();
 	TimeSystem::DeleteInstance();
+
+	m_pRenderer.reset();
+	Renderer::DeleteInstance();
 
 	ImGui_ImplDX9_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -235,7 +237,10 @@ static void GlobalVariableEditor()
 		{
 			ImGui::Checkbox("CollisionVisible", &g_bCollisionVisible);
 			ImGui::Checkbox("Render", &g_bDebugRender);
+			ImGui::Checkbox("RenderBoneToRoot", &g_bDebugBoneToRoot);
 			ImGui::Checkbox("RenderTargetVisible", &g_bRenderTargetVisible);
+			ImGui::Checkbox("RenderEdit",&g_bRenderEdit);
+			ImGui::Checkbox("RenderPointLightScissorTest",&g_bRenderPtLightScissorTest);
 		}
 	}
 	ImGui::End();
@@ -246,7 +251,6 @@ HRESULT CoreSystem::UpdateEngine()
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::ShowDemoWindow();
 	GlobalVariableEditor();
 
 	if (FAILED(m_pInputSystem.lock()->UpdateInputSystem()))
@@ -267,20 +271,8 @@ HRESULT CoreSystem::UpdateEngine()
 		PRINT_LOG(TEXT("Error"), TEXT("Failed to UpdateSceneSystem."));
 		return E_FAIL;
 	}
-	if (g_bEditMode)
-	{
-		ImGui::Begin("Object Editor");
-		m_pSceneSystem.lock()->EditUpdateSceneSystem();
-		ImGui::End();
 
-		ImGui::Begin("Log");
-		//for (const auto& CurLog : g_Logs)
-		//{
-		//	ImGui::Text(CurLog.c_str());
-		//}
-		ImGui::End();
-	}
-	//g_Logs.clear();
+	Editor();
 
 	//m_pPhysicsSystem.lock()->Simulate(m_pTimeSystem.lock()->DeltaTime());
 
@@ -292,5 +284,41 @@ HRESULT CoreSystem::UpdateEngine()
 
 	
 	return S_OK;
+}
+
+void CoreSystem::Editor()
+{
+	if (g_bEditMode)
+	{
+		ImGui::Begin("Object Editor");
+		{
+			m_pSceneSystem.lock()->EditUpdateSceneSystem();
+		}
+		ImGui::End();
+
+		if (g_bRenderEdit)
+		{
+			m_pRenderer.lock()->Editor();
+		}
+
+		if (g_bEditMode)
+		{
+			m_pTimeSystem.lock()->Editor();
+		}
+		
+
+		ImGui::Begin("Log");
+		//for (const auto& CurLog : g_Logs)
+		//{
+		//	ImGui::Text(CurLog.c_str());
+		//}
+		ImGui::End();
+	}
+
+	if (!g_Logs.empty())
+	{
+		g_Logs.clear();
+		g_Logs.shrink_to_fit();
+	}
 }
 

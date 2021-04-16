@@ -21,7 +21,7 @@ DashImpact* DashImpact::Create()
 
 
 void DashImpact::RenderAlphaBlendEffectImplementation(
-	const ImplementationInfo& _ImplInfo)
+	const DrawInfo& _ImplInfo)
 {
 	auto WeakSubset = m_ImpactMesh->GetSubset(0u);
 	
@@ -46,7 +46,7 @@ HRESULT DashImpact::Ready()
 
 	ENGINE::RenderProperty _InitRenderProp;
 	_InitRenderProp.bRender = true;
-	_InitRenderProp.RenderOrders =
+	/*_InitRenderProp.RenderOrders =
 	{
 		ENGINE::RenderProperty::Order::AlphaBlendEffect,
 		ENGINE::RenderProperty::Order::Debug
@@ -54,7 +54,7 @@ HRESULT DashImpact::Ready()
 	RenderInterface::Initialize(_InitRenderProp);
 
 	_ShaderInfo.RegistShader(ENGINE::RenderProperty::Order::AlphaBlendEffect,
-		L"..\\..\\Resource\\Shader\\Effect\\DashImpact.hlsl", {});
+		L"..\\..\\Resource\\Shader\\Effect\\DashImpact.hlsl", {});*/
 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
 	InitTransform.lock()->SetScale({ 0.001f, 0.001f, 0.001f });
