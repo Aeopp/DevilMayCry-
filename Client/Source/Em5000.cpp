@@ -631,7 +631,7 @@ void Em5000::Skill_CoolTime(const float _fDeltaTime)
 	if (m_bThrow == false)
 	{
 		m_fThrowTime += _fDeltaTime;
-		if (m_fThrowTime >= 4.f)
+		if (m_fThrowTime >= 20.f)
 		{
 			m_bThrow = true;
 			m_fThrowTime = 0.f;
