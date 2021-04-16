@@ -9,7 +9,7 @@ class Car : public ENGINE::GameObject ,
 				   public ENGINE::RenderInterface				
 {
 private:
-	std::shared_ptr<ENGINE::StaticMesh> _StaticMesh{};
+	std::shared_ptr<ENGINE::SkeletonMesh> _StaticMesh{};
 private:
 	explicit Car() = default;
 	virtual ~Car() = default;
@@ -19,8 +19,12 @@ private:
 public:
 	static Car* Create();
 public:
-	virtual void    RenderForwardAlphaBlendImplementation(const ImplementationInfo&_ImplInfo)override;
-	virtual void    RenderDebugImplementation(const ImplementationInfo& _ImplInfo)override;
+	void RenderInit();
+	void RenderGBufferSK(const DrawInfo& _Info);
+	void RenderShadowSK(const DrawInfo& _Info);
+	void RenderDebugBone(const DrawInfo& _Info);
+	void RenderDebugSK(const DrawInfo& _Info);
+
 	virtual void    RenderReady()                          override;
 public:
 	virtual HRESULT Ready() override;
@@ -31,6 +35,7 @@ public:
 	virtual void    Editor()override;
 	virtual void	OnEnable() override;
 	virtual void    OnDisable() override;
+
 
 
 public:

@@ -93,7 +93,7 @@ void TestObject::RenderInit()
 	// 스태틱 메쉬 로딩
 
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"..\\..\\..\\TestResource\\GoodMap\\1357_theatrefloor_01.fbx");
+		L"..\\..\\Resource\\Mesh\\Static\\Sphere.fbx");
 	PushEditEntity(_StaticMesh.get());
 };
 
@@ -191,14 +191,14 @@ UINT TestObject::Update(const float _fDeltaTime)
 	Vector3 vDir = m_pTransform.lock()->GetLook();
 
 	D3DXVec3Normalize(&vDir, &vDir);
-	/*if (Input::GetKey(DIK_UP))
+	if (Input::GetKey(DIK_UP))
 		m_pTransform.lock()->Translate(vDir * _fDeltaTime * 10.f);
 	if (Input::GetKey(DIK_DOWN))
 		m_pTransform.lock()->Translate(-vDir * _fDeltaTime * 10.f);
 	if (Input::GetKey(DIK_LEFT))
 		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * -_fDeltaTime * 50.f), 0.f });
 	if (Input::GetKey(DIK_RIGHT))
-		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });*/
+		m_pTransform.lock()->Rotate({ 0.f, D3DXToRadian(180 * _fDeltaTime * 50.f), 0.f });
 		
 
 	
