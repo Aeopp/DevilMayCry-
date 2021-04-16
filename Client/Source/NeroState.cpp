@@ -282,7 +282,10 @@ HRESULT NeroState::KeyInput_Run(const int _nIndex)
 			else if (Input::GetMouse(DIM_L))
 			{
 				m_pNero.lock()->Set_RQ_State(Nero::WS_Battle);
-				m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
+				if (RQ_Gage > 0)
+					m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3);
+				else
+					m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
 			}
 			else if (Input::GetMouse(DIM_R))
 			{
@@ -361,6 +364,19 @@ HRESULT NeroState::KeyInput_Run(const int _nIndex)
 	{
 		//m_pNero.lock()->ChangeWeapon(Nero::Cbs);
 		//m_pFSM->ChangeState(NeroFSM::CBS_IDLE);
+	}
+
+	else if (Input::GetKey(DIK_Q))
+	{
+		m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
+		m_pFSM->ChangeState(NeroFSM::BUSTER_START);
+	}
+
+	else if (Input::GetKey(DIK_F))
+	{
+		//변신게이지 있는지 체크
+		m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
+		m_pFSM->ChangeState(NeroFSM::TO_MAJIN);
 	}
 
 	else if (Input::GetKey(DIK_W))
@@ -2684,6 +2700,9 @@ HRESULT Wire_Pull_Air::StateEnter()
 	m_pNero.lock()->ChangeAnimation("Wire_Snatch_Pull_Air", false, Nero::ANI_WIRE_SNATCH_PULL_AIR);
 
 	NeroState::ResetAnimation(0.96, Nero::ANI_WIRE_SNATCH_PULL_AIR);
+
+	m_pNero.lock()->SetActive_Wire_Arm(true);
+	m_pNero.lock()->Change_WireArm_Animation("Wire_Arm_Start31", true);
 	return S_OK;
 }
 
