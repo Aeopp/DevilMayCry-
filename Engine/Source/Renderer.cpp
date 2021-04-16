@@ -56,43 +56,43 @@ void Renderer::ReadyShader(const std::filesystem::path& TargetPath)
 
 void Renderer::ReadyLights()
 {
-	// ´Þºû
-	DirLights.resize(1u);
-	DirLights[0] = std::make_shared<FLight>
-		(FLight(FLight::Type::Directional,
-		{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
-	PointLights.resize(3u);
+	//// ´Þºû
+	//DirLights.resize(1u);
+	//DirLights[0] = std::make_shared<FLight>
+	//	(FLight(FLight::Type::Directional,
+	//	{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
+	//PointLights.resize(1u);
 
-	PointLights[0] = std::make_shared<FLight>(
-		FLight(
-			FLight::Type::Point, { 1.5f,0.5f, 0.0f ,1 },
-			{ 1,0,0,1 }));
-	PointLights[0]->SetPointRadius(7.1f);
+	//PointLights[0] = std::make_shared<FLight>(
+	//	FLight(
+	//		FLight::Type::Point, { 1.5f,0.5f, 0.0f ,1 },
+	//		{ 1,0,0,1 }));
+	//PointLights[0]->SetPointRadius(7.1f);
 
-	PointLights[1] = std::make_shared<FLight>(
-		FLight(
-			FLight::Type::Point, { -0.7f , 0.5f , 1.2f , 1.f },
-			{ 0,1,0,1 }));
-	PointLights[1]->SetPointRadius(7.1f);
+	//PointLights[1] = std::make_shared<FLight>(
+	//	FLight(
+	//		FLight::Type::Point, { -0.7f , 0.5f , 1.2f , 1.f },
+	//		{ 0,1,0,1 }));
+	//PointLights[1]->SetPointRadius(7.1f);
 
-	PointLights[2] = std::make_shared<FLight>(
-		FLight(
-			FLight::Type::Point,
-			{ 0.0f,0.5f,0.0f,1 },
-			{ 0,0,1,1 }));
-	PointLights[2]->SetPointRadius(7.1f);
+	//PointLights[2] = std::make_shared<FLight>(
+	//	FLight(
+	//		FLight::Type::Point,
+	//		{ 0.0f,0.5f,0.0f,1 },
+	//		{ 0,0,1,1 }));
+	//PointLights[2]->SetPointRadius(7.1f);
 
 	// ±×¸²ÀÚ¸Ê 512 ·Î »ý¼º
-	DirLights[0]->CreateShadowMap(Device, 1024);
-	DirLights[0]->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
+	// DirLights[0]->CreateShadowMap(Device, 1024);
+	// DirLights[0]->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
 
-	PointLights[0]->CreateShadowMap(Device, 512);
-	PointLights[1]->CreateShadowMap(Device, 512);
-	PointLights[2]->CreateShadowMap(Device, 512);
-
-	PointLights[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
-	PointLights[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
-	PointLights[2]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
+	// PointLights[0]->CreateShadowMap(Device, 512);
+	/*PointLights[1]->CreateShadowMap(Device, 512);
+	PointLights[2]->CreateShadowMap(Device, 512);*/
+	
+	// PointLights[0]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
+	/*PointLights[1]->SetProjectionParameters(0, 0, 0.1f, 10.0f);
+	PointLights[2]->SetProjectionParameters(0, 0, 0.1f, 10.0f);*/
 }
 
 void Renderer::ReadyRenderTargets()
@@ -279,6 +279,60 @@ void Renderer::Editor()&
 {
 	ImGui::Begin("Render Editor");
 	{
+		if (ImGui::CollapsingHeader("Add Light"))
+		{
+			static float ShadowMapSize = 0.0f;
+
+			if (ImGui::Button("Directional"))
+			{
+				auto _Insert = std::make_shared<FLight>(
+					FLight(FLight::Type::Directional,
+						{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250))
+					);
+				DirLights.push_back(_Insert);
+				_Insert->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
+			}
+
+			if (ImGui::Button("Point"))
+			{
+				auto _Insert = std::make_shared<FLight>(
+					FLight(
+						FLight::Type::Point, { 1.5f,0.5f, 0.0f ,1 },
+						{ 1,1,1,1 }));
+
+				PointLights.push_back(_Insert);
+				_Insert->SetProjectionParameters(0, 0, 0.1f, 10.0f);
+			};
+		};
+
+		if (ImGui::CollapsingHeader("Remove"))
+		{
+			static int32 RemoveIndex = 0u;
+			if (ImGui::InputInt("Index : %d", &RemoveIndex))
+			{
+				if (DirLights.empty() == false)
+				{
+					auto iter = DirLights.begin();
+					std::advance(iter, RemoveIndex);
+					if (iter != DirLights.end())
+					{
+						DirLights.erase(iter);
+					}
+				}
+
+				if (PointLights.empty() == false)
+				{
+					auto iter = PointLights.begin();
+					std::advance(iter, RemoveIndex);
+					if (iter != PointLights.end())
+					{
+						PointLights.erase(iter);
+					}
+				}
+			}
+		}
+		
+
 		if (ImGui::CollapsingHeader("Lights"))
 		{
 			uint32 Idx = 0u;
@@ -302,7 +356,7 @@ void Renderer::RenderReady()&
 	RenderReadyEntitys();
 	ReadyRenderInfo();
 
-	TestLightRotation();
+	// TestLightRotation();
 };
 
 void Renderer::RenderBegin()&

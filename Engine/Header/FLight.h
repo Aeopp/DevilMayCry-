@@ -67,6 +67,12 @@ private:
 	LPDIRECT3DCUBETEXTURE9	Blurredcubeshadowmap;
 	LPDIRECT3DTEXTURE9		Shadowmap;
 	LPDIRECT3DTEXTURE9		Blurredshadowmap;
+	LPDIRECT3DSURFACE9      DepthStencil{};
+
+	CreateDepthStencilSurface(Width, Height,
+		Format, RefGraphicDevice->MultiSampleType, RefGraphicDevice->MultiSampleQuality,
+		TRUE, &TargetDepthStencil, nullptr);
+
 	Type				    _Type;
 	int						Currentface;
 	uint16_t				ShadowMapSize;

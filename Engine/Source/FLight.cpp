@@ -82,6 +82,10 @@ FLight::~FLight()
 
 	if (Blurredshadowmap != nullptr)
 		Blurredshadowmap->Release();
+
+	if (DepthStencil)
+		DepthStencil->Release();
+	
 };
 
 void FLight::Edit(const uint32 Idx)
@@ -158,12 +162,12 @@ void FLight::EditImplementation(const uint32 Idx)
 
 		if (ImGui::InputFloat3("In Direction", Direction))
 		{
-			Direction.x = FMath::ToRadian(Direction.x);
-			Direction.y = FMath::ToRadian(Direction.y);
-			Direction.z = FMath::ToRadian(Direction.z);
+			Direction.x = (Direction.x);
+			Direction.y = (Direction.y);
+			Direction.z = (Direction.z);
 		}
 
-		static float DirectionSliderPower = 0.01f;
+		static float DirectionSliderPower = 0.001f;
 		ImGui::SliderFloat("DirectionSliderPower",
 			&DirectionSliderPower, FLT_MIN, 1.f);
 		Vector3  AddDirection{ 0,0,0 };
@@ -171,8 +175,12 @@ void FLight::EditImplementation(const uint32 Idx)
 			-360.f, 360.f, "%3.3f deg"))
 		{
 			AddDirection *= DirectionSliderPower;
+			Direction += AddDirection;
+			
 		}
-		Direction += AddDirection;
+		Direction.x = (Direction.x);
+		Direction.y = (Direction.y);
+		Direction.z = (Direction.z);
 
 		/*if (ImGui::SliderFloat3("Slider Direction", Direction,-360.f,360.f))
 		{
@@ -332,14 +340,17 @@ void FLight::CalculateViewProjection(D3DXMATRIX& out)
 {
 	if (_Type == Directional) {
 		D3DXVECTOR3 eye = { Position.x , Position.y , Position.z };
-		// D3DXVECTOR3 look(0, 0, 0);
+		D3DXVECTOR3 look(0, 0, 0);
 		D3DXVECTOR3 up(0, 1, 0);
 
-		if (fabs(Position.y) > 0.999f)
-			up = D3DXVECTOR3(1, 0, 0);
+		/*if (fabs(Position.y) > 0.999f)
+			up = D3DXVECTOR3(1, 0, 0);*/
 		
 		Vector3 At = eye + FMath::MulNormal(Vector3{ 0,0,1 },
-			FMath::Rotation({ Direction.x , Direction.y , Direction.z }));
+			FMath::Rotation({ 
+				FMath::ToRadian( Direction.x  ) ,
+				FMath::ToRadian( Direction.y ),
+				FMath::ToRadian( Direction.z )  }));
 		D3DXMatrixLookAtLH(&out, &eye, &At, &up);
 		D3DXMatrixOrthoLH(&this->proj, 
 			Projparams.x, Projparams.y, Projparams.z, Projparams.w);
@@ -491,6 +502,10 @@ void FLight::CreateShadowMap(LPDIRECT3DDEVICE9 device, uint16_t size)
 	if (_Type == Directional) {
 		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Shadowmap, NULL);
 		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Blurredshadowmap, NULL);
+
+		device->CreateDepthStencilSurface(size,size,
+			D3DFMT_D24X8,D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_NONE,
+			0, TRUE, &DepthStencil, nullptr);
 	}
 	else if (_Type == Point) {
 		device->CreateCubeTexture(size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Cubeshadowmap, NULL);
@@ -521,10 +536,16 @@ void FLight::RenderShadowMap(
 
 		_Device->SetRenderTarget(0, Surface);
 		_Device->SetViewport(&Viewport);
+
+		LPDIRECT3DSURFACE9 OldDepthStencil = NULL;
+		_Device->GetDepthStencilSurface(&OldDepthStencil);
+		_Device->SetDepthStencilSurface(DepthStencil);
 		{
 			CallBack(this);
 		}
 		Surface->Release();
+		_Device->SetDepthStencilSurface(OldDepthStencil);
+		OldDepthStencil->Release();
 	}
 	else if (_Type == Point) {
 		for (Currentface= 0; Currentface < 6; ++Currentface) {

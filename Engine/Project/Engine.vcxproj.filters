@@ -142,6 +142,24 @@
     <ClCompile Include="..\Source\SkeletonMesh.cpp">
       <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\_3Dmath.cpp">
+      <Filter>06.Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\basiccamera.cpp">
+      <Filter>06.Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Color.cpp">
+      <Filter>06.Render</Filter>
+    </ClCompile>
+    <ClCompile Include="DxHelper.cpp">
+      <Filter>06.Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\FLight.cpp">
+      <Filter>06.Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Quad.cpp">
+      <Filter>06.Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Resource\Shader\Effect\OvertureHand.hlsl">
@@ -360,14 +378,29 @@
     <ClInclude Include="..\Header\Physics.h">
       <Filter>01.System\07.Physics\01.Interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Resource\Shader\Effect\Glint.hlsl">
-      <Filter>04.HLSL\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Resource\Shader\Effect\DashImpact.hlsl">
       <Filter>04.HLSL\Effect</Filter>
     </ClInclude>
     <ClInclude Include="..\Header\SkeletonMesh.h">
       <Filter>02.Resource\02.Mesh\03.SkeletonMesh\00.Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\_3Dmath.h">
+      <Filter>06.Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\basiccamera.h">
+      <Filter>06.Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Color.h">
+      <Filter>06.Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\DxHelper.h">
+      <Filter>06.Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\FLight.h">
+      <Filter>06.Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Quad.h">
+      <Filter>06.Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -521,6 +554,12 @@
     <Filter Include="03.Utility\00.Component\02.Collider\00.Base">
       <UniqueIdentifier>{487dec92-39d2-4127-a291-3b9efb68dd2b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="06.Render">
+      <UniqueIdentifier>{8324f102-1a0f-467a-bb69-3a12891ce453}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.HLSL\Scene">
+      <UniqueIdentifier>{748e9976-8f09-4e8e-8b48-882e5a60a58e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Resource\Shader\DebugSK.hlsl">
@@ -532,9 +571,33 @@
     <None Include="..\..\Resource\Shader\GBufferSK.hlsl">
       <Filter>04.HLSL\Effect</Filter>
     </None>
-    <None Include="..\..\Resource\Shader\DebugBone.hlsl" />
+    <None Include="..\..\Resource\Shader\Effect\Glint.hlsl" />
+    <None Include="..\..\Resource\Shader\Blur.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\DebugBone.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
     <None Include="..\..\Resource\Shader\DeferredShading.hlsl">
-      <Filter>04.HLSL</Filter>
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\gbuffer_ds.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\gbuffer_dsSK.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\RTDebug.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\Shadow.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\ShadowSK.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
+    </None>
+    <None Include="..\..\Resource\Shader\ToneMap.hlsl">
+      <Filter>04.HLSL\Scene</Filter>
     </None>
   </ItemGroup>
 </Project>

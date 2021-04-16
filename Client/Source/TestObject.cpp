@@ -91,8 +91,10 @@ void TestObject::RenderInit()
 
 	// 
 	// 스태틱 메쉬 로딩
+	
+
 	_StaticMesh = Resources::Load<ENGINE::StaticMesh>(
-		L"C:\\WorkingDirectory\\TestResource\\Map\\Building01.fbx");
+		L"..\\..\\..\\TestResource\\City\\.FBX\\Room #1.fbx");
 	PushEditEntity(_StaticMesh.get());
 };
 
@@ -165,9 +167,9 @@ HRESULT TestObject::Ready()
 {
 	// 트랜스폼 초기화 .. 
 	auto InitTransform = GetComponent<ENGINE::Transform>();
-	InitTransform.lock()->SetScale({ 0.1,0.1,0.1 });
+	InitTransform.lock()->SetScale({ 0.01,0.01,0.01 });
 	InitTransform.lock()->SetPosition(FMath::Random(
-		Vector3{ -1000,0.f,-1000 },Vector3 { +1000,0.f,+1000 }));
+		Vector3{ -0,0.f,-0},Vector3 { +0,0.f,+0}));
 	PushEditEntity(InitTransform.lock().get());
 	RenderInit();
 	// 에디터의 도움을 받고싶은 오브젝트들 Raw 포인터로 푸시.
