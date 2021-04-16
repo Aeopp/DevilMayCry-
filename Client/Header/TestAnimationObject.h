@@ -18,8 +18,8 @@ private:
 public:
 	static TestAnimationObject* Create();
 public:
-	void RenderInit();
 	virtual void   RenderReady()override;
+	void RenderInit();
 	void RenderGBufferSK(const DrawInfo& _Info);
 	void RenderShadowSK(const DrawInfo& _Info);
 	void RenderDebugBone(const DrawInfo& _Info);

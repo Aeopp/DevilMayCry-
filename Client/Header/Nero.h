@@ -7,6 +7,10 @@
 
 class NeroFSM;
 class RedQueen;
+class Nero_LWing;
+class Nero_RWing;
+class Buster_Arm;
+class Wire_Arm;
 class Nero :   public GameObject ,
 	public ENGINE::RenderInterface
 
@@ -183,6 +187,9 @@ public:
 		ANI_CBS_DASHSTOP,
 		ANI_JUMP_LOOP,
 		ANI_OVERTURE_IDLE,
+		ANI_BUSTER_START,
+		ANI_TO_MAJIN,
+		ANI_TO_MAJIN2,
 		ANI_END
 	};
 
@@ -241,6 +248,9 @@ public:
 public:
 	void Reset_JumpCount() { m_iJumpCount = 1; }
 	void Set_JumpDir(UINT _iJumpDir) { m_iJumpDirIndex = _iJumpDir; }
+	void SetActive_Wings(bool ActiveOrNot);
+	void SetActive_Buster_Arm(bool ActiveOrNot);
+	void SetActive_Wire_Arm(bool ActiveOrNot);
 public:
 	void DecreaseJumpCount() { --m_iJumpCount; }
 	void DecreaseRQ_Gage() { m_fRedQueenGage -= 1; }
@@ -255,6 +265,8 @@ public:
 	void ChangeAnimation(const std::string& InitAnimName, const bool  bLoop, const UINT AnimationIndex,const AnimNotify& _Notify = {});
 	void ChangeAnimationIndex(const UINT AnimationIndex);
 	void ChangeWeapon(UINT _iWeaponIndex);
+	void Change_BusterArm_Animation(const std::string& InitAnimName, const bool  bLoop, const AnimNotify& _Notify = {});
+	void Change_WireArm_Animation(const std::string& InitAnimName, const bool  bLoop, const AnimNotify& _Notify = {});
 public:
 	virtual HRESULT Ready() override;
 	virtual HRESULT Awake() override;
@@ -275,6 +287,11 @@ private:
 	std::shared_ptr<ENGINE::SkeletonMesh> m_pMesh;
 	std::shared_ptr<NeroFSM> m_pFSM;
 	std::weak_ptr<RedQueen> m_pRedQueen;
+	std::weak_ptr<Nero_LWing>	m_pLWing;
+	std::weak_ptr<Nero_RWing>	m_pRWing;
+	std::weak_ptr<Buster_Arm>	m_pBusterArm;
+	std::weak_ptr<Wire_Arm>	m_pWireArm;
+
 
 	UINT	m_iCurAnimationIndex;
 	UINT	m_iPreAnimationIndex;

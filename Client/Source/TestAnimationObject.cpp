@@ -107,14 +107,26 @@ void TestAnimationObject::RenderInit()
 
 void TestAnimationObject::RenderReady()
 {
-	// bRender ≤Ù∏È ∑ª¥ı »£√‚ æ»µ  .
-	_RenderProperty.bRender = true;
-
 	auto _WeakTransform = GetComponent<ENGINE::Transform>();
 	if (auto _SpTransform = _WeakTransform.lock();
 		_SpTransform)
 	{
+		const Vector3 Scale = _SpTransform->GetScale();
+		_RenderProperty.bRender = true;
 		_RenderUpdateInfo.World = _SpTransform->GetWorldMatrix();
+		if (_SkeletonMesh)
+		{
+			const uint32  Numsubset = _SkeletonMesh->GetNumSubset();
+			_RenderUpdateInfo.SubsetCullingSphere.resize(Numsubset);
+
+			for (uint32 i = 0; i < Numsubset; ++i)
+			{
+				const auto& _Subset = _SkeletonMesh->GetSubset(i);
+				const auto& _CurBS = _Subset.lock()->GetVertexBufferDesc().BoundingSphere;
+
+				_RenderUpdateInfo.SubsetCullingSphere[i] = _CurBS.Transform(_RenderUpdateInfo.World, Scale.x);
+			}
+		}
 	}
 }
 
@@ -129,6 +141,10 @@ void TestAnimationObject::RenderGBufferSK(const DrawInfo& _Info)
 	};
 	for (uint32 i = 0; i < Numsubset; ++i)
 	{
+		if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+		{
+			continue;
+		}
 		if (auto SpSubset = _SkeletonMesh->GetSubset(i).lock();
 			SpSubset)
 		{
@@ -149,6 +165,10 @@ void TestAnimationObject::RenderShadowSK(const DrawInfo& _Info)
 	};
 	for (uint32 i = 0; i < Numsubset; ++i)
 	{
+		if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+		{
+			continue;
+		}
 		if (auto SpSubset = _SkeletonMesh->GetSubset(i).lock();
 			SpSubset)
 		{
@@ -175,6 +195,10 @@ void TestAnimationObject::RenderDebugSK(const DrawInfo& _Info)
 	};
 	for (uint32 i = 0; i < Numsubset; ++i)
 	{
+		if (false == _Info._Frustum->IsIn(_RenderUpdateInfo.SubsetCullingSphere[i]))
+		{
+			continue;
+		}
 		if (auto SpSubset = _SkeletonMesh->GetSubset(i).lock();
 			SpSubset)
 		{

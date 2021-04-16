@@ -203,6 +203,19 @@ HRESULT NeroState::KeyInput_Idle(const int _nIndex)
 		m_pFSM->ChangeState(NeroFSM::CBS_IDLE);
 	}
 
+	else if (Input::GetKey(DIK_Q))
+	{
+		m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
+		m_pFSM->ChangeState(NeroFSM::BUSTER_START);
+	}
+
+	else if (Input::GetKey(DIK_F))
+	{
+		//변신게이지 있는지 체크
+		m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
+		m_pFSM->ChangeState(NeroFSM::TO_MAJIN);
+	}
+
 	else if (Input::GetKey(DIK_W))
 	{
 		if ((NeroFSM::ATT1 <= _nIndex && _nIndex <= NeroFSM::ATT4))
@@ -269,7 +282,10 @@ HRESULT NeroState::KeyInput_Run(const int _nIndex)
 			else if (Input::GetMouse(DIM_L))
 			{
 				m_pNero.lock()->Set_RQ_State(Nero::WS_Battle);
-				m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
+				if (RQ_Gage > 0)
+					m_pFSM->ChangeState(NeroFSM::SKILL_STREAK_EX3);
+				else
+					m_pFSM->ChangeState(NeroFSM::SKILL_STREAK);
 			}
 			else if (Input::GetMouse(DIM_R))
 			{
@@ -348,6 +364,19 @@ HRESULT NeroState::KeyInput_Run(const int _nIndex)
 	{
 		//m_pNero.lock()->ChangeWeapon(Nero::Cbs);
 		//m_pFSM->ChangeState(NeroFSM::CBS_IDLE);
+	}
+
+	else if (Input::GetKey(DIK_Q))
+	{
+		m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
+		m_pFSM->ChangeState(NeroFSM::BUSTER_START);
+	}
+
+	else if (Input::GetKey(DIK_F))
+	{
+		//변신게이지 있는지 체크
+		m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
+		m_pFSM->ChangeState(NeroFSM::TO_MAJIN);
 	}
 
 	else if (Input::GetKey(DIK_W))
@@ -481,6 +510,7 @@ HRESULT NeroState::KeyInput_Cbs_Idle(const int _nIndex)
 HRESULT NeroState::KeyInput_Jump(const int _nIndex)
 {
 	UINT JumpCount = m_pNero.lock()->Get_JumpCount();
+	UINT RQ_Gage = m_pNero.lock()->Get_RQ_Gage();
 
 	if (Input::GetKey(DIK_LSHIFT))
 	{
@@ -519,7 +549,10 @@ HRESULT NeroState::KeyInput_Jump(const int _nIndex)
 			{
 				//게이지 따라서 분기
 				m_pNero.lock()->Set_RQ_State(Nero::WS_Battle);
-				m_pFSM->ChangeState(NeroFSM::SKILL_SPLIT_START);
+				if(RQ_Gage > 0)
+					m_pFSM->ChangeState(NeroFSM::SKILL_SPLIT_EX_START);
+				else
+					m_pFSM->ChangeState(NeroFSM::SKILL_SPLIT_START);
 
 
 			}
@@ -774,6 +807,12 @@ HRESULT Idle::StateEnter()
 		break;
 	case Nero::ANI_RUNSTART_FROM_COMBOA2:
 		m_pNero.lock()->ChangeAnimation("Idle_From_ComboA2_Loop", true, Nero::ANI_IDLE_FROM_COMBOA2_LOOP);
+		break;
+	case Nero::ANI_TO_MAJIN:
+		m_pNero.lock()->ChangeAnimation("Idle_Battle", true, Nero::ANI_IDLE_BATTLE);
+		break;
+	case Nero::ANI_BUSTER_START:
+		m_pNero.lock()->ChangeAnimation("Idle_Battle", true, Nero::ANI_IDLE_BATTLE);
 		break;
 	default:
 		//m_pNero.lock()->Set_RQ_State(Nero::WS_Idle);
@@ -2448,6 +2487,8 @@ HRESULT Wire_Pull::StateEnter()
 
 	//몬스터 위치에 따라서 분기
 	m_pNero.lock()->ChangeAnimation("Wire_Snatch_Pull", false, Nero::ANI_WIRE_SNATCH_PULL);
+	m_pNero.lock()->SetActive_Wire_Arm(true);
+	m_pNero.lock()->Change_WireArm_Animation("Wire_Arm_Start31", true);
 	//NeroState::ResetAnimation()
 	return S_OK;
 }
@@ -2659,6 +2700,9 @@ HRESULT Wire_Pull_Air::StateEnter()
 	m_pNero.lock()->ChangeAnimation("Wire_Snatch_Pull_Air", false, Nero::ANI_WIRE_SNATCH_PULL_AIR);
 
 	NeroState::ResetAnimation(0.96, Nero::ANI_WIRE_SNATCH_PULL_AIR);
+
+	m_pNero.lock()->SetActive_Wire_Arm(true);
+	m_pNero.lock()->Change_WireArm_Animation("Wire_Arm_Start31", true);
 	return S_OK;
 }
 
@@ -6426,7 +6470,7 @@ HRESULT Hr_Ex_Air_Roll_Start::StateUpdate(const float _fDeltaTime)
 {
 	float fCurAnimationTime = m_pNero.lock()->Get_PlayingTime();
 
-	if (0.96 <= fCurAnimationTime)
+	if (0.94 <= fCurAnimationTime)
 	{
 		m_pFSM->ChangeState(NeroFSM::SKILL_HR_EX_AIR_ROLL_LOOP);
 	}
@@ -6469,7 +6513,7 @@ HRESULT Hr_Ex_Air_Roll_Loop::StateUpdate(const float _fDeltaTime)
 {
 	float fCurrAccTime = m_pNero.lock()->Get_PlayingAccTime();
 
-	if (3.97 <= fCurrAccTime)
+	if (3.94 <= fCurrAccTime)
 		m_pFSM->ChangeState(NeroFSM::SKILL_HR_EX_AIR_ROLL_END);
 
 
@@ -6543,6 +6587,7 @@ HRESULT Skill_Split_Ex::StateEnter()
 {
 	NeroState::StateEnter();
 	m_pNero.lock()->ChangeAnimation("SplitEx_Start", false, Nero::ANI_SPLITEX_START);
+	m_pNero.lock()->DecreaseRQ_Gage();
 
 	return S_OK;
 }
@@ -6863,5 +6908,87 @@ HRESULT Skill_Float_Ground_Ex3_Start::StateUpdate(const float _fDeltaTime)
 	{
 		m_pFSM->ChangeState(NeroFSM::SKILL_FLOAT_GROUND_EX3);
 	}
+	return S_OK;
+}
+
+Buster_Start::Buster_Start(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM,_nIndex,_pNero)
+{
+}
+
+Buster_Start::~Buster_Start()
+{
+}
+
+Buster_Start* Buster_Start::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new Buster_Start(_pFSM, _nIndex, _pNero);
+}
+
+HRESULT Buster_Start::StateEnter()
+{
+	NeroState::StateEnter();
+
+	m_pNero.lock()->ChangeAnimation("Buster_Start", false, Nero::ANI_BUSTER_START);
+	m_pNero.lock()->SetActive_Buster_Arm(true);
+	m_pNero.lock()->Change_BusterArm_Animation("Buster_Catch", false);
+	return S_OK;
+}
+
+HRESULT Buster_Start::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT Buster_Start::StateUpdate(const float _fDeltaTime)
+{
+	float fCurAnimationTime = m_pNero.lock()->Get_PlayingTime();
+
+	if (0.95 <= fCurAnimationTime)
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+
+	return S_OK;
+}
+
+To_Majin::To_Majin(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+	:NeroState(_pFSM,_nIndex,_pNero)
+{
+}
+
+To_Majin::~To_Majin()
+{
+}
+
+To_Majin* To_Majin::Create(FSMBase* const _pFSM, const UINT _nIndex, weak_ptr<Nero> _pNero)
+{
+	return new To_Majin(_pFSM,_nIndex,_pNero);
+}
+
+HRESULT To_Majin::StateEnter()
+{
+	NeroState::StateEnter();
+
+	m_pNero.lock()->ChangeAnimation("To_Majin", false, Nero::ANI_BUSTER_START);
+	m_pNero.lock()->SetActive_Wings(true);
+
+	return S_OK;
+}
+
+HRESULT To_Majin::StateExit()
+{
+	NeroState::StateExit();
+
+	return S_OK;
+}
+
+HRESULT To_Majin::StateUpdate(const float _fDeltaTime)
+{
+	float fCurAnimationTime = m_pNero.lock()->Get_PlayingTime();
+
+	if (0.95 <= fCurAnimationTime)
+		m_pFSM->ChangeState(NeroFSM::IDLE);
+
 	return S_OK;
 }

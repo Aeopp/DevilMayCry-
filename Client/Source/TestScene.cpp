@@ -40,7 +40,7 @@ HRESULT TestScene::LoadScene()
 	Scene::LoadScene();
 	
 	AddGameObject<Camera>();
-	// AddGameObject<Nero>();
+	AddGameObject<Nero>();
 	for (int32 i = 0; i < 1; ++i)
 	{
 		AddGameObject<TestObject>();

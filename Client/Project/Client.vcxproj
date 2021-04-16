@@ -161,6 +161,7 @@
     <ClInclude Include="..\Header\Application.h" />
     <ClInclude Include="..\Header\Blood.h" />
     <ClInclude Include="..\Header\BtlPanel.h" />
+    <ClInclude Include="..\Header\Buster_Arm.h" />
     <ClInclude Include="..\Header\Camera.h" />
     <ClInclude Include="..\Header\DashImpact.h" />
     <ClInclude Include="..\Header\Effect.h" />
@@ -176,11 +177,14 @@
     <ClInclude Include="..\Header\NeroFSM.h" />
     <ClInclude Include="..\Header\Nero.h" />
     <ClInclude Include="..\Header\NeroState.h" />
+    <ClInclude Include="..\Header\Nero_LWing.h" />
+    <ClInclude Include="..\Header\Nero_RWing.h" />
     <ClInclude Include="..\Header\RedQueen.h" />
     <ClInclude Include="..\Header\TestAnimationObject.h" />
     <ClInclude Include="..\Header\OvertureHand.h" />
     <ClInclude Include="..\Header\TestObject.h" />
     <ClInclude Include="..\Header\TestScene.h" />
+    <ClInclude Include="..\Header\Wire_Arm.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
@@ -191,6 +195,7 @@
     <ClCompile Include="..\Source\Application.cpp" />
     <ClCompile Include="..\Source\Blood.cpp" />
     <ClCompile Include="..\Source\BtlPanel.cpp" />
+    <ClCompile Include="..\Source\Buster_Arm.cpp" />
     <ClCompile Include="..\Source\Camera.cpp" />
     <ClCompile Include="..\Source\DashImpact.cpp" />
     <ClCompile Include="..\Source\Effect.cpp" />
@@ -206,11 +211,14 @@
     <ClCompile Include="..\Source\NeroFSM.cpp" />
     <ClCompile Include="..\Source\Nero.cpp" />
     <ClCompile Include="..\Source\NeroState.cpp" />
+    <ClCompile Include="..\Source\Nero_LWing.cpp" />
+    <ClCompile Include="..\Source\Nero_RWing.cpp" />
     <ClCompile Include="..\Source\RedQueen.cpp" />
     <ClCompile Include="..\Source\TestAnimationObject.cpp" />
     <ClCompile Include="..\Source\OvertureHand.cpp" />
     <ClCompile Include="..\Source\TestObject.cpp" />
     <ClCompile Include="..\Source\TestScene.cpp" />
+    <ClCompile Include="..\Source\Wire_Arm.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

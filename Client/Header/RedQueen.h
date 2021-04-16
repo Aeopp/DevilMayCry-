@@ -43,7 +43,6 @@ private:
 
 	std::vector<Matrix*>					m_vecParentMat;
 	UINT								m_iStateIndex = 0;
-	Matrix* Test;
 };
 
 

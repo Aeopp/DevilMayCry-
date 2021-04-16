@@ -102,48 +102,19 @@
     <ClInclude Include="..\Header\Effect.h">
       <Filter>02.GameObject\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="..\Header\RedQueen.h">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Nero.h">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\NeroFSM.h">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\NeroState.h">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Blood.h">
-      <Filter>02.GameObject\Effect\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\DashImpact.h">
-      <Filter>02.GameObject\Effect\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Em0000.h">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Em0000_Weapon.h">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Em100.h">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Em101.h">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Em5000.h">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\Monster.h">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\FSMState.h">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Header\FSMBase.h">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClInclude>
+    <ClInclude Include="..\Header\RedQueen.h" />
+    <ClInclude Include="..\Header\Blood.h" />
+    <ClInclude Include="..\Header\DashImpact.h" />
+    <ClInclude Include="..\Header\Em0000.h" />
+    <ClInclude Include="..\Header\Em0000_Weapon.h" />
+    <ClInclude Include="..\Header\Em100.h" />
+    <ClInclude Include="..\Header\Em101.h" />
+    <ClInclude Include="..\Header\Em5000.h" />
+    <ClInclude Include="..\Header\Monster.h" />
+    <ClInclude Include="..\Header\Nero_LWing.h" />
+    <ClInclude Include="..\Header\Nero_RWing.h" />
+    <ClInclude Include="..\Header\Wire_Arm.h" />
+    <ClInclude Include="..\Header\Buster_Arm.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -192,47 +163,18 @@
     <ClCompile Include="..\Source\Effect.cpp">
       <Filter>02.GameObject\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Nero.cpp">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\NeroFSM.cpp">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\NeroState.cpp">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\RedQueen.cpp">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Blood.cpp">
-      <Filter>02.GameObject\Effect\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\DashImpact.cpp">
-      <Filter>02.GameObject\Effect\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Em0000.cpp">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Em0000_Weapon.cpp">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Em100.cpp">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Em101.cpp">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Em5000.cpp">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Monster.cpp">
-      <Filter>02.GameObject\02.Monster</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\FSMBase.cpp">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\FSMState.cpp">
-      <Filter>02.GameObject\01.Player</Filter>
-    </ClCompile>
+    <ClCompile Include="..\Source\RedQueen.cpp" />
+    <ClCompile Include="..\Source\Blood.cpp" />
+    <ClCompile Include="..\Source\DashImpact.cpp" />
+    <ClCompile Include="..\Source\Em0000.cpp" />
+    <ClCompile Include="..\Source\Em0000_Weapon.cpp" />
+    <ClCompile Include="..\Source\Em100.cpp" />
+    <ClCompile Include="..\Source\Em101.cpp" />
+    <ClCompile Include="..\Source\Em5000.cpp" />
+    <ClCompile Include="..\Source\Monster.cpp" />
+    <ClCompile Include="..\Source\Nero_LWing.cpp" />
+    <ClCompile Include="..\Source\Nero_RWing.cpp" />
+    <ClCompile Include="..\Source\Wire_Arm.cpp" />
+    <ClCompile Include="..\Source\Buster_Arm.cpp" />
   </ItemGroup>
 </Project>
