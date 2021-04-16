@@ -23,6 +23,7 @@ public:
 
 	virtual void	Fight(const float _fDeltaTime) PURE;
 	virtual void	State_Change(const float _fDeltaTime) PURE;
+	virtual void	Skill_CoolTime(const float _fDeltaTime) PURE;
 
 	std::shared_ptr<ENGINE::SkeletonMesh> Get_Mesh() { return m_pMesh; }
 	

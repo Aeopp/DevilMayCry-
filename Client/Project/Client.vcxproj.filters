@@ -76,6 +76,9 @@
     <Filter Include="02.GameObject\02. Monster\03.Em5000">
       <UniqueIdentifier>{a76a460f-8b96-4594-aebb-ce10380608c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\02. Monster\03.Em5000\Car">
+      <UniqueIdentifier>{f7e815fa-94c1-43a1-8a89-e80638e252dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="..\Header\Em5000.h">
       <Filter>02.GameObject\02. Monster\03.Em5000</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Header\Car.h">
+      <Filter>02.GameObject\02. Monster\03.Em5000\Car</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -225,6 +231,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\Em5000.cpp">
       <Filter>02.GameObject\02. Monster\03.Em5000</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Car.cpp">
+      <Filter>02.GameObject\02. Monster\03.Em5000\Car</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

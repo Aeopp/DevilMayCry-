@@ -33,5 +33,6 @@ enum GAMEOBJECTTAG
 	Monster0000,
 	Monster5000,
 	Btl_Panel,
+	ThrowCar,
 	Tag_END
 };

@@ -14,6 +14,7 @@
 #include "Em0000.h"
 #include "Em0000_Weapon.h"
 #include "Em5000.h"
+#include "Car.h"
 #include <iostream>
 
 using namespace std;
@@ -39,6 +40,7 @@ HRESULT TestScene::LoadScene()
 	
 	AddGameObject<Camera>();
 	AddGameObject<Em5000>();
+	AddGameObject<Car>();
 
 
 

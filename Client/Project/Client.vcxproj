@@ -162,6 +162,7 @@
     <ClInclude Include="..\Header\Blood.h" />
     <ClInclude Include="..\Header\BtlPanel.h" />
     <ClInclude Include="..\Header\Camera.h" />
+    <ClInclude Include="..\Header\Car.h" />
     <ClInclude Include="..\Header\DashImpact.h" />
     <ClInclude Include="..\Header\Effect.h" />
     <ClInclude Include="..\Header\Eff_Glint.h" />
@@ -191,6 +192,7 @@
     <ClCompile Include="..\Source\Blood.cpp" />
     <ClCompile Include="..\Source\BtlPanel.cpp" />
     <ClCompile Include="..\Source\Camera.cpp" />
+    <ClCompile Include="..\Source\Car.cpp" />
     <ClCompile Include="..\Source\DashImpact.cpp" />
     <ClCompile Include="..\Source\Effect.cpp" />
     <ClCompile Include="..\Source\Eff_Glint.cpp" />

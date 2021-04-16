@@ -5,6 +5,7 @@
 #include "TextureType.h"
 #include "Renderer.h"
 #include "TestObject.h"
+#include "Car.h"
 #include <filesystem>
 
 void Em5000::Free()
@@ -72,6 +73,507 @@ void Em5000::RenderDebugBoneImplementation(const ImplementationInfo& _ImplInfo)
 
 void Em5000::Fight(const float _fDeltaTime)
 {
+	Skill_CoolTime(_fDeltaTime);
+
+	Vector3	 vDir = m_pPlayerTrans.lock()->GetPosition() - m_pTransform.lock()->GetPosition();
+	Vector3	 vLook = m_pTransform.lock()->GetLook();
+	float	 fDir = D3DXVec3Length(&vDir);
+
+
+	D3DXVec3Normalize(&vDir, &vDir);
+	//왼쪽 오른쪽 구분하기 위한 외적 결과 값
+	Vector3  vCross;
+	D3DXVec3Cross(&vCross, &vLook, &vDir);
+	//앞 뒤 구분하기 위한 내적 결과 값
+	float fDot = D3DXVec3Dot(&vDir, &vLook);
+	float fRadian = acosf(fDot);
+	float fDegree = D3DXToDegree(fRadian);
+
+	//거리가 멀때만 이동 or 회전을 함.
+	//거리가 가까우면 공격으로 회전을 시킬 수 있음
+	if (fDir >= 10.f)
+	{
+		if (m_bThrow && m_bIng == false)
+		{
+			Turn_To_Car();
+			m_bIng = true;
+			return;
+		}
+		if (m_bTurn && m_bIng == false)
+		{
+			m_bIng = true;
+			Turn();
+			return;
+		}
+
+		if (m_bMove && m_bIng == false)
+		{
+			m_bIng = true;
+			int iRandom = FMath::Random<int>(1, 7);
+
+			if (iRandom == 1 || iRandom == 2)
+				m_eState = Back_Jump;
+			else
+				m_eState = Move_Start;
+
+			return;
+		}
+		if (m_bJumpAttack && fDir >= 15.f && fDir <= 20.f && m_bIng == false)
+		{
+			m_eState = Attack_Jump_Attack;
+			return;
+		}
+	}
+	else
+	{
+		if (m_bAttack && m_bIng == false)
+		{
+			m_bIng = true;
+			int iRandom = FMath::Random<int>(1, 2);
+			//공격 쿨 돌았고 왼쪽 or 오른쪽에 있으면 공격
+			if (fDegree >= 65.0f && fDegree <= 115.0f)
+			{
+				if (vCross.y > 0)
+				{
+					m_eState = Attack_Side_L;
+					m_fMoveTime = 0.f;
+					return;
+				}
+				else
+				{
+					m_eState = Attack_Side_R;
+					m_fMoveTime = 0.f;
+					return;
+				}
+			}
+			//공격 쿨 돌았고 뒤에 있으면 백 공격
+			if (fDegree <= 65.f && fDegree >= 0.f)
+			{
+				if (vCross.y > 0)
+				{
+					m_eState = Attack_Back_L;
+					m_fMoveTime = 0.f;
+					return;
+				}
+				else
+				{
+					m_eState = Attack_Back_R;
+					m_fMoveTime = 0.f;
+					return;
+				}
+			}
+			if (iRandom == 1)
+			{
+				m_eState = Attack_Punch_Twice;
+				return;
+			}
+			else
+			{
+				m_eState = Attack_Hack;
+				return;
+			}
+		}
+		int iRandom = FMath::Random<int>(1, 3);
+		if (iRandom == 1)
+		{
+			if (m_bBackJump && m_bIng == false)
+			{
+				m_eState = Back_Jump;
+				m_bIng = true;
+			}
+		}
+	}
+
+
+}
+
+void Em5000::State_Change(const float _fDeltaTime)
+{
+	Vector3	 vDir = m_pPlayerTrans.lock()->GetPosition() - m_pTransform.lock()->GetPosition();
+	Vector3	 vLook = m_pTransform.lock()->GetLook();
+	float	 fDir = D3DXVec3Length(&vDir);
+
+
+	Vector3 vCarDir = m_pTransform.lock()->GetPosition() - m_pCarTrans.lock()->GetPosition();
+	float   fCarDir = D3DXVec3Length(&vCarDir);
+
+
+	switch (m_eState)
+	{
+	case Em5000::Attack_Back_L:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Back_L", false, {}, 1.5f, 20.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Back_L" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_bIng = false;
+				m_bAttack = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Attack_Back_R:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Back_R", false, {}, 1.5f, 20.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Back_R" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_bIng = false;
+				m_bAttack = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Attack_Finish:
+		break;
+	case Em5000::Attack_Grap_Car:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Grap_Car", false, {}, 1.f, 10.f);
+
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Grap_Car" && m_pMesh->PlayingTime() >= 0.65f
+				&& m_pMesh->PlayingAccTime() <= 0.8f)
+			{
+				Update_Angle();
+				m_bInteraction = true;
+			}
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Grap_Car" && m_pMesh->PlayingTime() >= 0.95f)
+				m_eState = Attack_Throw_Car;
+		}
+		break;
+	case Em5000::Attack_Hack:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Hack", false, {}, 1.5f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Hack" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_bIng = false;
+				m_bAttack = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Attack_Jump_Attack:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Jump_Attack", false, {}, 1.5f, 10.f);
+
+			if (m_pMesh->PlayingTime() >= 0.1f && m_pMesh->PlayingTime() <= 0.4f)
+			{
+				Update_Angle();
+				m_bInteraction = true;
+			}
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Jump_Attack" && m_pMesh->PlayingTime()>=0.98f)
+			{
+				m_bIng = false;
+				m_bJumpAttack = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Attack_Punch_Twice:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Punch_Twice", false, {}, 1.5f, 50.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Punch_Twice" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_bIng = false;
+				m_bAttack = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Attack_Rush_Start:
+		if (m_bIng == true)
+		{
+			Update_Angle();
+			m_bInteraction = true;
+			m_pMesh->PlayAnimation("Attack_Rush_Start", false, {}, 1.f, 50.f);
+			
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Rush_Start" && fDir <= 25.f)
+				m_eState = Attack_Rush_End;
+
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Rush_Start" && m_pMesh->PlayingTime() >= 0.95f)
+				m_eState = Attack_Rush_Loop;
+		}
+		break;
+	case Em5000::Attack_Rush_Loop:
+		if (m_bIng == true)
+		{
+			Update_Angle();
+			m_bInteraction = true;
+			m_pMesh->PlayAnimation("Attack_Rush_Loop", false, {}, 1.f, 10.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Rush_Loop" && fDir <= 25.f)
+				m_eState = Attack_Rush_End;
+		}
+		break;
+	case Em5000::Attack_Rush_End:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Rush_End", false, {}, 1.f, 10.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Rush_End" && m_pMesh->PlayingTime()>= 0.95f)
+			{
+				m_bIng = false;
+				m_bMove = false;
+				m_bRushAttack = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Attack_Side_L:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Side_L", false, {}, 1.f, 20.f);
+			if (m_pMesh->IsAnimationEnd() && m_pMesh->CurPlayAnimInfo.Name == "Attack_Side_L")
+			{
+				m_bIng = false;
+				m_bAttack = false;
+				m_eState = Idle;	
+			}
+		}
+		break;
+	case Em5000::Attack_Side_R:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Side_R", false, {}, 1.f, 20.f);
+			if (m_pMesh->IsAnimationEnd() && m_pMesh->CurPlayAnimInfo.Name == "Attack_Side_R")
+			{
+				m_bIng = false;
+				m_bAttack = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Attack_Throw_Car:
+		if (m_bIng == true)
+		{
+			Update_Angle();
+			m_bInteraction = true;
+			m_pMesh->PlayAnimation("Attack_Throw_Car", false, {}, 1.f, 10.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Throw_Car" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_bIng = false;
+				m_bThrow = false;
+				m_eState = Idle;
+			}
+		}
+		break;
+	case Em5000::Back_Jump:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Back_Jump", false, {}, 1.f, 10.f);
+
+			if (m_pMesh->PlayingTime()>=0.9f && m_pMesh->CurPlayAnimInfo.Name == "Back_Jump")
+			{
+				int iRandom = FMath::Random<int>(1, 2);
+				
+				if (iRandom == 1)
+				{
+
+					if (m_bRushAttack && fDir >= 15.f)
+					{
+						m_eState = Attack_Rush_Start;
+						m_bMove = false;
+						return;
+					}
+				}
+				else
+				{
+					if (m_bJumpAttack && fDir >= 20.f &&fDir <= 25.f)
+					{
+						m_eState = Attack_Jump_Attack;
+						m_bMove = false;
+						return;
+					}
+				}
+				m_bIng = false;
+				m_bMove = false;
+				m_bBackJump = false;
+				m_eState = Idle;
+			}
+		}
+
+		break;
+	case Em5000::Dead:
+		break;
+	case Em5000::Groggy_Dead:
+		break;
+	case Em5000::Groggy_Start:
+		break;
+	case Em5000::Groggy_Loop:
+		break;
+	case Em5000::Hit_Buster_Start:
+		break;
+	case Em5000::Hit_Buster_Swing_Start:
+		break;
+	case Em5000::Hit_Buster_Swing_Loop:
+		break;
+	case Em5000::Hit_Buster_Swing_Throw:
+		break;
+	case Em5000::Hit_Buster_Swing_End:
+		break;
+	case Em5000::Howling:
+		break;
+	case Em5000::Idle:
+		m_pMesh->PlayAnimation("Idle", true, {}, 1.f, 50.f);
+		break;
+	case Em5000::Move_Loop:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Loop", true, {}, 1.3f, 50.f);
+			m_bInteraction = true;
+			Update_Angle();
+
+
+			if (fDir <= 30 && fDir >= 25.f && m_bJumpAttack)  
+			{
+				m_eState = Attack_Jump_Attack;
+				m_bMove = false;
+				return;
+			}
+			if (fDir <= 10.f)
+			{
+				m_bIng = false;
+				m_bMove = false;
+			}
+		}
+		break;
+	case Em5000::Move_Start:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Start", false, {}, 1.3f, 30.f);
+			if(m_pMesh->CurPlayAnimInfo.Name == "Move_Start" && m_pMesh->PlayingTime()>= 0.2f)
+			{
+				Update_Angle();
+				m_bInteraction = true;
+			}
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Start" && m_pMesh->PlayingTime() >= 0.9f)
+			{
+				m_eState = Move_Loop;
+			}
+		}
+		break;
+	case Em5000::Tornado_End:
+		break;
+	case Em5000::Tornado_Start:
+		break;
+	case Em5000::Move_Turn_L_90:
+		break;
+	case Em5000::Move_Turn_L_180:
+		break;
+	case Em5000::Move_Turn_R_90:
+		break;
+	case Em5000::Move_Turn_R_180:
+		break;
+	case Em5000::Move_Turn_L:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Turn_L", false, {}, 1.2f, 20.f);
+
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_L" && m_pMesh->PlayingTime() >= 0.2f && m_pMesh->PlayingTime() <= 0.6f)
+			{
+				m_bInteraction = true;
+				Update_Angle();
+			}
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_L" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_eState = Idle;
+				m_bIng = false;
+				m_bTurn = false;
+			}
+		}
+		break;
+	case Em5000::Move_Turn_R:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Turn_R", false, {}, 1.2f, 20.f);
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_R" && m_pMesh->PlayingTime() >= 0.2f && m_pMesh->PlayingTime() <= 0.6f)
+			{
+				m_bInteraction = true;
+				Update_Angle();
+			}
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_R" && m_pMesh->PlayingTime() >= 0.95f)
+			{
+				m_eState = Idle;
+				m_bIng = false;
+				m_bTurn = false;
+			}
+		}
+		break;
+	case Em5000::Car_Turn_L:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Turn_L", false, {}, 1.2f, 20.f);
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_L" && m_pMesh->PlayingTime() >= 0.2f && m_pMesh->PlayingTime() <= 0.6f)
+			{
+				m_bInteraction = true;
+				Update_Angle_ToCar();
+			}
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_L" && m_pMesh->PlayingTime() >= 0.85f)
+				m_eState = Car_Rush_Start;
+		}
+		break;
+	case Em5000::Car_Turn_R:
+		if (m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Move_Turn_R", false, {}, 1.2f, 20.f);
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_R" && m_pMesh->PlayingTime() >= 0.2f && m_pMesh->PlayingTime() <= 0.6f)
+			{
+				m_bInteraction = true;
+				Update_Angle_ToCar();
+			}
+			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_R" && m_pMesh->PlayingTime() >= 0.85f)
+				m_eState = Car_Rush_Start;
+		}
+		break;
+	case Em5000::Car_Rush_Start:
+		if (m_bIng == true)
+		{
+			Update_Angle_ToCar();
+			m_bInteraction = true;
+
+			m_pMesh->PlayAnimation("Attack_Rush_Start", false, {}, 1.f, 50.f);
+				
+			if (fCarDir <= 8.5f)
+			{
+				m_eState = Attack_Grap_Car;
+				return;
+			}
+			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Rush_Start" && m_pMesh->PlayingTime() >= 0.9f)
+				m_eState = Car_Rush_Loop;
+		}
+		break;
+	case Em5000::Car_Rush_Loop:
+		if(m_bIng == true)
+		{
+			m_pMesh->PlayAnimation("Attack_Rush_Loop", true, {}, 1.f, 10.f);
+			Update_Angle_ToCar();
+			m_bInteraction = true;
+
+			if (fCarDir <= 8.5f)
+				m_eState = Attack_Grap_Car;
+
+		}
+		break;
+	default:
+		break;
+	}
+
+}
+
+void Em5000::Skill_CoolTime(const float _fDeltaTime)
+{
 	if (m_bMove == false)
 	{
 		m_fMoveTime += _fDeltaTime;
@@ -108,277 +610,41 @@ void Em5000::Fight(const float _fDeltaTime)
 			m_fTurnTime = 0.f;
 		}
 	}
-
-	Vector3	 vDir = m_pPlayerTrans.lock()->GetPosition() - m_pTransform.lock()->GetPosition();
-	Vector3	 vLook = m_pTransform.lock()->GetLook();
-	float	 fDir = D3DXVec3Length(&vDir);
-
-
-	D3DXVec3Normalize(&vDir, &vDir);
-	//왼쪽 오른쪽 구분하기 위한 외적 결과 값
-	Vector3  vCross;
-	D3DXVec3Cross(&vCross, &vLook, &vDir);
-	//앞 뒤 구분하기 위한 내적 결과 값
-	float fDot = D3DXVec3Dot(&vDir, &vLook);
-	float fRadian = acosf(fDot);
-	float fDegree = D3DXToDegree(fRadian);
-
-	//이동 자체는 멀때만
-	if (fDir >= 8.f)
+	if (m_bRushAttack == false)
 	{
-		if (m_bMove && m_bIng == false)
+		m_fRushAttackTime += _fDeltaTime;
+		if (m_fRushAttackTime >= 10.f)
 		{
-			m_bIng = true;
-			m_bInteraction = true;
-			Update_Angle();
-			m_eState = Move_Start;
-			return;
-		}
-
-	}
-	//플레이어랑 몬스터랑 근접이다
-	else
-	{
-		//Move_Loop 상태에서 가까워 졌다.
-		//이전 모션인 Move 초기화 해줌. ing는 모션 끝날때 false로 바뀜.
-		if (m_bMove && m_bIng == true)
-		{
-			if (m_bAttack)
-			{
-				m_bMove = false;
-				m_fMoveTime = 0.f;
-				int iRandom = FMath::Random<int>(1, 2);
-				if (fDegree >= 75.0f && fDegree <= 115.0f)
-				{
-					m_bIng = true;
-					if (vCross.y > 0)
-					{
-						m_eState = Attack_Side_L;
-						m_bMove = false;
-						m_fMoveTime = 0.f;
-						return;
-					}
-					else
-					{
-						m_eState = Attack_Side_R;
-						m_bMove = false;
-						m_fMoveTime = 0.f;
-						return;
-					}
-				}
-
-				if (iRandom == 1)
-				{
-					m_eState = Attack_Punch_Twice;
-					return;
-				}
-				else
-				{
-					m_eState = Attack_Hack;
-					return;
-				}
-			}
-			//가까워졌는데 공격이 쿨타임이야. 일단 Idle로 바꿔
-			else
-			{
-				m_bMove = false;
-				m_fMoveTime = 0.f;
-				m_eState = Idle;
-				return;
-			}
+			m_bRushAttack = true;
+			m_fRushAttackTime = 0.f;
 		}
 	}
-
-
-	if (m_bTurn && m_bIng == false)
+	if (m_bJumpAttack == false)
 	{
-		m_bIng = true;
-		Turn();
-		return;
+		m_fJumpAttackTime += _fDeltaTime;
+		if (m_fJumpAttackTime >= 15.f)
+		{
+			m_bJumpAttack = true;
+			m_fJumpAttackTime = 0.f;
+		}
 	}
-
-
-
-
-
-
-}
-
-void Em5000::State_Change(const float _fDeltaTime)
-{
-	Vector3	 vDir = m_pPlayerTrans.lock()->GetPosition() - m_pTransform.lock()->GetPosition();
-	Vector3	 vLook = m_pTransform.lock()->GetLook();
-	float	 fDir = D3DXVec3Length(&vDir);
-
-
-	switch (m_eState)
+	if (m_bThrow == false)
 	{
-	case Em5000::Attack_Back_L:
-		break;
-	case Em5000::Attack_Back_R:
-		break;
-	case Em5000::Attack_Finish:
-		break;
-	case Em5000::Attack_Grap_Car:
-		break;
-	case Em5000::Attack_Hack:
-		if (m_bIng == true)
+		m_fThrowTime += _fDeltaTime;
+		if (m_fThrowTime >= 4.f)
 		{
-			m_pMesh->PlayAnimation("Attack_Hack", false, {}, 1.5f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Hack" && m_pMesh->PlayingTime() >= 0.95f)
-			{
-				m_bIng = false;
-				m_bAttack = false;
-				m_eState = Idle;
-			}
+			m_bThrow = true;
+			m_fThrowTime = 0.f;
 		}
-		break;
-	case Em5000::Attack_Jump_Attack:
-		break;
-	case Em5000::Attack_Punch_Twice:
-		if (m_bIng == true)
+	}
+	if (m_bBackJump == false)
+	{
+		m_fBackJumpTime += _fDeltaTime;
+		if (m_fBackJumpTime >= 10.f)
 		{
-			m_pMesh->PlayAnimation("Attack_Punch_Twice", false, {}, 1.5f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Attack_Punch_Twice" && m_pMesh->PlayingTime() >= 0.95f)
-			{
-				m_bIng = false;
-				m_bAttack = false;
-				m_eState = Idle;
-			}
+			m_bBackJump = true;
+			m_fBackJumpTime = 0.f;
 		}
-		break;
-	case Em5000::Attack_Rush_Start:
-		break;
-	case Em5000::Attack_Rush_Loop:
-		break;
-	case Em5000::Attack_Rush_End:
-		break;
-	case Em5000::Attack_Side_L:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Attack_Side_L", false, {}, 1.f, 20.f);
-			if (m_pMesh->IsAnimationEnd() && m_pMesh->CurPlayAnimInfo.Name == "Attack_Side_L")
-			{
-				m_bIng = false;
-				m_bAttack = false;
-				m_eState = Idle;	
-			}
-		}
-		break;
-	case Em5000::Attack_Side_R:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Attack_Side_R", false, {}, 1.f, 20.f);
-			if (m_pMesh->IsAnimationEnd() && m_pMesh->CurPlayAnimInfo.Name == "Attack_Side_R")
-			{
-				m_bIng = false;
-				m_bAttack = false;
-				m_eState = Idle;
-			}
-		}
-		break;
-	case Em5000::Attack_Throw_Car:
-		break;
-	case Em5000::Back_Jump:
-		break;
-	case Em5000::Dead:
-		break;
-	case Em5000::Groggy_Dead:
-		break;
-	case Em5000::Groggy_Start:
-		break;
-	case Em5000::Groggy_Loop:
-		break;
-	case Em5000::Hit_Buster_Start:
-		break;
-	case Em5000::Hit_Buster_Swing_Start:
-		break;
-	case Em5000::Hit_Buster_Swing_Loop:
-		break;
-	case Em5000::Hit_Buster_Swing_Throw:
-		break;
-	case Em5000::Hit_Buster_Swing_End:
-		break;
-	case Em5000::Howling:
-		break;
-	case Em5000::Idle:
-		m_pMesh->PlayAnimation("Idle", true, {}, 1.f, 50.f);
-		break;
-	case Em5000::Move_Loop:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Move_Loop", true, {}, 1.f, 50.f);
-			m_bInteraction = true;
-			Update_Angle();
-		}
-		break;
-	case Em5000::Move_Start:
-		if (m_bIng == true)
-		{
-			Update_Angle();
-			m_bInteraction = true;
-			m_pMesh->PlayAnimation("Move_Start", false, {}, 1.f, 50.f);
-			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Start" && m_pMesh->PlayingTime() >= 0.9f)
-			{
-				m_eState = Move_Loop;
-			}
-		}
-		break;
-	case Em5000::Tornado_End:
-		break;
-	case Em5000::Tornado_Start:
-		break;
-	case Em5000::Move_Turn_L_90:
-		break;
-	case Em5000::Move_Turn_L_180:
-		break;
-	case Em5000::Move_Turn_R_90:
-		break;
-	case Em5000::Move_Turn_R_180:
-		break;
-	case Em5000::Move_Turn_L:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Move_Turn_L", false, {}, 1.f, 50.f);
-
-			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_L" && m_pMesh->PlayingTime() >= 0.2f && m_pMesh->PlayingTime() <= 0.8f)
-			{
-				m_bInteraction = true;
-				Update_Angle();
-			}
-			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_L" && m_pMesh->PlayingTime() >= 0.95f)
-			{
-				m_eState = Idle;
-				m_bIng = false;
-				m_bTurn = false;
-				m_bTurnEnd = true;
-			}
-		}
-		break;
-	case Em5000::Move_Turn_R:
-		if (m_bIng == true)
-		{
-			m_pMesh->PlayAnimation("Move_Turn_R", false, {}, 1.f, 50.f);
-			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_R" && m_pMesh->PlayingTime() >= 0.2f && m_pMesh->PlayingTime() <= 0.8f)
-			{
-				m_bInteraction = true;
-				Update_Angle();
-			}
-			if (m_pMesh->CurPlayAnimInfo.Name == "Move_Turn_R" && m_pMesh->PlayingTime() >= 0.95f)
-			{
-				m_eState = Idle;
-				m_bIng = false;
-				m_bTurn = false;
-				m_bTurnEnd = true;
-			}
-		}
-		break;
-	case Em5000::State_END:
-		break;
-	default:
-		break;
 	}
 
 }
@@ -464,6 +730,8 @@ HRESULT Em5000::Ready()
 
 	//몬스터 회전 기본 속도
 	m_fAngleSpeed = D3DXToRadian(100.f);
+
+	m_pMesh->EnableToRootMatricies();
 	return S_OK;
 }
 
@@ -472,6 +740,8 @@ HRESULT Em5000::Awake()
 	m_pPlayer = std::static_pointer_cast<TestObject>(FindGameObjectWithTag(Player).lock());
 	m_pPlayerTrans = m_pPlayer.lock()->GetComponent<ENGINE::Transform>();
 
+	m_pCar = std::static_pointer_cast<Car>(FindGameObjectWithTag(ThrowCar).lock());
+	m_pCarTrans = m_pCar.lock()->GetComponent<ENGINE::Transform>();
 
 	return S_OK;
 }
@@ -498,9 +768,7 @@ UINT Em5000::Update(const float _fDeltaTime)
 	//DeltaPos = FMath::RotationVecNormal(DeltaPos, Axis, FMath::ToRadian(90.f)) * Length;
 	if (auto SpTransform = GetComponent<ENGINE::Transform>().lock();
 		SpTransform)
-	{	
-
-		 
+	{			 
 		 D3DXQUATERNION tTemp;
 		 D3DXQuaternionRotationYawPitchRoll(&tTemp, D3DXToRadian(0.f), D3DXToRadian(90.f), D3DXToRadian(0.f));
 
@@ -535,7 +803,6 @@ UINT Em5000::Update(const float _fDeltaTime)
 		Fight(_fDeltaTime);
 		State_Change(_fDeltaTime);
 	}
-
 	Rotate(_fDeltaTime);
 
 	return 0;
@@ -653,5 +920,64 @@ void Em5000::Turn()
 			m_eState = Move_Turn_R;
 	}
 
+
+}
+
+
+void Em5000::Turn_To_Car()
+{
+	Vector3	 vDir2 = m_pCarTrans.lock()->GetPosition() - m_pTransform.lock()->GetPosition();
+	Vector3	 vLook2 = m_pTransform.lock()->GetLook();
+	float	 fDir2 = D3DXVec3Length(&vDir2);
+
+	D3DXVec3Normalize(&vDir2, &vDir2);
+	Vector3  vCross2;
+	D3DXVec3Cross(&vCross2, &vLook2, &vDir2);
+	float fDot2 = D3DXVec3Dot(&vDir2, &vLook2);
+
+	if (fDot2 > 0)
+	{
+		if (vCross2.y > 0)
+			m_eState = Car_Turn_L;
+		else
+			m_eState = Car_Turn_R;
+	}
+	else
+	{
+		if (vCross2.y > 0)
+			m_eState = Car_Turn_L;
+		else
+			m_eState = Car_Turn_R;
+	}
+}
+
+void Em5000::Update_Angle_ToCar()
+{
+	Vector3 vCarPos = m_pCarTrans.lock()->GetPosition();
+	Vector3 vMyPos = m_pTransform.lock()->GetPosition();
+
+	Vector3 vDir = vCarPos - vMyPos;
+	vDir.y = 0;
+	D3DXVec3Normalize(&vDir, &vDir);
+
+	Vector3 vLook = -m_pTransform.lock()->GetLook();
+
+	float fDot = D3DXVec3Dot(&vDir, &vLook);
+	float fRadian = acosf(fDot);
+
+	Vector3	vCross;
+	D3DXVec3Cross(&vCross, &vLook, &vDir);
+
+	if (vCross.y > 0)
+		fRadian *= -1;
+
+	m_fRadian = fRadian;
+	m_fAccuangle = 0.f;
+
+
+	if (m_fRadian > 0)
+		m_fAngleSpeed = fabs(m_fAngleSpeed);
+	else
+		m_fAngleSpeed = -fabs(m_fAngleSpeed);
 
 }

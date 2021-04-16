@@ -290,6 +290,10 @@ void Em100::State_Change(const float _fDeltaTime)
 
 }
 
+void Em100::Skill_CoolTime(const float _fDeltaTime)
+{
+}
+
 HRESULT Em100::Ready()
 {
 	//GameObject를 받아오려면 각자 태그가 있어야함.

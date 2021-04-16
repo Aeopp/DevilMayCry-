@@ -41,7 +41,7 @@ Node::CurrentAnimationTransform(
 	const double CurrentAnimationTime)
 {
 	Vector3 Scale{ 1,1,1 };
-	Quaternion Quat{};
+	Quaternion Quat{0,0,0,1};
 	Vector3 Pos{ 0,0,0 };
 
 	{
@@ -209,7 +209,8 @@ Vector3 Node::CurrentAnimationPosition(const AnimationTrack& AnimTrack, const do
 void Node::NodeUpdate(const Matrix& ParentToRoot,
 				     const double CurrentAnimationTime,
 				     const std::string& AnimationName, 
-	const std::optional<AnimationBlendInfo>& IsAnimationBlend)&
+	const std::optional<AnimationBlendInfo>& IsAnimationBlend ,
+	const Quaternion& QuatOffset)&
 {
 	// 여기서 이전 프레임과 다음 프레임을 보간 한다.
 	auto iter = _AnimationTrack.find(AnimationName);
@@ -217,7 +218,7 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 
 	if (bCurAnim)
 	{
-		auto [Scale,Quat,Pos ] = 
+		auto [Scale,Quat,Pos] = 
 			CurrentAnimationTransform(iter->second, CurrentAnimationTime);
 
 		if (IsAnimationBlend.has_value())
@@ -240,23 +241,19 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 			}
 		}
 
-		// 어나니머스 ..
-		
 		// 포지션
-		
-		if (RootMotionFlag.test(2))
+		if (RootMotionFlag.test(2)/*"root_$AssimpFbx$_Transition"*/)
 		{
 			Pos = { 0,0,0 };
 		}
 		 // 로테이션 .. 
 		if (RootMotionFlag.test(1))
 		{
-			Quat = { -0.7071068, 0, 0, 0.7071068 };
-			//Quat = { 0,0,0,1 };
+			D3DXQuaternionConjugate(&Quat, &QuatOffset);
 			// Quat = UnitQuat !! 
 		}
 		 // 스케일링
-		if (RootMotionFlag.test(0))
+		if (RootMotionFlag.test(0)/*"root_$AssimpFbx$_Scaling"*/)
 		{
 			Scale = { 1,1,1 };
 		}
@@ -278,7 +275,8 @@ void Node::NodeUpdate(const Matrix& ParentToRoot,
 		ChildrenTarget->NodeUpdate(ToRoot,
 			CurrentAnimationTime, 
 			AnimationName,
-			IsAnimationBlend);
+			IsAnimationBlend ,
+			QuatOffset);
 	}
 }
 

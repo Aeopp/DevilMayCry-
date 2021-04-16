@@ -5,9 +5,10 @@
 
 
 class TestObject;
+class Car;
 class Em5000 final : public Monster
 {
-private:
+public:
 	enum Em5000_State
 	{
 		Attack_Back_L,
@@ -45,6 +46,10 @@ private:
 		Move_Turn_R_180,
 		Move_Turn_L,
 		Move_Turn_R,
+		Car_Rush_Start,
+		Car_Rush_Loop,
+		Car_Turn_L,
+		Car_Turn_R,
 		State_END
 	};
 private:
@@ -64,6 +69,7 @@ public:
 
 	virtual void Fight(const float _fDeltaTime)override;
 	virtual void State_Change(const float _fDeltaTime)override;
+	virtual void Skill_CoolTime(const float _fDeltaTime)override;
 
 public:
 	virtual HRESULT Ready() override;
@@ -78,7 +84,11 @@ public:
 	virtual void Rotate(const float _fDeltaTime) override;
 	virtual void Update_Angle() override;
 
-	void	Turn();
+
+	void		 Turn();
+	void		 Turn_To_Car();
+	void		 Update_Angle_ToCar();
+	Em5000_State Get_State() { return m_eState; }
 private:
 	//몬스터 상태
 	Em5000_State	m_eState =State_END;		
@@ -86,6 +96,8 @@ private:
 	std::weak_ptr<ENGINE::Transform> m_pPlayerTrans;
 	std::weak_ptr<TestObject>		 m_pPlayer;
 
+	std::weak_ptr<Car>				 m_pCar;
+	std::weak_ptr<ENGINE::Transform> m_pCarTrans;
 	//공격 및 이동 관련
 	bool		m_bMove = false;
 	float		m_fMoveTime = 0.f;
@@ -96,10 +108,22 @@ private:
 	bool		m_bSideAttack = false;
 	float		m_fSideAttackTime = 0.f;
 
+	bool		m_bRushAttack = false;
+	float		m_fRushAttackTime = 0.f;
+
+	bool		m_bJumpAttack = false;
+	float		m_fJumpAttackTime = 0.f;
+
+	bool		m_bThrow = false;
+	float		m_fThrowTime = 0.f;
+
+	bool		m_bBackJump = false;
+	float		m_fBackJumpTime = 0.f;
 	//돌리기
 	bool		m_bTurn = false;
-	bool		m_bTurnEnd = false;
 	float		m_fTurnTime = 0.f;
+	
+
 
 
 	//전투 시작 테스트 용

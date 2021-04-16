@@ -268,6 +268,10 @@ void Em0000::State_Change(const float _fDeltaTime)
 	}
 }
 
+void Em0000::Skill_CoolTime(const float _fDeltaTime)
+{
+}
+
 HRESULT Em0000::Ready()
 {
 	m_nTag = Monster0000;
