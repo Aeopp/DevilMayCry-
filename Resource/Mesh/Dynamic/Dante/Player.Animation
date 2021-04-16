@@ -1,6 +1,9 @@
 {
     "AnimationData": {
         "RootMotion_DeltaFactor": 1.0,
+        "Offset Euler Yaw": 0.0,
+        "Offset Euler Pitch": 0.0,
+        "Offset Euler Roll": 0.0,
         "RootMotion_TransitionName": "root",
         "AnimInfoTable": [
             {
@@ -9,9 +12,19 @@
                 "TransitionTime": 0.10000000149011612
             },
             {
+                "Name": "Air_Dive_Slash_Loop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
                 "Name": "Air_Dive_Slash_Start",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
+            },
+            {
+                "Name": "Buster_Start",
+                "Acceleration": 1.190000057220459,
+                "TransitionTime": 0.009999999776482582
             },
             {
                 "Name": "Caliber_End",
@@ -479,6 +492,11 @@
                 "TransitionTime": 0.10000000149011612
             },
             {
+                "Name": "Jump_Loop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
                 "Name": "Jump_Twice",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
@@ -704,6 +722,11 @@
                 "TransitionTime": 0.10000000149011612
             },
             {
+                "Name": "SplitEx_Loop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
                 "Name": "SplitEx_Start",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
@@ -712,6 +735,11 @@
                 "Name": "Split_Landing",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
+            },
+            {
+                "Name": "Split_Loop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
             },
             {
                 "Name": "Split_Start",
@@ -774,6 +802,16 @@
                 "TransitionTime": 0.10000000149011612
             },
             {
+                "Name": "To_Majin",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
+                "Name": "To_Majin2",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
                 "Name": "Wire_HellHound_Air_End",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
@@ -784,6 +822,11 @@
                 "TransitionTime": 0.10000000149011612
             },
             {
+                "Name": "Wire_HellHound_Air_Loop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
+            },
+            {
                 "Name": "Wire_HellHound_End",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
@@ -792,6 +835,11 @@
                 "Name": "Wire_HellHound_F",
                 "Acceleration": 1.0,
                 "TransitionTime": 0.10000000149011612
+            },
+            {
+                "Name": "Wire_HellHound_Loop",
+                "Acceleration": 1.0,
+                "TransitionTime": 0.009999999776482582
             },
             {
                 "Name": "Wire_Snatch_Pull",

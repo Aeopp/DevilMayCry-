@@ -6,6 +6,8 @@
 #include "RedQueen.h"
 #include "Nero_LWing.h"
 #include "Nero_RWing.h"
+#include "Buster_Arm.h"
+#include "Wire_Arm.h"
 Nero::Nero()
 	:m_iCurAnimationIndex(ANI_END)
 	, m_iPreAnimationIndex(ANI_END)
@@ -98,6 +100,9 @@ HRESULT Nero::Ready()
 	m_pRedQueen = AddGameObject<RedQueen>();
 	m_pLWing = AddGameObject<Nero_LWing>();
 	m_pRWing = AddGameObject<Nero_RWing>();
+	m_pBusterArm = AddGameObject<Buster_Arm>();
+	m_pWireArm = AddGameObject<Wire_Arm>();
+
 	m_pFSM.reset(NeroFSM::Create(static_pointer_cast<Nero>(m_pGameObject.lock())));
 
 	m_iCurAnimationIndex = ANI_END;
@@ -247,6 +252,16 @@ void Nero::SetActive_Wings(bool ActiveOrNot)
 	m_pRWing.lock()->SetActive(ActiveOrNot);
 }
 
+void Nero::SetActive_Buster_Arm(bool ActiveOrNot)
+{
+	m_pBusterArm.lock()->SetActive(ActiveOrNot);
+}
+
+void Nero::SetActive_Wire_Arm(bool ActiveOrNot)
+{
+	m_pWireArm.lock()->SetActive(ActiveOrNot);
+}
+
 void Nero::StopAnimation()
 {
 	m_pMesh->StopAnimation();
@@ -278,6 +293,14 @@ void Nero::ChangeAnimationIndex(const UINT AnimationIndex)
 void Nero::ChangeWeapon(UINT _iWeaponIndex)
 {
 	m_iCurWeaponIndex = _iWeaponIndex;
+}
+void Nero::Change_BusterArm_Animation(const std::string& InitAnimName, const bool bLoop, const AnimNotify& _Notify)
+{
+	m_pBusterArm.lock()->ChangeAnimation(InitAnimName, bLoop, _Notify);
+}
+void Nero::Change_WireArm_Animation(const std::string& InitAnimName, const bool bLoop, const AnimNotify& _Notify)
+{
+	m_pWireArm.lock()->ChangeAnimation(InitAnimName, bLoop, _Notify);
 }
 //if (Input::GetKeyDown(DIK_LCONTROL))
 //	m_iCurWeaponIndex = m_iCurWeaponIndex == RQ ? Cbs : RQ;

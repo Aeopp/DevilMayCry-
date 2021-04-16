@@ -4,7 +4,7 @@
 #include "Subset.h"
 #include "Nero.h"
 Nero_LWing::Nero_LWing()
-	:m_bIsRender(true)
+	:m_bIsRender(false)
 {
 }
 
@@ -54,6 +54,8 @@ HRESULT Nero_LWing::Ready()
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::Debug).get());
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 	PushEditEntity(m_pTransform.lock().get());
+
+	SetActive(false);
 
 	return S_OK;
 }

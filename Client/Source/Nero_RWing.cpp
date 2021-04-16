@@ -4,7 +4,7 @@
 #include "Subset.h"
 #include "Nero.h"
 Nero_RWing::Nero_RWing()
-	:m_bIsRender(true)
+	:m_bIsRender(false)
 {
 }
 
@@ -44,7 +44,7 @@ HRESULT Nero_RWing::Ready()
 		RenderProperty::Order::DebugBone,
 		L"..\\..\\Resource\\Shader\\DebugBone.hlsl", {});
 
-	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Wing\\Test9.fbx");
+	m_pMesh = Resources::Load<SkeletonMesh>(L"..\\..\\Resource\\Mesh\\Dynamic\\Dante\\Wing\\Wing_Right.fbx");
 	m_pMesh->EnableToRootMatricies();
 
 	m_pTransform.lock()->SetScale({ 0.001f,0.001f,0.001f });
@@ -55,7 +55,7 @@ HRESULT Nero_RWing::Ready()
 	PushEditEntity(_ShaderInfo.GetShader(RenderProperty::Order::DebugBone).get());
 	PushEditEntity(m_pTransform.lock().get());
 
-	
+	SetActive(false);
 
 	return S_OK;
 }

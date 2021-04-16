@@ -112,6 +112,8 @@
     <ClInclude Include="..\Header\Monster.h" />
     <ClInclude Include="..\Header\Nero_LWing.h" />
     <ClInclude Include="..\Header\Nero_RWing.h" />
+    <ClInclude Include="..\Header\Wire_Arm.h" />
+    <ClInclude Include="..\Header\Buster_Arm.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -176,5 +178,7 @@
     <ClCompile Include="..\Source\Monster.cpp" />
     <ClCompile Include="..\Source\Nero_LWing.cpp" />
     <ClCompile Include="..\Source\Nero_RWing.cpp" />
+    <ClCompile Include="..\Source\Wire_Arm.cpp" />
+    <ClCompile Include="..\Source\Buster_Arm.cpp" />
   </ItemGroup>
 </Project>
