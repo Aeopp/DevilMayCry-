@@ -44,7 +44,7 @@ float ShadowVariance(float2 moments, float d)
     return max(((d <= mean) ? 1.0f : 0.0f), chebychev);
 }
 
-float3 Luminance_Blinn_Directional(float3 albedo, float3 wpos, float3 wnorm)
+float3 Luminance_Blinn_Directional(float3 albedo, float3 wpos, float3 wnorm ,float roughness)
 {
 	// the sun has an angular diameter between [0.526, 0.545] degrees
     
@@ -85,11 +85,13 @@ float3 Luminance_Blinn_Directional(float3 albedo, float3 wpos, float3 wnorm)
     float2 ptex = (lspos.xy / lspos.w) * float2(0.5f, -0.5f) + 0.5f;
     float2 moments = tex2D(shadowMap, ptex).rg;
     float shadow = ShadowVariance(moments, d);
-
-    return (f_diffuse + f_specular) * lightColor * illuminance * shadow;
+    // 러프니스 
+    f_specular *= (1.0f - roughness);
+    
+    return (f_diffuse + f_specular) * lightColor * illuminance * saturate(shadow + 0.25);
 }
 
-float3 Luminance_Blinn_Point(float3 albedo, float3 wpos, float3 wnorm)
+float3 Luminance_Blinn_Point(float3 albedo, float3 wpos, float3 wnorm, float roughness)
 {
     float3 ldir = lightPos.xyz - wpos;
 
@@ -115,7 +117,9 @@ float3 Luminance_Blinn_Point(float3 albedo, float3 wpos, float3 wnorm)
     float illuminance = (lightFlux / (QUAD_PI * dist2)) * ndotl;
     float attenuation = max(0, 1 - sqrt(dist2) / lightRadius);
 
-    return (f_diffuse + f_specular) * lightColor * illuminance * attenuation * shadow;
+    // 러프니스 
+    f_specular *= (1.0f - roughness);
+    return (f_diffuse + f_specular) * lightColor * illuminance * attenuation * saturate(shadow + 0.33);
 }
 
 void ps_deferred(
@@ -123,7 +127,7 @@ void ps_deferred(
 	out float4 color : COLOR0)
 {
     float4 base = tex2D(albedo, tex);
-    float3 wnorm = tex2D(normals, tex).rgb * 2.0f - 1.0f;
+    float4 nrmr = tex2D(normals, tex) * 2.0f - 1.0f;
     float d = tex2D(depth, tex).r;
     float4 wpos = float4(tex.x * 2 - 1, 1 - 2 * tex.y, d, 1);
 
@@ -135,12 +139,12 @@ void ps_deferred(
         if (lightPos.w < 0.5f)
         {
 			// directional light
-            color.rgb = Luminance_Blinn_Directional(base.rgb, wpos.xyz, wnorm);
+            color.rgb = Luminance_Blinn_Directional(base.rgb, wpos.xyz, nrmr.xyz, nrmr.w);
         }
         else
         {
 			// point light
-            color.rgb = Luminance_Blinn_Point(base.rgb, wpos.xyz, wnorm);
+            color.rgb = Luminance_Blinn_Point(base.rgb, wpos.xyz, nrmr.xyz, nrmr.w);
         }
 
         color.a = 1;

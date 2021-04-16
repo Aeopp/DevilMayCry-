@@ -251,7 +251,6 @@ HRESULT CoreSystem::UpdateEngine()
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::ShowDemoWindow();
 	GlobalVariableEditor();
 
 	if (FAILED(m_pInputSystem.lock()->UpdateInputSystem()))

@@ -69,9 +69,6 @@ private:
 	LPDIRECT3DTEXTURE9		Blurredshadowmap;
 	LPDIRECT3DSURFACE9      DepthStencil{};
 
-	CreateDepthStencilSurface(Width, Height,
-		Format, RefGraphicDevice->MultiSampleType, RefGraphicDevice->MultiSampleQuality,
-		TRUE, &TargetDepthStencil, nullptr);
 
 	Type				    _Type;
 	int						Currentface;

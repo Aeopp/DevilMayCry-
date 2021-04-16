@@ -140,8 +140,8 @@ void ps_gbuffer_tbn(
                          normalize(float3(WNormal)));
     
     tbn = transpose(tbn);
-    
-    float3 tnorm = tex2D(normalMap, tex).rgb * 2.0f - 1.0f;
+    float4 normal_sample = tex2D(normalMap, tex);
+    float3 tnorm = normal_sample.xyz* 2.0f - 1.0f;
     //노말맵 g채널 뒤집어주자 . 
      //tnorm.y *= -1.f;
     ////tnorm.x *= -1.f;
@@ -152,7 +152,7 @@ void ps_gbuffer_tbn(
     float3 n = normalize(mul(tbn, tnorm));
     
     color0 = tex2D(baseColor, tex);
-    color1 = float4(n * 0.5f + 0.5f, 1);
+    color1 = float4(n * 0.5f + 0.5f, normal_sample.w);
     color2 = float4(zw.x / zw.y, 0, 0, 0);
 };
 

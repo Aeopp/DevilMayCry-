@@ -56,12 +56,26 @@ void Renderer::ReadyShader(const std::filesystem::path& TargetPath)
 
 void Renderer::ReadyLights()
 {
-	//// ´Þºû
-	//DirLights.resize(1u);
-	//DirLights[0] = std::make_shared<FLight>
-	//	(FLight(FLight::Type::Directional,
-	//	{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
-	//PointLights.resize(1u);
+	// ´Þºû
+	DirLights.resize(1u);
+	DirLights[0] = std::make_shared<FLight>
+		(FLight(FLight::Type::Directional,
+		{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250)));
+	DirLights[0]->CreateShadowMap(Device, 2048);
+	DirLights[0]->GetPosition().x = -9.f;
+	DirLights[0]->GetPosition().y = 105.f;
+	DirLights[0]->GetPosition().z = -22.f;
+	DirLights[0]->Direction.x = 71.f;
+	DirLights[0]->Direction.y = -2.f;
+	DirLights[0]->Direction.z = -83.f;
+
+	DirLights[0]->SetProjectionParameters(60.f,60.f,-1.f,300.f);
+	DirLights[0]->lightFlux = 25.f;
+	DirLights[0]->lightIlluminance = 1.0409f;
+
+	// PointLights.resize(1u);
+
+
 
 	//PointLights[0] = std::make_shared<FLight>(
 	//	FLight(
@@ -281,7 +295,11 @@ void Renderer::Editor()&
 	{
 		if (ImGui::CollapsingHeader("Add Light"))
 		{
-			static float ShadowMapSize = 0.0f;
+			static int32 ShadowMapSize = 0.0f;
+			if (ImGui::InputInt("ShadowMapSize", &ShadowMapSize))
+			{
+
+			}
 
 			if (ImGui::Button("Directional"))
 			{
@@ -290,6 +308,7 @@ void Renderer::Editor()&
 						{ 0,0,0,0 }, (const D3DXCOLOR&)Color::sRGBToLinear(250, 250, 250))
 					);
 				DirLights.push_back(_Insert);
+				_Insert->CreateShadowMap(Device, ShadowMapSize);
 				_Insert->SetProjectionParameters(7.1f, 7.1f, -20.f, +20.f);
 			}
 
@@ -301,6 +320,7 @@ void Renderer::Editor()&
 						{ 1,1,1,1 }));
 
 				PointLights.push_back(_Insert);
+				_Insert->CreateShadowMap(Device, ShadowMapSize);
 				_Insert->SetProjectionParameters(0, 0, 0.1f, 10.0f);
 			};
 		};
@@ -355,7 +375,6 @@ void Renderer::RenderReady()&
 {
 	RenderReadyEntitys();
 	ReadyRenderInfo();
-
 	// TestLightRotation();
 };
 
@@ -622,6 +641,12 @@ void Renderer::DeferredShading()
 		device->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 		device->SetSamplerState(i, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 		device->SetSamplerState(i, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+
+	}
+
+	for (int i = 3; i < 5; ++i)
+	{
+		device->SetSamplerState(i, D3DSAMP_BORDERCOLOR, 0xffffffff);
 	}
 
 	device->SetTexture(0, albedo);
@@ -751,6 +776,10 @@ void Renderer::DeferredShading()
 }
 void Renderer::RenderScene(LPD3DXEFFECT effect, const D3DXMATRIX& viewproj)
 {
+	return;
+
+
+
 	D3DXMATRIX	inv;
 	D3DXMATRIX	world[4];
 	D3DXVECTOR4	uv(1, 1, 1, 1);

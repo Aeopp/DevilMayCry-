@@ -502,14 +502,19 @@ void FLight::CreateShadowMap(LPDIRECT3DDEVICE9 device, uint16_t size)
 	if (_Type == Directional) {
 		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Shadowmap, NULL);
 		device->CreateTexture(size, size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Blurredshadowmap, NULL);
-
-		device->CreateDepthStencilSurface(size,size,
-			D3DFMT_D24X8,D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_NONE,
-			0, TRUE, &DepthStencil, nullptr);
 	}
 	else if (_Type == Point) {
 		device->CreateCubeTexture(size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Cubeshadowmap, NULL);
 		device->CreateCubeTexture(size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_G32R32F, D3DPOOL_DEFAULT, &Blurredcubeshadowmap, NULL);
+	}
+
+	D3DVIEWPORT9 viewport; 
+	device->GetViewport(&viewport);
+	if (size > viewport.Y)
+	{
+		device->CreateDepthStencilSurface(size, size,
+			D3DFMT_D24X8, D3DMULTISAMPLE_TYPE::D3DMULTISAMPLE_NONE,
+			0, TRUE, &DepthStencil, nullptr);
 	}
 }
 
@@ -537,15 +542,22 @@ void FLight::RenderShadowMap(
 		_Device->SetRenderTarget(0, Surface);
 		_Device->SetViewport(&Viewport);
 
+
 		LPDIRECT3DSURFACE9 OldDepthStencil = NULL;
-		_Device->GetDepthStencilSurface(&OldDepthStencil);
-		_Device->SetDepthStencilSurface(DepthStencil);
+		if (DepthStencil)
+		{
+			_Device->GetDepthStencilSurface(&OldDepthStencil);
+			_Device->SetDepthStencilSurface(DepthStencil);
+		}
 		{
 			CallBack(this);
 		}
 		Surface->Release();
-		_Device->SetDepthStencilSurface(OldDepthStencil);
-		OldDepthStencil->Release();
+		if (DepthStencil)
+		{
+			_Device->SetDepthStencilSurface(OldDepthStencil);
+			OldDepthStencil->Release();
+		}
 	}
 	else if (_Type == Point) {
 		for (Currentface= 0; Currentface < 6; ++Currentface) {
@@ -560,10 +572,21 @@ void FLight::RenderShadowMap(
 
 			_Device->SetRenderTarget(0, Surface);
 			_Device->SetViewport(&Viewport);
+			LPDIRECT3DSURFACE9 OldDepthStencil = NULL;
+			if (DepthStencil)
+			{
+				_Device->GetDepthStencilSurface(&OldDepthStencil);
+				_Device->SetDepthStencilSurface(DepthStencil);
+			}
 			{
 				CallBack(this);
 			}
 			Surface->Release();
+			if (DepthStencil)
+			{
+				_Device->SetDepthStencilSurface(OldDepthStencil);
+				OldDepthStencil->Release();
+			}
 		}
 	}
 
